@@ -13,3 +13,6 @@ node_modules/
 
 # local tooling (not part of the deployed site)
 .claude/
+
+# generated preview (single-file artifact export)
+scripts/preview.html
