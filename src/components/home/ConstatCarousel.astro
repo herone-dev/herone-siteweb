@@ -164,7 +164,7 @@ const cards = [
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    transition: transform var(--dur-slow) var(--ease-out), box-shadow var(--dur-slow) var(--ease-out);
+    transition: transform 260ms cubic-bezier(.4,0,.2,1), box-shadow 260ms cubic-bezier(.4,0,.2,1);
   }
 
   .hrn-constat__card:hover {
@@ -234,20 +234,19 @@ const cards = [
   }
 
   .hrn-constat__dots button {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    border: none;
+    width: 28px;
+    height: 3px;
+    flex: none;
+    border-radius: 2px;
     padding: 0;
-    background: var(--border-strong);
     cursor: pointer;
-    transition: background var(--dur-fast) var(--ease-standard), width var(--dur-fast) var(--ease-standard);
+    border: 0;
+    background: var(--border-strong);
+    transition: background 320ms cubic-bezier(.4,0,.2,1);
   }
 
   .hrn-constat__dots button[aria-current='true'] {
-    background: var(--accent);
-    width: 22px;
-    border-radius: var(--radius-full);
+    background: var(--amber-600);
   }
 
   .hrn-constat__summary {
@@ -289,7 +288,7 @@ const cards = [
     let page = 0;
 
     const perPage = () => (window.matchMedia('(min-width: 820px)').matches ? 3 : 1);
-    const pageCount = () => Math.ceil(cardCount / perPage());
+    const pageCount = () => cardCount - perPage() + 1;
 
     const buildDots = () => {
       dotsEl.innerHTML = '';
@@ -305,7 +304,13 @@ const cards = [
     const render = () => {
       const max = pageCount() - 1;
       if (page > max) page = max;
-      track.style.transform = `translateX(-${page * viewport.clientWidth}px)`;
+
+      const firstCard = track.firstElementChild as HTMLElement | null;
+      if (firstCard) {
+        const cardWidth = firstCard.clientWidth;
+        track.style.transform = `translateX(-${page * (cardWidth + 16)}px)`;
+      }
+
       prevBtn.disabled = page === 0;
       nextBtn.disabled = page === max;
       [...dotsEl.children].forEach((dot, i) => dot.setAttribute('aria-current', String(i === page)));
