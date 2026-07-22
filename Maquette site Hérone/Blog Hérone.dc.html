@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/elevation.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/motion.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/semantic.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/styles.css">
+  <script src="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/_ds_bundle.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;background:#EFEADB}
+    body{margin:0;background:#EFEADB;color:var(--text-primary);font-family:var(--font-sans);-webkit-font-smoothing:antialiased}
+    a{color:var(--link);text-decoration:none}
+    a:hover{color:var(--link-hover)}
+    ::selection{background:var(--slate-200);color:var(--ink-950)}
+    .hrn-btn--accent,.hrn-btn--accent:hover,.hrn-btn--accent:active,.hrn-btn--accent>span,.hrn-btn--accent>span *,.hrn-btn--primary,.hrn-btn--primary>span,.hrn-btn--primary>span *{color:#fff!important;-webkit-text-fill-color:#fff!important;opacity:1!important}
+    input::placeholder{color:var(--text-muted)}
+    @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+  </style>
+</helmet>
+<div id="hrn-blog-root" style="width:100%;min-width:0;position:relative;overflow-x:hidden;background:var(--paper);min-height:100vh;display:flex;flex-direction:column">
+
+  <header style="position:fixed;top:0;left:0;right:0;z-index:50;background:color-mix(in srgb, var(--paper) 72%, transparent);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--border)">
+    <div style="max-width:var(--container-wide);margin:0 auto;padding:0 clamp(20px,5vw,48px);height:68px;display:flex;align-items:center;justify-content:space-between;gap:24px">
+      <a href="LP Hérone.dc.html" style="display:inline-flex;align-items:center;text-decoration:none">
+        <span style="font-family:var(--font-display);font-weight:800;font-size:26px;letter-spacing:0.01em;color:var(--text-strong)">HÉRONE</span>
+      </a>
+      <sc-if value="{{ showDesktopNav }}" hint-placeholder-val="{{ true }}">
+        <nav style="display:flex;align-items:center;gap:28px">
+          <a href="LP Hérone.dc.html#systemes" style="font-size:15px;font-weight:500;color:var(--text-primary)">Systèmes</a>
+          <a href="LP Hérone.dc.html#fondateurs" style="font-size:15px;font-weight:500;color:var(--text-primary)">À propos</a>
+          <a href="tel:+33663710598" style="font-size:15px;font-weight:500;color:var(--text-secondary);font-family:var(--font-mono)">06 63 71 05 98</a>
+          <x-import component-from-global-scope="HRoneDesignSystem_c54fc9.Button" variant="accent" size="md" href="LP Hérone.dc.html#reserver" hint-size="180px,44px">Réserver 30 minutes</x-import>
+        </nav>
+      </sc-if>
+      <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+        <x-import component-from-global-scope="HRoneDesignSystem_c54fc9.Button" variant="accent" size="sm" href="LP Hérone.dc.html#reserver" hint-size="130px,36px">Réserver</x-import>
+      </sc-if>
+    </div>
+  </header>
+
+  <main style="flex:1;padding-top:68px">
+    <section style="background:var(--slate-900);color:var(--text-inverse);padding:clamp(44px,6vw,72px) 0 clamp(36px,4vw,52px);position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;background-image:radial-gradient(color-mix(in srgb,#fff 7%,transparent) 1px, transparent 1px);background-size:26px 26px;background-position:-13px -13px;pointer-events:none"></div>
+      <div style="position:relative;max-width:860px;margin:0 auto;padding:0 clamp(20px,5vw,48px)">
+        <div style="font-family:var(--font-mono);font-weight:500;font-size:var(--text-xs);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--amber-300)">Le blog Hérone</div>
+        <h1 style="font-family:var(--font-display);font-weight:800;font-size:clamp(2rem,4.6vw,3.4rem);line-height:1.04;letter-spacing:-0.025em;color:var(--text-inverse);margin:14px 0 0;max-width:18ch;text-wrap:balance">Automatiser, concrètement.</h1>
+        <p style="font-size:clamp(1.05rem,1.5vw,1.25rem);line-height:1.55;color:var(--ink-200);max-width:56ch;margin:16px 0 0;text-wrap:pretty">Des cas réels, des méthodes, des systèmes qui font gagner des heures aux TPE et PME. Cherchez un sujet ou parcourez par thème.</p>
+        <label style="display:flex;align-items:center;gap:10px;margin-top:28px;max-width:520px;background:color-mix(in srgb,#fff 9%,transparent);border:1px solid var(--border-inverse);border-radius:var(--radius-md);padding:0 14px;height:50px">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--ink-300)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" value="{{ query }}" onInput="{{ onSearch }}" placeholder="Rechercher un sujet, un outil, un métier…" style="flex:1;border:0;background:transparent;outline:none;font-family:var(--font-sans);font-size:16px;color:var(--text-inverse);min-width:0" />
+          <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}">
+            <button type="button" onClick="{{ clearSearch }}" aria-label="Effacer" style="border:0;background:transparent;cursor:pointer;color:var(--ink-300);display:grid;place-items:center;padding:4px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
+          </sc-if>
+        </label>
+      </div>
+    </section>
+
+    <section style="padding:clamp(24px,3vw,32px) 0 clamp(56px,8vw,88px)">
+      <div style="max-width:860px;margin:0 auto;padding:0 clamp(20px,5vw,48px)">
+        <div style="display:flex;flex-wrap:wrap;gap:8px;position:sticky;top:68px;z-index:20;background:var(--paper);padding:12px 0;margin-bottom:8px">
+          <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="5">
+            <button type="button" onClick="{{ cat.select }}" style="font-family:var(--font-sans);font-size:14px;font-weight:600;padding:7px 15px;border-radius:var(--radius-full);cursor:pointer;border:1px solid {{ cat.border }};background:{{ cat.bg }};color:{{ cat.fg }};transition:background var(--dur),border-color var(--dur),color var(--dur)">{{ cat.label }}</button>
+          </sc-for>
+        </div>
+
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:8px 0 4px;border-bottom:1px solid var(--border)">
+          <span style="font-family:var(--font-mono);font-size:12px;letter-spacing:0.04em;text-transform:uppercase;color:var(--text-secondary)">{{ resultLabel }}</span>
+          <span style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted)">Trié par date</span>
+        </div>
+
+        <sc-if value="{{ hasResults }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:14px;margin-top:16px">
+            <sc-for list="{{ visible }}" as="post" hint-placeholder-count="6">
+              <a href="{{ post.href }}" style="display:block;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;text-decoration:none;box-shadow:var(--shadow-xs);transition:box-shadow var(--dur) var(--ease-standard),transform var(--dur) var(--ease-standard),border-color var(--dur)" style-hover="box-shadow:var(--shadow-md);transform:translateY(-2px);border-color:var(--border-strong)">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                  <span style="width:8px;height:8px;border-radius:50%;flex:none;background:{{ post.dot }}"></span>
+                  <span style="font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:{{ post.catColor }}">{{ post.cat }}</span>
+                  <span style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted)">· {{ post.meta }}</span>
+                </div>
+                <h2 style="font-family:var(--font-display);font-weight:700;font-size:clamp(1.2rem,1.9vw,1.5rem);line-height:1.16;letter-spacing:-0.015em;color:var(--text-strong);margin:9px 0 5px;text-wrap:pretty">{{ post.title }}</h2>
+                <p style="margin:0;font-size:15.5px;line-height:1.55;color:var(--text-secondary);max-width:70ch">{{ post.excerpt }}</p>
+                <span style="display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:var(--slate-600);margin-top:12px">Lire l'article<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+              </a>
+            </sc-for>
+          </div>
+          <sc-if value="{{ canLoadMore }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;justify-content:center;margin-top:36px">
+              <x-import component-from-global-scope="HRoneDesignSystem_c54fc9.Button" variant="secondary" size="lg" onClick="{{ loadMore }}" hint-size="220px,52px">Charger plus d'articles</x-import>
+            </div>
+          </sc-if>
+        </sc-if>
+        <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:56px 0;text-align:center">
+            <p style="font-family:var(--font-display);font-weight:700;font-size:1.3rem;color:var(--text-strong);margin:0">Aucun article pour cette recherche.</p>
+            <p style="font-size:15px;color:var(--text-secondary);margin:8px 0 20px">Essayez un autre mot-clé, ou parcourez tous les articles.</p>
+            <x-import component-from-global-scope="HRoneDesignSystem_c54fc9.Button" variant="secondary" size="md" onClick="{{ resetAll }}" hint-size="180px,44px">Voir tous les articles</x-import>
+          </div>
+        </sc-if>
+
+        <div style="margin-top:clamp(48px,6vw,72px);background:var(--slate-900);border-radius:var(--radius-xl);padding:clamp(28px,4vw,44px);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px">
+          <div>
+            <h3 style="font-family:var(--font-display);font-weight:800;font-size:clamp(1.4rem,2.4vw,1.9rem);line-height:1.1;letter-spacing:-0.02em;color:var(--text-inverse);margin:0;max-width:22ch;text-wrap:balance">Un de ces cas ressemble au vôtre ?</h3>
+            <p style="font-size:15.5px;line-height:1.55;color:var(--ink-300);margin:10px 0 0;max-width:44ch">Trente minutes pour repérer, chez vous, ce qu'on peut automatiser.</p>
+          </div>
+          <x-import component-from-global-scope="HRoneDesignSystem_c54fc9.Button" variant="accent" size="lg" href="LP Hérone.dc.html#reserver" hint-size="220px,52px">Réserver 30 minutes</x-import>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer style="background:var(--ink-950);color:var(--ink-300);padding:clamp(48px,6vw,72px) 0 32px">
+    <div style="max-width:var(--container-max);margin:0 auto;padding:0 clamp(20px,5vw,48px)">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:32px">
+        <div style="min-width:200px">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:24px;color:var(--text-inverse)">HÉRONE</div>
+          <p style="margin:12px 0 0;font-size:14px;line-height:1.6;color:var(--ink-300);max-width:32ch">Systèmes automatisés et IA sur mesure pour les TPE et PME du Grand Ouest.</p>
+          <p style="margin:14px 0 0;font-size:14px;line-height:1.6;color:var(--ink-300)">37 rue Édouard Branly<br>Les Herbiers 85500</p>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--ink-400);margin-bottom:14px">Site</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <a href="LP Hérone.dc.html#systemes" style="font-size:14px;color:var(--ink-100)">Systèmes</a>
+            <a href="LP Hérone.dc.html#fondateurs" style="font-size:14px;color:var(--ink-100)">À propos</a>
+            <a href="LP Hérone.dc.html#reserver" style="font-size:14px;color:var(--ink-100)">Réserver un appel</a>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--ink-400);margin-bottom:14px">Ressources</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <a href="#" style="font-size:14px;color:var(--ink-100)">Blog</a>
+            <a href="mailto:contact@herone.fr" style="font-size:14px;color:var(--ink-100)">contact@herone.fr</a>
+            <a href="tel:+33663710598" style="font-size:14px;color:var(--ink-100);font-family:var(--font-mono)">06 63 71 05 98</a>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--ink-400);margin-bottom:14px">Légal</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <a href="#" style="font-size:14px;color:var(--ink-100)">Mentions légales</a>
+            <a href="#" style="font-size:14px;color:var(--ink-100)">Confidentialité</a>
+            <a href="#" style="font-size:14px;color:var(--ink-100)">Cookies</a>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:40px;padding-top:24px;border-top:1px solid var(--border-inverse);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:var(--ink-400)">© 2026 Hérone · Les Herbiers, Vendée</span>
+        <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-400)">L'IA sort l'humain des tâches mécaniques</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { w: 1200, query: '', cat: 'Tout', shown: 6 };
+  POSTS = [
+    { slug: 'comptes-rendus', cat: 'Automatisation', title: 'Automatiser ses comptes rendus de réunion', excerpt: "Du boîtier micro au compte rendu envoyé : comment supprimer la prise de notes et la ressaisie après chaque rendez-vous.", meta: '4 min · 12 juil 2026' },
+    { slug: 'devis-excel', cat: 'Devis', title: 'Arrêter de recalculer ses devis dans Excel', excerpt: "Un système qui reprend vos prix et vos règles pour sortir un devis à jour à chaque variante, sans erreur de copier-coller.", meta: '5 min · 11 juil 2026' },
+    { slug: 'facebook-crm', cat: 'CRM', title: 'Connecter un formulaire Facebook à son CRM', excerpt: "Le lead arrive, il part automatiquement dans le tableur, dans le CRM, et l'équipe reçoit l'alerte. Zéro saisie, aucune fuite.", meta: '3 min · 10 juil 2026' },
+    { slug: 'metre-dwg', cat: 'BTP', title: 'Extraire les métrés d\'un plan DWG automatiquement', excerpt: "L'IA lit le plan, sort les quantités et chiffre les matériaux à partir de votre base de prix. Le métré passe de l\'heure à la minute.", meta: '6 min · 9 juil 2026' },
+    { slug: 'reporting-mensuel', cat: 'Automatisation', title: 'Le reporting mensuel qui se construit tout seul', excerpt: "Plutôt que de reconstituer le tableau chaque fin de mois, on branche les sources et le rapport s\'assemble à date fixe.", meta: '4 min · 8 juil 2026' },
+    { slug: 'relances-clients', cat: 'CRM', title: 'Relancer ses clients sans y penser', excerpt: "Des relances déclenchées au bon moment, avec validation humaine avant l\'envoi quand ça compte. Vous gardez la main.", meta: '3 min · 5 juil 2026' },
+    { slug: 'devis-email', cat: 'Devis', title: 'Transformer un e-mail de demande en devis prérempli', excerpt: "L\'IA lit la demande, identifie les postes et prépare un brouillon de devis que vous n\'avez plus qu\'à valider.", meta: '5 min · 3 juil 2026' },
+    { slug: 'suivi-chantier', cat: 'BTP', title: 'Suivi de chantier : des photos au rapport client', excerpt: "Les photos et notes du terrain deviennent un compte rendu propre, envoyé au client sans repasser par le bureau.", meta: '4 min · 1 juil 2026' },
+    { slug: 'notes-manuscrites', cat: 'Automatisation', title: 'Déchiffrer et ranger les notes manuscrites', excerpt: "Les notes prises à la main sont transcrites, structurées et classées au bon endroit, sans qu\'un collègue ait à les retaper.", meta: '3 min · 28 juin 2026' },
+    { slug: 'tableau-bord', cat: 'CRM', title: 'Un tableau de bord commercial toujours à jour', excerpt: "Les données de vente remontent seules dans un tableau lisible, pour piloter sans ressaisir les chiffres chaque lundi.", meta: '5 min · 25 juin 2026' },
+    { slug: 'chiffrage-renovation', cat: 'BTP', title: 'Chiffrer une rénovation à partir de photos', excerpt: "Une première estimation générée depuis quelques photos et mesures, pour répondre plus vite aux demandes entrantes.", meta: '6 min · 22 juin 2026' },
+    { slug: 'devis-signable', cat: 'Devis', title: 'Envoyer un devis signable en deux clics', excerpt: "Le devis validé part en signature électronique et se classe automatiquement une fois signé. Plus de dossier oublié.", meta: '4 min · 19 juin 2026' },
+  ];
+  componentDidMount() {
+    this.root = document.getElementById('hrn-blog-root');
+    const set = () => { if (this.root) this.setState({ w: this.root.clientWidth }); };
+    set();
+    this._ro = new ResizeObserver(set);
+    if (this.root) this._ro.observe(this.root);
+  }
+  componentWillUnmount() { if (this._ro) this._ro.disconnect(); }
+  renderVals() {
+    const isMobile = this.state.w < 820;
+    const q = this.state.query.trim().toLowerCase();
+    const cats = ['Tout', 'Automatisation', 'Devis', 'CRM', 'BTP'];
+    const filtered = this.POSTS.filter(p => {
+      const okCat = this.state.cat === 'Tout' || p.cat === this.state.cat;
+      const okQ = !q || (p.title + ' ' + p.excerpt + ' ' + p.cat).toLowerCase().includes(q);
+      return okCat && okQ;
+    });
+    const visible = filtered.slice(0, this.state.shown);
+    const CAT_DOT = { Automatisation: 'var(--amber-500)', Devis: 'var(--slate-500)', CRM: 'var(--slate-700)', BTP: 'var(--slate-400)' };
+    const CAT_COLOR = { Automatisation: 'var(--amber-700)', Devis: 'var(--slate-600)', CRM: 'var(--slate-600)', BTP: 'var(--slate-600)' };
+    return {
+      isMobile,
+      showDesktopNav: !isMobile,
+      query: this.state.query,
+      hasQuery: this.state.query.length > 0,
+      onSearch: (e) => this.setState({ query: e.target.value, shown: 6 }),
+      clearSearch: () => this.setState({ query: '', shown: 6 }),
+      resetAll: () => this.setState({ query: '', cat: 'Tout', shown: 6 }),
+      categories: cats.map(c => {
+        const active = this.state.cat === c;
+        return {
+          label: c,
+          bg: active ? 'var(--amber-500)' : 'var(--surface)',
+          fg: active ? '#fff' : 'var(--text-primary)',
+          border: active ? 'var(--amber-500)' : 'var(--border-strong)',
+          select: () => this.setState({ cat: c, shown: 6 }),
+        };
+      }),
+      resultLabel: filtered.length + (filtered.length > 1 ? ' articles' : ' article'),
+      hasResults: filtered.length > 0,
+      noResults: filtered.length === 0,
+      visible: visible.map(p => ({ ...p, dot: CAT_DOT[p.cat] || 'var(--slate-500)', catColor: CAT_COLOR[p.cat] || 'var(--slate-600)', href: 'Article Hérone.dc.html?a=' + p.slug })),
+      canLoadMore: filtered.length > this.state.shown,
+      loadMore: () => this.setState(s => ({ shown: s.shown + 6 })),
+    };
+  }
+}
+</script>
+</body>
+</html>

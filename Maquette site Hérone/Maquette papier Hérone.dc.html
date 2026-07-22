@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="design_doc_mode" content="canvas">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Kalam:wght@300;400;700&display=swap">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#c9c4b6;font-family:'Kalam',cursive;color:#20201c}
+    .sheet{background:#f4efe2;background-image:linear-gradient(#00000008 1px,transparent 1px);background-size:100% 28px;box-shadow:0 24px 60px -20px rgba(0,0,0,.45),0 2px 0 rgba(0,0,0,.06);position:relative}
+    .ink{border:2.5px solid #1e1e1a;border-radius:14px 12px 15px 11px/12px 15px 11px 14px}
+    .ink-thin{border:2px solid #2a2a24;border-radius:10px 12px 9px 13px/13px 9px 12px 10px}
+    .hand{font-family:'Caveat',cursive;font-weight:700}
+    .note{font-family:'Caveat',cursive;font-weight:600;color:#c0392b;transform:rotate(-2deg)}
+    .lines{background:repeating-linear-gradient(#2a2a2455,#2a2a2455 2px,transparent 2px,transparent 11px)}
+    .xbox{position:relative;overflow:hidden}
+    .xbox::before,.xbox::after{content:'';position:absolute;left:-6%;right:-6%;top:50%;height:2px;background:#2a2a2455;transform-origin:center}
+    .xbox::before{transform:rotate(20deg)}.xbox::after{transform:rotate(-20deg)}
+    .tag{font-family:'Caveat',cursive;font-weight:700;font-size:20px;background:#1e1e1a;color:#f4efe2;padding:1px 12px 3px;border-radius:12px 10px 13px 9px;display:inline-block;transform:rotate(-1.5deg)}
+    .pill{border:2px solid #1e1e1a;border-radius:999px;padding:3px 14px 4px;font-family:'Caveat',cursive;font-weight:600;font-size:18px;display:inline-block}
+    .btn{background:#1e1e1a;color:#f4efe2;border-radius:10px 12px 9px 12px;padding:6px 18px 8px;font-family:'Caveat',cursive;font-weight:700;font-size:20px;display:inline-block}
+    .btn-o{border:2.5px solid #1e1e1a;border-radius:10px 12px 9px 12px;padding:5px 16px 7px;font-family:'Caveat',cursive;font-weight:700;font-size:20px;display:inline-block}
+    .h{font-family:'Caveat',cursive;font-weight:700;line-height:1.02;color:#17170f}
+    @keyframes mk-reveal{0%,12%{opacity:0;transform:translateY(16px)}28%,72%{opacity:1;transform:translateY(0)}92%,100%{opacity:1;transform:translateY(0)}}
+    @keyframes mk-draw{0%,8%{transform:scaleY(0)}55%,100%{transform:scaleY(1)}}
+    @keyframes mk-dotfill{0%,10%{background:#f4efe2}22%,100%{background:#c0392b}}
+    @keyframes mk-gear{to{transform:rotate(360deg)}}
+    @keyframes mk-gearb{to{transform:rotate(-360deg)}}
+    @keyframes mk-slidein{0%,10%{opacity:0;transform:translateX(26px)}30%,80%{opacity:1;transform:translateX(0)}96%,100%{opacity:0;transform:translateX(-18px)}}
+    @keyframes mk-scrollhint{0%,100%{transform:translateY(0)}50%{transform:translateY(14px)}}
+    @keyframes mk-progress{0%,8%{height:6%}90%,100%{height:100%}}
+    @keyframes mk-phone{0%,20%{transform:translateY(0)}25%,45%{transform:translateY(-92px)}50%,70%{transform:translateY(-184px)}75%,95%{transform:translateY(-276px)}100%{transform:translateY(0)}}
+    @keyframes mk-drawx{0%,8%{transform:scaleX(0)}60%,100%{transform:scaleX(1)}}
+    @keyframes mk-pop{0%,35%{transform:scale(.4);opacity:0}50%,100%{transform:scale(1);opacity:1}}
+    @keyframes mk-numswap{0%,14%{opacity:0;transform:translateY(24px)}24%,76%{opacity:1;transform:translateY(0)}90%,100%{opacity:0;transform:translateY(-24px)}}
+    @keyframes mk-pulse{0%,100%{opacity:.32}42%,58%{opacity:1}}
+    @keyframes mk-barfill{0%,8%{width:6%}90%,100%{width:100%}}
+    @keyframes mk-strip{0%,16%{transform:translateX(0)}25%,37%{transform:translateX(-25%)}46%,58%{transform:translateX(-50%)}67%,79%{transform:translateX(-75%)}88%,100%{transform:translateX(-100%)}}
+    @keyframes mk-flip{0%,30%{transform:perspective(600px) rotateX(-90deg);opacity:0}48%,100%{transform:perspective(600px) rotateX(0);opacity:1}}
+    @keyframes mk-zoomin{0%,30%{transform:scale(.7);opacity:0}50%,100%{transform:scale(1);opacity:1}}
+    @keyframes mk-wipe{0%,10%{clip-path:inset(0 100% 0 0)}55%,100%{clip-path:inset(0 0 0 0)}}
+    @keyframes mk-expand{0%,14%{max-height:48px}42%,88%{max-height:132px}100%{max-height:48px}}
+    @keyframes mk-parallax{0%,100%{transform:translateY(26px)}50%{transform:translateY(-26px)}}
+    @keyframes mk-countup{0%,12%{transform:translateY(0)}100%{transform:translateY(-160px)}}
+    @keyframes mk-growbar{0%,10%{transform:scaleY(.08)}70%,100%{transform:scaleY(1)}}
+    @media (prefers-reduced-motion: reduce){*{animation:none!important}}
+  </style>
+</helmet>
+<div style="padding:64px clamp(24px,5vw,96px) 120px;min-width:2120px">
+
+  <div style="display:flex;align-items:flex-end;gap:18px;margin-bottom:10px">
+    <span class="hand" style="font-size:44px;line-height:1;color:#17170f">Hérone — maquette page d'accueil</span>
+    <span class="note" style="font-size:24px;transform:rotate(-3deg)">V1 · V2 · V3 côte à côte · structure des sections ✎</span>
+  </div>
+  <p class="hand" style="font-size:22px;color:#3a3a30;margin:0 0 30px;max-width:60ch">Jet rapide, comme sur un coin de bureau. On valide l'ordre et le contenu de chaque bloc avant de passer au vrai design.</p>
+
+  <div style="display:flex;gap:120px;align-items:flex-start;margin-bottom:20px">
+  <div style="flex:none;width:920px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><span class="tag" style="font-size:22px">V1</span><span class="hand" style="font-size:24px">Structure initiale</span></div>
+  <div class="sheet" style="width:920px;margin:0 auto;padding:28px;border-radius:6px">
+
+    <div class="ink" style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;margin-bottom:16px">
+      <span class="hand" style="font-size:30px">HÉRONE</span>
+      <div style="display:flex;align-items:center;gap:14px">
+        <span class="hand" style="font-size:19px">Systèmes</span>
+        <span class="hand" style="font-size:19px">À propos</span>
+        <span class="hand" style="font-size:19px;color:#555">06 63 71 05 98</span>
+        <span class="btn" style="font-size:17px;padding:4px 12px 6px">Réserver 30 min</span>
+      </div>
+    </div>
+
+    <div class="ink" style="position:relative;padding:26px 24px;min-height:230px;display:flex;flex-direction:column;justify-content:center;overflow:hidden">
+      <div class="xbox" style="position:absolute;inset:0;opacity:.5"></div>
+      <span class="tag" style="position:absolute;top:12px;left:14px">VIDÉO EN FOND · boucle · muet</span>
+      <span class="pill" style="align-self:flex-start;margin-top:22px">◦ Nos bureaux sont présents en Vendée</span>
+      <div class="h" style="font-size:52px;max-width:15ch;margin:14px 0 6px">Vos tâches répétitives, automatisées.</div>
+      <div class="hand" style="font-size:22px;max-width:46ch;color:#3a3a30">Hérone conçoit et installe des systèmes automatisés pour les TPE et PME.</div>
+      <div style="display:flex;align-items:center;gap:16px;margin-top:18px">
+        <span class="btn">Réserver 30 minutes</span>
+        <span class="hand" style="font-size:19px">↳ ou appelez le 06 63 71 05 98</span>
+      </div>
+    </div>
+
+    <div class="ink" style="padding:20px 22px;margin-top:26px">
+      <span class="tag">① LE CONSTAT</span>
+      <div class="h" style="font-size:30px;margin:12px 0 4px">Ces tâches, quelqu'un les fait à la main.</div>
+      <div class="hand" style="font-size:19px;color:#3a3a30;margin-bottom:16px">On doit se reconnaître en 5 secondes.</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+        <div class="ink-thin" style="padding:10px 12px"><span class="hand" style="font-size:17px">□ ressaisie logiciel → logiciel</span></div>
+        <div class="ink-thin" style="padding:10px 12px"><span class="hand" style="font-size:17px">□ comptes rendus à la main</span></div>
+        <div class="ink-thin" style="padding:10px 12px"><span class="hand" style="font-size:17px">□ devis recalculés Excel</span></div>
+        <div class="ink-thin" style="padding:10px 12px"><span class="hand" style="font-size:17px">□ reporting mensuel refait</span></div>
+        <div class="ink-thin" style="padding:10px 12px"><span class="hand" style="font-size:17px">□ fichiers envoyés 1 par 1</span></div>
+        <div class="ink-thin" style="padding:10px 12px"><span class="hand" style="font-size:17px">□ notes manuscrites déchiffrées</span></div>
+      </div>
+    </div>
+
+    <div class="ink" style="position:relative;padding:20px 22px;margin-top:26px">
+      <span class="tag">② LA MÉTHODE</span>
+      <span class="note" style="position:absolute;right:14px;top:16px;font-size:20px">remontée + haut ✔<br>5 étapes (formation!)</span>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px">
+        <div class="ink-thin" style="padding:10px 8px"><span class="hand" style="font-size:15px;color:#777">01</span><br><span class="hand" style="font-size:17px">Audit</span></div>
+        <div class="ink-thin" style="padding:10px 8px"><span class="hand" style="font-size:15px;color:#777">02</span><br><span class="hand" style="font-size:17px">Conception</span></div>
+        <div class="ink-thin" style="padding:10px 8px"><span class="hand" style="font-size:15px;color:#777">03</span><br><span class="hand" style="font-size:17px">Dév + livraison</span></div>
+        <div class="ink-thin" style="padding:10px 8px"><span class="hand" style="font-size:15px;color:#777">04</span><br><span class="hand" style="font-size:17px">Formation équipes</span></div>
+        <div class="ink-thin" style="padding:10px 8px"><span class="hand" style="font-size:15px;color:#777">05</span><br><span class="hand" style="font-size:17px">Maintenance</span></div>
+      </div>
+    </div>
+
+    <div class="ink" style="padding:20px 22px;margin-top:26px">
+      <span class="tag">③ LES SYSTÈMES</span>
+      <div class="h" style="font-size:28px;margin:12px 0 14px">Déjà en production, pas des promesses.</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+        <div class="ink-thin" style="padding:0;overflow:hidden">
+          <div class="xbox" style="height:96px;border-bottom:2px solid #2a2a24"></div>
+          <div style="padding:10px 12px"><span class="hand" style="font-size:18px">Comptes rendus auto</span><div class="lines" style="height:22px;margin-top:6px"></div></div>
+        </div>
+        <div class="ink-thin" style="padding:0;overflow:hidden">
+          <div style="height:96px;border-bottom:2px solid #2a2a24;display:grid;place-items:center;background:repeating-linear-gradient(135deg,#0000,#0000 8px,#2a2a2422 8px,#2a2a2422 16px)"><span class="hand" style="font-size:16px;color:#666">⏳ démo en prépa</span></div>
+          <div style="padding:10px 12px"><span class="hand" style="font-size:18px">Connexion d'outils</span><div class="lines" style="height:22px;margin-top:6px"></div></div>
+        </div>
+        <div class="ink-thin" style="padding:0;overflow:hidden">
+          <div class="xbox" style="height:96px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="hand" style="font-size:26px;position:relative;z-index:1">▶</span></div>
+          <div style="padding:10px 12px"><span class="hand" style="font-size:18px">Métré auto sur plan</span><div class="lines" style="height:22px;margin-top:6px"></div></div>
+        </div>
+      </div>
+      <span class="note" style="display:inline-block;margin-top:10px;font-size:19px">3 états vignette : capture · démo en prépa · vidéo</span>
+    </div>
+
+    <div class="ink" style="position:relative;padding:20px 22px;margin-top:26px;background:#e9e3d2">
+      <span class="tag">④ PREUVE CLIENT</span>
+      <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:18px;margin-top:14px;align-items:center">
+        <div>
+          <div class="h" style="font-size:26px;max-width:24ch">« Le rendez-vous est enregistré, la fiche client arrive remplie en PDF… »</div>
+          <div class="hand" style="font-size:16px;color:#3a3a30;margin-top:8px">Boîtier micro → transcription + fiche PDF → attribution et envoi</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+            <div class="xbox ink-thin" style="width:42px;height:42px;border-radius:50%"></div>
+            <span class="hand" style="font-size:18px">Tommy & Audrey Rapin · Allianz Les Herbiers</span>
+          </div>
+          <div class="ink-thin" style="display:inline-block;margin-top:12px;padding:6px 14px"><span class="hand" style="font-size:17px">0 saisie · par rendez-vous</span></div>
+        </div>
+        <div class="xbox ink-thin" style="height:150px;display:grid;place-items:center"><span class="hand" style="font-size:28px;position:relative;z-index:1">▶ vidéo témoignage</span></div>
+      </div>
+      <span class="note" style="display:inline-block;margin-top:10px;font-size:18px">bloc fin, pas trop haut ✔</span>
+    </div>
+
+    <div class="ink" style="padding:20px 22px;margin-top:26px">
+      <span class="tag">⑤ RÉSERVER (calendrier)</span>
+      <div style="display:grid;grid-template-columns:1fr 1.1fr;gap:18px;margin-top:14px;align-items:start">
+        <div>
+          <div class="h" style="font-size:24px;max-width:20ch">Trente minutes pour voir ce qu'on peut vous retirer.</div>
+          <div class="hand" style="font-size:16px;color:#3a3a30;margin-top:8px">☎ 06 63 71 05 98 · ✉ contact@herone.fr</div>
+        </div>
+        <div class="ink-thin" style="padding:12px 13px">
+          <span class="hand" style="font-size:17px">Choisissez un créneau</span>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px">
+            <div class="ink-thin" style="padding:6px 2px;text-align:center"><span class="hand" style="font-size:13px">Lun<br>9:00</span></div>
+            <div class="ink-thin" style="padding:6px 2px;text-align:center"><span class="hand" style="font-size:13px">Mar<br>10:30</span></div>
+            <div class="ink-thin" style="padding:6px 2px;text-align:center;background:#1e1e1a;color:#f4efe2"><span class="hand" style="font-size:13px">Mer<br>9:30</span></div>
+            <div class="ink-thin" style="padding:6px 2px;text-align:center"><span class="hand" style="font-size:13px">Jeu<br>11:00</span></div>
+            <div class="ink-thin" style="padding:6px 2px;text-align:center"><span class="hand" style="font-size:13px">Ven<br>9:00</span></div>
+          </div>
+          <div style="text-align:center;margin-top:10px"><span class="btn" style="font-size:16px;padding:4px 14px 6px">Confirmer le créneau</span></div>
+        </div>
+      </div>
+      <span class="note" style="display:inline-block;margin-top:10px;font-size:18px">les boutons « Réserver » du site pointent ici ↑</span>
+    </div>
+
+    <div class="ink" style="padding:20px 22px;margin-top:26px">
+      <span class="tag">⑥ LES FONDATEURS</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px">
+        <div>
+          <div class="h" style="font-size:26px">Nolan Genty & Martin Talon.</div>
+          <div class="lines" style="height:44px;margin-top:8px"></div>
+          <span class="btn-o" style="margin-top:12px;font-size:17px">À propos →</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div><div class="xbox ink-thin" style="height:120px;display:grid;place-items:center"><span class="note" style="font-size:11px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO</span></div><span class="hand" style="font-size:15px">Nolan · Dir. Général</span></div>
+            <div><div class="xbox ink-thin" style="height:120px;display:grid;place-items:center"><span class="note" style="font-size:11px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO</span></div><span class="hand" style="font-size:15px">Martin · Dir. Technique</span></div>
+          </div>
+          <div class="xbox ink-thin" style="height:78px;display:grid;place-items:center;position:relative"><span class="note" style="position:absolute;top:6px;left:8px;font-size:12px;transform:none;color:#8a8a7a">PHOTO</span><span class="hand" style="font-size:16px;position:relative;z-index:1;color:#555">PHOTO bureaux · Les Herbiers</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ink" style="padding:20px 22px;margin-top:26px">
+      <span class="tag">⑦ OBJECTIONS (accordéon · SEO)</span>
+      <span class="note" style="display:inline-block;margin-left:10px;font-size:17px">1 seule ouverte à la fois · ouverture douce</span>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:18px">Combien de temps avant que ça tourne ?</span><span class="hand" style="font-size:20px">＋</span></div>
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:18px">Et si l'outil casse ?</span><span class="hand" style="font-size:20px">＋</span></div>
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:18px">Mes données sortent-elles ?</span><span class="hand" style="font-size:20px">＋</span></div>
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:18px">Un logiciel de plus à apprendre ?</span><span class="hand" style="font-size:20px">＋</span></div>
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:18px">Ça marche avec mes logiciels ?</span><span class="hand" style="font-size:20px">＋</span></div>
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:18px">Combien ça coûte ?</span><span class="hand" style="font-size:20px">＋</span></div>
+      </div>
+    </div>
+
+    <div class="ink" style="padding:18px 22px;margin-top:26px;background:#25251f;color:#f4efe2;border-color:#25251f">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <span class="hand" style="font-size:26px;color:#f4efe2">HÉRONE</span>
+        <span class="hand" style="font-size:17px;color:#d8d2c2">37 rue Édouard Branly, Les Herbiers 85500</span>
+        <span class="hand" style="font-size:17px;color:#d8d2c2">contact@herone.fr · 06 63 71 05 98</span>
+        <span class="hand" style="font-size:17px;color:#d8d2c2">Blog · Mentions · Confidentialité · Cookies</span>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:18px">
+      <span class="note" style="font-size:15px">✎ header translucide (vidéo visible)</span>
+      <span class="note" style="font-size:15px">✎ hero = format vidéo 16/9</span>
+      <span class="note" style="font-size:15px">✎ mobile : bouton Réserver collé en bas</span>
+      <span class="note" style="font-size:15px">✎ bandeau cookies à prévoir</span>
+    </div>
+  </div>
+  </div>
+
+  <div style="flex:none;width:920px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><span class="tag" style="font-size:22px">V2</span><span class="hand" style="font-size:24px">Structure consolidée · 10 sections</span></div>
+  <div class="sheet" style="width:920px;margin:0 auto;padding:28px;border-radius:6px">
+
+    <div class="ink" style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;margin-bottom:16px">
+      <span class="hand" style="font-size:30px">HÉRONE</span>
+      <div style="display:flex;align-items:center;gap:14px">
+        <span class="hand" style="font-size:19px">Systèmes</span>
+        <span class="hand" style="font-size:19px">À propos</span>
+        <span class="hand" style="font-size:19px;color:#555">06 63 71 05 98</span>
+        <span class="btn" style="font-size:17px;padding:4px 12px 6px">Réserver 30 min</span>
+      </div>
+    </div>
+
+    <div class="ink" style="position:relative;padding:26px 24px;min-height:230px;display:flex;flex-direction:column;justify-content:center;overflow:hidden">
+      <div class="xbox" style="position:absolute;inset:0;opacity:.5"></div>
+      <span class="tag" style="position:absolute;top:12px;left:14px">VIDÉO EN FOND · boucle · muet</span>
+      <span class="pill" style="align-self:flex-start;margin-top:22px">◦ Nos bureaux sont présents en Vendée</span>
+      <div class="h" style="font-size:52px;max-width:15ch;margin:14px 0 6px">Vos tâches répétitives, automatisées.</div>
+      <div class="hand" style="font-size:22px;max-width:46ch;color:#3a3a30">Hérone conçoit et installe des systèmes automatisés pour les TPE et PME.</div>
+      <div style="display:flex;align-items:center;gap:16px;margin-top:18px">
+        <span class="btn">Réserver 30 minutes</span>
+        <span class="hand" style="font-size:19px">↳ ou appelez le 06 63 71 05 98</span>
+      </div>
+    </div>
+
+    <div class="ink" style="padding:32px 34px;margin-top:26px">
+      <span class="tag">② LE CONSTAT</span>
+      <div class="h" style="font-size:42px;line-height:1.04;margin:18px 0 8px;max-width:18ch">Ces tâches, quelqu'un les fait à la main.</div>
+      <div style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:18px;color:#3a3a30;margin-bottom:28px">Vous en reconnaissez au moins une dans votre boîte.</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+        <div class="ink-thin" style="padding:0;overflow:hidden">
+          <div class="xbox" style="height:96px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO terrain</span></div>
+          <div style="padding:12px 14px"><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15.5px;font-weight:600;color:#1e1e1a;line-height:1.25">Ressaisie d'un logiciel à l'autre</span></div>
+        </div>
+        <div class="ink-thin" style="padding:0;overflow:hidden">
+          <div class="xbox" style="height:96px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO terrain</span></div>
+          <div style="padding:12px 14px"><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15.5px;font-weight:600;color:#1e1e1a;line-height:1.25">Devis recalculés dans Excel</span></div>
+        </div>
+        <div class="ink-thin" style="padding:0;overflow:hidden">
+          <div class="xbox" style="height:96px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO terrain</span></div>
+          <div style="padding:12px 14px"><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15.5px;font-weight:600;color:#1e1e1a;line-height:1.25">Comptes rendus retapés à la main</span></div>
+        </div>
+        <div class="ink-thin" style="padding:0;overflow:hidden">
+          <div class="xbox" style="height:96px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO terrain</span></div>
+          <div style="padding:12px 14px"><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15.5px;font-weight:600;color:#1e1e1a;line-height:1.25">Reporting mensuel refait</span></div>
+        </div>
+        <div class="ink-thin" style="padding:0;overflow:hidden">
+          <div class="xbox" style="height:96px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO terrain</span></div>
+          <div style="padding:12px 14px"><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15.5px;font-weight:600;color:#1e1e1a;line-height:1.25">Documents envoyés un par un</span></div>
+        </div>
+        <div class="ink-thin" style="padding:0;overflow:hidden">
+          <div class="xbox" style="height:96px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO terrain</span></div>
+          <div style="padding:12px 14px"><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15.5px;font-weight:600;color:#1e1e1a;line-height:1.25">Mails et pièces à trier</span></div>
+        </div>
+      </div>
+      <div style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:18px;font-weight:600;line-height:1.5;color:#20201c;margin-top:26px;max-width:66ch">Des heures chaque semaine, des erreurs de recopie, des retards, et vos équipes sur de la saisie au lieu du client.</div>
+      <div class="note" style="font-size:24px;color:#c0392b;margin-top:14px;transform:none">Ce temps a une meilleure place.</div>
+    </div>
+
+    <div class="ink" style="position:relative;padding:22px 22px;margin-top:26px;background:#1e2b22;border-color:#1e2b22;color:#f4efe2">
+      <span class="tag" style="background:#f4efe2;color:#1e2b22">③ NOTRE CONVICTION</span>
+      <span class="note" style="position:absolute;right:14px;top:16px;font-size:18px;color:#e0a58f">placée haut ✔</span>
+      <div class="h" style="font-size:30px;max-width:26ch;margin:14px 0 6px;color:#f4efe2">L'IA ne remplace pas l'humain, elle le replace là où il apporte de la valeur.</div>
+      <div class="hand" style="font-size:18px;color:#c9d3c6;max-width:52ch">2 à 3 lignes fortes. La machine exécute le mécanique, vos équipes gardent la décision.</div>
+    </div>
+
+    <div class="ink" style="padding:20px 22px;margin-top:26px">
+      <span class="tag">④ CE QU'ON AUTOMATISE</span>
+      <div class="hand" style="font-size:17px;color:#3a3a30;margin:10px 0 14px">Back-end &amp; front-end, illustrés par secteur.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="xbox ink-thin" style="height:118px;display:grid;place-items:center;position:relative"><span class="note" style="position:absolute;top:6px;left:8px;font-size:12px;transform:none;color:#8a8a7a">VIDÉO</span><span class="hand" style="font-size:20px;position:relative;z-index:1;color:#555">VIDÉO démo · back-end : outils connectés</span></div>
+        <div class="xbox ink-thin" style="height:118px;display:grid;place-items:center;position:relative"><span class="note" style="position:absolute;top:6px;left:8px;font-size:12px;transform:none;color:#8a8a7a">VIDÉO</span><span class="hand" style="font-size:20px;position:relative;z-index:1;color:#555">VIDÉO démo · front-end : côté équipes</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        <div class="ink-thin" style="padding:0;overflow:hidden"><div class="xbox" style="height:88px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:11px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO Assurance</span></div><div style="padding:9px 11px"><span class="hand" style="font-size:17px">Assurance</span></div></div>
+        <div class="ink-thin" style="padding:0;overflow:hidden"><div class="xbox" style="height:88px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:11px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO Bâtiment</span></div><div style="padding:9px 11px"><span class="hand" style="font-size:17px">Bâtiment</span></div></div>
+        <div class="ink-thin" style="padding:0;overflow:hidden"><div class="xbox" style="height:88px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:11px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO Industrie</span></div><div style="padding:9px 11px"><span class="hand" style="font-size:17px">Industrie</span></div></div>
+        <div class="ink-thin" style="padding:0;overflow:hidden"><div class="xbox" style="height:88px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:11px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO Services</span></div><div style="padding:9px 11px"><span class="hand" style="font-size:17px">Services</span></div></div>
+      </div>
+    </div>
+
+    <div class="ink" style="padding:20px 22px;margin-top:26px">
+      <span class="tag">⑤ RÉALISATIONS</span>
+      <div class="hand" style="font-size:17px;color:#3a3a30;margin:10px 0 12px">3 à 4 projets livrés · problème → solution → résultat.</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+        <div class="ink-thin" style="padding:0;overflow:hidden"><div class="xbox" style="height:96px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">VIDÉO / capture</span></div><div style="padding:12px 13px"><span class="hand" style="font-size:17px">Comptes rendus auto</span><div style="display:flex;flex-direction:column;gap:5px;margin-top:8px"><span class="hand" style="font-size:14px;color:#c0392b">Problème</span><span class="hand" style="font-size:14px;color:#c0392b">Solution</span><span class="hand" style="font-size:14px;color:#c0392b">Résultat</span></div></div></div>
+        <div class="ink-thin" style="padding:0;overflow:hidden"><div class="xbox" style="height:96px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">CAPTURE écran</span></div><div style="padding:12px 13px"><span class="hand" style="font-size:17px">Métré sur plan DWG</span><div style="display:flex;flex-direction:column;gap:5px;margin-top:8px"><span class="hand" style="font-size:14px;color:#c0392b">Problème</span><span class="hand" style="font-size:14px;color:#c0392b">Solution</span><span class="hand" style="font-size:14px;color:#c0392b">Résultat</span></div></div></div>
+        <div class="ink-thin" style="padding:0;overflow:hidden"><div class="xbox" style="height:96px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">CAPTURE écran</span></div><div style="padding:12px 13px"><span class="hand" style="font-size:17px">Leads → CRM</span><div style="display:flex;flex-direction:column;gap:5px;margin-top:8px"><span class="hand" style="font-size:14px;color:#c0392b">Problème</span><span class="hand" style="font-size:14px;color:#c0392b">Solution</span><span class="hand" style="font-size:14px;color:#c0392b">Résultat</span></div></div></div>
+      </div>
+    </div>
+
+    <div class="ink" style="position:relative;padding:20px 22px;margin-top:26px;background:#e9e3d2">
+      <span class="tag">⑥ TÉMOIGNAGES</span>
+      <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:18px;margin-top:14px;align-items:center">
+        <div>
+          <div class="h" style="font-size:26px;max-width:24ch">« Le rendez-vous est enregistré, la fiche client arrive remplie en PDF… »</div>
+          <div class="hand" style="font-size:16px;color:#3a3a30;margin-top:8px">Boîtier micro → transcription + fiche PDF → attribution et envoi</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+            <div class="xbox ink-thin" style="width:42px;height:42px;border-radius:50%"></div>
+            <span class="hand" style="font-size:18px">Tommy &amp; Audrey Rapin · Allianz Les Herbiers</span>
+          </div>
+          <div class="ink-thin" style="display:inline-block;margin-top:12px;padding:6px 14px"><span class="hand" style="font-size:17px">0 saisie · par rendez-vous</span></div>
+        </div>
+        <div class="xbox ink-thin" style="height:150px;display:grid;place-items:center"><span class="hand" style="font-size:28px;position:relative;z-index:1">▶ vidéo Tommy Rapin</span></div>
+      </div>
+      <span class="note" style="display:inline-block;margin-top:10px;font-size:18px">phrase forte extraite → réutilisée dans le hero</span>
+    </div>
+
+    <div class="ink" style="position:relative;padding:20px 22px;margin-top:26px">
+      <span class="tag">⑦ LA MÉTHODE</span>
+      <span class="note" style="position:absolute;right:14px;top:16px;font-size:18px">audit-first · audit gratuit</span>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:14px">
+        <div class="ink-thin" style="padding:9px 6px"><span class="hand" style="font-size:13px;color:#777">01</span><br><span class="hand" style="font-size:14px">Audit gratuit</span></div>
+        <div class="ink-thin" style="padding:9px 6px"><span class="hand" style="font-size:13px;color:#777">02</span><br><span class="hand" style="font-size:14px">Conception</span></div>
+        <div class="ink-thin" style="padding:9px 6px"><span class="hand" style="font-size:13px;color:#777">03</span><br><span class="hand" style="font-size:14px">Développement</span></div>
+        <div class="ink-thin" style="padding:9px 6px"><span class="hand" style="font-size:13px;color:#777">04</span><br><span class="hand" style="font-size:14px">Déploiement</span></div>
+        <div class="ink-thin" style="padding:9px 6px"><span class="hand" style="font-size:13px;color:#777">05</span><br><span class="hand" style="font-size:14px">Accompagnement</span></div>
+        <div class="ink-thin" style="padding:9px 6px"><span class="hand" style="font-size:13px;color:#777">06</span><br><span class="hand" style="font-size:14px">Maintenance</span></div>
+      </div>
+    </div>
+
+    <div class="ink" style="padding:20px 22px;margin-top:26px">
+      <span class="tag">⑧ QUI SOMMES-NOUS</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px">
+        <div>
+          <div class="h" style="font-size:24px">Nolan Genty &amp; Martin Talon.</div>
+          <div class="hand" style="font-size:16px;color:#3a3a30;margin-top:6px">Ancrage vendéen, proximité, notre conviction à travers notre histoire.</div>
+          <span class="btn-o" style="margin-top:12px;font-size:16px">À propos →</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div><div class="xbox ink-thin" style="height:120px;display:grid;place-items:center"><span class="note" style="font-size:11px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO</span></div><span class="hand" style="font-size:15px">Nolan · Dir. Général</span></div>
+            <div><div class="xbox ink-thin" style="height:120px;display:grid;place-items:center"><span class="note" style="font-size:11px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO</span></div><span class="hand" style="font-size:15px">Martin · Dir. Technique</span></div>
+          </div>
+          <div class="xbox ink-thin" style="height:78px;display:grid;place-items:center;position:relative"><span class="note" style="position:absolute;top:6px;left:8px;font-size:12px;transform:none;color:#8a8a7a">PHOTO</span><span class="hand" style="font-size:16px;position:relative;z-index:1;color:#555">PHOTO bureaux · Les Herbiers</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ink" style="padding:20px 22px;margin-top:26px">
+      <span class="tag">⑨ FAQ (objections · SEO)</span>
+      <span class="note" style="display:inline-block;margin-left:10px;font-size:16px">1 seule ouverte · ouverture douce</span>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:17px">Sécurité &amp; confidentialité des données ?</span><span class="hand" style="font-size:20px">＋</span></div>
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:17px">Que couvre la maintenance ?</span><span class="hand" style="font-size:20px">＋</span></div>
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:17px">Comment se déroule un projet ?</span><span class="hand" style="font-size:20px">＋</span></div>
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:17px">Êtes-vous conformes au RGPD ?</span><span class="hand" style="font-size:20px">＋</span></div>
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:17px">Ça marche avec mes logiciels ?</span><span class="hand" style="font-size:20px">＋</span></div>
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:17px">Combien ça coûte ?</span><span class="hand" style="font-size:20px">＋</span></div>
+      </div>
+    </div>
+
+    <div class="ink" style="position:relative;padding:20px 22px;margin-top:26px;background:#1e2b22;border-color:#1e2b22;color:#f4efe2">
+      <span class="tag" style="background:#f4efe2;color:#1e2b22">⑩ APPEL FINAL</span>
+      <div style="display:grid;grid-template-columns:1fr 1.1fr;gap:18px;margin-top:14px;align-items:center">
+        <div>
+          <div class="h" style="font-size:24px;max-width:20ch;color:#f4efe2">Réservez votre audit gratuit.</div>
+          <div class="pill" style="margin-top:10px;font-size:15px;border-color:#e0a58f;color:#e0a58f">◦ audit gratuit, sans engagement</div>
+        </div>
+        <div class="ink-thin" style="padding:12px 13px;border-color:#5b6b5f">
+          <span class="hand" style="font-size:16px;color:#f4efe2">Choisissez un créneau</span>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px">
+            <div class="ink-thin" style="padding:6px 2px;text-align:center;border-color:#5b6b5f"><span class="hand" style="font-size:12px;color:#c9d3c6">Lun<br>9:00</span></div>
+            <div class="ink-thin" style="padding:6px 2px;text-align:center;border-color:#5b6b5f"><span class="hand" style="font-size:12px;color:#c9d3c6">Mar<br>10:30</span></div>
+            <div class="ink-thin" style="padding:6px 2px;text-align:center;background:#f4efe2"><span class="hand" style="font-size:12px;color:#1e2b22">Mer<br>9:30</span></div>
+            <div class="ink-thin" style="padding:6px 2px;text-align:center;border-color:#5b6b5f"><span class="hand" style="font-size:12px;color:#c9d3c6">Jeu<br>11:00</span></div>
+            <div class="ink-thin" style="padding:6px 2px;text-align:center;border-color:#5b6b5f"><span class="hand" style="font-size:12px;color:#c9d3c6">Ven<br>9:00</span></div>
+          </div>
+          <div style="text-align:center;margin-top:10px"><span class="btn" style="font-size:15px;padding:4px 14px 6px;background:#f4efe2;color:#1e2b22">Confirmer le créneau</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ink" style="padding:18px 22px;margin-top:26px;background:#25251f;color:#f4efe2;border-color:#25251f">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <span class="hand" style="font-size:26px;color:#f4efe2">HÉRONE</span>
+        <span class="hand" style="font-size:17px;color:#d8d2c2">37 rue Édouard Branly, Les Herbiers 85500</span>
+        <span class="hand" style="font-size:17px;color:#d8d2c2">contact@herone.fr · 06 63 71 05 98</span>
+        <span class="hand" style="font-size:17px;color:#d8d2c2">Blog · Mentions · Confidentialité · Cookies</span>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:18px">
+      <span class="note" style="font-size:15px">✎ header translucide (vidéo visible)</span>
+      <span class="note" style="font-size:15px">✎ photos réelles + vidéos partout (pas de pictos)</span>
+      <span class="note" style="font-size:15px">✎ conviction placée haut (③)</span>
+      <span class="note" style="font-size:15px">✎ mobile : bouton Réserver collé en bas</span>
+      <span class="note" style="font-size:15px">✎ bandeau cookies à prévoir</span>
+    </div>
+  </div>
+  </div>
+
+  <div style="flex:none;width:920px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><span class="tag" style="font-size:22px">V3</span><span class="hand" style="font-size:24px">Nos systèmes en avant · rubans d'outils</span></div>
+  <div class="sheet" style="width:920px;margin:0 auto;padding:28px;border-radius:6px">
+
+    <div class="ink" style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;margin-bottom:16px">
+      <span class="hand" style="font-size:30px">HÉRONE</span>
+      <div style="display:flex;align-items:center;gap:14px">
+        <span class="hand" style="font-size:19px">Systèmes</span>
+        <span class="hand" style="font-size:19px">À propos</span>
+        <span class="hand" style="font-size:19px;color:#555">06 63 71 05 98</span>
+        <span class="btn" style="font-size:17px;padding:4px 12px 6px">Réserver 30 min</span>
+      </div>
+    </div>
+
+    <div class="ink" style="position:relative;padding:48px 24px 26px;min-height:360px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden">
+      <div class="xbox" style="position:absolute;inset:0;opacity:.5"></div>
+      <span class="tag" style="position:absolute;top:12px;left:14px">VIDÉO EN FOND · boucle · muet</span>
+      <div class="h" style="font-size:52px;max-width:15ch;margin:0 0 8px">Vos tâches répétitives, automatisées</div>
+      <div class="hand" style="font-size:22px;max-width:46ch;color:#3a3a30">Hérone conçoit et installe des systèmes automatisés pour les TPE et PME.</div>
+      <div style="display:flex;gap:34px;margin-top:34px;padding-top:20px;border-top:2px solid #2a2a24">
+        <div><div class="h" style="font-size:22px">Sur mesure</div><div class="hand" style="font-size:15px;color:#555">Aucun logiciel imposé</div></div>
+        <div style="width:2px;background:#2a2a24"></div>
+        <div><div class="h" style="font-size:22px">Humain</div><div class="hand" style="font-size:15px;color:#555">Vos équipes retrouvent du temps</div></div>
+        <div style="width:2px;background:#2a2a24"></div>
+        <div><div class="h" style="font-size:22px">Local</div><div class="hand" style="font-size:15px;color:#555">Basés aux Herbiers</div></div>
+      </div>
+    </div>
+
+    <div class="ink" style="padding:32px 34px;margin-top:26px">
+      <span class="tag">② LE CONSTAT</span>
+      <div class="h" style="font-size:42px;line-height:1.04;margin:18px 0 8px;max-width:18ch">Ces tâches, quelqu'un les fait à la main.</div>
+      <div style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:18px;color:#3a3a30;margin-bottom:28px">Vous en reconnaissez au moins une dans votre boîte.</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+        <div class="ink-thin" style="padding:0;overflow:hidden">
+          <div class="xbox" style="height:96px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO terrain</span></div>
+          <div style="padding:12px 14px"><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15.5px;font-weight:600;color:#1e1e1a;line-height:1.25">Ressaisie d'un logiciel à l'autre</span></div>
+        </div>
+        <div class="ink-thin" style="padding:0;overflow:hidden">
+          <div class="xbox" style="height:96px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO terrain</span></div>
+          <div style="padding:12px 14px"><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15.5px;font-weight:600;color:#1e1e1a;line-height:1.25">Devis recalculés dans Excel</span></div>
+        </div>
+        <div class="ink-thin" style="padding:0;overflow:hidden">
+          <div class="xbox" style="height:96px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO terrain</span></div>
+          <div style="padding:12px 14px"><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15.5px;font-weight:600;color:#1e1e1a;line-height:1.25">Comptes rendus retapés à la main</span></div>
+        </div>
+        <div class="ink-thin" style="padding:0;overflow:hidden">
+          <div class="xbox" style="height:96px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO terrain</span></div>
+          <div style="padding:12px 14px"><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15.5px;font-weight:600;color:#1e1e1a;line-height:1.25">Reporting mensuel refait</span></div>
+        </div>
+        <div class="ink-thin" style="padding:0;overflow:hidden">
+          <div class="xbox" style="height:96px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO terrain</span></div>
+          <div style="padding:12px 14px"><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15.5px;font-weight:600;color:#1e1e1a;line-height:1.25">Documents envoyés un par un</span></div>
+        </div>
+        <div class="ink-thin" style="padding:0;overflow:hidden">
+          <div class="xbox" style="height:96px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO terrain</span></div>
+          <div style="padding:12px 14px"><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15.5px;font-weight:600;color:#1e1e1a;line-height:1.25">Mails et pièces à trier</span></div>
+        </div>
+      </div>
+      <div style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:18px;font-weight:600;line-height:1.5;color:#20201c;margin-top:26px;max-width:66ch">Des heures chaque semaine, des erreurs de recopie, des retards, et vos équipes sur de la saisie au lieu du client.</div>
+      <div class="note" style="font-size:24px;color:#c0392b;margin-top:14px;transform:none">Ce temps a une meilleure place.</div>
+    </div>
+
+    <div class="ink" style="position:relative;padding:24px 24px;margin-top:26px;background:#e9e3d2">
+      <span class="tag">③ NOS SYSTÈMES</span>
+      <span class="note" style="position:absolute;right:14px;top:16px;font-size:17px">nos cas livrés · problème / solution / résultat</span>
+      <div class="h" style="font-size:32px;margin:14px 0 2px">Nos systèmes</div>
+      <div style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:16px;color:#3a3a30;margin-bottom:16px">Voici ce qu'on installe pour régler ça.</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px">
+        <div class="ink-thin" style="padding:0;overflow:hidden;display:flex;flex-direction:column">
+          <div class="xbox" style="height:88px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">Cas client · capture</span></div>
+          <div style="padding:13px 14px"><span class="hand" style="font-size:18px">Fiche client automatique</span><div style="display:flex;gap:9px;margin-top:5px"><span class="hand" style="flex:none;width:78px;font-size:14px;color:#c0392b">Problème</span><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:13.5px;line-height:1.4;color:#3a3a30">fiche retapée à la main après chaque RDV</span></div><div style="display:flex;gap:9px;margin-top:5px"><span class="hand" style="flex:none;width:78px;font-size:14px;color:#c0392b">Solution</span><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:13.5px;line-height:1.4;color:#3a3a30">boîtier micro → IA transcrit → fiche PDF → envoi</span></div><div style="display:flex;gap:9px;margin-top:5px"><span class="hand" style="flex:none;width:78px;font-size:14px;color:#c0392b">Résultat</span><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:13.5px;line-height:1.4;color:#3a3a30">0 ressaisie, fiche prête en minutes</span></div></div>
+        </div>
+        <div class="ink-thin" style="padding:0;overflow:hidden;display:flex;flex-direction:column">
+          <div class="xbox" style="height:88px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">Démo en préparation</span></div>
+          <div style="padding:13px 14px"><span class="hand" style="font-size:18px">Connexion de vos outils</span><div style="display:flex;gap:9px;margin-top:5px"><span class="hand" style="flex:none;width:78px;font-size:14px;color:#c0392b">Problème</span><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:13.5px;line-height:1.4;color:#3a3a30">leads recopiés à la main dans tableur + CRM</span></div><div style="display:flex;gap:9px;margin-top:5px"><span class="hand" style="flex:none;width:78px;font-size:14px;color:#c0392b">Solution</span><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:13.5px;line-height:1.4;color:#3a3a30">lead → Google Sheet + CRM + alerte mail auto</span></div><div style="display:flex;gap:9px;margin-top:5px"><span class="hand" style="flex:none;width:78px;font-size:14px;color:#c0392b">Résultat</span><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:13.5px;line-height:1.4;color:#3a3a30">aucun lead oublié, équipe prévenue</span></div></div>
+        </div>
+        <div class="ink-thin" style="padding:0;overflow:hidden;display:flex;flex-direction:column">
+          <div class="xbox" style="height:88px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="note" style="font-size:12px;transform:none;color:#8a8a7a;position:relative;z-index:1">▶ vidéo</span></div>
+          <div style="padding:13px 14px"><span class="hand" style="font-size:18px">Métré automatique sur plan</span><div style="display:flex;gap:9px;margin-top:5px"><span class="hand" style="flex:none;width:78px;font-size:14px;color:#c0392b">Problème</span><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:13.5px;line-height:1.4;color:#3a3a30">métré refait à la main sur les plans</span></div><div style="display:flex;gap:9px;margin-top:5px"><span class="hand" style="flex:none;width:78px;font-size:14px;color:#c0392b">Solution</span><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:13.5px;line-height:1.4;color:#3a3a30">IA lit le DWG, sort quantités + chiffrage prix</span></div><div style="display:flex;gap:9px;margin-top:5px"><span class="hand" style="flex:none;width:78px;font-size:14px;color:#c0392b">Résultat</span><span style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:13.5px;line-height:1.4;color:#3a3a30">chiffrage en minutes, prêt à ajuster</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ink" style="position:relative;padding:24px 24px;margin-top:26px">
+      <span class="tag">④ LOGICIELS</span>
+      <span class="note" style="position:absolute;right:14px;top:16px;font-size:17px">ancienne « ce qu'on automatise »</span>
+      <div class="h" style="font-size:32px;margin:14px 0 2px">Les logiciels qu'on automatise</div>
+      <div style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:16px;color:#3a3a30;margin-bottom:16px">On connecte les outils que vous utilisez déjà, et on automatise ce qui se répète.</div>
+      <div class="hand" style="font-size:16px;color:#555;margin-bottom:10px">Les outils qu'on relie et qu'on automatise pour vous</div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+      <div class="ink-thin" style="padding:9px 14px;overflow:hidden">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:nowrap"><span class="hand" style="font-size:18px;color:#777">→</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">Gmail</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">Google Sheets</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">Drive</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">Excel</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">Outlook</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">WhatsApp</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">Shopify</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">Stripe</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">HubSpot</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">Pipedrive</span></div>
+      </div>
+      <div class="ink-thin" style="padding:9px 14px;overflow:hidden">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:nowrap"><span class="hand" style="font-size:18px;color:#777">←</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">Notion</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">Airtable</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">Slack</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">DocuSign</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">Yousign</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">Calendly</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">Dropbox</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">Make</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">n8n</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">OpenAI</span><span class="pill" style="font-size:13px;white-space:nowrap;padding:2px 10px 3px">Claude</span></div>
+      </div>
+      </div>
+      <div class="hand" style="font-size:15px;color:#777;margin-top:9px">… et plus de 500 autres</div>
+    </div>
+
+    <div class="ink" style="position:relative;padding:20px 22px;margin-top:26px;background:#e9e3d2">
+      <span class="tag">⑤ TÉMOIGNAGES</span>
+      <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:18px;margin-top:14px;align-items:center">
+        <div>
+          <div class="h" style="font-size:26px;max-width:24ch">« Le rendez-vous est enregistré, la fiche client arrive remplie en PDF… »</div>
+          <div class="hand" style="font-size:16px;color:#3a3a30;margin-top:8px">Boîtier micro → transcription + fiche PDF → attribution et envoi</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+            <div class="xbox ink-thin" style="width:42px;height:42px;border-radius:50%"></div>
+            <span class="hand" style="font-size:18px">Tommy &amp; Audrey Rapin · Allianz Les Herbiers</span>
+          </div>
+          <div class="ink-thin" style="display:inline-block;margin-top:12px;padding:6px 14px"><span class="hand" style="font-size:17px">0 saisie · par rendez-vous</span></div>
+        </div>
+        <div class="xbox ink-thin" style="height:150px;display:grid;place-items:center"><span class="hand" style="font-size:28px;position:relative;z-index:1">▶ vidéo Tommy Rapin</span></div>
+      </div>
+      <span class="note" style="display:inline-block;margin-top:10px;font-size:18px">phrase forte extraite → réutilisée dans le hero</span>
+    </div>
+
+    <div class="ink" style="position:relative;padding:24px 24px;margin-top:26px;background:#1e2b22;border-color:#1e2b22;color:#f4efe2">
+      <span class="tag" style="background:#f4efe2;color:#1e2b22">⑥ NOTRE CONVICTION</span>
+      <span class="note" style="position:absolute;right:14px;top:16px;font-size:17px;color:#e0a58f">section de confiance</span>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:16px">
+        <div><div class="h" style="font-size:19px;color:#f4efe2;margin-bottom:4px">On audite avant de construire</div><div class="hand" style="font-size:15px;color:#c9d3c6;line-height:1.4">Pas d'audit, pas de système. On n'installe jamais un outil qui finira inutilisé.</div></div>
+        <div><div class="h" style="font-size:19px;color:#f4efe2;margin-bottom:4px">Le ROI décide</div><div class="hand" style="font-size:15px;color:#c9d3c6;line-height:1.4">Si un système ne rend pas des heures ou de l'argent réels, il ne sort pas.</div></div>
+        <div><div class="h" style="font-size:19px;color:#f4efe2;margin-bottom:4px">On ne remplace personne</div><div class="hand" style="font-size:15px;color:#c9d3c6;line-height:1.4">On retire les tâches sans valeur et on les rend à la décision, au métier, au client.</div></div>
+      </div>
+    </div>
+
+    <div class="ink" style="position:relative;padding:24px 24px;margin-top:26px">
+      <span class="tag">⑦ LA MÉTHODE</span>
+      <div class="h" style="font-size:32px;margin:14px 0 14px">Notre processus en 5 étapes</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+        <div class="ink-thin" style="padding:14px 14px">
+          <span class="hand" style="font-size:14px;color:#777">01</span>
+          <div class="hand" style="font-size:17px;margin-top:2px">Audit du fonctionnement</div>
+          <div style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:13px;line-height:1.4;color:#3a3a30;margin-top:4px">Nous observons vos tâches répétitives, sur le terrain.</div>
+        </div>
+        <div class="ink-thin" style="padding:14px 14px">
+          <span class="hand" style="font-size:14px;color:#777">02</span>
+          <div class="hand" style="font-size:17px;margin-top:2px">Conception du système</div>
+          <div style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:13px;line-height:1.4;color:#3a3a30;margin-top:4px">Un système sur mesure, automatisation et validation humaine.</div>
+        </div>
+        <div class="ink-thin" style="padding:14px 14px">
+          <span class="hand" style="font-size:14px;color:#777">03</span>
+          <div class="hand" style="font-size:17px;margin-top:2px">Développement et livraison</div>
+          <div style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:13px;line-height:1.4;color:#3a3a30;margin-top:4px">Nous développons, testons et installons chez vous.</div>
+        </div>
+        <div class="ink-thin" style="padding:14px 14px">
+          <span class="hand" style="font-size:14px;color:#777">04</span>
+          <div class="hand" style="font-size:17px;margin-top:2px">Formation des équipes</div>
+          <div style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:13px;line-height:1.4;color:#3a3a30;margin-top:4px">Nous formons vos équipes à l'utiliser au quotidien.</div>
+        </div>
+        <div class="ink-thin" style="padding:14px 14px">
+          <span class="hand" style="font-size:14px;color:#777">05</span>
+          <div class="hand" style="font-size:17px;margin-top:2px">Accompagnement et maintenance</div>
+          <div style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:13px;line-height:1.4;color:#3a3a30;margin-top:4px">Améliorations, correctifs et présence rapide dès qu'un besoin surgit.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ink" style="padding:20px 22px;margin-top:26px">
+      <span class="tag">⑧ QUI SOMMES-NOUS</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:16px;align-items:center">
+        <div>
+          <div class="h" style="font-size:34px;line-height:1.06;max-width:14ch">Nolan Genty et Martin Talon</div>
+          <div style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15.5px;line-height:1.55;color:#3a3a30;margin-top:14px;max-width:46ch">Un système mal pensé coûte plus cher qu'il ne rapporte, et si personne ne l'utilise il ne sert à rien. Nous n'installons rien avant d'avoir compris comment votre entreprise fonctionne. Chaque système est construit sur mesure, sans logiciel imposé. La décision finale reste à vos équipes.</div>
+          <span class="btn-o" style="margin-top:18px;font-size:16px">À propos d'Hérone →</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div><div class="xbox ink-thin" style="aspect-ratio:4/5;display:grid;place-items:center"><span class="note" style="font-size:11px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO</span></div><span class="hand" style="font-size:14px;color:#555">Nolan Genty · Directeur Général</span></div>
+          <div><div class="xbox ink-thin" style="aspect-ratio:4/5;display:grid;place-items:center"><span class="note" style="font-size:11px;transform:none;color:#8a8a7a;position:relative;z-index:1">PHOTO</span></div><span class="hand" style="font-size:14px;color:#555">Martin Talon · Directeur Technique</span></div>
+        </div>
+      </div>
+      <div style="margin-top:24px">
+        <div class="xbox ink-thin" style="aspect-ratio:21/9;display:grid;place-items:center;position:relative"><span class="note" style="position:absolute;top:8px;left:10px;font-size:12px;transform:none;color:#8a8a7a">PHOTO large</span><span class="hand" style="font-size:20px;position:relative;z-index:1;color:#555">PHOTO bureaux · Les Herbiers</span></div>
+        <span class="hand" style="font-size:14px;color:#555;display:inline-block;margin-top:8px">Nos bureaux · Les Herbiers</span>
+      </div>
+    </div>
+
+    <div class="ink" style="padding:20px 22px;margin-top:26px">
+      <span class="tag">⑨ FAQ (objections · SEO)</span>
+      <span class="note" style="display:inline-block;margin-left:10px;font-size:16px">1 seule ouverte · ouverture douce</span>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:17px">Sécurité &amp; confidentialité des données ?</span><span class="hand" style="font-size:20px">＋</span></div>
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:17px">Que couvre la maintenance ?</span><span class="hand" style="font-size:20px">＋</span></div>
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:17px">Comment se déroule un projet ?</span><span class="hand" style="font-size:20px">＋</span></div>
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:17px">Êtes-vous conformes au RGPD ?</span><span class="hand" style="font-size:20px">＋</span></div>
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:17px">Ça marche avec mes logiciels ?</span><span class="hand" style="font-size:20px">＋</span></div>
+        <div class="ink-thin" style="display:flex;justify-content:space-between;padding:9px 14px"><span class="hand" style="font-size:17px">Combien ça coûte ?</span><span class="hand" style="font-size:20px">＋</span></div>
+      </div>
+    </div>
+
+    <div class="ink" style="position:relative;padding:20px 22px;margin-top:26px;background:#1e2b22;border-color:#1e2b22;color:#f4efe2">
+      <span class="tag" style="background:#f4efe2;color:#1e2b22">⑩ APPEL FINAL</span>
+      <div style="display:grid;grid-template-columns:1fr 1.1fr;gap:18px;margin-top:14px;align-items:center">
+        <div>
+          <div class="h" style="font-size:24px;max-width:20ch;color:#f4efe2">Réservez votre audit gratuit.</div>
+          <div class="pill" style="margin-top:10px;font-size:15px;border-color:#e0a58f;color:#e0a58f">◦ audit gratuit, sans engagement</div>
+        </div>
+        <div class="ink-thin" style="padding:12px 13px;border-color:#5b6b5f">
+          <span class="hand" style="font-size:16px;color:#f4efe2">Choisissez un créneau</span>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px">
+            <div class="ink-thin" style="padding:6px 2px;text-align:center;border-color:#5b6b5f"><span class="hand" style="font-size:12px;color:#c9d3c6">Lun<br>9:00</span></div>
+            <div class="ink-thin" style="padding:6px 2px;text-align:center;border-color:#5b6b5f"><span class="hand" style="font-size:12px;color:#c9d3c6">Mar<br>10:30</span></div>
+            <div class="ink-thin" style="padding:6px 2px;text-align:center;background:#f4efe2"><span class="hand" style="font-size:12px;color:#1e2b22">Mer<br>9:30</span></div>
+            <div class="ink-thin" style="padding:6px 2px;text-align:center;border-color:#5b6b5f"><span class="hand" style="font-size:12px;color:#c9d3c6">Jeu<br>11:00</span></div>
+            <div class="ink-thin" style="padding:6px 2px;text-align:center;border-color:#5b6b5f"><span class="hand" style="font-size:12px;color:#c9d3c6">Ven<br>9:00</span></div>
+          </div>
+          <div style="text-align:center;margin-top:10px"><span class="btn" style="font-size:15px;padding:4px 14px 6px;background:#f4efe2;color:#1e2b22">Confirmer le créneau</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ink" style="padding:18px 22px;margin-top:26px;background:#25251f;color:#f4efe2;border-color:#25251f">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <span class="hand" style="font-size:26px;color:#f4efe2">HÉRONE</span>
+        <span class="hand" style="font-size:17px;color:#d8d2c2">37 rue Édouard Branly, Les Herbiers 85500</span>
+        <span class="hand" style="font-size:17px;color:#d8d2c2">contact@herone.fr · 06 63 71 05 98</span>
+        <span class="hand" style="font-size:17px;color:#d8d2c2">Blog · Mentions · Confidentialité · Cookies</span>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:18px">
+      <span class="note" style="font-size:15px">✎ méthode retirée · 1 seul CTA « Réserver 30 min »</span>
+      <span class="note" style="font-size:15px">✎ rubans : reconnus d'abord (③), puis moteur</span>
+      <span class="note" style="font-size:15px">✎ conviction placée en confiance (⑤)</span>
+    </div>
+  </div>
+  </div>
+
+  </div>
+
+  <div style="margin-top:90px;display:flex;align-items:flex-end;gap:18px;margin-bottom:6px">
+    <span class="hand" style="font-size:40px;line-height:1;color:#17170f">Section Blog — 3 structures possibles</span>
+    <span class="note" style="font-size:22px;transform:rotate(-3deg)">objectif : beaucoup d'articles / semaine ✎</span>
+  </div>
+  <p class="hand" style="font-size:21px;color:#3a3a30;margin:0 0 34px;max-width:74ch">Le blog n'est pas dans le menu (accès depuis le footer). Il doit encaisser un gros volume, rester trouvable, et faire du maillage interne vers les systèmes. Voici trois manières de l'organiser, de la plus « flux » à la plus « thématique ». Dis-moi laquelle te parle.</p>
+
+  <div style="display:grid;grid-template-columns:{{ blogCols }};gap:44px;align-items:start;justify-items:start">
+
+    <div style="width:440px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span class="tag" style="font-size:22px">A</span><span class="hand" style="font-size:26px">Flux dense + recherche</span></div>
+      <div class="sheet" style="padding:20px;border-radius:6px;transform:rotate(-0.5deg)">
+        <div class="ink" style="display:flex;align-items:center;justify-content:space-between;padding:9px 14px;margin-bottom:12px"><span class="hand" style="font-size:20px">Blog Hérone</span><span class="hand" style="font-size:15px;color:#666">↩ retour site</span></div>
+        <div class="ink-thin" style="display:flex;align-items:center;gap:8px;padding:9px 12px;margin-bottom:10px"><span class="hand" style="font-size:18px;color:#777">⌕</span><span class="hand" style="font-size:17px;color:#888">rechercher un sujet…</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
+          <span class="pill" style="font-size:14px;padding:2px 11px 3px;background:#1e1e1a;color:#f4efe2">Tout</span>
+          <span class="pill" style="font-size:14px;padding:2px 11px 3px">Automatisation</span>
+          <span class="pill" style="font-size:14px;padding:2px 11px 3px">Devis</span>
+          <span class="pill" style="font-size:14px;padding:2px 11px 3px">CRM</span>
+          <span class="pill" style="font-size:14px;padding:2px 11px 3px">BTP</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <div class="ink-thin" style="padding:11px 13px"><div style="display:flex;justify-content:space-between;gap:8px"><span class="hand" style="font-size:12px;color:#c0392b">AUTOMATISATION</span><span class="hand" style="font-size:12px;color:#888">4 min · 12 juil</span></div><div class="h" style="font-size:20px;margin:3px 0 4px">Automatiser ses comptes rendus de réunion</div><div class="lines" style="height:20px"></div></div>
+          <div class="ink-thin" style="padding:11px 13px"><div style="display:flex;justify-content:space-between;gap:8px"><span class="hand" style="font-size:12px;color:#c0392b">DEVIS</span><span class="hand" style="font-size:12px;color:#888">5 min · 11 juil</span></div><div class="h" style="font-size:20px;margin:3px 0 4px">Arrêter de recalculer ses devis dans Excel</div><div class="lines" style="height:20px"></div></div>
+          <div class="ink-thin" style="padding:11px 13px"><div style="display:flex;justify-content:space-between;gap:8px"><span class="hand" style="font-size:12px;color:#c0392b">CRM</span><span class="hand" style="font-size:12px;color:#888">3 min · 10 juil</span></div><div class="h" style="font-size:20px;margin:3px 0 4px">Connecter un formulaire Facebook à son CRM</div><div class="lines" style="height:20px"></div></div>
+          <div class="ink-thin" style="padding:11px 13px"><div style="display:flex;justify-content:space-between;gap:8px"><span class="hand" style="font-size:12px;color:#c0392b">BTP</span><span class="hand" style="font-size:12px;color:#888">6 min · 9 juil</span></div><div class="h" style="font-size:20px;margin:3px 0 4px">Extraire les métrés d'un plan DWG</div><div class="lines" style="height:20px"></div></div>
+        </div>
+        <div style="text-align:center;margin-top:14px"><span class="btn-o" style="font-size:16px">Charger plus d'articles ↓</span></div>
+      </div>
+      <p class="hand" style="font-size:17px;color:#3a3a30;margin:12px 4px 0;max-width:40ch">+ Encaisse le volume, recherche immédiate, très SEO. − Peu éditorial, tout se ressemble.</p>
+    </div>
+
+    <div style="width:440px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span class="tag" style="font-size:22px">B</span><span class="hand" style="font-size:26px">Magazine (à la une + grille)</span></div>
+      <div class="sheet" style="padding:20px;border-radius:6px;transform:rotate(0.5deg)">
+        <div class="ink" style="display:flex;align-items:center;justify-content:space-between;padding:9px 14px;margin-bottom:12px"><span class="hand" style="font-size:20px">Blog Hérone</span><span class="hand" style="font-size:15px;color:#666">⌕ recherche</span></div>
+        <div class="ink-thin" style="padding:0;overflow:hidden;margin-bottom:12px">
+          <div class="xbox" style="height:120px;border-bottom:2px solid #2a2a24;display:grid;place-items:center"><span class="hand" style="font-size:14px;color:#c0392b;position:relative;z-index:1">À LA UNE</span></div>
+          <div style="padding:10px 12px"><div class="h" style="font-size:22px">Le dernier article, mis en avant</div><div class="lines" style="height:18px;margin-top:5px"></div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="ink-thin" style="padding:0;overflow:hidden"><div class="xbox" style="height:64px;border-bottom:2px solid #2a2a24"></div><div style="padding:8px 10px"><span class="hand" style="font-size:11px;color:#c0392b">DEVIS</span><div class="h" style="font-size:16px">Devis automatisés</div></div></div>
+          <div class="ink-thin" style="padding:0;overflow:hidden"><div class="xbox" style="height:64px;border-bottom:2px solid #2a2a24"></div><div style="padding:8px 10px"><span class="hand" style="font-size:11px;color:#c0392b">CRM</span><div class="h" style="font-size:16px">Leads → CRM</div></div></div>
+          <div class="ink-thin" style="padding:0;overflow:hidden"><div class="xbox" style="height:64px;border-bottom:2px solid #2a2a24"></div><div style="padding:8px 10px"><span class="hand" style="font-size:11px;color:#c0392b">BTP</span><div class="h" style="font-size:16px">Métrés DWG</div></div></div>
+          <div class="ink-thin" style="padding:0;overflow:hidden"><div class="xbox" style="height:64px;border-bottom:2px solid #2a2a24"></div><div style="padding:8px 10px"><span class="hand" style="font-size:11px;color:#c0392b">RH</span><div class="h" style="font-size:16px">Onboarding auto</div></div></div>
+        </div>
+        <div style="display:flex;justify-content:center;gap:8px;margin-top:14px"><span class="pill" style="font-size:14px;padding:2px 10px 3px">‹ 1 2 3 … ›</span></div>
+      </div>
+      <p class="hand" style="font-size:17px;color:#3a3a30;margin:12px 4px 0;max-width:40ch">+ Beau, éditorial, met en avant le meilleur. − Les vignettes demandent une image, lourd à 30/mois.</p>
+    </div>
+
+    <div style="width:440px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span class="tag" style="font-size:22px">C</span><span class="hand" style="font-size:26px">Par thèmes (hubs SEO)</span></div>
+      <div class="sheet" style="padding:20px;border-radius:6px;transform:rotate(-0.3deg)">
+        <div class="ink" style="display:flex;align-items:center;justify-content:space-between;padding:9px 14px;margin-bottom:12px"><span class="hand" style="font-size:20px">Blog Hérone</span><span class="hand" style="font-size:15px;color:#666">⌕ recherche</span></div>
+        <div class="ink-thin" style="padding:12px 13px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span class="hand" style="font-size:19px;color:#c0392b">Automatisation</span><span class="hand" style="font-size:15px;color:#666">voir tout →</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+            <div style="display:flex;justify-content:space-between;gap:8px"><span class="hand" style="font-size:16px">· Comptes rendus de réunion</span><span class="hand" style="font-size:13px;color:#888">4 min</span></div>
+            <div style="display:flex;justify-content:space-between;gap:8px"><span class="hand" style="font-size:16px">· Relances clients automatiques</span><span class="hand" style="font-size:13px;color:#888">3 min</span></div>
+            <div style="display:flex;justify-content:space-between;gap:8px"><span class="hand" style="font-size:16px">· Reporting mensuel</span><span class="hand" style="font-size:13px;color:#888">5 min</span></div>
+          </div>
+        </div>
+        <div class="ink-thin" style="padding:12px 13px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span class="hand" style="font-size:19px;color:#c0392b">Devis & chiffrage</span><span class="hand" style="font-size:15px;color:#666">voir tout →</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+            <div style="display:flex;justify-content:space-between;gap:8px"><span class="hand" style="font-size:16px">· Devis sans Excel</span><span class="hand" style="font-size:13px;color:#888">5 min</span></div>
+            <div style="display:flex;justify-content:space-between;gap:8px"><span class="hand" style="font-size:16px">· Métrés sur plan DWG</span><span class="hand" style="font-size:13px;color:#888">6 min</span></div>
+          </div>
+        </div>
+        <div class="ink-thin" style="padding:12px 13px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span class="hand" style="font-size:19px;color:#c0392b">Outils & CRM</span><span class="hand" style="font-size:15px;color:#666">voir tout →</span></div>
+          <div class="lines" style="height:34px;margin-top:8px"></div>
+        </div>
+      </div>
+      <p class="hand" style="font-size:17px;color:#3a3a30;margin:12px 4px 0;max-width:40ch">+ Excellent maillage interne, clusters SEO, pousse vers les systèmes. − Demande de bien ranger chaque article.</p>
+    </div>
+
+  </div>
+
+  <div class="ink" style="max-width:1408px;margin:40px 0 0;padding:16px 22px;background:#e9e3d2">
+    <span class="hand" style="font-size:20px"><b>Mon conseil pour 30 articles/mois :</b> base <span style="color:#c0392b">A</span> (flux + recherche, tient le volume sans image obligatoire) avec les <b>thèmes de C</b> en tête de page comme portes d'entrée SEO. On garde B pour une éventuelle « une » plus tard, une fois qu'on aura des visuels.</span>
+  </div>
+
+  <div style="margin-top:96px;border-top:3px dashed #6b6558;padding-top:44px">
+    <div style="display:flex;align-items:flex-end;gap:18px;margin-bottom:8px">
+      <span class="hand" style="font-size:40px;line-height:1;color:#17170f">La méthode — animations au scroll</span>
+      <span class="note" style="font-size:23px;transform:rotate(-2deg)">desktop only ✎ · les croquis bouclent pour montrer l'idée</span>
+    </div>
+    <p class="hand" style="font-size:21px;color:#3a3a30;margin:0 0 34px;max-width:78ch">On oublie le responsive et le mécanisme d'engrenages. Voici 4 façons d'animer les 5 étapes au fil du scroll, de la plus sobre à la plus rythmée. Dis-moi laquelle on porte sur la LP (ou un mix).</p>
+    <div style="display:flex;gap:52px;align-items:flex-start;flex-wrap:wrap">
+      <div style="flex:none;width:500px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span class="tag">PISTE A</span><span class="hand" style="font-size:25px">Révélation classique · étapes qui montent</span><span class="note" style="font-size:17px">ta préférée</span></div>
+        <div class="sheet ink" style="padding:26px;border-radius:16px">
+          <div style="display:flex;gap:20px">
+            <div style="position:relative;width:14px;flex:none;margin-top:4px"><div style="position:absolute;left:5px;top:0;bottom:0;width:3px;background:#d8d2c2"></div><div style="position:absolute;left:5px;top:0;width:3px;background:#c0392b;transform-origin:top;animation:mk-progress 5s ease-in-out infinite"></div></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;align-items:center;gap:12px;animation:mk-reveal 5s ease-in-out infinite;animation-delay:0.0s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">1</span><div style="flex:1"><div class="hand" style="font-size:19px">Audit du fonctionnement</div><div class="lines" style="height:12px;margin-top:4px"></div></div></div>
+              <div style="display:flex;align-items:center;gap:12px;animation:mk-reveal 5s ease-in-out infinite;animation-delay:0.7s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">2</span><div style="flex:1"><div class="hand" style="font-size:19px">Conception du système</div><div class="lines" style="height:12px;margin-top:4px"></div></div></div>
+              <div style="display:flex;align-items:center;gap:12px;animation:mk-reveal 5s ease-in-out infinite;animation-delay:1.4s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">3</span><div style="flex:1"><div class="hand" style="font-size:19px">Développement & livraison</div><div class="lines" style="height:12px;margin-top:4px"></div></div></div>
+              <div style="display:flex;align-items:center;gap:12px;animation:mk-reveal 5s ease-in-out infinite;animation-delay:2.1s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">4</span><div style="flex:1"><div class="hand" style="font-size:19px">Formation des équipes</div><div class="lines" style="height:12px;margin-top:4px"></div></div></div>
+              <div style="display:flex;align-items:center;gap:12px;animation:mk-reveal 5s ease-in-out infinite;animation-delay:2.8s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">5</span><div style="flex:1"><div class="hand" style="font-size:19px">Accompagnement & maintenance</div><div class="lines" style="height:12px;margin-top:4px"></div></div></div>
+            </div>
+          </div>
+        </div>
+        <p class="hand" style="font-size:17px;color:#3a3a30;margin:12px 4px 0;max-width:44ch">Chaque étape monte en fondu quand le scroll l'atteint, la barre rouge suit la progression. Sobre, sûr, très lisible.</p>
+      </div>
+
+      <div style="flex:none;width:500px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span class="tag">PISTE B</span><span class="hand" style="font-size:25px">Section collée · grand chiffre qui défile</span></div>
+        <div class="sheet ink" style="padding:26px;border-radius:16px;min-height:300px">
+          <span class="note" style="font-size:17px;position:absolute;right:16px;top:14px">la section se fige, on scrolle « dedans »</span>
+          <div style="display:flex;gap:24px;align-items:center;margin-top:14px">
+            <div style="position:relative;width:150px;height:150px;flex:none;border:3px solid #1e1e1a;border-radius:20px;overflow:hidden;display:grid;place-items:center;background:#e9e3d2">
+              <span class="h" style="position:absolute;font-size:120px;color:#c0392b;animation:mk-numswap 5s ease-in-out infinite">3</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:9px">
+              <div style="display:flex;align-items:center;gap:10px;animation:mk-pulse 5s ease-in-out infinite;animation-delay:0.0s"><span style="width:9px;height:9px;border-radius:50%;background:#c0392b"></span><span class="hand" style="font-size:18px">Audit du fonctionnement</span></div>
+              <div style="display:flex;align-items:center;gap:10px;animation:mk-pulse 5s ease-in-out infinite;animation-delay:1.0s"><span style="width:9px;height:9px;border-radius:50%;background:#c0392b"></span><span class="hand" style="font-size:18px">Conception du système</span></div>
+              <div style="display:flex;align-items:center;gap:10px;animation:mk-pulse 5s ease-in-out infinite;animation-delay:2.0s"><span style="width:9px;height:9px;border-radius:50%;background:#c0392b"></span><span class="hand" style="font-size:18px">Développement & livraison</span></div>
+              <div style="display:flex;align-items:center;gap:10px;animation:mk-pulse 5s ease-in-out infinite;animation-delay:3.0s"><span style="width:9px;height:9px;border-radius:50%;background:#c0392b"></span><span class="hand" style="font-size:18px">Formation des équipes</span></div>
+              <div style="display:flex;align-items:center;gap:10px;animation:mk-pulse 5s ease-in-out infinite;animation-delay:4.0s"><span style="width:9px;height:9px;border-radius:50%;background:#c0392b"></span><span class="hand" style="font-size:18px">Accompagnement & maintenance</span></div>
+            </div>
+          </div>
+        </div>
+        <p class="hand" style="font-size:17px;color:#3a3a30;margin:12px 4px 0;max-width:44ch">La section reste fixe à l'écran, un grand numéro passe de 1 à 5 pendant qu'on scrolle et l'étape correspondante s'allume. Impactant, rythmé.</p>
+      </div>
+
+      <div style="flex:none;width:520px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span class="tag">PISTE C</span><span class="hand" style="font-size:25px">Trait qui se trace · jalons qui « pop »</span></div>
+        <div class="sheet ink" style="padding:34px 26px 30px;border-radius:16px;min-height:300px">
+          <div style="position:relative;margin-top:40px">
+            <div style="position:absolute;left:0;right:0;top:13px;height:4px;background:#d8d2c2;border-radius:2px"></div>
+            <div style="position:absolute;left:0;right:0;top:13px;height:4px;background:#c0392b;border-radius:2px;transform-origin:left;animation:mk-drawx 5s ease-in-out infinite"></div>
+            <div style="position:relative;display:flex;justify-content:space-between">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:84px;animation:mk-pop 5s ease-in-out infinite;animation-delay:0.4s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">1</span><span class="hand" style="font-size:14px;text-align:center;line-height:1.1">Audit du fonctionnement</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:84px;animation:mk-pop 5s ease-in-out infinite;animation-delay:1.3s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">2</span><span class="hand" style="font-size:14px;text-align:center;line-height:1.1">Conception du système</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:84px;animation:mk-pop 5s ease-in-out infinite;animation-delay:2.2s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">3</span><span class="hand" style="font-size:14px;text-align:center;line-height:1.1">Développement & livraison</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:84px;animation:mk-pop 5s ease-in-out infinite;animation-delay:3.1s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">4</span><span class="hand" style="font-size:14px;text-align:center;line-height:1.1">Formation des équipes</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:84px;animation:mk-pop 5s ease-in-out infinite;animation-delay:4.0s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">5</span><span class="hand" style="font-size:14px;text-align:center;line-height:1.1">Accompagnement & maintenance</span></div>
+            </div>
+          </div>
+        </div>
+        <p class="hand" style="font-size:17px;color:#3a3a30;margin:12px 4px 0;max-width:46ch">Un trait horizontal se dessine de gauche à droite au scroll, chaque jalon apparaît d'un petit « pop » quand le trait l'atteint. Dynamique et net (horizontal, mais piloté par le scroll, pas figé).</p>
+      </div>
+
+      <div style="flex:none;width:520px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span class="tag">PISTE D</span><span class="hand" style="font-size:25px">Pellicule · l'étape nette avance</span></div>
+        <div class="sheet ink" style="padding:24px;border-radius:16px;overflow:hidden">
+          <div style="overflow:hidden">
+            <div style="display:flex;gap:16px;width:200%;animation:mk-strip 6s ease-in-out infinite">
+              <div class="ink-thin" style="flex:1;min-width:0;padding:16px 14px;background:#e9e3d2"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">1</span><div class="hand" style="font-size:18px;margin-top:8px">Audit du fonctionnement</div><div class="lines" style="height:30px;margin-top:8px"></div></div>
+              <div class="ink-thin" style="flex:1;min-width:0;padding:16px 14px;background:#e9e3d2"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">2</span><div class="hand" style="font-size:18px;margin-top:8px">Conception du système</div><div class="lines" style="height:30px;margin-top:8px"></div></div>
+              <div class="ink-thin" style="flex:1;min-width:0;padding:16px 14px;background:#e9e3d2"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">3</span><div class="hand" style="font-size:18px;margin-top:8px">Développement & livraison</div><div class="lines" style="height:30px;margin-top:8px"></div></div>
+              <div class="ink-thin" style="flex:1;min-width:0;padding:16px 14px;background:#e9e3d2"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">4</span><div class="hand" style="font-size:18px;margin-top:8px">Formation des équipes</div><div class="lines" style="height:30px;margin-top:8px"></div></div>
+              <div class="ink-thin" style="flex:1;min-width:0;padding:16px 14px;background:#e9e3d2"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">5</span><div class="hand" style="font-size:18px;margin-top:8px">Accompagnement & maintenance</div><div class="lines" style="height:30px;margin-top:8px"></div></div>
+            </div>
+          </div>
+        </div>
+        <p class="hand" style="font-size:17px;color:#3a3a30;margin:12px 4px 0;max-width:46ch">Les 5 étapes forment une bande horizontale, le scroll fait glisser la bande d'une étape à l'autre, la carte au centre est nette et les autres s'estompent. Effet « pellicule » premium.</p>
+      </div>
+
+      <div style="flex:none;width:500px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span class="tag">PISTE E</span><span class="hand" style="font-size:25px">Cartes qui se retournent au scroll</span></div>
+        <div class="sheet ink" style="padding:24px;border-radius:16px">
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+            <div class="ink-thin" style="padding:12px 8px;background:#e9e3d2;transform-origin:top;animation:mk-flip 5s ease-in-out infinite;animation-delay:0.0s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">1</span><div class="hand" style="font-size:13px;margin-top:6px;line-height:1.05">Audit du fonctionnement</div></div>
+            <div class="ink-thin" style="padding:12px 8px;background:#e9e3d2;transform-origin:top;animation:mk-flip 5s ease-in-out infinite;animation-delay:0.6s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">2</span><div class="hand" style="font-size:13px;margin-top:6px;line-height:1.05">Conception du système</div></div>
+            <div class="ink-thin" style="padding:12px 8px;background:#e9e3d2;transform-origin:top;animation:mk-flip 5s ease-in-out infinite;animation-delay:1.2s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">3</span><div class="hand" style="font-size:13px;margin-top:6px;line-height:1.05">Développement & livraison</div></div>
+            <div class="ink-thin" style="padding:12px 8px;background:#e9e3d2;transform-origin:top;animation:mk-flip 5s ease-in-out infinite;animation-delay:1.8s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">4</span><div class="hand" style="font-size:13px;margin-top:6px;line-height:1.05">Formation des équipes</div></div>
+            <div class="ink-thin" style="padding:12px 8px;background:#e9e3d2;transform-origin:top;animation:mk-flip 5s ease-in-out infinite;animation-delay:2.4s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">5</span><div class="hand" style="font-size:13px;margin-top:6px;line-height:1.05">Accompagnement & maintenance</div></div>
+          </div>
+        </div>
+        <p class="hand" style="font-size:17px;color:#3a3a30;margin:12px 4px 0;max-width:44ch">Chaque carte se retourne (bascule 3D) à mesure qu'on descend. Ludique, un peu plus marqué.</p>
+      </div>
+
+      <div style="flex:none;width:500px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span class="tag">PISTE F</span><span class="hand" style="font-size:25px">Zoom séquentiel · chaque étape grandit</span></div>
+        <div class="sheet ink" style="padding:24px;border-radius:16px">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="ink-thin" style="display:flex;align-items:center;gap:12px;padding:12px 14px;transform-origin:left;animation:mk-zoomin 5s ease-in-out infinite;animation-delay:0.0s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">1</span><span class="hand" style="font-size:18px">Audit du fonctionnement</span></div>
+            <div class="ink-thin" style="display:flex;align-items:center;gap:12px;padding:12px 14px;transform-origin:left;animation:mk-zoomin 5s ease-in-out infinite;animation-delay:0.7s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">2</span><span class="hand" style="font-size:18px">Conception du système</span></div>
+            <div class="ink-thin" style="display:flex;align-items:center;gap:12px;padding:12px 14px;transform-origin:left;animation:mk-zoomin 5s ease-in-out infinite;animation-delay:1.4s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">3</span><span class="hand" style="font-size:18px">Développement & livraison</span></div>
+            <div class="ink-thin" style="display:flex;align-items:center;gap:12px;padding:12px 14px;transform-origin:left;animation:mk-zoomin 5s ease-in-out infinite;animation-delay:2.1s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">4</span><span class="hand" style="font-size:18px">Formation des équipes</span></div>
+            <div class="ink-thin" style="display:flex;align-items:center;gap:12px;padding:12px 14px;transform-origin:left;animation:mk-zoomin 5s ease-in-out infinite;animation-delay:2.8s"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">5</span><span class="hand" style="font-size:18px">Accompagnement & maintenance</span></div>
+          </div>
+        </div>
+        <p class="hand" style="font-size:17px;color:#3a3a30;margin:12px 4px 0;max-width:44ch">Les étapes apparaissent en grandissant depuis un point, l'une après l'autre. Doux, sans déplacement latéral.</p>
+      </div>
+
+      <div style="flex:none;width:500px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span class="tag">PISTE G</span><span class="hand" style="font-size:25px">Balayage · le texte se dévoile de gauche</span></div>
+        <div class="sheet ink" style="padding:24px;border-radius:16px">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;align-items:center;gap:12px"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">1</span><div style="flex:1;overflow:hidden"><div class="hand" style="font-size:19px;animation:mk-wipe 5s ease-in-out infinite;animation-delay:0.0s">Audit du fonctionnement</div><div class="lines" style="height:12px;margin-top:4px;animation:mk-wipe 5s ease-in-out infinite;animation-delay:0.15s"></div></div></div>
+            <div style="display:flex;align-items:center;gap:12px"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">2</span><div style="flex:1;overflow:hidden"><div class="hand" style="font-size:19px;animation:mk-wipe 5s ease-in-out infinite;animation-delay:0.6s">Conception du système</div><div class="lines" style="height:12px;margin-top:4px;animation:mk-wipe 5s ease-in-out infinite;animation-delay:0.75s"></div></div></div>
+            <div style="display:flex;align-items:center;gap:12px"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">3</span><div style="flex:1;overflow:hidden"><div class="hand" style="font-size:19px;animation:mk-wipe 5s ease-in-out infinite;animation-delay:1.2s">Développement & livraison</div><div class="lines" style="height:12px;margin-top:4px;animation:mk-wipe 5s ease-in-out infinite;animation-delay:1.35s"></div></div></div>
+            <div style="display:flex;align-items:center;gap:12px"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">4</span><div style="flex:1;overflow:hidden"><div class="hand" style="font-size:19px;animation:mk-wipe 5s ease-in-out infinite;animation-delay:1.8s">Formation des équipes</div><div class="lines" style="height:12px;margin-top:4px;animation:mk-wipe 5s ease-in-out infinite;animation-delay:1.95s"></div></div></div>
+            <div style="display:flex;align-items:center;gap:12px"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">5</span><div style="flex:1;overflow:hidden"><div class="hand" style="font-size:19px;animation:mk-wipe 5s ease-in-out infinite;animation-delay:2.4s">Accompagnement & maintenance</div><div class="lines" style="height:12px;margin-top:4px;animation:mk-wipe 5s ease-in-out infinite;animation-delay:2.55s"></div></div></div>
+          </div>
+        </div>
+        <p class="hand" style="font-size:17px;color:#3a3a30;margin:12px 4px 0;max-width:44ch">Chaque ligne se dévoile par un balayage de gauche à droite, comme un surligneur. Élégant, éditorial.</p>
+      </div>
+
+      <div style="flex:none;width:500px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span class="tag">PISTE H</span><span class="hand" style="font-size:25px">Dépliage · l'étape active s'ouvre</span></div>
+        <div class="sheet ink" style="padding:24px;border-radius:16px">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div class="ink-thin" style="padding:12px 14px;overflow:hidden;animation:mk-expand 5s ease-in-out infinite;animation-delay:0.0s"><div style="display:flex;align-items:center;gap:12px"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">1</span><span class="hand" style="font-size:18px">Audit du fonctionnement</span></div><div class="lines" style="height:28px;margin-top:10px"></div></div>
+            <div class="ink-thin" style="padding:12px 14px;overflow:hidden;animation:mk-expand 5s ease-in-out infinite;animation-delay:0.8s"><div style="display:flex;align-items:center;gap:12px"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">2</span><span class="hand" style="font-size:18px">Conception du système</span></div><div class="lines" style="height:28px;margin-top:10px"></div></div>
+            <div class="ink-thin" style="padding:12px 14px;overflow:hidden;animation:mk-expand 5s ease-in-out infinite;animation-delay:1.6s"><div style="display:flex;align-items:center;gap:12px"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">3</span><span class="hand" style="font-size:18px">Développement & livraison</span></div><div class="lines" style="height:28px;margin-top:10px"></div></div>
+            <div class="ink-thin" style="padding:12px 14px;overflow:hidden;animation:mk-expand 5s ease-in-out infinite;animation-delay:2.4s"><div style="display:flex;align-items:center;gap:12px"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">4</span><span class="hand" style="font-size:18px">Formation des équipes</span></div><div class="lines" style="height:28px;margin-top:10px"></div></div>
+            <div class="ink-thin" style="padding:12px 14px;overflow:hidden;animation:mk-expand 5s ease-in-out infinite;animation-delay:3.2s"><div style="display:flex;align-items:center;gap:12px"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">5</span><span class="hand" style="font-size:18px">Accompagnement & maintenance</span></div><div class="lines" style="height:28px;margin-top:10px"></div></div>
+          </div>
+        </div>
+        <p class="hand" style="font-size:17px;color:#3a3a30;margin:12px 4px 0;max-width:44ch">Étapes réduites à leur titre, celle qu'on atteint se déplie et montre son détail. Riche en info, bon pour le SEO.</p>
+      </div>
+
+      <div style="flex:none;width:500px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span class="tag">PISTE I</span><span class="hand" style="font-size:25px">Barres qui montent · progression</span></div>
+        <div class="sheet ink" style="padding:24px 24px 20px;border-radius:16px">
+          <div style="display:flex;align-items:flex-end;gap:14px;height:170px">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end"><div style="width:100%;height:30%;background:#1e1e1a;border-radius:8px 8px 0 0;transform-origin:bottom;animation:mk-growbar 5s ease-in-out infinite;animation-delay:0.0s"></div><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">1</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end"><div style="width:100%;height:46%;background:#1e1e1a;border-radius:8px 8px 0 0;transform-origin:bottom;animation:mk-growbar 5s ease-in-out infinite;animation-delay:0.5s"></div><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">2</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end"><div style="width:100%;height:62%;background:#c0392b;border-radius:8px 8px 0 0;transform-origin:bottom;animation:mk-growbar 5s ease-in-out infinite;animation-delay:1.0s"></div><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">3</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end"><div style="width:100%;height:78%;background:#1e1e1a;border-radius:8px 8px 0 0;transform-origin:bottom;animation:mk-growbar 5s ease-in-out infinite;animation-delay:1.5s"></div><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">4</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end"><div style="width:100%;height:94%;background:#1e1e1a;border-radius:8px 8px 0 0;transform-origin:bottom;animation:mk-growbar 5s ease-in-out infinite;animation-delay:2.0s"></div><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">5</span></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:8px">
+            <span class="hand" style="font-size:12px;text-align:center;line-height:1.05">Audit du fonctionnement</span>
+            <span class="hand" style="font-size:12px;text-align:center;line-height:1.05">Conception du système</span>
+            <span class="hand" style="font-size:12px;text-align:center;line-height:1.05">Développement & livraison</span>
+            <span class="hand" style="font-size:12px;text-align:center;line-height:1.05">Formation des équipes</span>
+            <span class="hand" style="font-size:12px;text-align:center;line-height:1.05">Accompagnement & maintenance</span>
+          </div>
+        </div>
+        <p class="hand" style="font-size:17px;color:#3a3a30;margin:12px 4px 0;max-width:44ch">Les barres se dressent au scroll, façon montée en puissance du projet. Visuel, un peu « data ».</p>
+      </div>
+
+      <div style="flex:none;width:500px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span class="tag">PISTE J</span><span class="hand" style="font-size:25px">Parallaxe · chiffre géant en fond</span></div>
+        <div class="sheet ink" style="padding:24px;border-radius:16px;overflow:hidden;position:relative;min-height:260px">
+          <div style="position:absolute;right:-10px;top:-30px;font-family:'Caveat';font-weight:700;font-size:280px;line-height:.8;color:#00000010;animation:mk-parallax 7s ease-in-out infinite">3</div>
+          <div style="position:relative;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:12px"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">1</span><span class="hand" style="font-size:18px">Audit du fonctionnement</span></div>
+            <div style="display:flex;align-items:center;gap:12px"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">2</span><span class="hand" style="font-size:18px">Conception du système</span></div>
+            <div style="display:flex;align-items:center;gap:12px"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">3</span><span class="hand" style="font-size:18px">Développement & livraison</span></div>
+            <div style="display:flex;align-items:center;gap:12px"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">4</span><span class="hand" style="font-size:18px">Formation des équipes</span></div>
+            <div style="display:flex;align-items:center;gap:12px"><span style="width:26px;height:26px;flex:none;border:2.5px solid #1e1e1a;border-radius:50%;display:grid;place-items:center;background:#c0392b;color:#f4efe2;font-family:'Caveat';font-weight:700;font-size:15px">5</span><span class="hand" style="font-size:18px">Accompagnement & maintenance</span></div>
+          </div>
+        </div>
+        <p class="hand" style="font-size:17px;color:#3a3a30;margin:12px 4px 0;max-width:44ch">Un chiffre géant translucide glisse en fond à vitesse différente du texte (parallaxe). Profond, éditorial, à doser.</p>
+      </div>
+    </div>
+    <div class="ink" style="max-width:1408px;margin:34px 0 0;padding:16px 22px;background:#e9e3d2">
+      <span class="hand" style="font-size:20px"><b>10 pistes, toutes au scroll :</b> A révélation · B chiffre collé · C trait tracé · D pellicule · E cartes retournées · F zoom séquentiel · G balayage · H dépliage · I barres · J parallaxe. Dis-moi la ou les préférées.</span>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1500,&quot;height&quot;:1000},&quot;blogColumns&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:3,&quot;options&quot;:[1,2,3],&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Blog&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const n = this.props.blogColumns ?? 3;
+    return { blogCols: `repeat(${n}, 440px)` };
+  }
+}
+</script>
+</body>
+</html>

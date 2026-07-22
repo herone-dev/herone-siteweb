@@ -1,0 +1,50 @@
+/* Hérone, Alias sémantiques (rôles)
+   Utilisez ces variables dans les composants plutôt que les valeurs de base. */
+:root {
+  /* Surfaces & fonds */
+  --bg-page: var(--paper);
+  --bg-surface: var(--surface);
+  --bg-sunken: var(--surface-2);
+  --bg-inset: var(--surface-3);
+  --bg-inverse: var(--slate-900);
+
+  /* Texte */
+  --text-strong: var(--ink-950);   /* titres */
+  --text-primary: var(--ink-900);  /* corps */
+  --text-secondary: var(--ink-500);
+  --text-muted: var(--ink-400);
+  --text-inverse: var(--ink-50);
+  --text-on-brand: #F8F4E8;
+  --text-on-accent: #FFFFFF;
+
+  /* Bordures & séparateurs (chaudes) */
+  --border: #D8D2BC;
+  --border-strong: var(--ink-300);
+  --border-inverse: rgba(241,238,225,0.16);
+  --divider: var(--ink-100);
+
+  /* Marque (jade) & accent (soleil) */
+  --brand: var(--slate-500);
+  --brand-hover: var(--slate-600);
+  --brand-active: var(--slate-700);
+  --brand-soft: var(--slate-50);
+  --brand-border: var(--slate-200);
+  --accent: var(--amber-500);
+  --accent-hover: var(--amber-600);
+  --accent-soft: var(--amber-50);
+  --accent-border: var(--amber-200);
+
+  /* Focus */
+  --focus-ring: 0 0 0 3px rgba(62,107,90,0.32);
+  --focus-ring-accent: 0 0 0 3px rgba(236,58,8,0.34);
+
+  /* Liens */
+  --link: var(--slate-600);
+  --link-hover: var(--amber-600);
+
+  /* Sémantiques (rôles) */
+  --success: var(--success-500);
+  --warning: var(--warning-500);
+  --danger: var(--danger-500);
+  --info: var(--info-500);
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="design_doc_mode" content="canvas">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/typography.css">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#e7e2d6;font-family:var(--font-sans)}
+    .lbl{display:flex;align-items:baseline;gap:10px;margin-bottom:16px}
+    .lbl b{font-family:var(--font-display);font-weight:700;font-size:16px;color:var(--ink-900)}
+    .lbl span{font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-500)}
+  </style>
+</helmet>
+<div style="padding:64px clamp(32px,5vw,80px);min-width:max-content">
+  <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:8px">
+    <span style="font-family:var(--font-display);font-weight:800;font-size:28px;color:var(--ink-950)">HÉRONE</span>
+    <span style="font-family:var(--font-mono);font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-500)">Maquette site · Page d'accueil · Desktop &amp; mobile</span>
+  </div>
+  <p style="margin:0 0 48px;font-size:15px;color:var(--ink-600);max-width:64ch;line-height:1.6">Design system Hérone appliqué. Faites défiler à l'intérieur de chaque cadre. Le bouton « Réserver 30 minutes » reste atteignable en permanence, y compris en bas d'écran sur mobile.</p>
+
+  <div style="display:flex;flex-wrap:nowrap;gap:72px;align-items:flex-start">
+
+    <div>
+      <div class="lbl"><b>Desktop</b><span>1280 px</span></div>
+      <div style="width:1280px;border-radius:12px;overflow:hidden;background:#fff;border:1px solid rgba(0,0,0,0.14);box-shadow:0 30px 60px -24px rgba(19,42,36,0.4)">
+        <div style="height:44px;background:#efeade;border-bottom:1px solid rgba(0,0,0,0.1);display:flex;align-items:center;gap:16px;padding:0 16px">
+          <div style="display:flex;gap:8px"><span style="width:12px;height:12px;border-radius:50%;background:#e0655a"></span><span style="width:12px;height:12px;border-radius:50%;background:#e0b45a"></span><span style="width:12px;height:12px;border-radius:50%;background:#7fb08f"></span></div>
+          <div style="flex:1;max-width:420px;height:26px;border-radius:13px;background:#fff;border:1px solid rgba(0,0,0,0.1);display:flex;align-items:center;padding:0 12px;font-family:var(--font-mono);font-size:12px;color:var(--ink-500)">herone.fr</div>
+        </div>
+        <iframe src="LP Hérone.dc.html" title="Accueil Hérone desktop" style="display:block;width:1280px;height:820px;border:0;background:var(--paper)"></iframe>
+      </div>
+    </div>
+
+    <div>
+      <div class="lbl"><b>Mobile</b><span>390 px</span></div>
+      <div style="width:414px;padding:12px;border-radius:52px;background:#15251d;box-shadow:0 30px 60px -24px rgba(19,42,36,0.5)">
+        <div style="position:relative;background:#000;border-radius:40px;overflow:hidden;padding:6px">
+          <div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);width:150px;height:26px;background:#000;border-bottom-left-radius:16px;border-bottom-right-radius:16px;z-index:2"></div>
+          <iframe src="LP Hérone.dc.html" title="Accueil Hérone mobile" style="display:block;width:390px;height:844px;border:0;border-radius:34px;background:var(--paper)"></iframe>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

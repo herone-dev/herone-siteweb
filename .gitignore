@@ -11,6 +11,5 @@ node_modules/
 .env
 .env.production
 
-# local tooling / design source (not part of the deployed site)
+# local tooling (not part of the deployed site)
 .claude/
-Maquette site Hérone/

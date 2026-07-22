@@ -1,0 +1,54 @@
+/* Hérone, Couleurs (base)
+   Palette dérivée de la peinture de paysage fournie (assets/paysage-herone.webp),
+   échantillonnée au pixel. Récit : montagnes de jade, brume crème, soleil rouge-orangé.
+   6 couleurs sources :
+   Soleil #EF3002 · Sauge #99AA8E · Jade #518770 · Teal profond #1B3633 · Forêt #162A1E · Crème #E6CFB2
+   Vert de jade = marque ; rouge-orangé du soleil = accent unique (CTA). */
+:root {
+  /* Surfaces (crème chaude, brume) */
+  --paper: #EFEADB;        /* fond de page, brume crème */
+  --surface: #F8F4E8;      /* cartes, panneaux (plus clair) */
+  --surface-2: #E7E1CE;    /* zones creusées, sunken */
+  --surface-3: #D9D2BA;    /* inset appuyé */
+
+  /* Encre neutre : sauge-crème -> vert forêt profond (échelle 50 -> 950) */
+  --ink-50:  #F1EEE1;
+  --ink-100: #E4E0CE;
+  --ink-200: #CFCEB6;      /* bordure chaude */
+  --ink-300: #A9AE96;      /* sauge muté */
+  --ink-400: #7C846B;      /* vert-gris muté */
+  --ink-500: #545F4A;      /* texte secondaire */
+  --ink-600: #3C4636;
+  --ink-700: #2C3528;
+  --ink-800: #1F2A20;
+  --ink-900: #162A1E;      /* texte principal, forêt (échantillon) */
+  --ink-950: #0F1D14;      /* titres, forêt profonde */
+
+  /* Jade / couleur de marque (montagnes) */
+  --slate-50:  #EAF1EB;
+  --slate-100: #CFE1D3;
+  --slate-200: #A6C6AF;
+  --slate-300: #78A489;
+  --slate-400: #518770;    /* échantillon : montagne lointaine */
+  --slate-500: #3E6B5A;    /* PRIMAIRE marque */
+  --slate-600: #305648;
+  --slate-700: #24453A;
+  --slate-800: #1B3633;    /* échantillon : teal profond */
+  --slate-900: #132A24;
+
+  /* Accent : soleil rouge-orangé (nommé amber-* pour compat ; c'est bien l'orange) */
+  --amber-50:  #FCE8DD;
+  --amber-100: #F9CDB9;
+  --amber-200: #F4A485;
+  --amber-300: #F07C54;
+  --amber-400: #F0562A;
+  --amber-500: #EC3A08;    /* ACCENT / CTA : le soleil (échantillon #EF3002) */
+  --amber-600: #C62E06;
+  --amber-700: #9C2507;
+
+  /* Sémantiques, sourdes (usage fonctionnel uniquement) */
+  --success-50: #E4EEE1; --success-500: #4E7A4A; --success-600: #3D6439;
+  --warning-50: #F4E8CE; --warning-500: #B07E22; --warning-600: #8F6417;
+  --danger-50:  #F7E0D6; --danger-500:  #B23B24; --danger-600:  #94301C;
+  --info-50:    #DEE9E4; --info-500:    #3E6B5A; --info-600:    #305648;
+}

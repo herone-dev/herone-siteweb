@@ -1,0 +1,12 @@
+/* Hérone, Rayons de bordure
+   Esthétique précise/sobre : arrondis discrets, jamais mous. */
+:root {
+  --radius-none: 0;
+  --radius-xs: 2px;
+  --radius-sm: 4px;    /* boutons, champs, badges */
+  --radius-md: 6px;
+  --radius-lg: 8px;    /* cartes */
+  --radius-xl: 12px;   /* grands panneaux */
+  --radius-2xl: 16px;
+  --radius-full: 999px;
+}

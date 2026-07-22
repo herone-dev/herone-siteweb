@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/elevation.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/motion.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/tokens/semantic.css">
+  <link rel="stylesheet" href="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/styles.css">
+  <script src="_ds/h-rone-ds2-c54fc958-2aa2-4568-b7bc-391dcf799f9f/_ds_bundle.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;background:#EFEADB}
+    body{margin:0;background:#EFEADB;color:var(--text-primary);font-family:var(--font-sans);-webkit-font-smoothing:antialiased}
+    a{color:var(--link);text-decoration:none}
+    a:hover{color:var(--link-hover)}
+    ::selection{background:var(--slate-200);color:var(--ink-950)}
+    .hrn-btn--accent,.hrn-btn--accent:hover,.hrn-btn--accent:active,.hrn-btn--accent>span,.hrn-btn--accent>span *,.hrn-btn--primary,.hrn-btn--primary>span,.hrn-btn--primary>span *{color:#fff!important;-webkit-text-fill-color:#fff!important;opacity:1!important}
+    .prose h2{font-family:var(--font-display);font-weight:700;font-size:clamp(1.5rem,2.4vw,1.95rem);line-height:1.14;letter-spacing:-0.02em;color:var(--text-strong);margin:44px 0 14px;scroll-margin-top:96px}
+    .prose h3{font-family:var(--font-display);font-weight:700;font-size:clamp(1.2rem,1.8vw,1.4rem);line-height:1.2;color:var(--text-strong);margin:32px 0 10px}
+    .prose p{font-size:1.13rem;line-height:1.72;color:var(--text-primary);margin:0 0 20px}
+    .prose ul{margin:0 0 22px;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:12px}
+    .prose li{position:relative;padding-left:28px;font-size:1.11rem;line-height:1.6;color:var(--text-primary)}
+    .prose li::before{content:"";position:absolute;left:4px;top:11px;width:8px;height:8px;border-radius:50%;background:var(--amber-500)}
+    .prose strong{color:var(--text-strong);font-weight:700}
+    .prose blockquote{margin:28px 0;padding:4px 0 4px 22px;border-left:3px solid var(--amber-500);font-family:var(--font-display);font-weight:600;font-size:1.3rem;line-height:1.4;color:var(--text-strong)}
+    @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+  </style>
+</helmet>
+<div id="hrn-article-root" style="width:100%;min-width:0;position:relative;overflow-x:hidden;background:var(--paper);min-height:100vh;display:flex;flex-direction:column">
+
+  <header style="position:fixed;top:0;left:0;right:0;z-index:50;background:color-mix(in srgb, var(--paper) 72%, transparent);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--border)">
+    <div style="max-width:var(--container-wide);margin:0 auto;padding:0 clamp(20px,5vw,48px);height:68px;display:flex;align-items:center;justify-content:space-between;gap:24px">
+      <a href="LP Hérone.dc.html" style="display:inline-flex;align-items:center;text-decoration:none">
+        <span style="font-family:var(--font-display);font-weight:800;font-size:26px;letter-spacing:0.01em;color:var(--text-strong)">HÉRONE</span>
+      </a>
+      <sc-if value="{{ showDesktopNav }}" hint-placeholder-val="{{ true }}">
+        <nav style="display:flex;align-items:center;gap:28px">
+          <a href="LP Hérone.dc.html#systemes" style="font-size:15px;font-weight:500;color:var(--text-primary)">Systèmes</a>
+          <a href="LP Hérone.dc.html#fondateurs" style="font-size:15px;font-weight:500;color:var(--text-primary)">À propos</a>
+          <a href="Blog Hérone.dc.html" style="font-size:15px;font-weight:500;color:var(--text-primary)">Blog</a>
+          <x-import component-from-global-scope="HRoneDesignSystem_c54fc9.Button" variant="accent" size="md" href="LP Hérone.dc.html#reserver" hint-size="180px,44px">Réserver 30 minutes</x-import>
+        </nav>
+      </sc-if>
+      <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+        <x-import component-from-global-scope="HRoneDesignSystem_c54fc9.Button" variant="accent" size="sm" href="LP Hérone.dc.html#reserver" hint-size="130px,36px">Réserver</x-import>
+      </sc-if>
+    </div>
+  </header>
+
+  <main style="flex:1;padding-top:68px">
+    <div style="max-width:var(--container-max);margin:0 auto;padding:clamp(32px,5vw,56px) clamp(20px,5vw,48px) 0">
+      <a href="Blog Hérone.dc.html" style="display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:var(--slate-600)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Tous les articles</a>
+    </div>
+
+    <div style="max-width:var(--container-max);margin:0 auto;padding:20px clamp(20px,5vw,48px) clamp(56px,7vw,88px);display:grid;grid-template-columns:{{ gridCols }};gap:clamp(28px,4vw,56px);align-items:start">
+
+      <article style="min-width:0;max-width:720px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="width:8px;height:8px;border-radius:50%;flex:none;background:{{ post.dot }}"></span>
+          <span style="font-family:var(--font-mono);font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:{{ post.catColor }}">{{ post.cat }}</span>
+          <span style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted)">· {{ post.meta }}</span>
+        </div>
+        <h1 style="font-family:var(--font-display);font-weight:800;font-size:clamp(2rem,4vw,3rem);line-height:1.05;letter-spacing:-0.025em;color:var(--text-strong);margin:14px 0 0;text-wrap:balance">{{ post.title }}</h1>
+        <p style="font-size:clamp(1.15rem,1.6vw,1.35rem);line-height:1.5;color:var(--text-secondary);margin:16px 0 0;text-wrap:pretty">{{ post.excerpt }}</p>
+
+        <sc-if value="{{ showTocInline }}" hint-placeholder-val="{{ false }}">
+          <nav style="margin:28px 0 8px;padding:18px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg)">
+            <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px">Sommaire</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ toc }}" as="item" hint-placeholder-count="3">
+                <a href="{{ item.href }}" style="font-size:15px;color:var(--slate-600);font-weight:500">{{ item.label }}</a>
+              </sc-for>
+            </div>
+          </nav>
+        </sc-if>
+
+        <div class="prose" style="margin-top:28px">
+          <p>{{ post.intro }}</p>
+
+          <h2 id="probleme">Le problème, concrètement</h2>
+          <p>{{ post.body1 }}</p>
+          <ul>
+            <li>{{ post.point1 }}</li>
+            <li>{{ post.point2 }}</li>
+            <li>{{ post.point3 }}</li>
+          </ul>
+
+          <blockquote>{{ post.pull }}</blockquote>
+
+          <div style="margin:36px 0;background:var(--slate-900);border-radius:var(--radius-xl);padding:clamp(22px,3vw,32px);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px">
+            <div>
+              <h3 style="font-family:var(--font-display);font-weight:800;font-size:1.4rem;line-height:1.12;letter-spacing:-0.02em;color:var(--text-inverse);margin:0;max-width:26ch">On regarde votre cas en trente minutes.</h3>
+              <p style="font-size:15px;line-height:1.5;color:var(--ink-300);margin:8px 0 0;max-width:42ch">Sans jargon, sans engagement. On repère ce qui peut être automatisé chez vous.</p>
+            </div>
+            <x-import component-from-global-scope="HRoneDesignSystem_c54fc9.Button" variant="accent" size="lg" href="LP Hérone.dc.html#reserver" hint-size="210px,52px">Réserver 30 minutes</x-import>
+          </div>
+
+          <h2 id="solution">Comment le système fonctionne</h2>
+          <p>{{ post.body2 }}</p>
+          <h3>Ce que vos équipes voient</h3>
+          <p>{{ post.body3 }}</p>
+
+          <h2 id="resultat">Le résultat</h2>
+          <p>{{ post.body4 }}</p>
+        </div>
+
+        <div style="margin-top:40px;padding-top:28px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px">
+          <div>
+            <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted)">Un cas qui vous parle ?</div>
+            <div style="font-family:var(--font-display);font-weight:700;font-size:1.3rem;color:var(--text-strong);margin-top:4px">Parlons-en trente minutes.</div>
+          </div>
+          <x-import component-from-global-scope="HRoneDesignSystem_c54fc9.Button" variant="accent" size="lg" href="LP Hérone.dc.html#reserver" hint-size="210px,52px">Réserver 30 minutes</x-import>
+        </div>
+      </article>
+
+      <sc-if value="{{ showAside }}" hint-placeholder-val="{{ true }}">
+        <aside style="min-width:0;position:sticky;top:96px;display:flex;flex-direction:column;gap:22px">
+          <sc-if value="{{ showToc }}" hint-placeholder-val="{{ false }}">
+            <nav style="padding:18px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg)">
+              <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px">Sur cette page</div>
+              <div style="display:flex;flex-direction:column;gap:9px">
+                <sc-for list="{{ toc }}" as="item" hint-placeholder-count="3">
+                  <a href="{{ item.href }}" style="font-size:14.5px;color:var(--slate-600);font-weight:500;line-height:1.3">{{ item.label }}</a>
+                </sc-for>
+              </div>
+            </nav>
+          </sc-if>
+          <div style="padding:20px;background:var(--slate-900);border-radius:var(--radius-lg)">
+            <div style="font-family:var(--font-display);font-weight:700;font-size:1.15rem;color:var(--text-inverse);line-height:1.2">Récupérez des heures.</div>
+            <p style="font-size:14px;line-height:1.5;color:var(--ink-300);margin:8px 0 14px">Trente minutes pour voir ce qu'on peut automatiser chez vous.</p>
+            <x-import component-from-global-scope="HRoneDesignSystem_c54fc9.Button" variant="accent" size="md" block="{{ true }}" href="LP Hérone.dc.html#reserver" hint-size="100%,44px">Réserver 30 minutes</x-import>
+          </div>
+        </aside>
+      </sc-if>
+    </div>
+
+    <section style="background:var(--surface);border-top:1px solid var(--border)">
+      <div style="max-width:var(--container-max);margin:0 auto;padding:clamp(44px,6vw,64px) clamp(20px,5vw,48px)">
+        <div style="font-family:var(--font-mono);font-weight:500;font-size:var(--text-xs);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--slate-600)">À lire ensuite</div>
+        <h2 style="font-family:var(--font-display);font-weight:800;font-size:clamp(1.6rem,3vw,2.2rem);line-height:1.1;letter-spacing:-0.02em;color:var(--text-strong);margin:12px 0 28px">Sur le même sujet.</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+          <sc-for list="{{ related }}" as="rel" hint-placeholder-count="3">
+            <a href="{{ rel.href }}" style="display:flex;flex-direction:column;gap:8px;background:var(--paper);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;text-decoration:none;transition:box-shadow var(--dur) var(--ease-standard),transform var(--dur) var(--ease-standard),border-color var(--dur)" style-hover="box-shadow:var(--shadow-md);transform:translateY(-2px);border-color:var(--border-strong)">
+              <div style="display:flex;align-items:center;gap:9px"><span style="width:7px;height:7px;border-radius:50%;flex:none;background:{{ rel.dot }}"></span><span style="font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:{{ rel.catColor }}">{{ rel.cat }}</span></div>
+              <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.18rem;line-height:1.2;letter-spacing:-0.01em;color:var(--text-strong);margin:0;text-wrap:pretty">{{ rel.title }}</h3>
+              <span style="font-family:var(--font-mono);font-size:11.5px;color:var(--text-muted)">{{ rel.meta }}</span>
+            </a>
+          </sc-for>
+          <a href="{{ systemHref }}" style="display:flex;flex-direction:column;justify-content:space-between;gap:12px;background:var(--slate-900);border:1px solid var(--slate-900);border-radius:var(--radius-lg);padding:20px;text-decoration:none;transition:transform var(--dur) var(--ease-standard)" style-hover="transform:translateY(-2px)">
+            <div>
+              <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--amber-300)">Le système</div>
+              <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.18rem;line-height:1.2;color:var(--text-inverse);margin:8px 0 0;text-wrap:pretty">{{ post.systemTitle }}</h3>
+            </div>
+            <span style="display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:var(--amber-300)">Découvrir le système<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer style="background:var(--ink-950);color:var(--ink-300);padding:clamp(48px,6vw,72px) 0 32px">
+    <div style="max-width:var(--container-max);margin:0 auto;padding:0 clamp(20px,5vw,48px)">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:32px">
+        <div style="min-width:200px">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:24px;color:var(--text-inverse)">HÉRONE</div>
+          <p style="margin:12px 0 0;font-size:14px;line-height:1.6;color:var(--ink-300);max-width:32ch">Systèmes automatisés et IA sur mesure pour les TPE et PME du Grand Ouest.</p>
+          <p style="margin:14px 0 0;font-size:14px;line-height:1.6;color:var(--ink-300)">37 rue Édouard Branly<br>Les Herbiers 85500</p>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--ink-400);margin-bottom:14px">Site</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <a href="LP Hérone.dc.html#systemes" style="font-size:14px;color:var(--ink-100)">Systèmes</a>
+            <a href="LP Hérone.dc.html#fondateurs" style="font-size:14px;color:var(--ink-100)">À propos</a>
+            <a href="LP Hérone.dc.html#reserver" style="font-size:14px;color:var(--ink-100)">Réserver un appel</a>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--ink-400);margin-bottom:14px">Ressources</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <a href="Blog Hérone.dc.html" style="font-size:14px;color:var(--ink-100)">Blog</a>
+            <a href="mailto:contact@herone.fr" style="font-size:14px;color:var(--ink-100)">contact@herone.fr</a>
+            <a href="tel:+33663710598" style="font-size:14px;color:var(--ink-100);font-family:var(--font-mono)">06 63 71 05 98</a>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--ink-400);margin-bottom:14px">Légal</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <a href="#" style="font-size:14px;color:var(--ink-100)">Mentions légales</a>
+            <a href="#" style="font-size:14px;color:var(--ink-100)">Confidentialité</a>
+            <a href="#" style="font-size:14px;color:var(--ink-100)">Cookies</a>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:40px;padding-top:24px;border-top:1px solid var(--border-inverse);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:var(--ink-400)">© 2026 Hérone · Les Herbiers, Vendée</span>
+        <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-400)">L'IA sort l'humain des tâches mécaniques</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { w: 1200 };
+  CAT_DOT = { Automatisation: 'var(--amber-500)', Devis: 'var(--slate-500)', CRM: 'var(--slate-700)', BTP: 'var(--slate-400)' };
+  CAT_COLOR = { Automatisation: 'var(--amber-700)', Devis: 'var(--slate-600)', CRM: 'var(--slate-600)', BTP: 'var(--slate-600)' };
+  POSTS = [
+    { slug: 'comptes-rendus', cat: 'Automatisation', title: 'Automatiser ses comptes rendus de réunion', meta: '4 min · 12 juil 2026', systemTitle: 'Comptes rendus automatiques',
+      excerpt: "Du boîtier micro au compte rendu envoyé : comment supprimer la prise de notes et la ressaisie après chaque rendez-vous.",
+      intro: "Après chaque réunion, quelqu'un s'installe pour retaper ses notes, remettre en forme, envoyer. Une heure perdue, parfois plus, et des détails qui filent. Voici comment un système bien réglé fait disparaître cette tâche.",
+      body1: "Le compte rendu manuel coûte cher, non pas en logiciel, mais en temps humain et en informations perdues. Les points concrets qui reviennent chez nos clients :",
+      point1: "Une à deux heures de rédaction après chaque rendez-vous important.",
+      point2: "Des décisions ou des chiffres oubliés parce qu'on écrit et on écoute en même temps.",
+      point3: "Des comptes rendus envoyés avec deux jours de retard, quand ils le sont.",
+      pull: "Le rendez-vous se termine, le compte rendu part. Personne n'a ouvert un traitement de texte.",
+      body2: "Un boîtier capte l'audio du rendez-vous. Une première IA le transcrit au mot près, une seconde en extrait l'essentiel : décisions, montants, prochaines étapes. Le tout est mis en forme dans un modèle propre, à votre image.",
+      body3: "Rien de nouveau à apprendre. Le compte rendu arrive par e-mail, prêt à relire. Un humain valide en trente secondes avant l'envoi quand l'enjeu le justifie : vous gardez toujours la main.",
+      body4: "Concrètement, la rédaction passe de l'heure à quelques minutes de relecture, et plus aucun rendez-vous ne repart sans son compte rendu. Le temps gagné retourne là où il compte : chez vos clients." },
+    { slug: 'devis-excel', cat: 'Devis', title: 'Arrêter de recalculer ses devis dans Excel', meta: '5 min · 11 juil 2026', systemTitle: 'Devis automatisés',
+      excerpt: "Un système qui reprend vos prix et vos règles pour sortir un devis à jour à chaque variante, sans erreur de copier-coller.",
+      intro: "Le devis dans Excel commence bien, puis chaque variante ajoute une ligne, un onglet, une formule cassée. Voici comment fiabiliser et accélérer ce travail sans changer votre façon de vendre.",
+      body1: "Recalculer un devis à la main, c'est du temps et un risque d'erreur à chaque changement de quantité ou de matériau :",
+      point1: "Des heures passées à dupliquer et ajuster des feuilles de calcul.",
+      point2: "Une formule oubliée qui fausse la marge sans qu'on le voie.",
+      point3: "Des versions qui se multiplient : on ne sait plus laquelle est la bonne.",
+      pull: "Vous changez une quantité, le devis se recalcule. Vous validez, il part.",
+      body2: "Le système reprend votre catalogue de prix et vos règles de calcul. Vous saisissez les paramètres du chantier, il produit un devis à jour, cohérent, prêt à envoyer, avec la marge protégée.",
+      body3: "L'interface reste simple : vos commerciaux renseignent ce qu'ils connaissent déjà. Le calcul, lui, ne se trompe plus. Chaque devis est archivé proprement, retrouvable en un instant.",
+      body4: "Le temps de production d'un devis chute, les erreurs de calcul disparaissent, et vous répondez plus vite aux demandes entrantes, ce qui se transforme souvent en affaires signées." },
+    { slug: 'facebook-crm', cat: 'CRM', title: 'Connecter un formulaire Facebook à son CRM', meta: '3 min · 10 juil 2026', systemTitle: 'Connexion de vos outils',
+      excerpt: "Le lead arrive, il part automatiquement dans le tableur, dans le CRM, et l'équipe reçoit l'alerte. Zéro saisie, aucune fuite.",
+      intro: "Un prospect remplit un formulaire, et puis... il attend. Le temps qu'on relève les leads à la main, la concurrence a déjà rappelé. Voici comment ne plus jamais laisser un lead refroidir.",
+      body1: "Sans automatisation, un lead entrant passe par trop d'étapes manuelles :",
+      point1: "On exporte le formulaire, on le colle dans un tableur, on l'ajoute au CRM.",
+      point2: "Un lead sur deux se perd ou se traite avec des heures de retard.",
+      point3: "Personne ne sait qui doit rappeler, ni quand.",
+      pull: "Le formulaire est rempli, l'équipe est déjà alertée. Le lead n'a pas eu le temps de refroidir.",
+      body2: "Dès qu'un lead arrive, le système l'envoie au tableur, le crée dans le CRM et prévient la bonne personne par e-mail ou message. Pas d'IA ici, juste de l'automatisation fiable, branchée sur vos outils.",
+      body3: "Vos commerciaux voient le lead apparaître là où ils travaillent déjà, avec toutes les informations. Ils rappellent vite, sans ressaisir quoi que ce soit.",
+      body4: "Résultat : chaque lead est traité, tracé et attribué en quelques secondes. Vous rappelez avant les autres, et plus aucune demande ne tombe entre les mailles du filet." },
+    { slug: 'metre-dwg', cat: 'BTP', title: 'Extraire les métrés d\'un plan DWG automatiquement', meta: '6 min · 9 juil 2026', systemTitle: 'Métré automatique sur plan',
+      excerpt: "L'IA lit le plan, sort les quantités et chiffre les matériaux à partir de votre base de prix. Le métré passe de l'heure à la minute.",
+      intro: "Le métré au règle et à la calculette, c'est fiable mais lent, et ça mobilise votre meilleur technicien. Voici comment sortir les quantités d'un plan en quelques minutes, sans perdre en précision.",
+      body1: "Le métré manuel sur plan est un goulot d'étranglement classique du chiffrage :",
+      point1: "Des heures pour relever surfaces, longueurs et quantités.",
+      point2: "Le risque d'oubli d'une pièce ou d'un poste entier.",
+      point3: "Un technicien expérimenté immobilisé sur une tâche répétitive.",
+      pull: "Vous envoyez le plan, les quantités chiffrées reviennent. Le technicien relit au lieu de mesurer.",
+      body2: "Vous transmettez le plan DWG. L'IA en extrait les mesures, applique votre base de données de prix selon les matériaux et sort un métré chiffré, poste par poste.",
+      body3: "Le technicien passe d'un rôle de mesureur à un rôle de contrôleur : il vérifie, ajuste, valide. Son expertise sert à décider, plus à compter.",
+      body4: "Le métré passe de l'heure à la minute, la précision reste au rendez-vous, et vous répondez à plus d'appels d'offres avec la même équipe." },
+    { slug: 'reporting-mensuel', cat: 'Automatisation', title: 'Le reporting mensuel qui se construit tout seul', meta: '4 min · 8 juil 2026', systemTitle: 'Connexion de vos outils',
+      excerpt: "Plutôt que de reconstituer le tableau chaque fin de mois, on branche les sources et le rapport s'assemble à date fixe.",
+      intro: "Chaque fin de mois, la même corvée : rassembler les chiffres de partout, les remettre en forme, vérifier qu'ils tombent juste. Voici comment le rapport se construit sans vous.",
+      body1: "Le reporting reconstitué à la main pose trois problèmes récurrents :",
+      point1: "Une journée par mois passée à copier-coller des chiffres.",
+      point2: "Des écarts d'un mois à l'autre parce que la méthode change.",
+      point3: "Un rapport prêt trop tard pour décider quoi que ce soit.",
+      pull: "Le premier du mois, le rapport est déjà là. Vous le lisez au lieu de le fabriquer.",
+      body2: "On branche le système sur vos sources : ventes, compta, outils métier. À date fixe, il assemble le rapport dans un format lisible et constant, toujours calculé de la même façon.",
+      body3: "Vous recevez un tableau de bord clair, sans avoir touché un tableur. Les données sont à jour, comparables d'un mois sur l'autre, prêtes à piloter.",
+      body4: "La journée de reporting disparaît, les chiffres deviennent fiables et réguliers, et vous décidez sur des données à jour plutôt que sur un rapport en retard." },
+    { slug: 'relances-clients', cat: 'CRM', title: 'Relancer ses clients sans y penser', meta: '3 min · 5 juil 2026', systemTitle: 'Connexion de vos outils',
+      excerpt: "Des relances déclenchées au bon moment, avec validation humaine avant l'envoi quand ça compte. Vous gardez la main.",
+      intro: "Les relances, c'est le chiffre d'affaires qui dort. On sait qu'il faut les faire, mais elles passent après le reste. Voici comment ne plus jamais oublier de relancer.",
+      body1: "La relance manuelle est la première tâche qu'on repousse, avec des conséquences directes :",
+      point1: "Des devis sans réponse qu'on oublie de relancer.",
+      point2: "Des factures qui traînent faute de rappel.",
+      point3: "Un suivi qui dépend de la mémoire de chacun.",
+      pull: "La relance part au bon moment. Vous validez quand ça compte, le reste roule.",
+      body2: "Le système suit vos devis et factures et déclenche la relance au moment prévu. Pour les cas sensibles, il vous propose le message : vous validez avant l'envoi, vous gardez la main.",
+      body3: "Vos équipes ne surveillent plus les échéances : elles interviennent seulement quand une décision humaine est utile. Le reste se fait tout seul, à l'heure.",
+      body4: "Les relances ne se perdent plus, les délais de paiement se resserrent, et le chiffre d'affaires qui dormait dans les devis sans réponse se réveille." },
+  ];
+  componentDidMount() {
+    this.root = document.getElementById('hrn-article-root');
+    const set = () => { if (this.root) this.setState({ w: this.root.clientWidth }); };
+    set();
+    this._ro = new ResizeObserver(set);
+    if (this.root) this._ro.observe(this.root);
+    window.scrollTo(0, 0);
+  }
+  componentWillUnmount() { if (this._ro) this._ro.disconnect(); }
+  _slug() {
+    try { const s = new URLSearchParams(location.search).get('a'); if (s) return s; } catch (e) {}
+    return this.POSTS[0].slug;
+  }
+  renderVals() {
+    const isMobile = this.state.w < 900;
+    const slug = this._slug();
+    const idx = Math.max(0, this.POSTS.findIndex(p => p.slug === slug));
+    const p = this.POSTS[idx];
+    const decorate = (x) => ({ ...x, dot: this.CAT_DOT[x.cat] || 'var(--slate-500)', catColor: this.CAT_COLOR[x.cat] || 'var(--slate-600)', href: 'Article Hérone.dc.html?a=' + x.slug });
+    const sameCat = this.POSTS.filter((x, i) => i !== idx && x.cat === p.cat);
+    const others = this.POSTS.filter((x, i) => i !== idx && x.cat !== p.cat);
+    const related = [...sameCat, ...others].slice(0, 3).map(decorate);
+    return {
+      isMobile,
+      showDesktopNav: !isMobile,
+      showAside: !isMobile,
+      showToc: true,
+      showTocInline: isMobile,
+      post: decorate(p),
+      gridCols: isMobile ? '1fr' : 'minmax(0,1fr) 300px',
+      toc: [
+        { label: 'Le problème, concrètement', href: '#probleme' },
+        { label: 'Comment le système fonctionne', href: '#solution' },
+        { label: 'Le résultat', href: '#resultat' },
+      ],
+      related,
+      systemHref: 'LP Hérone.dc.html#systemes',
+    };
+  }
+}
+</script>
+</body>
+</html>
