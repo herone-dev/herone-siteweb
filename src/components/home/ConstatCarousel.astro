@@ -164,7 +164,7 @@ const cards = [
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    transition: transform var(--dur-slow) var(--ease-out), box-shadow var(--dur-slow) var(--ease-out);
+    transition: transform 260ms cubic-bezier(.4,0,.2,1), box-shadow 260ms cubic-bezier(.4,0,.2,1);
   }
 
   .hrn-constat__card:hover {
@@ -241,9 +241,10 @@ const cards = [
     border-radius: var(--radius-full);
     border: none;
     padding: 0;
-    background: var(--border-strong);
     cursor: pointer;
-    transition: background var(--dur-fast) var(--ease-standard), width var(--dur-fast) var(--ease-standard);
+    border: 0;
+    background: var(--border-strong);
+    transition: background 320ms cubic-bezier(.4,0,.2,1);
   }
 
   :global(.hrn-constat__dots button[aria-current='true']) {

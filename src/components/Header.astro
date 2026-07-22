@@ -63,13 +63,13 @@ const { theme = 'light' } = Astro.props;
 
   .hrn-header--light,
   .hrn-header.is-scrolled {
-    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    background: color-mix(in srgb, var(--paper) 82%, transparent);
     border-bottom-color: var(--border);
   }
 
   .hrn-header--dark:not(.is-scrolled) {
-    background: transparent;
-    border-bottom-color: rgba(255, 255, 255, 0.12);
+    background: color-mix(in srgb, var(--ink-950) 12%, transparent);
+    border-bottom-color: color-mix(in srgb, #fff 14%, transparent);
   }
 
   .hrn-header__inner {
@@ -99,7 +99,7 @@ const { theme = 'light' } = Astro.props;
   }
 
   .hrn-header--dark:not(.is-scrolled) .hrn-header__phone {
-    color: rgba(255, 255, 255, 0.78) !important;
+    color: color-mix(in srgb, #fff 78%, transparent) !important;
   }
 
   .hrn-header__nav-desktop {
@@ -138,7 +138,7 @@ const { theme = 'light' } = Astro.props;
   }
 
   .hrn-header--dark:not(.is-scrolled) .hrn-header__burger {
-    border-color: rgba(255, 255, 255, 0.3);
+    border-color: color-mix(in srgb, #fff 30%, transparent);
     color: #fff;
   }
 

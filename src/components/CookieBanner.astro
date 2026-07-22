@@ -5,8 +5,8 @@ import Button from './Button.astro';
 <div id="hrn-cookie-banner" class="hrn-cookie" hidden>
   <p>Nous utilisons des cookies de mesure d'audience pour améliorer le site. Vous pouvez les accepter ou les refuser.</p>
   <div class="hrn-cookie__actions">
-    <Button variant="secondary" size="sm" class="hrn-cookie__refuse">Refuser</Button>
     <Button variant="primary" size="sm" class="hrn-cookie__accept">Accepter</Button>
+    <Button variant="secondary" size="sm" class="hrn-cookie__refuse">Refuser</Button>
     <a href="/cookies" class="hrn-cookie__customize">Personnaliser</a>
   </div>
 </div>
@@ -14,44 +14,52 @@ import Button from './Button.astro';
 <style>
   .hrn-cookie {
     position: fixed;
+    z-index: 65;
     left: 16px;
     right: 16px;
-    bottom: 16px;
-    z-index: 70;
-    max-width: 620px;
-    margin: 0 auto;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 16px;
-    padding: 18px 20px;
-    background: color-mix(in srgb, var(--ink-950) 94%, transparent);
-    backdrop-filter: blur(6px);
+    bottom: 20px;
+    max-width: 440px;
+    margin-left: auto;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-xl);
+    box-shadow: var(--shadow-lg);
+    padding: 20px;
   }
 
   .hrn-cookie[hidden] { display: none; }
 
   .hrn-cookie p {
-    flex: 1 1 260px;
     margin: 0;
-    font-size: 13.5px;
-    line-height: 1.5;
-    color: var(--ink-200);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text-primary);
   }
 
   .hrn-cookie__actions {
     display: flex;
-    align-items: center;
-    gap: 10px;
     flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+    align-items: center;
   }
 
   .hrn-cookie__customize {
     font-size: 13px;
-    color: var(--ink-300);
+    color: var(--text-secondary);
+    margin-left: 2px;
+    text-decoration: none;
+  }
+
+  .hrn-cookie__customize:hover {
+    color: var(--link-hover);
     text-decoration: underline;
+  }
+
+  @media (max-width: 819px) {
+    .hrn-cookie {
+      bottom: 92px;
+    }
   }
 </style>
 
