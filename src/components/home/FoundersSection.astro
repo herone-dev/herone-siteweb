@@ -1,5 +1,8 @@
 ---
-import ImagePlaceholder from '../ImagePlaceholder.astro';
+import { Image } from 'astro:assets';
+import founderNolan from '../../assets/images/founder-nolan.webp';
+import founderMartin from '../../assets/images/founder-martin.webp';
+import officesHerbiers from '../../assets/images/offices-herbiers.webp';
 ---
 
 <section id="fondateurs" class="hrn-founders">
@@ -18,14 +21,14 @@ import ImagePlaceholder from '../ImagePlaceholder.astro';
 
     <div class="hrn-founders__portraits">
       <div class="hrn-founders__portrait">
-        <ImagePlaceholder label="Portrait" expectedPath="public/images/founder-nolan.jpg" ratio="4/5" />
+        <Image src={founderNolan} alt="Nolan Genty" width={496} height={496} />
         <div class="hrn-founders__caption">
           <strong>Nolan Genty</strong>
           <span>Directeur Général</span>
         </div>
       </div>
       <div class="hrn-founders__portrait">
-        <ImagePlaceholder label="Portrait" expectedPath="public/images/founder-martin.jpg" ratio="4/5" />
+        <Image src={founderMartin} alt="Martin Talon" width={496} height={496} />
         <div class="hrn-founders__caption">
           <strong>Martin Talon</strong>
           <span>Directeur Technique</span>
@@ -34,7 +37,7 @@ import ImagePlaceholder from '../ImagePlaceholder.astro';
     </div>
 
     <div class="hrn-founders__offices">
-      <ImagePlaceholder label="Nos bureaux" expectedPath="public/images/offices-herbiers.jpg" ratio="21/9" />
+      <Image src={officesHerbiers} alt="Bureaux Hérone aux Herbiers" width={1200} height={552} />
       <div class="hrn-founders__offices-caption">
         <strong>Nos bureaux</strong>
         <span>Les Herbiers, Vendée</span>
@@ -76,6 +79,14 @@ import ImagePlaceholder from '../ImagePlaceholder.astro';
     transition: transform var(--dur-slow) var(--ease-out), box-shadow var(--dur-slow) var(--ease-out);
   }
 
+  .hrn-founders__portrait :global(img) {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+  }
+
   .hrn-founders__portrait:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-lg);
@@ -101,6 +112,14 @@ import ImagePlaceholder from '../ImagePlaceholder.astro';
   .hrn-founders__offices {
     position: relative;
     margin-top: 24px;
+  }
+
+  .hrn-founders__offices :global(img) {
+    display: block;
+    width: 100%;
+    aspect-ratio: 21 / 9;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
   }
 
   .hrn-founders__offices-caption {

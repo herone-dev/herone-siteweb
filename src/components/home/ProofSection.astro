@@ -1,5 +1,6 @@
 ---
-import ImagePlaceholder from '../ImagePlaceholder.astro';
+import { Image } from 'astro:assets';
+import proofRapin from '../../assets/images/proof-rapin.webp';
 ---
 
 <section class="hrn-proof">
@@ -18,7 +19,7 @@ import ImagePlaceholder from '../ImagePlaceholder.astro';
 
       <div class="hrn-proof__author">
         <div class="hrn-proof__avatar">
-          <ImagePlaceholder label="Photo" expectedPath="public/images/proof-rapin.jpg" ratio="1/1" />
+          <Image src={proofRapin} alt="Tommy et Audrey Rapin" width={96} height={96} />
         </div>
         <div>
           <strong>Tommy et Audrey Rapin</strong>
@@ -107,7 +108,16 @@ import ImagePlaceholder from '../ImagePlaceholder.astro';
 
   .hrn-proof__avatar {
     width: 52px;
+    height: 52px;
     flex: none;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+
+  .hrn-proof__avatar :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .hrn-proof__author strong {

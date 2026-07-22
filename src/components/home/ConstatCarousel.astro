@@ -1,39 +1,51 @@
 ---
-import ImagePlaceholder from '../ImagePlaceholder.astro';
+import { Image } from 'astro:assets';
+import constatRessaisie from '../../assets/images/constat-ressaisie.webp';
+import constatDevis from '../../assets/images/constat-devis.webp';
+import constatComptes from '../../assets/images/constat-comptes.webp';
+import constatReporting from '../../assets/images/constat-reporting.webp';
+import constatDocuments from '../../assets/images/constat-documents.webp';
+import constatMails from '../../assets/images/constat-mails.webp';
 
 const cards = [
   {
     id: 'constat-ressaisie',
+    image: constatRessaisie,
     tag: 'chaque jour',
     title: "Ressaisie d'un logiciel à l'autre",
     text: "Les mêmes informations recopiées d'un outil à un autre, avec le risque d'erreur à chaque fois.",
   },
   {
     id: 'constat-devis',
+    image: constatDevis,
     tag: 'à chaque variante',
     title: 'Devis recalculés dans Excel',
     text: "Des feuilles dupliquées, une formule oubliée, et la marge qui saute sans qu'on le voie.",
   },
   {
     id: 'constat-comptes',
+    image: constatComptes,
     tag: 'après chaque réunion',
     title: 'Comptes rendus retapés à la main',
     text: "Une à deux heures de rédaction après le rendez-vous, et des détails qui filent.",
   },
   {
     id: 'constat-reporting',
+    image: constatReporting,
     tag: 'chaque fin de mois',
     title: 'Reporting mensuel refait',
     text: "Une journée à rassembler des chiffres épars, prêts trop tard pour décider.",
   },
   {
     id: 'constat-documents',
+    image: constatDocuments,
     tag: 'dossier par dossier',
     title: 'Documents envoyés un par un',
     text: "Le même envoi répété à la main, client après client, sans traçabilité.",
   },
   {
     id: 'constat-mails',
+    image: constatMails,
     tag: 'au quotidien',
     title: 'Mails et pièces à trier',
     text: "Des heures à ranger, transférer et classer ce qui arrive dans la boîte.",
@@ -63,7 +75,7 @@ const cards = [
         {cards.map((card) => (
           <div class="hrn-constat__card">
             <div class="hrn-constat__thumb">
-              <ImagePlaceholder label="Photo terrain" expectedPath={`public/images/${card.id}.jpg`} ratio="16/10" rounded={false} />
+              <Image src={card.image} alt={card.title} width={678} height={450} />
               <span class="hrn-constat__badge">{card.tag}</span>
             </div>
             <div class="hrn-constat__body">
@@ -164,6 +176,16 @@ const cards = [
 
   .hrn-constat__thumb {
     position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+  }
+
+  .hrn-constat__thumb :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .hrn-constat__badge {
