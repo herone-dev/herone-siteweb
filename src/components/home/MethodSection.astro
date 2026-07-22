@@ -11,11 +11,11 @@
 // Fallback statique complet (toutes les étapes dépliées) si prefers-reduced-motion,
 // mobile (<820px), ou JS absent.
 const steps = [
-  { title: 'Audit du fonctionnement', text: "Nous observons vos tâches répétitives, sur le terrain, avant d'écrire la moindre ligne." },
-  { title: 'Conception du système', text: 'Un système sur mesure, qui mêle automatisation et validation humaine là où elle compte.' },
-  { title: 'Développement et livraison', text: 'Nous développons, testons et installons le système directement chez vous.' },
-  { title: 'Formation des équipes', text: 'Nous formons vos équipes à utiliser le système au quotidien, en toute autonomie.' },
-  { title: 'Accompagnement et maintenance', text: "Améliorations, correctifs et présence rapide dès qu'un besoin surgit." },
+  { title: 'Audit du fonctionnement', text: "Nous venons chez vous, nous observons vos tâches répétitives sur le terrain et nous chiffrons ce qu'elles vous coûtent. Gratuit, sans engagement, 1 à 3 heures." },
+  { title: 'Conception du système', text: 'Nous vous présentons ce que nous installons, ce que ça vous fait gagner et le prix. Vous validez avant que la moindre ligne soit écrite.' },
+  { title: 'Développement et livraison', text: 'Nous construisons, nous testons sur vos vraies données, nous installons chez vous. Vos outils actuels restent en place.' },
+  { title: 'Formation des équipes', text: "Nous formons les personnes qui vont s'en servir, jusqu'à ce que le système tourne sans nous. C'est là que se joue l'adoption." },
+  { title: 'Accompagnement et maintenance', text: 'Nous corrigeons, nous améliorons, nous suivons les évolutions de vos logiciels. Vous nous avez au bout du fil quand il faut.' },
 ];
 ---
 
@@ -23,6 +23,7 @@ const steps = [
   <div class="hrn-section-inner">
     <div class="hrn-eyebrow">Méthode</div>
     <h2>Notre processus en 5 étapes</h2>
+    <p class="hrn-method__sub">De la première visite au système en production, sans que vos équipes arrêtent de travailler.</p>
 
     <div class="hrn-method__layout">
       <div class="hrn-method__box" id="method-box">
@@ -42,6 +43,10 @@ const steps = [
         ))}
       </ol>
     </div>
+
+    <p class="hrn-method__pivot">
+      <a href="#reserver">Tout commence par l'audit, et il est gratuit.</a>
+    </p>
   </div>
 </section>
 
@@ -65,11 +70,35 @@ const steps = [
     margin-top: 12px !important;
   }
 
+  .hrn-method__sub {
+    max-width: 46ch;
+    margin: 16px 0 0;
+    font-size: clamp(1.05rem, 1.4vw, 1.19rem);
+    line-height: 1.6;
+    color: var(--ink-300);
+  }
+
   .hrn-method__layout {
     display: grid;
     grid-template-columns: 1fr;
     gap: 32px;
     margin-top: 32px;
+  }
+
+  .hrn-method__pivot {
+    margin: 28px 0 0;
+    font-size: 15px;
+  }
+
+  .hrn-method__pivot a {
+    color: var(--amber-300);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--dur) var(--ease-standard);
+  }
+
+  .hrn-method__pivot a:hover {
+    border-color: currentColor;
   }
 
   @media (min-width: 820px) {
@@ -174,7 +203,7 @@ const steps = [
   }
 
   .hrn-method__list.is-scroll-driven .hrn-method__step.is-active .hrn-method__step-desc p {
-    min-height: calc(2 * 1.55 * 15px);
+    min-height: calc(3 * 1.55 * 15px);
   }
 
   .hrn-method__list.is-scroll-driven .hrn-method__step.is-active .hrn-method__dot {
