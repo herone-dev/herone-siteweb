@@ -302,7 +302,7 @@ const cards = [
         const dot = document.createElement('button');
         dot.type = 'button';
         dot.setAttribute('aria-label', `Aller à la position ${i + 1}`);
-        dot.addEventListener('click', () => goTo(i), { signal });
+        dot.addEventListener('click', () => { goTo(i); restartAuto(); }, { signal });
         dotsEl.appendChild(dot);
       }
     };
@@ -323,11 +323,47 @@ const cards = [
       render();
     };
 
-    prevBtn.addEventListener('click', () => goTo(index - 1), { signal });
-    nextBtn.addEventListener('click', () => goTo(index + 1), { signal });
+    // Défilement automatique : une vignette à la fois, boucle en continu.
+    // Désactivé si l'utilisateur préfère les animations réduites (accessibilité).
+    const AUTOPLAY_MS = 7000;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let timer: ReturnType<typeof setInterval> | undefined;
+
+    const advance = () => {
+      const max = maxIndex();
+      index = index >= max ? 0 : index + 1; // revient au début après la dernière
+      render();
+    };
+    const stopAuto = () => {
+      if (timer) clearInterval(timer);
+      timer = undefined;
+    };
+    const startAuto = () => {
+      if (reduce) return;
+      stopAuto();
+      timer = setInterval(advance, AUTOPLAY_MS);
+    };
+    // Après une action manuelle, on relance le compteur à zéro (laisse le temps de lire).
+    const restartAuto = () => startAuto();
+
+    prevBtn.addEventListener('click', () => { goTo(index - 1); restartAuto(); }, { signal });
+    nextBtn.addEventListener('click', () => { goTo(index + 1); restartAuto(); }, { signal });
+
+    // Pause au survol / focus clavier, et quand l'onglet passe en arrière-plan.
+    viewport.addEventListener('pointerenter', stopAuto, { signal });
+    viewport.addEventListener('pointerleave', startAuto, { signal });
+    viewport.addEventListener('focusin', stopAuto, { signal });
+    viewport.addEventListener('focusout', startAuto, { signal });
+    document.addEventListener(
+      'visibilitychange',
+      () => (document.hidden ? stopAuto() : startAuto()),
+      { signal }
+    );
+    signal.addEventListener('abort', stopAuto);
 
     buildDots();
     render();
+    startAuto();
 
     let resizeTimer: ReturnType<typeof setTimeout>;
     window.addEventListener(
