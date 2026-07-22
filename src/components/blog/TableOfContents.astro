@@ -1,0 +1,59 @@
+---
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+}
+
+const { headings } = Astro.props;
+const items = headings.filter((h) => h.depth === 2);
+---
+
+{items.length > 0 && (
+  <nav class="hrn-toc" aria-label="Sur cette page">
+    <span class="hrn-toc__label">Sur cette page</span>
+    <ul>
+      {items.map((h) => (
+        <li><a href={`#${h.slug}`}>{h.text}</a></li>
+      ))}
+    </ul>
+  </nav>
+)}
+
+<style>
+  .hrn-toc {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .hrn-toc__label {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .hrn-toc ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .hrn-toc a {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .hrn-toc a:hover {
+    color: var(--slate-600);
+  }
+</style>

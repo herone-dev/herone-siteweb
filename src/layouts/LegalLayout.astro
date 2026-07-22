@@ -1,0 +1,78 @@
+---
+import Layout from './Layout.astro';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<Layout title={`${title} — Hérone`} description={description}>
+  <div class="hrn-section-inner hrn-legal">
+    <h1>{title}</h1>
+    <p class="hrn-legal__updated">Dernière mise à jour : juillet 2026</p>
+    <div class="hrn-prose">
+      <slot />
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .hrn-legal {
+    padding: 128px 0 clamp(56px, 8vw, 96px);
+    max-width: var(--container-prose);
+  }
+
+  .hrn-legal h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    letter-spacing: -0.02em;
+    color: var(--text-strong);
+  }
+
+  .hrn-legal__updated {
+    margin-top: 10px !important;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .hrn-prose {
+    margin-top: 32px;
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--text-primary);
+  }
+
+  .hrn-prose :global(h2) {
+    margin-top: 36px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-xl);
+    color: var(--text-strong);
+  }
+
+  .hrn-prose :global(p) {
+    margin-top: 14px;
+  }
+
+  .hrn-prose :global(ul) {
+    margin-top: 14px;
+    padding-left: 20px;
+  }
+
+  .hrn-prose :global(li) {
+    margin-top: 6px;
+  }
+
+  .hrn-prose :global(a) {
+    text-decoration: underline;
+  }
+
+  .hrn-prose :global(strong) {
+    color: var(--text-strong);
+  }
+</style>

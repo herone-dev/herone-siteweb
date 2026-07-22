@@ -1,0 +1,313 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Button from '../../components/Button.astro';
+import ArticleCard from '../../components/blog/ArticleCard.astro';
+
+const posts = (await getCollection('blog')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const categories = ['Tout', 'Automatisation', 'Devis', 'CRM', 'BTP'];
+---
+
+<Layout
+  title="Blog Hérone — Automatiser, concrètement."
+  description="Des cas réels, des méthodes, des systèmes qui font gagner des heures aux TPE et PME. Cherchez un sujet ou parcourez par thème."
+  headerTheme="dark"
+>
+  <section class="hrn-blog-hero">
+    <div class="hrn-blog-hero__dots" aria-hidden="true"></div>
+    <div class="hrn-section-inner hrn-blog-hero__content">
+      <div class="hrn-eyebrow">Le blog Hérone</div>
+      <h1>Automatiser, concrètement.</h1>
+      <p>Des cas réels, des méthodes, des systèmes qui font gagner des heures aux TPE et PME. Cherchez un sujet ou parcourez par thème.</p>
+
+      <div class="hrn-blog-search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+        <input type="search" id="blog-search" placeholder="Rechercher un sujet, un outil, un métier…" aria-label="Rechercher un article" />
+        <button type="button" id="blog-search-clear" aria-label="Effacer la recherche" hidden>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M18 6 6 18"></path><path d="M6 6l12 12"></path></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div class="hrn-blog-filters">
+    <div class="hrn-section-inner hrn-blog-filters__inner">
+      {categories.map((cat, i) => (
+        <button type="button" class="hrn-blog-filter" data-category={cat} aria-pressed={i === 0 ? 'true' : 'false'}>{cat}</button>
+      ))}
+    </div>
+  </div>
+
+  <section class="hrn-blog-list">
+    <div class="hrn-section-inner">
+      <div class="hrn-blog-list__head">
+        <span id="blog-result-label">{posts.length} articles</span>
+        <span>Trié par date</span>
+      </div>
+
+      <div class="hrn-blog-list__grid" id="blog-grid">
+        {posts.map((post) => (
+          <div class="hrn-blog-list__item" data-category={post.data.category} data-search={`${post.data.title} ${post.data.description} ${post.data.category}`.toLowerCase()}>
+            <ArticleCard
+              slug={post.id}
+              title={post.data.title}
+              description={post.data.description}
+              category={post.data.category}
+              pubDate={post.data.pubDate}
+              readingTime={post.data.readingTime}
+            />
+          </div>
+        ))}
+      </div>
+
+      <div class="hrn-blog-empty" id="blog-empty" hidden>
+        <p><strong>Aucun article pour cette recherche.</strong></p>
+        <p>Essayez un autre mot-clé, ou parcourez tous les articles.</p>
+        <Button variant="secondary" size="md" id="blog-reset">Voir tous les articles</Button>
+      </div>
+    </div>
+  </section>
+
+  <section class="hrn-blog-cta">
+    <div class="hrn-section-inner hrn-blog-cta__inner">
+      <div>
+        <h2>Un de ces cas ressemble au vôtre ?</h2>
+        <p>Trente minutes pour repérer, chez vous, ce qu'on peut automatiser.</p>
+      </div>
+      <Button variant="accent" size="lg" href="/#reserver">Réserver 30 minutes</Button>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hrn-blog-hero {
+    position: relative;
+    padding: clamp(120px, 14vw, 160px) 0 48px;
+    background: var(--slate-900);
+    color: var(--ink-200);
+    overflow: hidden;
+  }
+
+  .hrn-blog-hero__dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(color-mix(in srgb, #fff 7%, transparent) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+
+  .hrn-blog-hero__content {
+    position: relative;
+  }
+
+  .hrn-blog-hero h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    letter-spacing: -0.02em;
+    color: var(--text-inverse);
+    margin: 14px 0 0;
+  }
+
+  .hrn-blog-hero p {
+    margin-top: 16px !important;
+    max-width: 60ch;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ink-300);
+  }
+
+  .hrn-blog-search {
+    margin-top: 32px;
+    max-width: 560px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px;
+    height: 52px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-inverse);
+    border-radius: var(--radius-lg);
+    color: var(--ink-300);
+  }
+
+  .hrn-blog-search input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-inverse);
+    font-size: 15px;
+    font-family: var(--font-sans);
+  }
+
+  .hrn-blog-search input::placeholder {
+    color: var(--ink-400);
+  }
+
+  .hrn-blog-search button {
+    background: transparent;
+    border: none;
+    color: var(--ink-300);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+  }
+
+  .hrn-blog-filters {
+    position: sticky;
+    top: 68px;
+    z-index: 10;
+    background: var(--paper);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hrn-blog-filters__inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .hrn-blog-filter {
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .hrn-blog-filter[aria-pressed='true'] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .hrn-blog-list {
+    padding: 40px 0 clamp(56px, 8vw, 96px);
+    background: var(--paper);
+  }
+
+  .hrn-blog-list__head {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .hrn-blog-list__grid {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .hrn-blog-empty {
+    margin-top: 20px;
+    padding: 48px 24px;
+    text-align: center;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+  }
+
+  .hrn-blog-empty p {
+    margin: 0 0 6px;
+    color: var(--text-secondary);
+  }
+
+  .hrn-blog-empty :global(.hrn-btn) {
+    margin-top: 14px;
+  }
+
+  .hrn-blog-cta {
+    padding: clamp(48px, 7vw, 80px) 0;
+    background: var(--slate-900);
+    color: var(--ink-200);
+  }
+
+  .hrn-blog-cta__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .hrn-blog-cta h2 {
+    color: var(--text-inverse);
+    margin: 0;
+  }
+
+  .hrn-blog-cta p {
+    margin-top: 8px !important;
+    color: var(--ink-300);
+  }
+</style>
+
+<script>
+  let ac: AbortController | undefined;
+
+  function initBlogList() {
+    ac?.abort();
+    ac = new AbortController();
+    const { signal } = ac;
+
+    const searchInput = document.querySelector<HTMLInputElement>('#blog-search');
+    const clearBtn = document.querySelector<HTMLButtonElement>('#blog-search-clear');
+    const filters = [...document.querySelectorAll<HTMLButtonElement>('.hrn-blog-filter')];
+    const items = [...document.querySelectorAll<HTMLElement>('.hrn-blog-list__item')];
+    const resultLabel = document.querySelector<HTMLElement>('#blog-result-label');
+    const emptyState = document.querySelector<HTMLElement>('#blog-empty');
+    const grid = document.querySelector<HTMLElement>('#blog-grid');
+    const resetBtn = document.querySelector<HTMLButtonElement>('#blog-reset');
+    if (!searchInput || !resultLabel || !emptyState || !grid) return;
+
+    let activeCategory = 'Tout';
+
+    const apply = () => {
+      const query = searchInput.value.trim().toLowerCase();
+      clearBtn && (clearBtn.hidden = query.length === 0);
+
+      let visibleCount = 0;
+      for (const item of items) {
+        const matchesCategory = activeCategory === 'Tout' || item.dataset.category === activeCategory;
+        const matchesQuery = query.length === 0 || (item.dataset.search ?? '').includes(query);
+        const visible = matchesCategory && matchesQuery;
+        item.hidden = !visible;
+        if (visible) visibleCount++;
+      }
+
+      resultLabel.textContent = `${visibleCount} article${visibleCount > 1 ? 's' : ''}`;
+      emptyState.hidden = visibleCount > 0;
+      grid.hidden = visibleCount === 0;
+    };
+
+    searchInput.addEventListener('input', apply, { signal });
+    clearBtn?.addEventListener('click', () => {
+      searchInput.value = '';
+      apply();
+      searchInput.focus();
+    }, { signal });
+
+    filters.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        activeCategory = btn.dataset.category ?? 'Tout';
+        filters.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+        apply();
+      }, { signal });
+    });
+
+    resetBtn?.addEventListener('click', () => {
+      searchInput.value = '';
+      activeCategory = 'Tout';
+      filters.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.category === 'Tout')));
+      apply();
+    }, { signal });
+  }
+
+  document.addEventListener('astro:page-load', initBlogList);
+</script>

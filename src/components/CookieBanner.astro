@@ -1,0 +1,85 @@
+---
+import Button from './Button.astro';
+---
+
+<div id="hrn-cookie-banner" class="hrn-cookie" hidden>
+  <p>Nous utilisons des cookies de mesure d'audience pour améliorer le site. Vous pouvez les accepter ou les refuser.</p>
+  <div class="hrn-cookie__actions">
+    <Button variant="secondary" size="sm" class="hrn-cookie__refuse">Refuser</Button>
+    <Button variant="primary" size="sm" class="hrn-cookie__accept">Accepter</Button>
+    <a href="/cookies" class="hrn-cookie__customize">Personnaliser</a>
+  </div>
+</div>
+
+<style>
+  .hrn-cookie {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    z-index: 70;
+    max-width: 620px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    background: color-mix(in srgb, var(--ink-950) 94%, transparent);
+    backdrop-filter: blur(6px);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .hrn-cookie[hidden] { display: none; }
+
+  .hrn-cookie p {
+    flex: 1 1 260px;
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--ink-200);
+  }
+
+  .hrn-cookie__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .hrn-cookie__customize {
+    font-size: 13px;
+    color: var(--ink-300);
+    text-decoration: underline;
+  }
+</style>
+
+<script>
+  const STORAGE_KEY = 'hrn-cookie';
+  let ac: AbortController | undefined;
+
+  function initCookieBanner() {
+    ac?.abort();
+    ac = new AbortController();
+    const { signal } = ac;
+
+    const banner = document.querySelector<HTMLElement>('#hrn-cookie-banner');
+    if (!banner) return;
+
+    const choice = window.localStorage.getItem(STORAGE_KEY);
+    if (!choice) banner.hidden = false;
+
+    banner.querySelector('.hrn-cookie__accept')?.addEventListener('click', () => {
+      window.localStorage.setItem(STORAGE_KEY, 'accepted');
+      banner.hidden = true;
+    }, { signal });
+
+    banner.querySelector('.hrn-cookie__refuse')?.addEventListener('click', () => {
+      window.localStorage.setItem(STORAGE_KEY, 'refused');
+      banner.hidden = true;
+    }, { signal });
+  }
+
+  document.addEventListener('astro:page-load', initCookieBanner);
+</script>

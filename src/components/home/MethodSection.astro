@@ -1,0 +1,270 @@
+---
+// Seule section du site utilisant GSAP + ScrollTrigger (scroll-driven), conformément
+// à la convention "GSAP réservé au spectaculaire". Fallback statique complet
+// (toutes les étapes dépliées) si prefers-reduced-motion, mobile (<820px), ou JS absent.
+const steps = [
+  { title: 'Audit du fonctionnement', text: "Nous observons vos tâches répétitives, sur le terrain, avant d'écrire la moindre ligne." },
+  { title: 'Conception du système', text: 'Un système sur mesure, qui mêle automatisation et validation humaine là où elle compte.' },
+  { title: 'Développement et livraison', text: 'Nous développons, testons et installons le système directement chez vous.' },
+  { title: 'Formation des équipes', text: 'Nous formons vos équipes à utiliser le système au quotidien, en toute autonomie.' },
+  { title: 'Accompagnement et maintenance', text: "Améliorations, correctifs et présence rapide dès qu'un besoin surgit." },
+];
+---
+
+<section id="methode" class="hrn-method">
+  <div class="hrn-section-inner hrn-method__intro">
+    <div class="hrn-eyebrow">Méthode</div>
+    <h2>Notre processus en 5 étapes</h2>
+  </div>
+
+  <div class="hrn-method__scroll" id="method-scroll">
+    <div class="hrn-method__pin" id="method-pin">
+      <div class="hrn-section-inner hrn-method__layout">
+        <div class="hrn-method__box" id="method-box">
+          <div class="hrn-method__fill" id="method-fill"></div>
+          <span class="hrn-method__num" id="method-num">1</span>
+        </div>
+
+        <ol class="hrn-method__list" id="method-list">
+          {steps.map((step, i) => (
+            <li class="hrn-method__step" data-index={i}>
+              <span class="hrn-method__dot"></span>
+              <div class="hrn-method__step-body">
+                <h3>{step.title}</h3>
+                <div class="hrn-method__step-desc"><p>{step.text}</p></div>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hrn-method {
+    background: var(--slate-900);
+    color: var(--ink-200);
+    padding: clamp(56px, 8vw, 96px) 0 0;
+  }
+
+  .hrn-method__intro h2 {
+    color: var(--text-inverse);
+  }
+
+  .hrn-method__scroll {
+    height: auto;
+  }
+
+  .hrn-method__pin {
+    position: static;
+  }
+
+  .hrn-method__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding-top: 48px;
+    padding-bottom: 64px;
+  }
+
+  @media (min-width: 820px) {
+    .hrn-method__layout {
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      min-height: 100vh;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  .hrn-method__box {
+    display: none;
+    position: relative;
+    width: 220px;
+    height: 220px;
+    border: 1px solid var(--border-inverse);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .hrn-method__fill {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 20%;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--amber-500) 25%, transparent), color-mix(in srgb, var(--amber-500) 45%, transparent));
+  }
+
+  .hrn-method__num {
+    position: relative;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 6rem;
+    line-height: 1;
+    color: var(--text-inverse);
+    padding-bottom: 16px;
+  }
+
+  .hrn-method__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .hrn-method__step {
+    display: flex;
+    gap: 18px;
+  }
+
+  .hrn-method__dot {
+    flex: none;
+    width: 12px;
+    height: 12px;
+    margin-top: 6px;
+    border-radius: 50%;
+    background: var(--ink-500);
+    box-shadow: none;
+    transition: background var(--dur) var(--ease-standard), box-shadow var(--dur) var(--ease-standard);
+  }
+
+  .hrn-method__step h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-xl);
+    color: var(--ink-300);
+    transition: color var(--dur) var(--ease-standard);
+  }
+
+  .hrn-method__step-desc {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows var(--dur-slow) var(--ease-standard);
+  }
+
+  .hrn-method__step-desc p {
+    overflow: hidden;
+    margin-top: 8px !important;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ink-400);
+  }
+
+  /* Mode scroll-driven (activé par JS sur desktop, sans prefers-reduced-motion) */
+  .hrn-method__list.is-scroll-driven .hrn-method__step-desc {
+    grid-template-rows: 0fr;
+  }
+
+  .hrn-method__list.is-scroll-driven .hrn-method__step.is-active .hrn-method__dot {
+    background: var(--accent);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+
+  .hrn-method__list.is-scroll-driven .hrn-method__step.is-active h3 {
+    color: var(--text-inverse);
+  }
+
+  .hrn-method__list.is-scroll-driven .hrn-method__step.is-active .hrn-method__step-desc {
+    grid-template-rows: 1fr;
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  let ctx: ReturnType<typeof gsap.context> | undefined;
+  let ac: AbortController | undefined;
+
+  function teardown() {
+    ctx?.revert();
+    ctx = undefined;
+
+    const scrollWrap = document.querySelector<HTMLElement>('#method-scroll');
+    const box = document.querySelector<HTMLElement>('#method-box');
+    const list = document.querySelector<HTMLElement>('#method-list');
+
+    if (scrollWrap) scrollWrap.style.height = '';
+    if (box) box.style.display = '';
+    if (list) {
+      list.classList.remove('is-scroll-driven');
+      [...list.children].forEach((el) => el.classList.remove('is-active'));
+    }
+  }
+
+  function init() {
+    teardown();
+    ac?.abort();
+    ac = new AbortController();
+    const { signal } = ac;
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isDesktop = window.matchMedia('(min-width: 820px)').matches;
+
+    const scrollWrap = document.querySelector<HTMLElement>('#method-scroll');
+    const pin = document.querySelector<HTMLElement>('#method-pin');
+    const box = document.querySelector<HTMLElement>('#method-box');
+    const fill = document.querySelector<HTMLElement>('#method-fill');
+    const num = document.querySelector<HTMLElement>('#method-num');
+    const list = document.querySelector<HTMLElement>('#method-list');
+
+    if (!scrollWrap || !pin || !box || !fill || !num || !list) return;
+    const steps = [...list.children] as HTMLElement[];
+    if (!steps.length) return;
+
+    // Sur mobile / reduced-motion : on garde le rendu statique (CSS mobile-first,
+    // toutes les descriptions dépliées, pavé numéroté masqué).
+    if (!isDesktop || reduce) return;
+
+    ctx = gsap.context(() => {
+      scrollWrap.style.height = `${steps.length * 100}vh`;
+      box.style.display = 'flex';
+      list.classList.add('is-scroll-driven');
+
+      let current = -1;
+      const setActive = (i: number) => {
+        if (i === current) return;
+        current = i;
+        steps.forEach((step, idx) => step.classList.toggle('is-active', idx === i));
+        num.textContent = String(i + 1);
+        gsap.fromTo(num, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power3.out' });
+        gsap.to(fill, { height: `${(i + 1) * 20}%`, duration: 0.4, ease: 'power3.out' });
+      };
+      setActive(0);
+
+      ScrollTrigger.create({
+        trigger: scrollWrap,
+        start: 'top top',
+        end: 'bottom bottom',
+        pin,
+        scrub: true,
+        onUpdate(self) {
+          const idx = Math.min(steps.length - 1, Math.floor(self.progress * steps.length));
+          setActive(idx);
+        },
+      });
+    });
+
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    window.addEventListener(
+      'resize',
+      () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(init, 200);
+      },
+      { signal }
+    );
+  }
+
+  document.addEventListener('astro:page-load', init);
+  document.addEventListener('astro:before-swap', teardown);
+</script>

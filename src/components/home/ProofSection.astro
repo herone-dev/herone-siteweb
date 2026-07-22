@@ -1,0 +1,229 @@
+---
+import ImagePlaceholder from '../ImagePlaceholder.astro';
+---
+
+<section class="hrn-proof">
+  <div class="hrn-section-inner hrn-proof__grid">
+    <div class="hrn-proof__text">
+      <div class="hrn-eyebrow">Témoignage</div>
+      <blockquote>
+        « Le rendez-vous est enregistré, la fiche client arrive remplie en PDF, prête à envoyer. On choisit qui s'en occupe, le mail part. On ne ressaisit plus rien. »
+      </blockquote>
+
+      <ol class="hrn-proof__flow">
+        <li>Boîtier micro</li>
+        <li>Transcription + fiche PDF</li>
+        <li>Attribution et envoi</li>
+      </ol>
+
+      <div class="hrn-proof__author">
+        <div class="hrn-proof__avatar">
+          <ImagePlaceholder label="Photo" expectedPath="public/images/proof-rapin.jpg" ratio="1/1" />
+        </div>
+        <div>
+          <strong>Tommy et Audrey Rapin</strong>
+          <span>Agence Allianz des Herbiers · 9 personnes</span>
+        </div>
+      </div>
+
+      <div class="hrn-proof__badge">
+        <strong>0 saisie</strong>
+        <span>par rendez-vous, compte rendu et fiche client automatisés</span>
+      </div>
+    </div>
+
+    <div class="hrn-proof__video">
+      <img src="/images/posters/temoignage-poster.jpg" alt="Témoignage vidéo de l'agence Allianz des Herbiers" />
+      <video id="proof-video" playsinline preload="none" poster="/images/posters/temoignage-poster.jpg">
+        <source data-src="/videos/temoignage.mp4" type="video/mp4" />
+      </video>
+      <button type="button" id="proof-play" class="hrn-proof__play" aria-label="Lire le témoignage vidéo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hrn-proof {
+    padding: clamp(56px, 8vw, 96px) 0;
+    background: var(--slate-900);
+    color: var(--ink-200);
+  }
+
+  .hrn-proof__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+
+  @media (min-width: 900px) {
+    .hrn-proof__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .hrn-proof blockquote {
+    margin: 20px 0 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+    line-height: 1.35;
+    color: var(--text-inverse);
+    text-wrap: balance;
+  }
+
+  .hrn-proof__flow {
+    list-style: none;
+    margin: 28px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--ink-300);
+  }
+
+  .hrn-proof__flow li {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-inverse);
+    border-radius: var(--radius-full);
+    padding: 6px 14px;
+  }
+
+  .hrn-proof__flow li:not(:last-child)::after {
+    content: '→';
+    margin-left: 12px;
+  }
+
+  .hrn-proof__author {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 36px;
+  }
+
+  .hrn-proof__avatar {
+    width: 52px;
+    flex: none;
+  }
+
+  .hrn-proof__author strong {
+    display: block;
+    color: var(--text-inverse);
+    font-size: 15px;
+  }
+
+  .hrn-proof__author span {
+    display: block;
+    font-size: 13px;
+    color: var(--ink-400);
+  }
+
+  .hrn-proof__badge {
+    margin-top: 28px;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 14px 20px;
+    border: 1px solid var(--border-inverse);
+    border-radius: var(--radius-lg);
+  }
+
+  .hrn-proof__badge strong {
+    font-family: var(--font-mono);
+    font-size: var(--text-xl);
+    color: var(--amber-400);
+  }
+
+  .hrn-proof__badge span {
+    font-size: 13px;
+    color: var(--ink-300);
+  }
+
+  .hrn-proof__video {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    background: var(--ink-950);
+  }
+
+  .hrn-proof__video img,
+  .hrn-proof__video video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hrn-proof__video video {
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease-standard);
+  }
+
+  .hrn-proof__video.is-playing video {
+    opacity: 1;
+  }
+
+  .hrn-proof__video.is-playing img,
+  .hrn-proof__video.is-playing .hrn-proof__play {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .hrn-proof__play {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: none;
+    display: grid;
+    place-items: center;
+    background: rgba(15, 29, 20, 0.6);
+    color: #fff;
+    cursor: pointer;
+    transition: opacity var(--dur) var(--ease-standard), transform var(--dur) var(--ease-standard);
+  }
+
+  .hrn-proof__play:hover {
+    transform: scale(1.06);
+  }
+</style>
+
+<script>
+  let ac: AbortController | undefined;
+
+  function initProof() {
+    ac?.abort();
+    ac = new AbortController();
+    const { signal } = ac;
+
+    const wrapper = document.querySelector<HTMLElement>('.hrn-proof__video');
+    const video = document.querySelector<HTMLVideoElement>('#proof-video');
+    const playBtn = document.querySelector<HTMLButtonElement>('#proof-play');
+    if (!wrapper || !video || !playBtn) return;
+
+    playBtn.addEventListener(
+      'click',
+      () => {
+        const source = video.querySelector<HTMLSourceElement>('source[data-src]');
+        if (source && !video.src) {
+          source.src = source.dataset.src ?? '';
+          video.load();
+        }
+        video.controls = true;
+        wrapper.classList.add('is-playing');
+        video.play().catch(() => {});
+      },
+      { signal }
+    );
+  }
+
+  document.addEventListener('astro:page-load', initProof);
+</script>

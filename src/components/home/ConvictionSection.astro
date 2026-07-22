@@ -1,0 +1,60 @@
+---
+const items = [
+  {
+    title: 'Nous auditons avant de construire',
+    text: "Pas d'audit, pas de système. Nous n'installons jamais un outil qui finira inutilisé, c'est de l'argent perdu.",
+  },
+  {
+    title: 'Le ROI décide',
+    text: "Si un système ne rend pas des heures ou de l'argent réels, il ne sort pas.",
+  },
+  {
+    title: 'Nous ne remplaçons personne',
+    text: "Nous retirons les tâches qui n'apportent rien à vos équipes et nous les rendons à ce qui compte : la décision, le métier, le client.",
+  },
+];
+---
+
+<section class="hrn-conviction">
+  <div class="hrn-section-inner">
+    <div class="hrn-eyebrow">Notre conviction</div>
+    <h2>Nous ne construisons que ce qui vous rend du temps.</h2>
+
+    <div class="hrn-conviction__grid">
+      {items.map((item) => (
+        <div class="hrn-conviction__item">
+          <h3>{item.title}</h3>
+          <p>{item.text}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .hrn-conviction {
+    padding: clamp(56px, 8vw, 96px) 0;
+    background: var(--paper);
+  }
+
+  .hrn-conviction__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 32px;
+    margin-top: 40px;
+  }
+
+  .hrn-conviction__item h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-xl);
+    color: var(--text-strong);
+  }
+
+  .hrn-conviction__item p {
+    margin-top: 10px !important;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+</style>

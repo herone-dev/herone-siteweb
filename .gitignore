@@ -1,0 +1,16 @@
+# build
+dist/
+.astro/
+node_modules/
+
+# editor / os
+.DS_Store
+.vscode/
+
+# env
+.env
+.env.production
+
+# local tooling / design source (not part of the deployed site)
+.claude/
+Maquette site Hérone/

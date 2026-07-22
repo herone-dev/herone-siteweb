@@ -1,0 +1,124 @@
+<footer class="hrn-footer">
+  <div class="hrn-footer__inner">
+    <div class="hrn-footer__grid">
+      <div class="hrn-footer__brand">
+        <span class="hrn-footer__logo">HÉRONE</span>
+        <p>Systèmes automatisés et IA sur mesure pour les TPE et PME du Grand Ouest.</p>
+        <p class="hrn-footer__address">37 rue Édouard Branly, Les Herbiers 85500</p>
+      </div>
+
+      <div class="hrn-footer__col">
+        <span class="hrn-footer__heading">Site</span>
+        <a href="/#systemes">Systèmes</a>
+        <a href="/#fondateurs">À propos</a>
+        <a href="/#reserver">Réserver un appel</a>
+      </div>
+
+      <div class="hrn-footer__col">
+        <span class="hrn-footer__heading">Ressources</span>
+        <a href="/blog">Blog</a>
+        <a href="mailto:contact@herone.fr">contact@herone.fr</a>
+        <a href="tel:+33663710598">06 63 71 05 98</a>
+      </div>
+
+      <div class="hrn-footer__col">
+        <span class="hrn-footer__heading">Légal</span>
+        <a href="/mentions-legales">Mentions légales</a>
+        <a href="/confidentialite">Confidentialité</a>
+        <a href="/cookies">Cookies</a>
+      </div>
+    </div>
+
+    <div class="hrn-footer__bottom">
+      <span>© 2026 Hérone · Les Herbiers, Vendée</span>
+      <span class="hrn-footer__signature">L'IA sort l'humain des tâches mécaniques</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .hrn-footer {
+    background: var(--ink-950);
+    color: var(--ink-300);
+    padding: clamp(48px, 7vw, 80px) 0 32px;
+  }
+
+  .hrn-footer__inner {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 clamp(20px, 5vw, 48px);
+  }
+
+  .hrn-footer__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 40px;
+  }
+
+  .hrn-footer__brand {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 32ch;
+  }
+
+  .hrn-footer__logo {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 24px;
+    color: var(--ink-50);
+  }
+
+  .hrn-footer__brand p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink-400);
+  }
+
+  .hrn-footer__address {
+    font-family: var(--font-mono);
+    font-size: 13px !important;
+    color: var(--ink-300) !important;
+  }
+
+  .hrn-footer__col {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .hrn-footer__heading {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-500);
+    margin-bottom: 4px;
+  }
+
+  .hrn-footer__col a {
+    font-size: 14px;
+    color: var(--ink-200);
+  }
+
+  .hrn-footer__col a:hover {
+    color: var(--amber-400);
+  }
+
+  .hrn-footer__bottom {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(241, 238, 225, 0.1);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--ink-500);
+  }
+
+  .hrn-footer__signature {
+    font-family: var(--font-mono);
+  }
+</style>

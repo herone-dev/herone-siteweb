@@ -1,0 +1,328 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Button from '../../components/Button.astro';
+import ArticleCard from '../../components/blog/ArticleCard.astro';
+import TableOfContents from '../../components/blog/TableOfContents.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+
+const allPosts = await getCollection('blog');
+const sameCategory = allPosts.filter((p) => p.id !== post.id && p.data.category === post.data.category);
+const others = allPosts.filter((p) => p.id !== post.id && p.data.category !== post.data.category);
+const related = [...sameCategory, ...others]
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+
+const CATEGORY_COLOR: Record<string, string> = {
+  Automatisation: 'var(--amber-500)',
+  Devis: 'var(--slate-400)',
+  CRM: 'var(--slate-500)',
+  BTP: 'var(--slate-700)',
+};
+
+const dateLabel = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }).format(post.data.pubDate);
+---
+
+<Layout title={`${post.data.title} — Blog Hérone`} description={post.data.description}>
+  <div class="hrn-section-inner hrn-article-top">
+    <a href="/blog" class="hrn-article-back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
+      Tous les articles
+    </a>
+
+    <div class="hrn-article-meta">
+      <span class="hrn-article-dot" style={`background:${CATEGORY_COLOR[post.data.category] ?? 'var(--slate-500)'}`}></span>
+      <span>{post.data.category}</span>
+      <span>· {post.data.readingTime} min · {dateLabel}</span>
+    </div>
+
+    <h1>{post.data.title}</h1>
+    <p class="hrn-article-lede">{post.data.description}</p>
+
+    <div class="hrn-article-toc-mobile">
+      <TableOfContents headings={headings} />
+    </div>
+  </div>
+
+  <div class="hrn-section-inner hrn-article-layout">
+    <article class="hrn-prose">
+      <Content />
+
+      <div class="hrn-article-end">
+        <strong>Un cas qui vous parle ?</strong>
+        <p>Parlons-en trente minutes.</p>
+        <Button variant="accent" size="lg" href="/#reserver">Réserver 30 minutes</Button>
+      </div>
+    </article>
+
+    <aside class="hrn-article-aside">
+      <TableOfContents headings={headings} />
+      <div class="hrn-article-aside__card">
+        <strong>Récupérez des heures.</strong>
+        <p>Trente minutes pour voir ce qu'on peut automatiser chez vous.</p>
+        <Button variant="accent" size="md" block href="/#reserver">Réserver 30 minutes</Button>
+      </div>
+    </aside>
+  </div>
+
+  <section class="hrn-related">
+    <div class="hrn-section-inner">
+      <div class="hrn-eyebrow">À lire ensuite</div>
+      <h2>Sur le même sujet.</h2>
+
+      <div class="hrn-related__grid">
+        {related.map((p) => (
+          <ArticleCard
+            slug={p.id}
+            title={p.data.title}
+            description={p.data.description}
+            category={p.data.category}
+            pubDate={p.data.pubDate}
+            readingTime={p.data.readingTime}
+          />
+        ))}
+
+        <div class="hrn-related__system">
+          <span>Le système</span>
+          <strong>{post.data.systemTitle}</strong>
+          <a href="/#systemes">
+            Découvrir le système
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hrn-article-top {
+    padding-top: 108px;
+  }
+
+  .hrn-article-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .hrn-article-meta {
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .hrn-article-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .hrn-article-top h1 {
+    margin-top: 12px !important;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    letter-spacing: -0.02em;
+    color: var(--text-strong);
+    max-width: 22ch;
+  }
+
+  .hrn-article-lede {
+    margin-top: 16px !important;
+    max-width: 65ch;
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  .hrn-article-toc-mobile {
+    margin-top: 28px;
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .hrn-article-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 48px;
+    padding: 40px 0 clamp(56px, 8vw, 96px);
+  }
+
+  @media (min-width: 960px) {
+    .hrn-article-layout {
+      grid-template-columns: minmax(0, 1fr) 280px;
+    }
+
+    .hrn-article-toc-mobile {
+      display: none;
+    }
+  }
+
+  .hrn-article-aside {
+    display: none;
+  }
+
+  @media (min-width: 960px) {
+    .hrn-article-aside {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      position: sticky;
+      top: 96px;
+      align-self: start;
+    }
+  }
+
+  .hrn-article-aside__card {
+    padding: 22px;
+    border-radius: var(--radius-lg);
+    background: var(--slate-900);
+    color: var(--ink-200);
+  }
+
+  .hrn-article-aside__card strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--text-inverse);
+  }
+
+  .hrn-article-aside__card p {
+    margin: 8px 0 16px !important;
+    font-size: 14px;
+    color: var(--ink-300);
+  }
+
+  .hrn-prose {
+    max-width: var(--container-prose);
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--text-primary);
+  }
+
+  .hrn-prose :global(h2) {
+    margin-top: 44px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-2xl);
+    color: var(--text-strong);
+    scroll-margin-top: 90px;
+  }
+
+  .hrn-prose :global(h3) {
+    margin-top: 28px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-lg);
+    color: var(--text-strong);
+  }
+
+  .hrn-prose :global(p) {
+    margin-top: 16px;
+  }
+
+  .hrn-prose :global(ul) {
+    margin-top: 16px;
+    padding-left: 20px;
+  }
+
+  .hrn-prose :global(li) {
+    margin-top: 8px;
+  }
+
+  .hrn-prose :global(blockquote) {
+    margin: 28px 0;
+    padding: 4px 0 4px 20px;
+    border-left: 3px solid var(--accent);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.15rem;
+    color: var(--text-strong);
+  }
+
+  .hrn-article-end {
+    margin-top: 48px;
+    padding: 32px;
+    border-radius: var(--radius-xl);
+    background: var(--slate-900);
+    color: var(--ink-200);
+  }
+
+  .hrn-article-end strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: var(--text-inverse);
+  }
+
+  .hrn-article-end p {
+    margin: 8px 0 20px !important;
+    color: var(--ink-300);
+  }
+
+  .hrn-related {
+    padding: 0 0 clamp(56px, 8vw, 96px);
+    background: var(--paper);
+  }
+
+  .hrn-related__grid {
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .hrn-related__system {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    background: var(--ink-950);
+    color: var(--ink-200);
+  }
+
+  .hrn-related__system span {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-400);
+  }
+
+  .hrn-related__system strong {
+    margin-top: 10px;
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--text-inverse);
+  }
+
+  .hrn-related__system a {
+    margin-top: auto;
+    padding-top: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--amber-400);
+  }
+</style>

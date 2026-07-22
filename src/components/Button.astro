@@ -1,0 +1,79 @@
+---
+// Réplique le composant Button du design system Hérone (HRoneDesignSystem_c54fc9.Button).
+interface Props {
+  variant?: 'accent' | 'primary' | 'secondary';
+  size?: 'sm' | 'md' | 'lg';
+  href?: string;
+  block?: boolean;
+  class?: string;
+}
+
+const {
+  variant = 'primary',
+  size = 'md',
+  href,
+  block = false,
+  class: className = '',
+} = Astro.props;
+
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag
+  href={href}
+  type={href ? undefined : 'button'}
+  class={`hrn-btn hrn-btn--${variant} hrn-btn--${size} ${block ? 'hrn-btn--block' : ''} ${className}`}
+>
+  <span><slot /></span>
+</Tag>
+
+<style>
+  .hrn-btn {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background var(--dur) var(--ease-standard), transform var(--dur) var(--ease-standard), border-color var(--dur) var(--ease-standard);
+  }
+
+  .hrn-btn > span,
+  .hrn-btn > span * {
+    color: inherit;
+  }
+
+  .hrn-btn--sm { height: var(--field-height-sm); padding: 0 16px; font-size: var(--text-sm); }
+  .hrn-btn--md { height: var(--field-height); padding: 0 22px; font-size: var(--text-base); }
+  .hrn-btn--lg { height: 52px; padding: 0 28px; font-size: var(--text-md); }
+
+  .hrn-btn--block { width: 100%; }
+
+  .hrn-btn--accent {
+    background: var(--accent);
+    color: #fff !important;
+    -webkit-text-fill-color: #fff;
+  }
+  .hrn-btn--accent:hover { background: var(--accent-hover); }
+
+  .hrn-btn--primary {
+    background: var(--brand);
+    color: #fff !important;
+    -webkit-text-fill-color: #fff;
+  }
+  .hrn-btn--primary:hover { background: var(--brand-hover); }
+
+  .hrn-btn--secondary {
+    background: var(--paper);
+    color: var(--text-strong);
+    border: 1px solid var(--border-strong);
+  }
+  .hrn-btn--secondary:hover { background: var(--surface-2); }
+</style>

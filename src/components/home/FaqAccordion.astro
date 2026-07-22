@@ -1,0 +1,95 @@
+---
+const faqs = [
+  {
+    q: 'Mes données sont-elles en sécurité et confidentielles ?',
+    a: "Oui. Nous privilégions un hébergement en Europe, et en France quand c'est possible. Vos données restent les vôtres : nous vous disons précisément où elles vont, qui y a accès, et rien n'est utilisé à d'autres fins.",
+  },
+  {
+    q: 'Que couvre la maintenance ?',
+    a: "La surveillance du système, les correctifs en cas de dysfonctionnement, les améliorations quand vos outils évoluent, et notre présence dans les meilleurs délais dès qu'un besoin surgit. Vos équipes gardent toujours la possibilité de reprendre la main.",
+  },
+  {
+    q: 'Comment se déroule un projet ?',
+    a: "Tout commence par un audit gratuit de votre fonctionnement. Nous concevons ensuite un système sur mesure, le développons, le déployons chez vous, formons vos équipes, puis assurons la maintenance. Nous livrons par étapes : un premier système utile tourne vite.",
+  },
+  {
+    q: 'Êtes-vous conformes au RGPD ?',
+    a: "Oui. Chaque système est pensé pour respecter le RGPD : minimisation des données, hébergement maîtrisé, accès contrôlés. Nous documentons ce qui est collecté et pourquoi, avant de démarrer.",
+  },
+  {
+    q: 'Est-ce que ça marche avec mes logiciels actuels ?',
+    a: "C'est justement le point de départ. Nous construisons autour de vos logiciels existants : CRM, tableur, messagerie, métier. Le système les relie plutôt que de les remplacer.",
+  },
+  {
+    q: 'Combien ça coûte ?',
+    a: "Cela dépend du système et du temps qu'il vous fait gagner. Nous chiffrons après l'audit gratuit, une fois que le gain est clair. Ces trente minutes servent précisément à estimer si le jeu en vaut la chandelle.",
+  },
+];
+---
+
+<section id="objections" class="hrn-faq">
+  <div class="hrn-section-inner">
+    <div class="hrn-eyebrow">Vos questions</div>
+    <h2>Ce que les dirigeants nous demandent</h2>
+
+    <div class="hrn-faq__list">
+      {faqs.map((item) => (
+        <details name="faq" class="hrn-faq__item">
+          <summary>
+            <span>{item.q}</span>
+            <svg class="hrn-faq__chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+          </summary>
+          <p>{item.a}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .hrn-faq {
+    padding: clamp(56px, 8vw, 96px) 0;
+    background: var(--paper);
+    scroll-margin-top: 80px;
+  }
+
+  .hrn-faq__list {
+    margin-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  .hrn-faq__item {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hrn-faq__item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 4px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-md);
+    color: var(--text-strong);
+  }
+
+  .hrn-faq__chevron {
+    flex: none;
+    color: var(--text-muted);
+    transition: transform var(--dur) var(--ease-standard);
+  }
+
+  .hrn-faq__item[open] .hrn-faq__chevron {
+    transform: rotate(180deg);
+  }
+
+  .hrn-faq__item p {
+    margin: 0 0 22px !important;
+    padding: 0 4px;
+    max-width: 68ch;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+</style>

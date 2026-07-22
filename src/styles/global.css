@@ -1,0 +1,143 @@
+@import './fonts.css';
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--slate-900);
+}
+
+body {
+  margin: 0;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+video {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
+::selection {
+  background: var(--slate-200);
+  color: var(--ink-950);
+}
+
+h1, h2, h3, h4, p {
+  margin: 0;
+}
+
+details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Utilitaires partagés entre les sections de la home et les pages */
+.hrn-section-inner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 48px);
+}
+
+.hrn-eyebrow {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--amber-600);
+}
+
+.hrn-section-inner h2,
+section h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--text-strong);
+  margin: 14px 0 0;
+  max-width: 20ch;
+  text-wrap: balance;
+}
+
+.hrn-lede {
+  font-size: clamp(1.05rem, 1.4vw, 1.19rem);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 54ch;
+  margin: 0;
+}
+
+/* Encart CTA sombre inséré au milieu des articles de blog (contenu Markdown brut) */
+.hrn-article-cta {
+  margin: 32px 0;
+  padding: 28px;
+  border-radius: var(--radius-xl);
+  background: var(--slate-900);
+  color: var(--ink-200);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.hrn-article-cta strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--text-inverse);
+}
+
+.hrn-article-cta span {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--ink-300);
+}
+
+/* Marquee (section « Logiciels ») — deux rangées défilant en sens opposés */
+@keyframes hrn-marq-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes hrn-marq-right {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

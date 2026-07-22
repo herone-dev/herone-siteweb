@@ -1,0 +1,101 @@
+---
+const row1 = [
+  'Gmail', 'Google Sheets', 'Google Drive', 'Google Agenda', 'Outlook', 'Excel', 'Word', 'Teams',
+  'WhatsApp', 'LinkedIn', 'Facebook', 'Instagram', 'Qonto', 'Stripe', 'PayPal', 'Shopify',
+  'PrestaShop', 'WooCommerce', 'HubSpot', 'Pipedrive', 'Salesforce', 'Zoho', 'Brevo', 'Sellsy',
+  'Mailchimp', 'Calendly', 'Aircall',
+];
+
+const row2 = [
+  'Axonaut', 'Pennylane', 'Indy', 'Sage', 'EBP', 'Cegid', 'Yousign', 'DocuSign', 'Ringover',
+  'Notion', 'Airtable', 'Trello', 'Asana', 'monday', 'ClickUp', 'Slack', 'Typeform', 'Tally',
+  'Google Forms', 'Dropbox', 'OneDrive', 'Zendesk', 'Crisp', 'Apify', 'Mistral', 'ChatGPT', 'Claude',
+];
+---
+
+<section class="hrn-logos">
+  <div class="hrn-section-inner">
+    <div class="hrn-eyebrow">Logiciels</div>
+    <h2>Les logiciels que nous automatisons</h2>
+    <p class="hrn-lede">Nous connectons les outils que vous utilisez déjà.</p>
+  </div>
+
+  <div class="hrn-logos__row">
+    <div class="hrn-logos__track hrn-logos__track--left">
+      {[...row1, ...row1].map((name) => <span>{name}</span>)}
+    </div>
+  </div>
+  <div class="hrn-logos__row">
+    <div class="hrn-logos__track hrn-logos__track--right">
+      {[...row2, ...row2].map((name) => <span>{name}</span>)}
+    </div>
+  </div>
+
+  <p class="hrn-logos__more">et plus de 500 autres</p>
+</section>
+
+<style>
+  .hrn-logos {
+    padding: clamp(56px, 8vw, 96px) 0;
+    background: var(--surface);
+  }
+
+  .hrn-logos h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.9rem, 4vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    color: var(--text-strong);
+    margin: 14px 0 0 !important;
+    max-width: 20ch;
+  }
+
+  .hrn-logos .hrn-lede {
+    margin-top: 12px;
+  }
+
+  .hrn-logos__row {
+    margin-top: 20px;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+
+  .hrn-logos__track {
+    display: flex;
+    width: max-content;
+    gap: 12px;
+    padding: 0 clamp(20px, 5vw, 48px);
+  }
+
+  .hrn-logos__track--left {
+    animation: hrn-marq-left 45s linear infinite;
+  }
+
+  .hrn-logos__track--right {
+    animation: hrn-marq-right 45s linear infinite;
+  }
+
+  .hrn-logos__track span {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    padding: 8px 18px;
+    white-space: nowrap;
+  }
+
+  .hrn-logos__more {
+    margin-top: 24px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+</style>

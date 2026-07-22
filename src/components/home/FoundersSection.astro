@@ -1,0 +1,124 @@
+---
+import ImagePlaceholder from '../ImagePlaceholder.astro';
+---
+
+<section id="fondateurs" class="hrn-founders">
+  <div class="hrn-section-inner">
+    <div class="hrn-eyebrow">Qui sommes-nous</div>
+    <h2>Les visages d'Hérone</h2>
+
+    <p class="hrn-founders__text">
+      Un système mal pensé coûte plus cher qu'il ne rapporte et si personne ne l'utilise, alors il ne sert à rien.
+      C'est pour ça que nous n'installons rien avant d'avoir compris comment votre entreprise fonctionne. Chaque
+      système est construit sur mesure, sans logiciel imposé. La décision finale reste à vos équipes, le système
+      exécute pour leur rendre des heures, des heures replacées sur ce qui a plus de valeur.
+    </p>
+
+    <a href="#fondateurs" class="hrn-founders__link">À propos d'Hérone</a>
+
+    <div class="hrn-founders__portraits">
+      <div class="hrn-founders__portrait">
+        <ImagePlaceholder label="Portrait" expectedPath="public/images/founder-nolan.jpg" ratio="4/5" />
+        <div class="hrn-founders__caption">
+          <strong>Nolan Genty</strong>
+          <span>Directeur Général</span>
+        </div>
+      </div>
+      <div class="hrn-founders__portrait">
+        <ImagePlaceholder label="Portrait" expectedPath="public/images/founder-martin.jpg" ratio="4/5" />
+        <div class="hrn-founders__caption">
+          <strong>Martin Talon</strong>
+          <span>Directeur Technique</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hrn-founders__offices">
+      <ImagePlaceholder label="Nos bureaux" expectedPath="public/images/offices-herbiers.jpg" ratio="21/9" />
+      <div class="hrn-founders__offices-caption">
+        <strong>Nos bureaux</strong>
+        <span>Les Herbiers, Vendée</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hrn-founders {
+    padding: clamp(56px, 8vw, 96px) 0;
+    background: var(--surface);
+    scroll-margin-top: 80px;
+  }
+
+  .hrn-founders__text {
+    margin-top: 20px !important;
+    max-width: 68ch;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--text-secondary);
+  }
+
+  .hrn-founders__link {
+    display: inline-block;
+    margin-top: 16px;
+    font-weight: 600;
+    color: var(--slate-600);
+  }
+
+  .hrn-founders__portraits {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 40px;
+  }
+
+  .hrn-founders__portrait {
+    transition: transform var(--dur-slow) var(--ease-out), box-shadow var(--dur-slow) var(--ease-out);
+  }
+
+  .hrn-founders__portrait:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .hrn-founders__caption {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hrn-founders__caption strong {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    color: var(--text-strong);
+  }
+
+  .hrn-founders__caption span {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .hrn-founders__offices {
+    position: relative;
+    margin-top: 24px;
+  }
+
+  .hrn-founders__offices-caption {
+    position: absolute;
+    left: 20px;
+    bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  .hrn-founders__offices-caption strong {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+  }
+
+  .hrn-founders__offices-caption span {
+    font-size: 13px;
+  }
+</style>

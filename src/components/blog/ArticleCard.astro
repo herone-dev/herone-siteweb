@@ -1,0 +1,99 @@
+---
+const CATEGORY_COLOR: Record<string, string> = {
+  Automatisation: 'var(--amber-500)',
+  Devis: 'var(--slate-400)',
+  CRM: 'var(--slate-500)',
+  BTP: 'var(--slate-700)',
+};
+
+interface Props {
+  slug: string;
+  title: string;
+  description: string;
+  category: string;
+  pubDate: Date;
+  readingTime: number;
+}
+
+const { slug, title, description, category, pubDate, readingTime } = Astro.props;
+const dateLabel = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }).format(pubDate);
+---
+
+<a href={`/blog/${slug}`} class="hrn-article-card">
+  <div class="hrn-article-card__meta">
+    <span class="hrn-article-card__dot" style={`background:${CATEGORY_COLOR[category] ?? 'var(--slate-500)'}`}></span>
+    <span class="hrn-article-card__cat">{category}</span>
+    <span>· {readingTime} min · {dateLabel}</span>
+  </div>
+  <h2>{title}</h2>
+  <p>{description}</p>
+  <span class="hrn-article-card__link">
+    Lire l'article
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+  </span>
+</a>
+
+<style>
+  .hrn-article-card {
+    display: block;
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    transition: transform var(--dur) var(--ease-standard), box-shadow var(--dur) var(--ease-standard), border-color var(--dur);
+  }
+
+  .hrn-article-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-strong);
+  }
+
+  .hrn-article-card__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+
+  .hrn-article-card__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex: none;
+  }
+
+  .hrn-article-card__cat {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+  }
+
+  .hrn-article-card h2 {
+    margin-top: 10px !important;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-xl);
+    color: var(--text-strong);
+  }
+
+  .hrn-article-card p {
+    margin-top: 8px !important;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    max-width: 68ch;
+  }
+
+  .hrn-article-card__link {
+    margin-top: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--slate-600);
+  }
+</style>
