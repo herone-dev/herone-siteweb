@@ -4,9 +4,11 @@ import proofRapin from '../../assets/images/proof-rapin.webp';
 ---
 
 <section class="hrn-proof">
-  <div class="hrn-section-inner hrn-proof__grid">
+  <div class="hrn-section-inner">
+    <div class="hrn-eyebrow">Témoignage</div>
+
+    <div class="hrn-proof__grid">
     <div class="hrn-proof__text">
-      <div class="hrn-eyebrow">Témoignage</div>
       <blockquote>
         « Le rendez-vous est enregistré, la fiche client arrive remplie en PDF, prête à envoyer. On choisit qui s'en occupe, le mail part. On ne ressaisit plus rien. »
       </blockquote>
@@ -39,15 +41,16 @@ import proofRapin from '../../assets/images/proof-rapin.webp';
         <source data-src="/videos/temoignage.mp4" type="video/mp4" />
       </video>
       <button type="button" id="proof-play" class="hrn-proof__play" aria-label="Lire le témoignage vidéo">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+        <span><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
       </button>
+    </div>
     </div>
   </div>
 </section>
 
 <style>
   .hrn-proof {
-    padding: clamp(56px, 8vw, 96px) 0;
+    padding: clamp(56px, 8vw, 104px) 0;
     background: var(--slate-900);
     color: var(--ink-200);
   }
@@ -58,19 +61,14 @@ import proofRapin from '../../assets/images/proof-rapin.webp';
 
   .hrn-proof__grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 40px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: clamp(28px, 5vw, 64px);
     align-items: center;
-  }
-
-  @media (min-width: 900px) {
-    .hrn-proof__grid {
-      grid-template-columns: 1fr 1fr;
-    }
+    margin-top: 28px;
   }
 
   .hrn-proof blockquote {
-    margin: 20px 0 0;
+    margin: 0;
     font-family: var(--font-display);
     font-weight: 600;
     font-size: clamp(1.35rem, 2.1vw, 1.75rem);
@@ -111,15 +109,16 @@ import proofRapin from '../../assets/images/proof-rapin.webp';
     display: flex;
     align-items: center;
     gap: 14px;
-    margin-top: 36px;
+    margin-top: 22px;
   }
 
   .hrn-proof__avatar {
-    width: 52px;
-    height: 52px;
+    width: 48px;
+    height: 48px;
     flex: none;
     border-radius: 50%;
     overflow: hidden;
+    background: var(--slate-700);
   }
 
   .hrn-proof__avatar :global(img) {
@@ -142,13 +141,14 @@ import proofRapin from '../../assets/images/proof-rapin.webp';
   }
 
   .hrn-proof__badge {
-    margin-top: 28px;
+    margin-top: 20px;
     display: inline-flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 14px 20px;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
     border: 1px solid var(--border-inverse);
     border-radius: var(--radius-lg);
+    background: color-mix(in srgb, #fff 4%, transparent);
   }
 
   .hrn-proof__badge strong {
@@ -157,6 +157,7 @@ import proofRapin from '../../assets/images/proof-rapin.webp';
     font-size: clamp(1.4rem, 2.2vw, 1.8rem);
     line-height: 1;
     color: var(--amber-300);
+    white-space: nowrap;
   }
 
   .hrn-proof__badge span {
@@ -170,7 +171,8 @@ import proofRapin from '../../assets/images/proof-rapin.webp';
     aspect-ratio: 4 / 3;
     border-radius: var(--radius-xl);
     overflow: hidden;
-    background: var(--ink-950);
+    border: 1px solid var(--border-inverse);
+    background: var(--slate-800);
   }
 
   .hrn-proof__video img,
@@ -200,20 +202,27 @@ import proofRapin from '../../assets/images/proof-rapin.webp';
   .hrn-proof__play {
     position: absolute;
     inset: 0;
-    margin: auto;
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    border: none;
     display: grid;
     place-items: center;
-    background: rgba(15, 29, 20, 0.6);
-    color: #fff;
+    border: none;
+    background: color-mix(in srgb, var(--ink-950) 34%, transparent);
     cursor: pointer;
-    transition: opacity var(--dur) var(--ease-standard), transform var(--dur) var(--ease-standard);
+    transition: opacity var(--dur) var(--ease-standard);
   }
 
-  .hrn-proof__play:hover {
+  .hrn-proof__play span {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--ink-950) 58%, transparent);
+    color: #fff;
+    box-shadow: 0 6px 24px -8px rgba(0, 0, 0, 0.6);
+    transition: transform var(--dur) var(--ease-standard);
+  }
+
+  .hrn-proof__play:hover span {
     transform: scale(1.06);
   }
 </style>
