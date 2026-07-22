@@ -233,9 +233,11 @@ const cards = [
     margin-top: 24px;
   }
 
-  .hrn-constat__dots button {
-    width: 30px;
-    height: 5px;
+  /* Les puces sont créées en JS : elles n'ont pas l'attribut de scope Astro,
+     d'où :global() pour que ces règles les atteignent réellement. */
+  :global(.hrn-constat__dots button) {
+    width: 28px;
+    height: 6px;
     border-radius: var(--radius-full);
     border: none;
     padding: 0;
@@ -244,7 +246,7 @@ const cards = [
     transition: background var(--dur-fast) var(--ease-standard), width var(--dur-fast) var(--ease-standard);
   }
 
-  .hrn-constat__dots button[aria-current='true'] {
+  :global(.hrn-constat__dots button[aria-current='true']) {
     background: var(--accent);
     width: 44px;
   }
