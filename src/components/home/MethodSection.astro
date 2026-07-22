@@ -1,14 +1,15 @@
 ---
-// Seule section du site utilisant GSAP + ScrollTrigger (scroll-driven), conformément
-// à la convention "GSAP réservé au spectaculaire".
+// Seule section du site utilisant GSAP + ScrollTrigger, conformément à la
+// convention "GSAP réservé au spectaculaire".
 //
-// Principe : le foncé est porté UNIQUEMENT par le bloc `.hrn-method__card`
-// (dimensionné comme la section témoignage). La « piste » de scroll qui l'entoure
-// est transparente → pendant le pin, le bloc figé garde la taille d'une section
-// normale, avec le fond clair de la page autour (jamais une pleine page foncée).
+// La section est un bloc foncé normal, dimensionné comme la section témoignage
+// (pas de pin, donc pas de bandes autour ni de pleine page). Les 5 étapes se
+// révèlent progressivement au scroll (scrub) au fur et à mesure que le bloc
+// traverse l'écran. Hauteur du bloc CONSTANTE : on réserve la place d'une
+// description longue pour qu'il ne « grossisse » pas d'une étape à l'autre.
 //
-// Fallback statique complet (toutes les étapes dépliées, pas de pin) si
-// prefers-reduced-motion, mobile (<820px), ou JS absent.
+// Fallback statique complet (toutes les étapes dépliées) si prefers-reduced-motion,
+// mobile (<820px), ou JS absent.
 const steps = [
   { title: 'Audit du fonctionnement', text: "Nous observons vos tâches répétitives, sur le terrain, avant d'écrire la moindre ligne." },
   { title: 'Conception du système', text: 'Un système sur mesure, qui mêle automatisation et validation humaine là où elle compte.' },
@@ -19,45 +20,33 @@ const steps = [
 ---
 
 <section id="methode" class="hrn-method">
-  <div class="hrn-method__scroll" id="method-scroll">
-    <div class="hrn-method__pin" id="method-pin">
-      <div class="hrn-method__card">
-        <div class="hrn-section-inner">
-          <div class="hrn-eyebrow">Méthode</div>
-          <h2>Notre processus en 5 étapes</h2>
+  <div class="hrn-section-inner">
+    <div class="hrn-eyebrow">Méthode</div>
+    <h2>Notre processus en 5 étapes</h2>
 
-          <div class="hrn-method__layout">
-            <div class="hrn-method__box" id="method-box">
-              <div class="hrn-method__fill" id="method-fill"></div>
-              <span class="hrn-method__num" id="method-num">1</span>
-            </div>
-
-            <ol class="hrn-method__list" id="method-list">
-              {steps.map((step, i) => (
-                <li class="hrn-method__step" data-index={i}>
-                  <span class="hrn-method__dot"></span>
-                  <div class="hrn-method__step-body">
-                    <h3>{step.title}</h3>
-                    <div class="hrn-method__step-desc"><p>{step.text}</p></div>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </div>
+    <div class="hrn-method__layout">
+      <div class="hrn-method__box" id="method-box">
+        <div class="hrn-method__fill" id="method-fill"></div>
+        <span class="hrn-method__num" id="method-num">1</span>
       </div>
+
+      <ol class="hrn-method__list" id="method-list">
+        {steps.map((step, i) => (
+          <li class="hrn-method__step" data-index={i}>
+            <span class="hrn-method__dot"></span>
+            <div class="hrn-method__step-body">
+              <h3>{step.title}</h3>
+              <div class="hrn-method__step-desc"><p>{step.text}</p></div>
+            </div>
+          </li>
+        ))}
+      </ol>
     </div>
   </div>
 </section>
 
 <style>
-  /* Section = simple conteneur de la piste de scroll ; aucun fond ici. */
   .hrn-method {
-    background: transparent;
-  }
-
-  /* Le bloc foncé : c'est lui qui est dimensionné comme la section témoignage. */
-  .hrn-method__card {
     background: var(--slate-900);
     color: var(--ink-200);
     padding: clamp(48px, 7vw, 88px) 0;
@@ -67,7 +56,7 @@ const steps = [
     color: var(--amber-300);
   }
 
-  .hrn-method__card h2 {
+  .hrn-method h2 {
     color: var(--text-inverse);
     font-size: clamp(2rem, 3.6vw, 3rem);
     line-height: 1.06;
@@ -84,17 +73,6 @@ const steps = [
   }
 
   @media (min-width: 820px) {
-    /* Piste : hauteur posée par le JS (invisible, transparente). */
-    .hrn-method__pin {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-    }
-
-    .hrn-method__pin > .hrn-method__card {
-      width: 100%;
-    }
-
     .hrn-method__layout {
       grid-template-columns: auto 1fr;
       align-items: center;
@@ -188,6 +166,17 @@ const steps = [
     grid-template-rows: 0fr;
   }
 
+  /* Hauteur de description RÉSERVÉE quand une étape est active : toutes les
+     étapes réservent la même place (2 lignes) → le bloc foncé ne change pas
+     de taille en défilant d'une étape à l'autre. */
+  .hrn-method__list.is-scroll-driven .hrn-method__step.is-active .hrn-method__step-desc {
+    grid-template-rows: 1fr;
+  }
+
+  .hrn-method__list.is-scroll-driven .hrn-method__step.is-active .hrn-method__step-desc p {
+    min-height: calc(2 * 1.55 * 15px);
+  }
+
   .hrn-method__list.is-scroll-driven .hrn-method__step.is-active .hrn-method__dot {
     background: var(--accent);
     box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 25%, transparent);
@@ -195,10 +184,6 @@ const steps = [
 
   .hrn-method__list.is-scroll-driven .hrn-method__step.is-active h3 {
     color: var(--text-inverse);
-  }
-
-  .hrn-method__list.is-scroll-driven .hrn-method__step.is-active .hrn-method__step-desc {
-    grid-template-rows: 1fr;
   }
 </style>
 
@@ -209,19 +194,16 @@ const steps = [
   gsap.registerPlugin(ScrollTrigger);
 
   let ctx: ReturnType<typeof gsap.context> | undefined;
-  let ac: AbortController | undefined;
 
   function teardown() {
     ctx?.revert();
     ctx = undefined;
 
-    const scrollWrap = document.querySelector<HTMLElement>('#method-scroll');
     const box = document.querySelector<HTMLElement>('#method-box');
     const list = document.querySelector<HTMLElement>('#method-list');
-
-    if (scrollWrap) scrollWrap.style.height = '';
     if (box) box.style.display = '';
     if (list) {
+      list.style.height = '';
       list.classList.remove('is-scroll-driven');
       [...list.children].forEach((el) => el.classList.remove('is-active'));
     }
@@ -229,33 +211,25 @@ const steps = [
 
   function init() {
     teardown();
-    ac?.abort();
-    ac = new AbortController();
-    const { signal } = ac;
 
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isDesktop = window.matchMedia('(min-width: 820px)').matches;
 
-    const scrollWrap = document.querySelector<HTMLElement>('#method-scroll');
-    const pin = document.querySelector<HTMLElement>('#method-pin');
+    const section = document.querySelector<HTMLElement>('#methode');
     const box = document.querySelector<HTMLElement>('#method-box');
     const fill = document.querySelector<HTMLElement>('#method-fill');
     const num = document.querySelector<HTMLElement>('#method-num');
     const list = document.querySelector<HTMLElement>('#method-list');
 
-    if (!scrollWrap || !pin || !box || !fill || !num || !list) return;
+    if (!section || !box || !fill || !num || !list) return;
     const steps = [...list.children] as HTMLElement[];
     if (!steps.length) return;
 
-    // Sur mobile / reduced-motion : rendu statique (CSS mobile-first, toutes
-    // les descriptions dépliées, pavé numéroté masqué, pas de pin).
+    // Sur mobile / reduced-motion : rendu statique (toutes les descriptions
+    // dépliées, pavé numéroté masqué, pas d'animation).
     if (!isDesktop || reduce) return;
 
     ctx = gsap.context(() => {
-      // Piste de scroll : 100vh (couverture du pin) + une distance courte par
-      // étape → l'animation défile sans imposer 5 pleines pages.
-      const perStepVh = 42;
-      scrollWrap.style.height = `${100 + steps.length * perStepVh}vh`;
       box.style.display = 'flex';
       list.classList.add('is-scroll-driven');
 
@@ -270,12 +244,25 @@ const steps = [
       };
       setActive(0);
 
+      // Verrou de hauteur : la liste occupe en permanence sa hauteur stabilisée
+      // (identique pour chaque étape) → l'accordéon s'anime à l'intérieur sans
+      // jamais faire varier la taille du bloc foncé, même pendant la transition.
+      // On neutralise les transitions le temps de lire la hauteur finale (sinon
+      // on mesurerait un état intermédiaire, encore en cours d'animation).
+      requestAnimationFrame(() => {
+        const descs = [...list.querySelectorAll<HTMLElement>('.hrn-method__step-desc')];
+        descs.forEach((d) => (d.style.transition = 'none'));
+        void list.offsetHeight;
+        list.style.height = `${list.scrollHeight}px`;
+        void list.offsetHeight;
+        descs.forEach((d) => (d.style.transition = ''));
+      });
+
+      // Pas de pin : l'avancement suit le passage du bloc dans l'écran.
       ScrollTrigger.create({
-        trigger: scrollWrap,
-        start: 'top top',
-        end: 'bottom bottom',
-        pin,
-        pinSpacing: true,
+        trigger: section,
+        start: 'top 72%',
+        end: 'bottom 28%',
         scrub: true,
         onUpdate(self) {
           const idx = Math.min(steps.length - 1, Math.floor(self.progress * steps.length));
@@ -283,16 +270,6 @@ const steps = [
         },
       });
     });
-
-    let resizeTimer: ReturnType<typeof setTimeout>;
-    window.addEventListener(
-      'resize',
-      () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(init, 200);
-      },
-      { signal }
-    );
   }
 
   document.addEventListener('astro:page-load', init);
