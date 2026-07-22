@@ -48,8 +48,16 @@ const steps = [
     padding: clamp(56px, 8vw, 96px) 0 0;
   }
 
+  .hrn-method :global(.hrn-eyebrow) {
+    color: var(--amber-300);
+  }
+
   .hrn-method__intro h2 {
     color: var(--text-inverse);
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    max-width: 16ch;
   }
 
   .hrn-method__scroll {
@@ -137,9 +145,10 @@ const steps = [
 
   .hrn-method__step h3 {
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: var(--text-xl);
-    color: var(--ink-300);
+    font-weight: 700;
+    font-size: clamp(1.15rem, 1.9vw, 1.55rem);
+    letter-spacing: -0.01em;
+    color: var(--ink-400);
     transition: color var(--dur) var(--ease-standard);
   }
 

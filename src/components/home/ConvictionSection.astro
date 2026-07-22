@@ -37,6 +37,13 @@ const items = [
     background: var(--paper);
   }
 
+  .hrn-conviction :global(h2) {
+    font-size: clamp(1.7rem, 3.4vw, 2.6rem);
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    max-width: 22ch;
+  }
+
   .hrn-conviction__grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -47,7 +54,8 @@ const items = [
   .hrn-conviction__item h3 {
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: var(--text-xl);
+    font-size: clamp(1.15rem, 1.7vw, 1.4rem);
+    letter-spacing: -0.01em;
     color: var(--text-strong);
   }
 

@@ -5,11 +5,11 @@ import Button from '../Button.astro';
 // son lien une fois son compte créé). Remplacer ce bloc `.hrn-booking__calendar`
 // par l'embed Cal.com le moment venu — le CTA principal reste tel/mailto pour l'instant.
 const days = [
-  { label: 'Lun 21', slots: [{ time: '10:00' }, { time: '14:30' }] },
-  { label: 'Mar 22', slots: [{ time: '09:00' }, { time: '15:00', disabled: true }] },
-  { label: 'Mer 23', slots: [{ time: '09:30', selected: true }, { time: '16:00' }] },
-  { label: 'Jeu 24', slots: [{ time: '11:00' }, { time: '14:00' }] },
-  { label: 'Ven 25', slots: [{ time: '10:30' }, { time: '13:30' }] },
+  { label: 'Lun', slots: [{ time: '09:00' }, { time: '14:00' }] },
+  { label: 'Mar', slots: [{ time: '10:30' }, { time: '15:00', disabled: true }] },
+  { label: 'Mer', slots: [{ time: '09:30', selected: true }, { time: '16:00' }] },
+  { label: 'Jeu', slots: [{ time: '11:00' }, { time: '17:00' }] },
+  { label: 'Ven', slots: [{ time: '09:00' }, { time: '13:30' }] },
 ];
 ---
 
@@ -18,33 +18,32 @@ const days = [
     <div class="hrn-booking__text">
       <div class="hrn-eyebrow">Appel final</div>
       <h2>Trente minutes pour voir ce qu'on peut vous retirer des mains.</h2>
-      <p class="hrn-lede hrn-booking__lede">Vous décrivez votre quotidien, nous repérons les tâches à supprimer.</p>
+      <p class="hrn-booking__lede">Vous décrivez votre quotidien, nous repérons les tâches à supprimer.</p>
 
-      <span class="hrn-booking__free">Audit gratuit, sans engagement</span>
+      <span class="hrn-booking__free"><i></i>Audit gratuit, sans engagement</span>
 
       <div class="hrn-booking__contacts">
-        <a href="tel:+33663710598">06 63 71 05 98</a>
-        <a href="mailto:contact@herone.fr">contact@herone.fr</a>
+        <a href="tel:+33663710598"><small>Ou par téléphone</small><strong>06 63 71 05 98</strong></a>
+        <a href="mailto:contact@herone.fr"><small>Par e-mail</small><strong>contact@herone.fr</strong></a>
       </div>
     </div>
 
     <div class="hrn-booking__calendar">
       <div class="hrn-booking__calendar-head">
-        <div>
-          <strong>Choisissez un créneau</strong>
-          <span class="hrn-booking__badge">30 min</span>
-        </div>
-        <span class="hrn-booking__note">Agenda de démonstration · connexion à venir</span>
+        <strong>Choisissez un créneau</strong>
+        <span class="hrn-booking__badge">30 min</span>
       </div>
 
       <div class="hrn-booking__week">
-        <button type="button" aria-label="Semaine précédente" disabled>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
-        </button>
         <span>Semaine du 20 juillet</span>
-        <button type="button" aria-label="Semaine suivante" class="is-active">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
-        </button>
+        <span class="hrn-booking__week-nav">
+          <button type="button" aria-label="Semaine précédente">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
+          </button>
+          <button type="button" aria-label="Semaine suivante" class="is-active">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+          </button>
+        </span>
       </div>
 
       <div class="hrn-booking__days">
@@ -61,99 +60,139 @@ const days = [
       </div>
 
       <Button variant="accent" size="lg" block href="tel:+33663710598">Confirmer le créneau · Mer 09:30</Button>
+      <p class="hrn-booking__note">Agenda de démonstration · connexion à venir</p>
     </div>
   </div>
 </section>
 
 <style>
   .hrn-booking {
-    padding: clamp(56px, 8vw, 96px) 0;
+    padding: clamp(56px, 8vw, 104px) 0;
     background: var(--slate-900);
     color: var(--ink-200);
+  }
+
+  .hrn-booking :global(.hrn-eyebrow) {
+    color: var(--amber-300);
   }
 
   .hrn-booking__grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 40px;
+    align-items: start;
   }
 
   @media (min-width: 900px) {
     .hrn-booking__grid {
       grid-template-columns: 1fr 1fr;
-      align-items: start;
     }
   }
 
   .hrn-booking h2 {
     color: var(--text-inverse);
-    max-width: 16ch;
+    max-width: 18ch;
+    line-height: 1.06;
+    letter-spacing: -0.025em;
+    margin-top: 0;
   }
 
   .hrn-booking__lede {
-    color: var(--ink-300);
-    margin-top: 16px !important;
+    margin: 18px 0 0;
+    font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+    line-height: 1.55;
+    color: var(--ink-200);
+    max-width: 46ch;
+    text-wrap: pretty;
   }
 
   .hrn-booking__free {
-    display: inline-block;
-    margin-top: 20px;
-    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 18px;
+    font-size: 12px;
     font-family: var(--font-mono);
-    color: var(--amber-400);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-inverse);
     border: 1px solid var(--border-inverse);
     border-radius: var(--radius-full);
-    padding: 6px 14px;
+    padding: 7px 14px;
+  }
+
+  .hrn-booking__free i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--amber-400);
   }
 
   .hrn-booking__contacts {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-top: 28px;
+    gap: 18px;
+    margin-top: 32px;
   }
 
   .hrn-booking__contacts a {
-    color: var(--ink-100);
+    display: flex;
+    flex-direction: column;
+    color: var(--text-inverse);
+  }
+
+  .hrn-booking__contacts small {
+    font-size: 13px;
+    color: var(--ink-300);
+  }
+
+  .hrn-booking__contacts strong {
     font-family: var(--font-mono);
+    font-weight: 600 !important;
+    color: var(--text-inverse);
   }
 
   .hrn-booking__calendar {
-    background: var(--paper);
-    color: var(--text-primary);
+    background: color-mix(in srgb, #fff 5%, transparent);
+    color: var(--text-inverse);
+    border: 1px solid var(--border-inverse);
     border-radius: var(--radius-xl);
-    padding: 24px;
-    box-shadow: var(--shadow-xl);
+    padding: clamp(20px, 3vw, 28px);
   }
 
   .hrn-booking__calendar-head {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
   }
 
   .hrn-booking__calendar-head strong {
     font-family: var(--font-display);
+    font-weight: 700;
     font-size: var(--text-lg);
-    color: var(--text-strong);
-    margin-right: 8px;
+    color: var(--text-inverse);
   }
 
   .hrn-booking__badge {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--text-secondary);
-    background: var(--surface-2);
-    border-radius: var(--radius-full);
-    padding: 3px 10px;
-  }
-
-  .hrn-booking__note {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-family: var(--font-mono);
     font-size: 11px;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--text-muted);
+    color: var(--ink-300);
+  }
+
+  .hrn-booking__note {
+    margin: 12px 0 0;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-400);
   }
 
   .hrn-booking__week {
@@ -162,25 +201,30 @@ const days = [
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-strong);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--text-inverse);
   }
 
-  .hrn-booking__week button {
-    width: 32px;
-    height: 32px;
+  .hrn-booking__week-nav {
+    display: flex;
+    gap: 6px;
+  }
+
+  .hrn-booking__week-nav button {
+    width: 30px;
+    height: 30px;
     display: grid;
     place-items: center;
-    border-radius: 50%;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-inverse);
+    background: transparent;
+    color: var(--ink-300);
   }
 
-  .hrn-booking__week button.is-active {
-    color: var(--text-strong);
-    border-color: var(--border-strong);
+  .hrn-booking__week-nav button.is-active {
+    color: var(--text-inverse);
   }
 
   .hrn-booking__days {
@@ -194,38 +238,39 @@ const days = [
     display: flex;
     flex-direction: column;
     gap: 6px;
+    text-align: center;
   }
 
   .hrn-booking__day-label {
     font-family: var(--font-mono);
     font-size: 11px;
-    text-align: center;
-    color: var(--text-muted);
+    text-transform: uppercase;
+    color: var(--ink-300);
     margin-bottom: 2px;
   }
 
   .hrn-booking__slot {
     display: block;
     text-align: center;
-    font-size: 12.5px;
-    padding: 8px 4px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 8px 0;
     border-radius: var(--radius-sm);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
+    border: 1px solid var(--border-inverse);
+    color: var(--text-inverse);
+    cursor: pointer;
   }
 
   .hrn-booking__slot.is-disabled {
-    color: var(--text-muted);
+    color: var(--ink-400);
     text-decoration: line-through;
-    background: var(--surface-2);
+    cursor: default;
   }
 
   .hrn-booking__slot.is-selected {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: var(--amber-500);
+    border-color: var(--amber-500);
     color: #fff;
-    font-weight: 600;
   }
 
   .hrn-booking__calendar :global(.hrn-btn) {

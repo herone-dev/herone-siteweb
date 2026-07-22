@@ -66,7 +66,7 @@ details > summary::-webkit-details-marker {
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--amber-600);
+  color: var(--slate-600);
 }
 
 .hrn-section-inner h2,
