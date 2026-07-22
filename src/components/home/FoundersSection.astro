@@ -7,41 +7,43 @@ import officesHerbiers from '../../assets/images/offices-herbiers.webp';
 
 <section id="fondateurs" class="hrn-founders">
   <div class="hrn-section-inner">
-    <div class="hrn-eyebrow">Qui sommes-nous</div>
-    <h2>Les visages d'Hérone</h2>
-
-    <p class="hrn-founders__text">
-      Un système mal pensé coûte plus cher qu'il ne rapporte et si personne ne l'utilise, alors il ne sert à rien.
-      C'est pour ça que nous n'installons rien avant d'avoir compris comment votre entreprise fonctionne. Chaque
-      système est construit sur mesure, sans logiciel imposé. La décision finale reste à vos équipes, le système
-      exécute pour leur rendre des heures, des heures replacées sur ce qui a plus de valeur.
-    </p>
-
-    <a href="#fondateurs" class="hrn-founders__link">À propos d'Hérone</a>
-
-    <div class="hrn-founders__portraits">
-      <div class="hrn-founders__portrait">
-        <Image src={founderNolan} alt="Nolan Genty" width={496} height={496} />
-        <div class="hrn-founders__caption">
-          <strong>Nolan Genty</strong>
-          <span>Directeur Général</span>
-        </div>
+    <div class="hrn-founders__grid">
+      <div class="hrn-founders__intro">
+        <div class="hrn-eyebrow">Qui sommes-nous</div>
+        <h2>Les visages d'Hérone</h2>
+        <p class="hrn-founders__text">
+          Un système mal pensé coûte plus cher qu'il ne rapporte et si personne ne l'utilise, alors il ne sert à rien.
+          C'est pour ça que nous n'installons rien avant d'avoir compris comment votre entreprise fonctionne. Chaque
+          système est construit sur mesure, sans logiciel imposé. La décision finale reste à vos équipes, le système
+          exécute pour leur rendre des heures, des heures replacées sur ce qui a plus de valeur.
+        </p>
+        <a href="#fondateurs" class="hrn-founders__link">
+          À propos d'Hérone
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+        </a>
       </div>
-      <div class="hrn-founders__portrait">
-        <Image src={founderMartin} alt="Martin Talon" width={496} height={496} />
-        <div class="hrn-founders__caption">
-          <strong>Martin Talon</strong>
-          <span>Directeur Technique</span>
+
+      <div class="hrn-founders__portraits">
+        <div class="hrn-founders__portrait">
+          <div class="hrn-founders__frame">
+            <Image src={founderNolan} alt="Nolan Genty" width={496} height={620} />
+          </div>
+          <span class="hrn-founders__caption">Nolan Genty · Directeur Général</span>
+        </div>
+        <div class="hrn-founders__portrait">
+          <div class="hrn-founders__frame">
+            <Image src={founderMartin} alt="Martin Talon" width={496} height={620} />
+          </div>
+          <span class="hrn-founders__caption">Martin Talon · Directeur Technique</span>
         </div>
       </div>
     </div>
 
     <div class="hrn-founders__offices">
-      <Image src={officesHerbiers} alt="Bureaux Hérone aux Herbiers" width={1200} height={552} />
-      <div class="hrn-founders__offices-caption">
-        <strong>Nos bureaux</strong>
-        <span>Les Herbiers, Vendée</span>
+      <div class="hrn-founders__frame hrn-founders__frame--wide">
+        <Image src={officesHerbiers} alt="Bureaux Hérone aux Herbiers" width={1200} height={514} />
       </div>
+      <span class="hrn-founders__caption">Nos bureaux · Les Herbiers, Vendée</span>
     </div>
   </div>
 </section>
@@ -50,103 +52,105 @@ import officesHerbiers from '../../assets/images/offices-herbiers.webp';
   .hrn-founders {
     padding: clamp(56px, 8vw, 96px) 0;
     background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
     scroll-margin-top: 80px;
   }
 
-  .hrn-founders :global(h2) {
+  .hrn-founders :global(.hrn-eyebrow) {
+    color: var(--slate-600);
+  }
+
+  .hrn-founders__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: clamp(28px, 5vw, 56px);
+    align-items: center;
+  }
+
+  .hrn-founders h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
     font-size: clamp(1.8rem, 3.6vw, 2.6rem);
     line-height: 1.1;
     letter-spacing: -0.02em;
-    max-width: none;
+    color: var(--text-strong);
+    margin: 14px 0 0 !important;
   }
 
   .hrn-founders__text {
     margin-top: 20px !important;
-    max-width: 68ch;
-    font-size: 16px;
-    line-height: 1.65;
-    color: var(--text-secondary);
+    max-width: 46ch;
+    font-size: clamp(1.05rem, 1.4vw, 1.19rem);
+    line-height: 1.6;
+    color: var(--text-primary);
   }
 
   .hrn-founders__link {
-    display: inline-block;
-    margin-top: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
     font-weight: 600;
     color: var(--slate-600);
   }
 
   .hrn-founders__portraits {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
-    margin-top: 40px;
   }
 
   .hrn-founders__portrait {
-    transition: transform var(--dur-slow) var(--ease-out), box-shadow var(--dur-slow) var(--ease-out);
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
 
-  .hrn-founders__portrait :global(img) {
-    display: block;
-    width: 100%;
-    height: auto;
+  .hrn-founders__frame {
+    position: relative;
     aspect-ratio: 4 / 5;
-    object-fit: cover;
     border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 260ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .hrn-founders__portrait:hover {
+  .hrn-founders__frame--wide {
+    aspect-ratio: 21 / 9;
+  }
+
+  .hrn-founders__frame:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-lg);
+    z-index: 1;
+  }
+
+  .hrn-founders__frame :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .hrn-founders__caption {
-    margin-top: 12px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .hrn-founders__caption strong {
-    font-family: var(--font-display);
-    font-size: var(--text-md);
-    color: var(--text-strong);
-  }
-
-  .hrn-founders__caption span {
-    font-size: 14px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    white-space: nowrap;
     color: var(--text-secondary);
   }
 
   .hrn-founders__offices {
-    position: relative;
-    margin-top: 24px;
-  }
-
-  .hrn-founders__offices :global(img) {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 21 / 9;
-    object-fit: cover;
-    border-radius: var(--radius-lg);
-  }
-
-  .hrn-founders__offices-caption {
-    position: absolute;
-    left: 20px;
-    bottom: 16px;
+    margin-top: clamp(32px, 5vw, 56px);
     display: flex;
     flex-direction: column;
-    color: #fff;
-    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+    gap: 12px;
   }
 
-  .hrn-founders__offices-caption strong {
-    font-family: var(--font-display);
-    font-size: var(--text-lg);
-  }
-
-  .hrn-founders__offices-caption span {
-    font-size: 13px;
+  .hrn-founders__offices .hrn-founders__caption {
+    font-size: 12.5px;
   }
 </style>
