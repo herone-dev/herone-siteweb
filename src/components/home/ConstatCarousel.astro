@@ -234,22 +234,32 @@ const cards = [
   }
 
   /* Les puces sont créées en JS : elles n'ont pas l'attribut de scope Astro,
-     d'où :global() pour que ces règles les atteignent réellement. */
+     d'où :global() pour que ces règles les atteignent réellement.
+     Chaque puce = une piste (fond neutre) + un remplissage accent (barre de
+     progression). Le remplissage est animé en JS via scaleX (transform only). */
   :global(.hrn-constat__dots button) {
+    position: relative;
     width: 28px;
     height: 6px;
     border-radius: var(--radius-full);
-    border: none;
+    border: 0;
     padding: 0;
     cursor: pointer;
-    border: 0;
+    overflow: hidden;
     background: var(--border-strong);
-    transition: background 320ms cubic-bezier(.4,0,.2,1);
+    transition: width 320ms cubic-bezier(.4,0,.2,1);
   }
 
   :global(.hrn-constat__dots button[aria-current='true']) {
-    background: var(--accent);
     width: 44px;
+  }
+
+  :global(.hrn-constat__dots button .hrn-constat__dot-fill) {
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left center;
   }
 
   .hrn-constat__summary {
@@ -291,6 +301,12 @@ const cards = [
     const cardCount = cards.length;
     let index = 0;
 
+    // Défilement automatique : une vignette toutes les 6 s, en boucle continue.
+    // Désactivé si l'utilisateur préfère les animations réduites (accessibilité).
+    const AUTOPLAY_MS = 6000;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let progress: Animation | undefined; // barre de la puce courante = horloge du défilement
+
     // Nombre de cartes visibles à la fois, et donc nombre de positions
     // possibles en avançant d'une carte : maxIndex = cardCount - perView.
     const perView = () => (window.matchMedia('(min-width: 820px)').matches ? 3 : 1);
@@ -302,6 +318,9 @@ const cards = [
         const dot = document.createElement('button');
         dot.type = 'button';
         dot.setAttribute('aria-label', `Aller à la position ${i + 1}`);
+        const fill = document.createElement('span');
+        fill.className = 'hrn-constat__dot-fill';
+        dot.appendChild(fill);
         dot.addEventListener('click', () => { goTo(i); restartAuto(); }, { signal });
         dotsEl.appendChild(dot);
       }
@@ -315,7 +334,16 @@ const cards = [
       track.style.transform = `translateX(-${offset}px)`;
       prevBtn.disabled = index === 0;
       nextBtn.disabled = index === max;
-      [...dotsEl.children].forEach((dot, i) => dot.setAttribute('aria-current', String(i === index)));
+      // Puces : les passées sont pleines, les suivantes vides. La courante part
+      // vide (sa barre sera animée) — ou pleine en mode reduced-motion.
+      [...dotsEl.children].forEach((dot, i) => {
+        dot.setAttribute('aria-current', String(i === index));
+        const fill = dot.firstElementChild as HTMLElement | null;
+        if (!fill) return;
+        fill.getAnimations().forEach((a) => a.cancel());
+        const filled = i < index || (i === index && reduce);
+        fill.style.transform = filled ? 'scaleX(1)' : 'scaleX(0)';
+      });
     };
 
     const goTo = (i: number) => {
@@ -323,43 +351,46 @@ const cards = [
       render();
     };
 
-    // Défilement automatique : une vignette à la fois, boucle en continu.
-    // Désactivé si l'utilisateur préfère les animations réduites (accessibilité).
-    const AUTOPLAY_MS = 7000;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let timer: ReturnType<typeof setInterval> | undefined;
-
     const advance = () => {
       const max = maxIndex();
       index = index >= max ? 0 : index + 1; // revient au début après la dernière
       render();
+      startAuto();
     };
-    const stopAuto = () => {
-      if (timer) clearInterval(timer);
-      timer = undefined;
-    };
+
+    // Lance (ou relance) la barre de progression de la puce courante ; à la fin
+    // de la barre, on passe à la vignette suivante. Un seul chrono à la fois.
     const startAuto = () => {
+      progress?.cancel();
+      progress = undefined;
       if (reduce) return;
-      stopAuto();
-      timer = setInterval(advance, AUTOPLAY_MS);
+      const fill = dotsEl.children[index]?.firstElementChild as HTMLElement | null;
+      if (!fill) return;
+      progress = fill.animate(
+        [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
+        { duration: AUTOPLAY_MS, easing: 'linear', fill: 'forwards' }
+      );
+      progress.onfinish = advance;
     };
-    // Après une action manuelle, on relance le compteur à zéro (laisse le temps de lire).
+    const pauseAuto = () => progress?.pause();
+    const resumeAuto = () => progress?.play();
+    // Après une action manuelle, on repart d'une barre pleine à zéro.
     const restartAuto = () => startAuto();
 
     prevBtn.addEventListener('click', () => { goTo(index - 1); restartAuto(); }, { signal });
     nextBtn.addEventListener('click', () => { goTo(index + 1); restartAuto(); }, { signal });
 
     // Pause au survol / focus clavier, et quand l'onglet passe en arrière-plan.
-    viewport.addEventListener('pointerenter', stopAuto, { signal });
-    viewport.addEventListener('pointerleave', startAuto, { signal });
-    viewport.addEventListener('focusin', stopAuto, { signal });
-    viewport.addEventListener('focusout', startAuto, { signal });
+    viewport.addEventListener('pointerenter', pauseAuto, { signal });
+    viewport.addEventListener('pointerleave', resumeAuto, { signal });
+    viewport.addEventListener('focusin', pauseAuto, { signal });
+    viewport.addEventListener('focusout', resumeAuto, { signal });
     document.addEventListener(
       'visibilitychange',
-      () => (document.hidden ? stopAuto() : startAuto()),
+      () => (document.hidden ? pauseAuto() : resumeAuto()),
       { signal }
     );
-    signal.addEventListener('abort', stopAuto);
+    signal.addEventListener('abort', () => progress?.cancel());
 
     buildDots();
     render();
@@ -373,6 +404,7 @@ const cards = [
         resizeTimer = setTimeout(() => {
           buildDots();
           render();
+          startAuto();
         }, 150);
       },
       { signal }
