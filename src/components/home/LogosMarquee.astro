@@ -18,20 +18,22 @@ const row2 = [
     <div class="hrn-eyebrow">Logiciels</div>
     <h2>Les logiciels que nous automatisons</h2>
     <p class="hrn-lede">Nous connectons les outils que vous utilisez déjà.</p>
-  </div>
 
-  <div class="hrn-logos__row">
-    <div class="hrn-logos__track hrn-logos__track--left">
-      {[...row1, ...row1].map((name) => <span>{name}</span>)}
+    <div class="hrn-logos__rows">
+      <div class="hrn-logos__row">
+        <div class="hrn-logos__track hrn-logos__track--left">
+          {[...row1, ...row1].map((name) => <span>{name}</span>)}
+        </div>
+      </div>
+      <div class="hrn-logos__row">
+        <div class="hrn-logos__track hrn-logos__track--right">
+          {[...row2, ...row2].map((name) => <span>{name}</span>)}
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="hrn-logos__row">
-    <div class="hrn-logos__track hrn-logos__track--right">
-      {[...row2, ...row2].map((name) => <span>{name}</span>)}
-    </div>
-  </div>
 
-  <p class="hrn-logos__more">et plus de 500 autres</p>
+    <p class="hrn-logos__more">et plus de 500 autres</p>
+  </div>
 </section>
 
 <style>
@@ -55,18 +57,23 @@ const row2 = [
     margin-top: 12px;
   }
 
+  .hrn-logos__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 26px;
+  }
+
   .hrn-logos__row {
-    margin-top: 20px;
     overflow: hidden;
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
   }
 
   .hrn-logos__track {
     display: flex;
     width: max-content;
     gap: 12px;
-    padding: 0 clamp(20px, 5vw, 48px);
   }
 
   .hrn-logos__track--left {
@@ -91,8 +98,8 @@ const row2 = [
   }
 
   .hrn-logos__more {
-    margin-top: 24px;
-    text-align: center;
+    margin-top: 18px;
+    text-align: left;
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     letter-spacing: 0.06em;
