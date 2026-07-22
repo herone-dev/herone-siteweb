@@ -234,9 +234,9 @@ const cards = [
   }
 
   .hrn-constat__dots button {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+    width: 30px;
+    height: 5px;
+    border-radius: var(--radius-full);
     border: none;
     padding: 0;
     background: var(--border-strong);
@@ -246,8 +246,7 @@ const cards = [
 
   .hrn-constat__dots button[aria-current='true'] {
     background: var(--accent);
-    width: 22px;
-    border-radius: var(--radius-full);
+    width: 44px;
   }
 
   .hrn-constat__summary {
@@ -285,15 +284,18 @@ const cards = [
     const nextBtn = document.querySelector<HTMLButtonElement>('#constat-next');
     if (!viewport || !track || !dotsEl || !prevBtn || !nextBtn) return;
 
-    const cardCount = track.children.length;
-    let page = 0;
+    const cards = [...track.children] as HTMLElement[];
+    const cardCount = cards.length;
+    let index = 0;
 
-    const perPage = () => (window.matchMedia('(min-width: 820px)').matches ? 3 : 1);
-    const pageCount = () => Math.ceil(cardCount / perPage());
+    // Nombre de cartes visibles à la fois, et donc nombre de positions
+    // possibles en avançant d'une carte : maxIndex = cardCount - perView.
+    const perView = () => (window.matchMedia('(min-width: 820px)').matches ? 3 : 1);
+    const maxIndex = () => Math.max(0, cardCount - perView());
 
     const buildDots = () => {
       dotsEl.innerHTML = '';
-      for (let i = 0; i < pageCount(); i++) {
+      for (let i = 0; i <= maxIndex(); i++) {
         const dot = document.createElement('button');
         dot.type = 'button';
         dot.setAttribute('aria-label', `Aller à la position ${i + 1}`);
@@ -303,21 +305,23 @@ const cards = [
     };
 
     const render = () => {
-      const max = pageCount() - 1;
-      if (page > max) page = max;
-      track.style.transform = `translateX(-${page * viewport.clientWidth}px)`;
-      prevBtn.disabled = page === 0;
-      nextBtn.disabled = page === max;
-      [...dotsEl.children].forEach((dot, i) => dot.setAttribute('aria-current', String(i === page)));
+      const max = maxIndex();
+      if (index > max) index = max;
+      // Décalage réel de la carte cible (gère largeurs + gap, desktop/mobile).
+      const offset = cards[index].offsetLeft - cards[0].offsetLeft;
+      track.style.transform = `translateX(-${offset}px)`;
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = index === max;
+      [...dotsEl.children].forEach((dot, i) => dot.setAttribute('aria-current', String(i === index)));
     };
 
     const goTo = (i: number) => {
-      page = i;
+      index = Math.min(maxIndex(), Math.max(0, i));
       render();
     };
 
-    prevBtn.addEventListener('click', () => goTo(Math.max(0, page - 1)), { signal });
-    nextBtn.addEventListener('click', () => goTo(Math.min(pageCount() - 1, page + 1)), { signal });
+    prevBtn.addEventListener('click', () => goTo(index - 1), { signal });
+    nextBtn.addEventListener('click', () => goTo(index + 1), { signal });
 
     buildDots();
     render();
