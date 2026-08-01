@@ -1,13 +1,19 @@
 ---
+import { Picture } from 'astro:assets';
+import heroPoster from '../../assets/images/posters/hero-poster.jpg';
 ---
 
 <section class="hrn-hero" id="top">
   <div class="hrn-hero__media" aria-hidden="true">
-    <img
-      src="/images/posters/hero-poster.jpg"
+    <Picture
+      src={heroPoster}
+      formats={['avif', 'webp']}
+      widths={[600, 1200, 2000]}
+      sizes="100vw"
       alt=""
       class="hrn-hero__poster"
       fetchpriority="high"
+      loading="eager"
     />
     <video
       id="hero-video"
@@ -19,7 +25,9 @@
       preload="none"
       poster="/images/posters/hero-poster.jpg"
     >
-      <source data-src="/videos/hero.mp4" type="video/mp4" />
+      <source data-src="/videos/hero-hevc.mp4" type='video/mp4; codecs="hvc1"' />
+      <source data-src="/videos/hero-vp9.webm" type='video/webm; codecs="vp9"' />
+      <source data-src="/videos/hero-h264.mp4" type="video/mp4" />
     </video>
     <div class="hrn-hero__dots"></div>
     <div class="hrn-hero__gradient-v"></div>
@@ -185,14 +193,16 @@
     const isMobile = window.matchMedia('(max-width: 767px)').matches;
     if (isMobile) return; // mobile : poster fixe uniquement, pas d'autoplay vidéo
 
-    const source = video.querySelector<HTMLSourceElement>('source[data-src]');
-    if (!source) return;
+    const sources = video.querySelectorAll<HTMLSourceElement>('source[data-src]');
+    if (sources.length === 0) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
-          source.src = source.dataset.src ?? '';
+          sources.forEach((source) => {
+            source.src = source.dataset.src ?? '';
+          });
           video.load();
           video.muted = true;
           video.play().catch(() => {});
