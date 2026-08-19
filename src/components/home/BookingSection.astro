@@ -1,16 +1,11 @@
 ---
-import Button from '../Button.astro';
-
-// Mock visuel statique en attendant l'intégration Cal.com (l'utilisateur fournira
-// son lien une fois son compte créé). Remplacer ce bloc `.hrn-booking__calendar`
-// par l'embed Cal.com le moment venu — le CTA principal reste tel/mailto pour l'instant.
-const days = [
-  { label: 'Lun', slots: [{ time: '09:00' }, { time: '14:00' }] },
-  { label: 'Mar', slots: [{ time: '10:30' }, { time: '15:00', disabled: true }] },
-  { label: 'Mer', slots: [{ time: '09:30', selected: true }, { time: '16:00' }] },
-  { label: 'Jeu', slots: [{ time: '11:00' }, { time: '17:00' }] },
-  { label: 'Ven', slots: [{ time: '09:00' }, { time: '13:30' }] },
-];
+// Section « Appel final » : le vrai planificateur Calendly remplace l'ancien
+// calendrier fictif. L'embed est chargé en lazy (le script Calendly n'est
+// injecté que lorsque la section approche de l'écran) pour préserver la vitesse
+// et ne solliciter le tiers qu'au moment utile. Fallback <noscript> : lien direct.
+const CALENDLY_URL = 'https://calendly.com/herone/echange-decouverte-de-30-minutes';
+// Paramètres de thème pour fondre le widget dans la section sombre.
+const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=132a24&text_color=f1eee1&primary_color=ec3a08`;
 ---
 
 <section id="reserver" class="hrn-booking">
@@ -34,33 +29,13 @@ const days = [
         <span class="hrn-booking__badge">30 min</span>
       </div>
 
-      <div class="hrn-booking__week">
-        <span>Semaine du 20 juillet</span>
-        <span class="hrn-booking__week-nav">
-          <button type="button" aria-label="Semaine précédente">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
-          </button>
-          <button type="button" aria-label="Semaine suivante" class="is-active">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
-          </button>
-        </span>
-      </div>
+      <div id="calendly-embed" class="hrn-booking__calendly" data-url={CALENDLY_EMBED_URL}></div>
 
-      <div class="hrn-booking__days">
-        {days.map((day) => (
-          <div class="hrn-booking__day">
-            <span class="hrn-booking__day-label">{day.label}</span>
-            {day.slots.map((slot) => (
-              <span class:list={['hrn-booking__slot', { 'is-disabled': slot.disabled, 'is-selected': slot.selected }]}>
-                {slot.time}
-              </span>
-            ))}
-          </div>
-        ))}
-      </div>
-
-      <Button variant="accent" size="lg" block href="tel:+33663710598">Confirmer le créneau · Mer 09:30</Button>
-      <p class="hrn-booking__note">Agenda de démonstration · connexion à venir</p>
+      <noscript>
+        <p class="hrn-booking__note">
+          <a href={CALENDLY_URL} target="_blank" rel="noopener">Réserver un créneau sur Calendly</a>
+        </p>
+      </noscript>
     </div>
   </div>
 </section>
@@ -185,95 +160,97 @@ const days = [
     color: var(--ink-300);
   }
 
+  /* Conteneur de l'embed Calendly : réserve la hauteur (évite le CLS) et arrondit
+     les coins de l'iframe injectée par Calendly. */
+  .hrn-booking__calendly {
+    margin-top: 16px;
+    min-height: 720px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
   .hrn-booking__note {
     margin: 12px 0 0;
     text-align: center;
     font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--ink-400);
-  }
-
-  .hrn-booking__week {
-    margin-top: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 17px;
-    color: var(--text-inverse);
-  }
-
-  .hrn-booking__week-nav {
-    display: flex;
-    gap: 6px;
-  }
-
-  .hrn-booking__week-nav button {
-    width: 30px;
-    height: 30px;
-    display: grid;
-    place-items: center;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-inverse);
-    background: transparent;
+    font-size: 12px;
+    letter-spacing: 0.02em;
     color: var(--ink-300);
   }
 
-  .hrn-booking__week-nav button.is-active {
-    color: var(--text-inverse);
-  }
-
-  .hrn-booking__days {
-    margin-top: 16px;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-  }
-
-  .hrn-booking__day {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    text-align: center;
-  }
-
-  .hrn-booking__day-label {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    text-transform: uppercase;
-    color: var(--ink-300);
-    margin-bottom: 2px;
-  }
-
-  .hrn-booking__slot {
-    display: block;
-    text-align: center;
-    font-family: var(--font-mono);
-    font-size: 13px;
-    padding: 8px 0;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-inverse);
-    color: var(--text-inverse);
-    cursor: pointer;
-  }
-
-  .hrn-booking__slot.is-disabled {
-    color: var(--ink-400);
-    text-decoration: line-through;
-    cursor: default;
-  }
-
-  .hrn-booking__slot.is-selected {
-    background: var(--amber-500);
-    border-color: var(--amber-500);
-    color: #fff;
-  }
-
-  .hrn-booking__calendar :global(.hrn-btn) {
-    margin-top: 20px;
+  .hrn-booking__note a {
+    color: var(--amber-300);
   }
 </style>
+
+<script>
+  let io: IntersectionObserver | undefined;
+
+  function loadCalendlyScript(): Promise<void> {
+    const w = window as any;
+    if (w.Calendly) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const existing = document.querySelector<HTMLScriptElement>('script[data-calendly]');
+      if (existing) {
+        existing.addEventListener('load', () => resolve(), { once: true });
+        existing.addEventListener('error', () => reject(new Error('calendly')), { once: true });
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://assets.calendly.com/assets/external/widget.js';
+      script.async = true;
+      script.dataset.calendly = '';
+      script.addEventListener('load', () => resolve(), { once: true });
+      script.addEventListener('error', () => reject(new Error('calendly')), { once: true });
+      document.head.appendChild(script);
+    });
+  }
+
+  function showFallback(el: HTMLElement) {
+    if (el.dataset.inited) return;
+    el.dataset.inited = '1';
+    el.innerHTML =
+      '<p class="hrn-booking__note"><a href="https://calendly.com/herone/echange-decouverte-de-30-minutes" target="_blank" rel="noopener">Ouvrir le calendrier de réservation ↗</a></p>';
+  }
+
+  function initCalendly() {
+    io?.disconnect();
+
+    const el = document.querySelector<HTMLElement>('#calendly-embed');
+    if (!el || el.dataset.inited) return;
+
+    const mount = () => {
+      // Filet de sécurité : si Calendly ne se charge pas (réseau, bloqueur),
+      // on affiche un lien direct plutôt qu'un cadre vide.
+      const fallbackTimer = setTimeout(() => showFallback(el), 8000);
+      loadCalendlyScript()
+        .then(() => {
+          const w = window as any;
+          if (!w.Calendly || el.dataset.inited) return;
+          clearTimeout(fallbackTimer);
+          el.dataset.inited = '1';
+          w.Calendly.initInlineWidget({ url: el.dataset.url, parentElement: el });
+        })
+        .catch(() => {
+          clearTimeout(fallbackTimer);
+          showFallback(el);
+        });
+    };
+
+    // Lazy : on ne charge Calendly que lorsque la section approche de l'écran.
+    io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          io?.disconnect();
+          mount();
+        }
+      },
+      { rootMargin: '400px' }
+    );
+    io.observe(el);
+  }
+
+  document.addEventListener('astro:page-load', initCalendly);
+  document.addEventListener('astro:before-swap', () => io?.disconnect());
+</script>
