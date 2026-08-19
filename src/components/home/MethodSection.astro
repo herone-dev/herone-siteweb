@@ -1,21 +1,19 @@
 ---
-// Seule section du site utilisant GSAP + ScrollTrigger, conformément à la
-// convention "GSAP réservé au spectaculaire".
+// Section Méthode : 5 étapes présentées en liste numérotée.
 //
-// La section est un bloc foncé normal, dimensionné comme la section témoignage
-// (pas de pin, donc pas de bandes autour ni de pleine page). Les 5 étapes se
-// révèlent progressivement au scroll (scrub) au fur et à mesure que le bloc
-// traverse l'écran. Hauteur du bloc CONSTANTE : on réserve la place d'une
-// description longue pour qu'il ne « grossisse » pas d'une étape à l'autre.
+// Animation = reveals d'entrée simples (fondu + léger translate) quand chaque
+// étape entre dans l'écran. Conformément à la convention du projet, ces reveals
+// sobres sont faits en CSS + IntersectionObserver — PAS en GSAP.
 //
-// Fallback statique complet (toutes les étapes dépliées) si prefers-reduced-motion,
-// mobile (<820px), ou JS absent.
+// Fallback complet : sans JS ou en prefers-reduced-motion, toutes les étapes
+// sont visibles d'emblée (le mode animé est activé par la classe .reveals que
+// le JS n'ajoute que lorsqu'il peut animer).
 const steps = [
-  { title: 'Audit du fonctionnement', text: "Nous observons vos tâches répétitives, sur le terrain, avant d'écrire la moindre ligne." },
-  { title: 'Conception du système', text: 'Un système sur mesure, qui mêle automatisation et validation humaine là où elle compte.' },
-  { title: 'Développement et livraison', text: 'Nous développons, testons et installons le système directement chez vous.' },
-  { title: 'Formation des équipes', text: 'Nous formons vos équipes à utiliser le système au quotidien, en toute autonomie.' },
-  { title: 'Accompagnement et maintenance', text: "Améliorations, correctifs et présence rapide dès qu'un besoin surgit." },
+  { title: 'Audit du fonctionnement', text: "Nous venons chez vous, nous observons vos tâches répétitives sur le terrain et nous chiffrons ce qu'elles vous coûtent. Gratuit, sans engagement, 1 à 3 heures." },
+  { title: 'Conception du système', text: 'Nous vous présentons ce que nous installons, ce que ça vous fait gagner et le prix. Vous validez avant que la moindre ligne soit écrite.' },
+  { title: 'Développement et livraison', text: 'Nous construisons, nous testons sur vos vraies données, nous installons chez vous. Vos outils actuels restent en place.' },
+  { title: 'Formation des équipes', text: "Nous formons les personnes qui vont s'en servir, jusqu'à ce que le système tourne sans nous. C'est là que se joue l'adoption." },
+  { title: 'Accompagnement et maintenance', text: 'Nous corrigeons, nous améliorons, nous suivons les évolutions de vos logiciels. Vous nous avez au bout du fil quand il faut.' },
 ];
 ---
 
@@ -23,25 +21,23 @@ const steps = [
   <div class="hrn-section-inner">
     <div class="hrn-eyebrow">Méthode</div>
     <h2>Notre processus en 5 étapes</h2>
+    <p class="hrn-method__sub">De la première visite au système en production, sans que vos équipes arrêtent de travailler.</p>
 
-    <div class="hrn-method__layout">
-      <div class="hrn-method__box" id="method-box">
-        <div class="hrn-method__fill" id="method-fill"></div>
-        <span class="hrn-method__num" id="method-num">1</span>
-      </div>
+    <ol class="hrn-method__list" id="method-list">
+      {steps.map((step, i) => (
+        <li class="hrn-method__step" style={`--i:${i}`}>
+          <span class="hrn-method__num">{String(i + 1).padStart(2, '0')}</span>
+          <div class="hrn-method__step-body">
+            <h3>{step.title}</h3>
+            <p>{step.text}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
 
-      <ol class="hrn-method__list" id="method-list">
-        {steps.map((step, i) => (
-          <li class="hrn-method__step" data-index={i}>
-            <span class="hrn-method__dot"></span>
-            <div class="hrn-method__step-body">
-              <h3>{step.title}</h3>
-              <div class="hrn-method__step-desc"><p>{step.text}</p></div>
-            </div>
-          </li>
-        ))}
-      </ol>
-    </div>
+    <p class="hrn-method__pivot">
+      <a href="#reserver">Tout commence par l'audit, et il est gratuit.</a>
+    </p>
   </div>
 </section>
 
@@ -65,213 +61,134 @@ const steps = [
     margin-top: 12px !important;
   }
 
-  .hrn-method__layout {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 32px;
-    margin-top: 32px;
-  }
-
-  @media (min-width: 820px) {
-    .hrn-method__layout {
-      grid-template-columns: auto 1fr;
-      align-items: center;
-      gap: clamp(32px, 5vw, 64px);
-      margin-top: 36px;
-    }
-  }
-
-  .hrn-method__box {
-    display: none;
-    position: relative;
-    width: 200px;
-    height: 200px;
-    border: 1px solid var(--border-inverse);
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    align-items: flex-end;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.03);
-  }
-
-  .hrn-method__fill {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 20%;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--amber-500) 25%, transparent), color-mix(in srgb, var(--amber-500) 45%, transparent));
-  }
-
-  .hrn-method__num {
-    position: relative;
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 5.4rem;
-    line-height: 1;
-    color: var(--text-inverse);
-    padding-bottom: 14px;
+  .hrn-method__sub {
+    max-width: 46ch;
+    margin: 16px 0 0;
+    font-size: clamp(1.05rem, 1.4vw, 1.19rem);
+    line-height: 1.6;
+    color: var(--ink-300);
   }
 
   .hrn-method__list {
     list-style: none;
-    margin: 0;
+    margin: clamp(32px, 5vw, 48px) 0 0;
     padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
   }
 
   .hrn-method__step {
     display: flex;
-    gap: 18px;
+    gap: clamp(16px, 3vw, 34px);
+    padding: clamp(22px, 3vw, 30px) 0;
+    border-top: 1px solid var(--border-inverse);
   }
 
-  .hrn-method__dot {
+  .hrn-method__step:last-child {
+    border-bottom: 1px solid var(--border-inverse);
+  }
+
+  .hrn-method__num {
     flex: none;
-    width: 12px;
-    height: 12px;
-    margin-top: 6px;
-    border-radius: 50%;
-    background: var(--ink-500);
-    box-shadow: none;
-    transition: background var(--dur) var(--ease-standard), box-shadow var(--dur) var(--ease-standard);
+    min-width: 2.5ch;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: clamp(1rem, 1.3vw, 1.15rem);
+    color: var(--amber-300);
+    padding-top: 5px;
   }
 
   .hrn-method__step h3 {
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: clamp(1.1rem, 1.7vw, 1.4rem);
+    font-size: clamp(1.15rem, 1.9vw, 1.5rem);
     letter-spacing: -0.01em;
-    color: var(--ink-400);
-    transition: color var(--dur) var(--ease-standard);
-  }
-
-  .hrn-method__step-desc {
-    display: grid;
-    grid-template-rows: 1fr;
-    transition: grid-template-rows var(--dur-slow) var(--ease-standard);
-  }
-
-  .hrn-method__step-desc p {
-    overflow: hidden;
-    margin-top: 6px !important;
-    font-size: 15px;
-    line-height: 1.55;
-    color: var(--ink-400);
-  }
-
-  /* Mode scroll-driven (activé par JS sur desktop, sans prefers-reduced-motion) */
-  .hrn-method__list.is-scroll-driven .hrn-method__step-desc {
-    grid-template-rows: 0fr;
-  }
-
-  /* Hauteur de description RÉSERVÉE quand une étape est active : toutes les
-     étapes réservent la même place (2 lignes) → le bloc foncé ne change pas
-     de taille en défilant d'une étape à l'autre. */
-  .hrn-method__list.is-scroll-driven .hrn-method__step.is-active .hrn-method__step-desc {
-    grid-template-rows: 1fr;
-  }
-
-  .hrn-method__list.is-scroll-driven .hrn-method__step.is-active .hrn-method__step-desc p {
-    min-height: calc(2 * 1.55 * 15px);
-  }
-
-  .hrn-method__list.is-scroll-driven .hrn-method__step.is-active .hrn-method__dot {
-    background: var(--accent);
-    box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 25%, transparent);
-  }
-
-  .hrn-method__list.is-scroll-driven .hrn-method__step.is-active h3 {
     color: var(--text-inverse);
+    margin: 0 0 6px !important;
+  }
+
+  .hrn-method__step p {
+    margin: 0;
+    max-width: 60ch;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-300);
+  }
+
+  .hrn-method__pivot {
+    margin: 28px 0 0;
+    font-size: 15px;
+  }
+
+  .hrn-method__pivot a {
+    color: var(--amber-300);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--dur) var(--ease-standard);
+  }
+
+  .hrn-method__pivot a:hover {
+    border-color: currentColor;
+  }
+
+  /* Reveals d'entrée : état initial masqué activé UNIQUEMENT par le JS (.reveals),
+     pour que le contenu reste visible sans JS. */
+  .hrn-method__list.reveals .hrn-method__step {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 420ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: calc(var(--i, 0) * 60ms);
+  }
+
+  .hrn-method__list.reveals .hrn-method__step.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-method__list.reveals .hrn-method__step {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
   }
 </style>
 
 <script>
-  import { gsap } from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-  gsap.registerPlugin(ScrollTrigger);
-
-  let ctx: ReturnType<typeof gsap.context> | undefined;
+  let io: IntersectionObserver | undefined;
 
   function teardown() {
-    ctx?.revert();
-    ctx = undefined;
-
-    const box = document.querySelector<HTMLElement>('#method-box');
-    const list = document.querySelector<HTMLElement>('#method-list');
-    if (box) box.style.display = '';
-    if (list) {
-      list.style.height = '';
-      list.classList.remove('is-scroll-driven');
-      [...list.children].forEach((el) => el.classList.remove('is-active'));
-    }
+    io?.disconnect();
+    io = undefined;
   }
 
-  function init() {
+  function initMethod() {
     teardown();
 
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isDesktop = window.matchMedia('(min-width: 820px)').matches;
-
-    const section = document.querySelector<HTMLElement>('#methode');
-    const box = document.querySelector<HTMLElement>('#method-box');
-    const fill = document.querySelector<HTMLElement>('#method-fill');
-    const num = document.querySelector<HTMLElement>('#method-num');
     const list = document.querySelector<HTMLElement>('#method-list');
-
-    if (!section || !box || !fill || !num || !list) return;
+    if (!list) return;
     const steps = [...list.children] as HTMLElement[];
     if (!steps.length) return;
 
-    // Sur mobile / reduced-motion : rendu statique (toutes les descriptions
-    // dépliées, pavé numéroté masqué, pas d'animation).
-    if (!isDesktop || reduce) return;
+    // Sans animation : on laisse tout visible (pas de classe .reveals).
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    ctx = gsap.context(() => {
-      box.style.display = 'flex';
-      list.classList.add('is-scroll-driven');
+    list.classList.add('reveals');
 
-      let current = -1;
-      const setActive = (i: number) => {
-        if (i === current) return;
-        current = i;
-        steps.forEach((step, idx) => step.classList.toggle('is-active', idx === i));
-        num.textContent = String(i + 1);
-        gsap.fromTo(num, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power3.out' });
-        gsap.to(fill, { height: `${(i + 1) * 20}%`, duration: 0.4, ease: 'power3.out' });
-      };
-      setActive(0);
+    io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add('is-visible');
+          io?.unobserve(entry.target); // reveal unique
+        }
+      },
+      { threshold: 0.2, rootMargin: '0px 0px -10% 0px' }
+    );
 
-      // Verrou de hauteur : la liste occupe en permanence sa hauteur stabilisée
-      // (identique pour chaque étape) → l'accordéon s'anime à l'intérieur sans
-      // jamais faire varier la taille du bloc foncé, même pendant la transition.
-      // On neutralise les transitions le temps de lire la hauteur finale (sinon
-      // on mesurerait un état intermédiaire, encore en cours d'animation).
-      requestAnimationFrame(() => {
-        const descs = [...list.querySelectorAll<HTMLElement>('.hrn-method__step-desc')];
-        descs.forEach((d) => (d.style.transition = 'none'));
-        void list.offsetHeight;
-        list.style.height = `${list.scrollHeight}px`;
-        void list.offsetHeight;
-        descs.forEach((d) => (d.style.transition = ''));
-      });
-
-      // Pas de pin : l'avancement suit le passage du bloc dans l'écran.
-      ScrollTrigger.create({
-        trigger: section,
-        start: 'top 72%',
-        end: 'bottom 28%',
-        scrub: true,
-        onUpdate(self) {
-          const idx = Math.min(steps.length - 1, Math.floor(self.progress * steps.length));
-          setActive(idx);
-        },
-      });
-    });
+    steps.forEach((step) => io!.observe(step));
   }
 
-  document.addEventListener('astro:page-load', init);
+  document.addEventListener('astro:page-load', initMethod);
   document.addEventListener('astro:before-swap', teardown);
 </script>
