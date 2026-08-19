@@ -160,13 +160,27 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
     color: var(--ink-300);
   }
 
-  /* Conteneur de l'embed Calendly : réserve la hauteur (évite le CLS) et arrondit
-     les coins de l'iframe injectée par Calendly. */
+  /* Conteneur de l'embed Calendly. Hauteur EXPLICITE (pas seulement min-height) :
+     l'iframe Calendly est en height:100% et a besoin d'une hauteur ferme sur son
+     parent, sinon elle retombe sur une bande étroite avec scroll interne.
+     Mobile : Calendly empile le calendrier puis les créneaux → plus haut. */
   .hrn-booking__calendly {
     margin-top: 16px;
-    min-height: 720px;
+    height: 1040px;
     border-radius: var(--radius-lg);
     overflow: hidden;
+  }
+
+  @media (min-width: 640px) {
+    .hrn-booking__calendly {
+      height: 720px;
+    }
+  }
+
+  .hrn-booking__calendly :global(iframe) {
+    width: 100% !important;
+    height: 100% !important;
+    border: 0;
   }
 
   .hrn-booking__note {
