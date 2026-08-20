@@ -21,20 +21,61 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/jpg" href="/favicon.jpg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="canonical" href={canonicalURL} />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
+    <meta name="robots" content="max-image-preview:large" />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="og:image" content="https://framerusercontent.com/assets/GfaJExWm66OTZNYZXcbpxcY3o.jpg" />
 
-    <link rel="preload" href="/fonts/bricolage-grotesque-variable.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/hanken-grotesk-variable.woff2" as="font" type="font/woff2" crossorigin />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content="https://framerusercontent.com/assets/GfaJExWm66OTZNYZXcbpxcY3o.jpg" />
+
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "LocalBusiness",
+          "@id": "https://herone.fr/#organization",
+          "name": "Hérone",
+          "url": "https://herone.fr",
+          "logo": "https://herone.fr/favicon.png",
+          "image": "https://herone.fr/favicon.png",
+          "description": description,
+          "telephone": "+33663710598",
+          "email": "contact@herone.fr",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "37 rue Édouard Branly",
+            "addressLocality": "Les Herbiers",
+            "postalCode": "85500",
+            "addressRegion": "Vendée",
+            "addressCountry": "FR"
+          },
+          "areaServed": ["Vendée", "Grand Ouest", "France"]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://herone.fr/#website",
+          "url": "https://herone.fr",
+          "name": "Hérone",
+          "publisher": {
+            "@id": "https://herone.fr/#organization"
+          },
+          "inLanguage": "fr-FR"
+        }
+      ]
+    })} />
 
     <ClientRouter />
   </head>

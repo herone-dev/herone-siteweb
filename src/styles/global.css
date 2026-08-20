@@ -12,6 +12,10 @@ html {
   background: var(--slate-900);
 }
 
+[id] {
+  scroll-margin-top: 68px;
+}
+
 body {
   margin: 0;
   background: var(--bg-page);

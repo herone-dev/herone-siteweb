@@ -9,31 +9,30 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
 ---
 
 <section id="reserver" class="hrn-booking">
-  <div class="hrn-section-inner hrn-booking__grid">
-    <div class="hrn-booking__text">
-      <div class="hrn-eyebrow">Appel final</div>
-      <h2>Trente minutes pour voir ce qu'on peut vous retirer des mains.</h2>
-      <p class="hrn-booking__lede">Vous décrivez votre quotidien, nous repérons les tâches à supprimer.</p>
+  <div class="hrn-section-inner">
+    <div class="hrn-booking__header">
+      <div class="hrn-booking__eyebrow">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"></path>
+          <path d="m9 16 2 2 4-4"></path>
+        </svg>
+        <span>RÉSERVEZ VOTRE RENDEZ-VOUS</span>
+      </div>
 
-      <span class="hrn-booking__free"><i></i>Audit gratuit, sans engagement</span>
-
-      <div class="hrn-booking__contacts">
-        <a href="tel:+33663710598"><small>Ou par téléphone</small><strong>06 63 71 05 98</strong></a>
-        <a href="mailto:contact@herone.fr"><small>Par e-mail</small><strong>contact@herone.fr</strong></a>
+      <div class="hrn-booking__header-main">
+        <h2>30 minutes pour voir ce qu'on peut vous retirer des mains.</h2>
+        <p class="hrn-booking__lede">
+          Vous décrivez votre quotidien, nous repérons les tâches à supprimer. Audit gratuit, sans engagement.
+        </p>
       </div>
     </div>
 
     <div class="hrn-booking__calendar">
-      <div class="hrn-booking__calendar-head">
-        <strong>Choisissez un créneau</strong>
-        <span class="hrn-booking__badge">30 min</span>
-      </div>
-
       <div id="calendly-embed" class="hrn-booking__calendly" data-url={CALENDLY_EMBED_URL}></div>
 
       <noscript>
         <p class="hrn-booking__note">
-          <a href={CALENDLY_URL} target="_blank" rel="noopener">Réserver un créneau sur Calendly</a>
+          <a href={CALENDLY_URL} target="_blank" rel="noopener">Réserver un créneau sur Calendly ↗</a>
         </p>
       </noscript>
     </div>
@@ -45,135 +44,81 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
     padding: clamp(56px, 8vw, 104px) 0;
     background: var(--slate-900);
     color: var(--ink-200);
+    scroll-margin-top: 68px;
   }
 
-  .hrn-booking :global(.hrn-eyebrow) {
+  .hrn-booking__header {
+    margin-bottom: clamp(32px, 5vw, 56px);
+  }
+
+  .hrn-booking__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: var(--amber-300);
+    margin-bottom: 20px;
   }
 
-  .hrn-booking__grid {
+  .hrn-booking__eyebrow svg {
+    color: var(--amber-300);
+    flex-shrink: 0;
+  }
+
+  .hrn-booking__header-main {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 40px;
-    align-items: start;
+    gap: 20px;
+    align-items: center;
   }
 
-  @media (min-width: 900px) {
-    .hrn-booking__grid {
-      grid-template-columns: 1fr 1fr;
+  @media (min-width: 860px) {
+    .hrn-booking__header-main {
+      grid-template-columns: 1.4fr 1fr;
+      gap: 48px;
+      align-items: center;
     }
   }
 
   .hrn-booking h2 {
     color: var(--text-inverse);
-    max-width: 18ch;
-    line-height: 1.06;
+    font-size: clamp(2.1rem, 3.8vw, 3.2rem);
+    line-height: 1.08;
     letter-spacing: -0.025em;
-    margin-top: 0;
+    margin: 0;
+    text-wrap: balance;
   }
 
   .hrn-booking__lede {
-    margin: 18px 0 0;
-    font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+    margin: 0;
+    font-size: clamp(1.05rem, 1.4vw, 1.25rem);
     line-height: 1.55;
     color: var(--ink-200);
-    max-width: 46ch;
     text-wrap: pretty;
   }
 
-  .hrn-booking__free {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 18px;
-    font-size: 12px;
-    font-family: var(--font-mono);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--text-inverse);
-    border: 1px solid var(--border-inverse);
-    border-radius: var(--radius-full);
-    padding: 7px 14px;
-  }
-
-  .hrn-booking__free i {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--amber-400);
-  }
-
-  .hrn-booking__contacts {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    margin-top: 32px;
-  }
-
-  .hrn-booking__contacts a {
-    display: flex;
-    flex-direction: column;
-    color: var(--text-inverse);
-  }
-
-  .hrn-booking__contacts small {
-    font-size: 13px;
-    color: var(--ink-300);
-  }
-
-  .hrn-booking__contacts strong {
-    font-family: var(--font-mono);
-    font-weight: 600 !important;
-    color: var(--text-inverse);
-  }
-
+  /* Calendrier pleine largeur sans fond ni bordure */
   .hrn-booking__calendar {
-    background: color-mix(in srgb, #fff 5%, transparent);
-    color: var(--text-inverse);
-    border: 1px solid var(--border-inverse);
-    border-radius: var(--radius-xl);
-    padding: clamp(20px, 3vw, 28px);
+    background: transparent;
+    border: none;
+    padding: 0;
+    overflow: hidden;
   }
 
-  .hrn-booking__calendar-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  .hrn-booking__calendar-head strong {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: var(--text-lg);
-    color: var(--text-inverse);
-  }
-
-  .hrn-booking__badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--ink-300);
-  }
-
-  /* Conteneur de l'embed Calendly. Hauteur EXPLICITE (pas seulement min-height) :
-     l'iframe Calendly est en height:100% et a besoin d'une hauteur ferme sur son
-     parent, sinon elle retombe sur une bande étroite avec scroll interne.
-     Mobile : Calendly empile le calendrier puis les créneaux → plus haut. */
   .hrn-booking__calendly {
-    margin-top: 16px;
-    height: 1040px;
+    width: 100%;
+    height: 750px;
     border-radius: var(--radius-lg);
     overflow: hidden;
   }
 
-  @media (min-width: 640px) {
+  @media (max-width: 768px) {
     .hrn-booking__calendly {
-      height: 720px;
+      height: 980px;
     }
   }
 
@@ -198,8 +143,6 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
 </style>
 
 <script>
-  let io: IntersectionObserver | undefined;
-
   function loadCalendlyScript(): Promise<void> {
     const w = window as any;
     if (w.Calendly) return Promise.resolve();
@@ -228,43 +171,23 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
   }
 
   function initCalendly() {
-    io?.disconnect();
-
     const el = document.querySelector<HTMLElement>('#calendly-embed');
     if (!el || el.dataset.inited) return;
 
-    const mount = () => {
-      // Filet de sécurité : si Calendly ne se charge pas (réseau, bloqueur),
-      // on affiche un lien direct plutôt qu'un cadre vide.
-      const fallbackTimer = setTimeout(() => showFallback(el), 8000);
-      loadCalendlyScript()
-        .then(() => {
-          const w = window as any;
-          if (!w.Calendly || el.dataset.inited) return;
-          clearTimeout(fallbackTimer);
-          el.dataset.inited = '1';
-          w.Calendly.initInlineWidget({ url: el.dataset.url, parentElement: el });
-        })
-        .catch(() => {
-          clearTimeout(fallbackTimer);
-          showFallback(el);
-        });
-    };
-
-    // Lazy : on ne charge Calendly que lorsque la section approche de l'écran.
-    io = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          io?.disconnect();
-          mount();
-        }
-      },
-      { rootMargin: '400px' }
-    );
-    io.observe(el);
+    const fallbackTimer = setTimeout(() => showFallback(el), 8000);
+    loadCalendlyScript()
+      .then(() => {
+        const w = window as any;
+        if (!w.Calendly || el.dataset.inited) return;
+        clearTimeout(fallbackTimer);
+        el.dataset.inited = '1';
+        w.Calendly.initInlineWidget({ url: el.dataset.url, parentElement: el });
+      })
+      .catch(() => {
+        clearTimeout(fallbackTimer);
+        showFallback(el);
+      });
   }
 
   document.addEventListener('astro:page-load', initCalendly);
-  document.addEventListener('astro:before-swap', () => io?.disconnect());
 </script>
