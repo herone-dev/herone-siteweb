@@ -15,10 +15,10 @@ const { theme = 'light' } = Astro.props;
     <a href="/#top" class="hrn-header__logo">HÉRONE</a>
 
     <nav class="hrn-header__nav-desktop">
-      <a href="/#offres">Offres</a>
-      <a href="/#temoignage">Témoignage</a>
-      <a href="/#fondateurs">À propos</a>
-      <a href="tel:+33663710598" class="hrn-header__phone">06 63 71 05 98</a>
+      <a href="/#offres" class="hrn-sweep">Offres</a>
+      <a href="/#temoignage" class="hrn-sweep">Témoignage</a>
+      <a href="/#fondateurs" class="hrn-sweep">À propos</a>
+      <a href="tel:+33663710598" class="hrn-header__phone hrn-sweep">06 63 71 05 98</a>
       <Button variant="accent" size="md" href="/#reserver">Réserver 30 minutes</Button>
     </nav>
 
@@ -39,13 +39,13 @@ const { theme = 'light' } = Astro.props;
     </button>
   </div>
   <nav class="hrn-mobile-menu__nav">
-    <a href="/#offres">Offres</a>
-    <a href="/#temoignage">Témoignage</a>
-    <a href="/#fondateurs">À propos</a>
-    <a href="/#objections">Questions</a>
+    <a href="/#offres" class="hrn-sweep">Offres</a>
+    <a href="/#temoignage" class="hrn-sweep">Témoignage</a>
+    <a href="/#fondateurs" class="hrn-sweep">À propos</a>
+    <a href="/#objections" class="hrn-sweep">Questions</a>
   </nav>
   <div class="hrn-mobile-menu__bottom">
-    <a href="tel:+33663710598" class="hrn-mobile-menu__phone">06 63 71 05 98</a>
+    <a href="tel:+33663710598" class="hrn-mobile-menu__phone hrn-sweep">06 63 71 05 98</a>
     <Button variant="accent" size="lg" block href="/#reserver">Réserver 30 minutes</Button>
   </div>
 </div>
@@ -100,6 +100,16 @@ const { theme = 'light' } = Astro.props;
     color: #fff;
   }
 
+  /* Sur fond sombre, l'orange clair passe mieux que l'orange foncé. */
+  .hrn-header--dark:not(.is-scrolled) .hrn-header__nav-desktop a.hrn-sweep {
+    --sweep-from: #fff;
+    --sweep-to: var(--amber-400);
+  }
+
+  .hrn-header--dark:not(.is-scrolled) .hrn-header__phone.hrn-sweep {
+    --sweep-from: color-mix(in srgb, #fff 78%, transparent);
+  }
+
   .hrn-header--dark:not(.is-scrolled) .hrn-header__phone {
     color: color-mix(in srgb, #fff 78%, transparent) !important;
   }
@@ -116,6 +126,16 @@ const { theme = 'light' } = Astro.props;
     font-size: 15px;
     font-weight: 500;
     color: var(--text-strong);
+  }
+
+  /* Départ et arrivée du balayage au survol, en-tête clair. */
+  .hrn-header__nav-desktop a.hrn-sweep {
+    --sweep-from: var(--text-strong);
+    --sweep-to: var(--amber-600);
+  }
+
+  .hrn-header__phone.hrn-sweep {
+    --sweep-from: var(--text-secondary);
   }
 
   .hrn-header__phone {
@@ -201,6 +221,11 @@ const { theme = 'light' } = Astro.props;
     border-bottom: 1px solid var(--divider);
   }
 
+  .hrn-mobile-menu__nav a.hrn-sweep {
+    --sweep-from: var(--text-strong);
+    --sweep-to: var(--amber-600);
+  }
+
   .hrn-mobile-menu__bottom {
     margin-top: auto;
     display: flex;
@@ -213,6 +238,11 @@ const { theme = 'light' } = Astro.props;
     font-family: var(--font-mono);
     font-size: 18px;
     color: var(--text-primary);
+  }
+
+  .hrn-mobile-menu__phone.hrn-sweep {
+    --sweep-from: var(--text-primary);
+    --sweep-to: var(--amber-600);
   }
 
   @media (min-width: 820px) {
