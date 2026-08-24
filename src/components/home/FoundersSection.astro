@@ -14,8 +14,8 @@ import officesHerbiers from '../../assets/images/offices-herbiers.webp';
         <p class="hrn-founders__text">
           Un système mal pensé coûte plus cher qu'il ne rapporte et si personne ne l'utilise, alors il ne sert à rien.
           C'est pour ça que nous n'installons rien avant d'avoir compris comment votre entreprise fonctionne. Chaque
-          système est construit sur mesure, sans logiciel imposé. La décision finale reste à vos équipes, le système
-          exécute pour leur rendre des heures, des heures replacées sur ce qui a plus de valeur.
+          système s'adapte aux logiciels que vous avez déjà, sans rien vous imposer. La décision finale reste à vos
+          équipes, le système exécute pour leur rendre des heures, des heures replacées sur ce qui a plus de valeur.
         </p>
         <a href="#fondateurs" class="hrn-founders__link">
           À propos d'Hérone
@@ -152,5 +152,14 @@ import officesHerbiers from '../../assets/images/offices-herbiers.webp';
 
   .hrn-founders__offices .hrn-founders__caption {
     font-size: 12.5px;
+  }
+
+  /* Sous 560px, les deux portraits font environ 150px de large chacun : la
+     légende en nowrap dépassait et provoquait un scroll horizontal sur toute
+     la page. On la laisse revenir à la ligne à cette largeur seulement. */
+  @media (max-width: 560px) {
+    .hrn-founders__caption {
+      white-space: normal;
+    }
   }
 </style>

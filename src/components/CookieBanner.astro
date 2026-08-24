@@ -3,11 +3,11 @@ import Button from './Button.astro';
 ---
 
 <div id="hrn-cookie-banner" class="hrn-cookie" hidden>
-  <p>Nous utilisons des cookies de mesure d'audience pour améliorer le site. Vous pouvez les accepter ou les refuser.</p>
+  <p>Les contenus intégrés au site (vidéo de témoignage, prise de rendez-vous) déposent des cookies tiers. Vous pouvez les accepter ou les refuser.</p>
   <div class="hrn-cookie__actions">
     <Button variant="primary" size="sm" class="hrn-cookie__accept">Accepter</Button>
     <Button variant="secondary" size="sm" class="hrn-cookie__refuse">Refuser</Button>
-    <a href="/cookies" class="hrn-cookie__customize">Personnaliser</a>
+    <a href="/cookies" class="hrn-cookie__more">En savoir plus</a>
   </div>
 </div>
 
@@ -44,14 +44,14 @@ import Button from './Button.astro';
     align-items: center;
   }
 
-  .hrn-cookie__customize {
+  .hrn-cookie__more {
     font-size: 13px;
     color: var(--text-secondary);
     margin-left: 2px;
     text-decoration: none;
   }
 
-  .hrn-cookie__customize:hover {
+  .hrn-cookie__more:hover {
     color: var(--link-hover);
     text-decoration: underline;
   }

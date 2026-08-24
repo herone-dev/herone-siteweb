@@ -39,11 +39,11 @@ import heroPoster from '../../assets/images/posters/hero-poster.jpg';
     <p class="hrn-hero__subtitle">Hérone conçoit et installe des systèmes automatisés pour les TPE et PME.</p>
 
     <div class="hrn-hero__stats">
-      <div class="hrn-hero__stat"><span>Sur mesure</span><small>Aucun logiciel imposé</small></div>
+      <div class="hrn-hero__stat"><span>Sans changer vos logiciels</span><small>Nous connectons ceux que vous avez déjà.</small></div>
       <div class="hrn-hero__divider"></div>
-      <div class="hrn-hero__stat"><span>Humain</span><small>Vos équipes retrouvent du temps</small></div>
+      <div class="hrn-hero__stat"><span>Vos équipes retrouvent du temps</span><small>Nous formons jusqu'à ce que ça tourne sans nous.</small></div>
       <div class="hrn-hero__divider"></div>
-      <div class="hrn-hero__stat"><span>Local</span><small>Basés aux Herbiers</small></div>
+      <div class="hrn-hero__stat"><span>À moins de 45 minutes</span><small>Basés aux Herbiers, nous venons sur place.</small></div>
     </div>
   </div>
 </section>
@@ -149,34 +149,66 @@ import heroPoster from '../../assets/images/posters/hero-poster.jpg';
 
   .hrn-hero__stats {
     display: flex;
-    flex-wrap: wrap;
-    gap: 28px;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: clamp(18px, 2.2vw, 28px);
     margin-top: 88px;
     padding-top: 28px;
     border-top: 1px solid var(--border-inverse);
   }
 
+  /* colonnes d'égale largeur : les libellés longs se replient dans leur colonne
+     au lieu de déborder ou de casser la rangée en 2 + 1 */
   .hrn-hero__stat {
+    flex: 1 1 0;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
   }
 
   .hrn-hero__stat span {
     font-family: var(--font-mono);
     font-weight: 600;
-    font-size: var(--text-xl);
+    font-size: clamp(0.95rem, 1.25vw, 1.125rem);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
     color: var(--text-inverse);
+    text-wrap: balance;
   }
 
   .hrn-hero__stat small {
-    font-size: 14px;
+    font-size: 13.5px;
+    line-height: 1.45;
     color: var(--ink-300);
+    text-wrap: pretty;
   }
 
   .hrn-hero__divider {
+    flex: 0 0 1px;
     width: 1px;
     background: var(--border-inverse);
+  }
+
+  @media (max-width: 720px) {
+    .hrn-hero__stats {
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 40px;
+      padding-top: 20px;
+    }
+
+    .hrn-hero__divider {
+      display: none;
+    }
+
+    .hrn-hero__stat span {
+      font-size: 1rem;
+    }
+
+    .hrn-hero__stat small {
+      font-size: 13px;
+    }
   }
 </style>
 

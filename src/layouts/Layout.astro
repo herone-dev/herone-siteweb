@@ -62,7 +62,17 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
             "addressRegion": "Vendée",
             "addressCountry": "FR"
           },
-          "areaServed": ["Vendée", "Grand Ouest", "France"]
+          "areaServed": [
+            { "@type": "City", "name": "Les Herbiers" },
+            { "@type": "City", "name": "Montaigu" },
+            { "@type": "City", "name": "Chantonnay" },
+            { "@type": "City", "name": "Pouzauges" },
+            { "@type": "City", "name": "Mortagne-sur-Sèvre" },
+            { "@type": "City", "name": "La Roche-sur-Yon" },
+            { "@type": "City", "name": "Cholet" },
+            { "@type": "AdministrativeArea", "name": "Vendée" },
+            { "@type": "AdministrativeArea", "name": "Choletais" }
+          ]
         },
         {
           "@type": "WebSite",

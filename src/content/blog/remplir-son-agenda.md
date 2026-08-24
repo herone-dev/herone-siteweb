@@ -14,7 +14,7 @@ Les allers-retours pour caler un rendez-vous, c'est un quart d'heure par client,
 
 - Des échanges interminables pour trouver un créneau qui convient aux deux.
 - Des rendez-vous qui se chevauchent parce que l'agenda n'est pas à jour.
-- Du temps passé à relancer, confirmer, déplacer, alors que le coeur du métier attend.
+- Du temps passé à relancer, confirmer, déplacer, alors que le cœur du métier attend.
 
 > Le client choisit son créneau. Plus d'aller-retour sur l'agenda.
 

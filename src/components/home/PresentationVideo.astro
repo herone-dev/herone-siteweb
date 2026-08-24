@@ -1,0 +1,280 @@
+---
+// Section "Vidéo de présentation" : emplacement réservé, sous le hero.
+//
+// FICHIERS ATTENDUS :
+//   public/videos/presentation-h264.mp4   REQUIS  -> /videos/presentation-h264.mp4
+//   public/videos/presentation-vp9.webm   optionnel
+//   public/videos/presentation-hevc.mp4   optionnel
+//   public/videos/presentation-fr.vtt     optionnel (sous-titres français, WCAG 1.2.2)
+//   src/assets/images/posters/presentation-poster.jpg   optionnel (poster de la façade)
+//
+// Le poster est le SEUL fichier attendu dans src/assets/ et non dans public/ :
+// il passe par le pipeline d'images d'Astro (AVIF/WebP + srcset), comme le
+// poster du témoignage. Les vidéos, elles, restent dans public/ : elles n'ont
+// pas vocation à être transformées au build.
+//
+// NB : le <style> de ce composant reste dans le CSS de la page tant que le
+// composant est importé, même quand il ne rend rien (Astro collecte les styles
+// à l'import, pas au rendu).
+//
+// COMPORTEMENT : tant que le mp4 h264 est absent, le composant ne rend RIEN
+// (chaîne vide) : pas de section, pas de bloc vide, pas de placeholder, pas de
+// mention d'attente. Dès que le fichier est déposé et le site rebuildé, la
+// section apparaît toute seule, sans aucune modification de code.
+//
+// La détection se fait au BUILD : le frontmatter d'un composant Astro s'exécute
+// côté serveur, node:fs y est donc légitime et rien n'atteint le navigateur.
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+// Résolution robuste du dossier public/ : deux candidats, testés dans cet ordre.
+//   1. process.cwd() : Astro lance le build depuis la racine du projet (cas normal).
+//   2. Repli calculé depuis l'emplacement de CE fichier
+//      (src/components/home/ -> ../../../ = racine du projet), utile si le
+//      processus est lancé depuis un autre dossier de travail.
+// On retient le premier chemin qui existe réellement sur le disque, de sorte
+// qu'un cwd inattendu ne fasse pas disparaître une vidéo pourtant présente.
+function fromComponent(relative: string): string | null {
+  try {
+    return fileURLToPath(new URL(relative, import.meta.url));
+  } catch {
+    return null; // import.meta.url inexploitable (contexte bundlé) : candidat ignoré
+  }
+}
+
+const cwdPublicDir = join(process.cwd(), 'public');
+const fallbackPublicDir = fromComponent('../../../public/');
+const publicDir = existsSync(cwdPublicDir) || !fallbackPublicDir ? cwdPublicDir : fallbackPublicDir;
+
+const hasAsset = (...segments: string[]) => existsSync(join(publicDir, ...segments));
+
+// Le h264 est le format pivot : c'est le seul lu par tous les navigateurs.
+// Sans lui, il n'y a pas de vidéo diffusable, donc pas de section.
+const hasVideo = hasAsset('videos', 'presentation-h264.mp4');
+
+// Cas nominal aujourd'hui (vidéo pas encore tournée) : on sort sans rien rendre.
+if (!hasVideo) return;
+
+const hasWebm = hasAsset('videos', 'presentation-vp9.webm');
+const hasHevc = hasAsset('videos', 'presentation-hevc.mp4');
+
+// Sous-titres : obligatoires dès que la vidéo comporte de la parole (WCAG 1.2.2).
+const hasCaptions = hasAsset('videos', 'presentation-fr.vtt');
+
+// Poster absent : la section s'affiche quand même, sur un fond neutre.
+// Résolu par glob plutôt que par un import direct : un import figé échouerait
+// au build tant que le fichier n'est pas déposé.
+const posterModules = import.meta.glob<{ default: ImageMetadata }>(
+  '../../assets/images/posters/presentation-poster.{jpg,jpeg,webp,png}',
+  { eager: true }
+);
+const poster = Object.values(posterModules)[0]?.default;
+const posterAlt =
+  "Nolan Genty et Martin Talon, les deux fondateurs d'Hérone, dans la vidéo de présentation";
+---
+
+<section id="presentation" class="hrn-presentation">
+  <div class="hrn-section-inner">
+    <div class="hrn-eyebrow">Présentation</div>
+    <h2>Hérone en deux minutes</h2>
+    <p class="hrn-lede">
+      Nolan et Martin vous expliquent ce que nous faisons et comment nous travaillons.
+    </p>
+
+    {/* Façade : poster immédiat + bouton de lecture. La vidéo n'est chargée qu'au clic
+        (preload="none" et sources en data-src), et n'est jamais en autoplay : il y a
+        de la parole, la lecture reste déclenchée par l'utilisateur. */}
+    <div class="hrn-presentation__video" id="presentation-video-wrapper">
+      {
+        poster && (
+          <Picture
+            src={poster}
+            formats={['avif', 'webp']}
+            widths={[400, 900]}
+            sizes="(max-width: 900px) 100vw, 900px"
+            alt={posterAlt}
+            class="hrn-presentation__poster"
+            decoding="async"
+          />
+        )
+      }
+
+      {/* Pas d'attribut `poster` sur la vidéo : il rechargerait le fichier
+          d'origine, non optimisé, alors que la façade ci-dessus fait déjà le
+          travail et disparaît seulement une fois la lecture lancée. */}
+      <video id="presentation-video" class="hrn-presentation__player" playsinline preload="none">
+        {hasHevc && <source data-src="/videos/presentation-hevc.mp4" type='video/mp4; codecs="hvc1"' />}
+        {hasWebm && <source data-src="/videos/presentation-vp9.webm" type='video/webm; codecs="vp9"' />}
+        <source data-src="/videos/presentation-h264.mp4" type="video/mp4" />
+        {hasCaptions && (
+          <track kind="captions" srclang="fr" label="Français" src="/videos/presentation-fr.vtt" default />
+        )}
+      </video>
+
+      <button
+        type="button"
+        id="presentation-play"
+        class="hrn-presentation__play"
+        aria-label="Lire la vidéo de présentation"
+      >
+        <span>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M8 5v14l11-7z"></path>
+          </svg>
+        </span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* --ink-950 et non --slate-900 : le hero, juste au-dessus, est déjà en
+     --slate-900. Deux fonds identiques d'affilée effacent la frontière entre
+     les deux sections. */
+  .hrn-presentation {
+    background: var(--ink-950);
+    color: var(--ink-200);
+    padding: clamp(48px, 7vw, 88px) 0;
+    scroll-margin-top: 68px;
+  }
+
+  .hrn-presentation :global(.hrn-eyebrow) {
+    color: var(--amber-300);
+  }
+
+  .hrn-presentation h2 {
+    color: var(--text-inverse);
+    margin-top: 12px !important;
+  }
+
+  .hrn-presentation :global(.hrn-lede) {
+    color: var(--ink-200);
+    margin-top: 16px;
+  }
+
+  /* aspect-ratio explicite : l'emplacement est réservé avant tout chargement,
+     donc zéro CLS, que le poster soit là ou non. */
+  .hrn-presentation__video {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    max-width: 900px;
+    margin: clamp(28px, 4vw, 40px) auto 0;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    border: 1px solid var(--border-inverse);
+    background: var(--slate-800); /* fond neutre quand le poster manque */
+  }
+
+  .hrn-presentation__poster,
+  .hrn-presentation__player {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .hrn-presentation__poster {
+    object-fit: cover;
+  }
+
+  /* contain : une vidéo qui ne serait pas exactement en 16/9 est encadrée par le
+     fond neutre plutôt que rognée (on ne coupe pas des visages qui parlent). */
+  .hrn-presentation__player {
+    object-fit: contain;
+    background: var(--slate-800);
+  }
+
+  /* `visibility: hidden` en plus de l'opacité : sans elle, le bouton de lecture
+     invisible resterait dans l'ordre de tabulation (WCAG 2.4.3 / 2.4.7). */
+  .hrn-presentation__video.is-playing .hrn-presentation__poster,
+  .hrn-presentation__video.is-playing .hrn-presentation__play {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .hrn-presentation__play {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    border: none;
+    background: color-mix(in srgb, var(--ink-950) 34%, transparent);
+    cursor: pointer;
+    transition: opacity var(--dur) var(--ease-standard);
+  }
+
+  .hrn-presentation__play span {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--ink-950) 58%, transparent);
+    color: #fff;
+    box-shadow: 0 6px 24px -8px rgba(0, 0, 0, 0.6);
+    transition: transform var(--dur) var(--ease-standard);
+  }
+
+  .hrn-presentation__play:hover span {
+    transform: scale(1.06);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-presentation__play,
+    .hrn-presentation__play span {
+      transition: none;
+    }
+
+    .hrn-presentation__play:hover span {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  let ac: AbortController | undefined;
+
+  function teardown() {
+    ac?.abort();
+    ac = undefined;
+  }
+
+  function initPresentation() {
+    teardown();
+    ac = new AbortController();
+    const { signal } = ac;
+
+    const wrapper = document.querySelector<HTMLElement>('#presentation-video-wrapper');
+    const video = document.querySelector<HTMLVideoElement>('#presentation-video');
+    const playBtn = document.querySelector<HTMLButtonElement>('#presentation-play');
+    // Section absente de la page (aucun fichier vidéo déposé) : rien à faire.
+    if (!wrapper || !video || !playBtn) return;
+
+    playBtn.addEventListener(
+      'click',
+      () => {
+        // Les sources ne sont renseignées qu'ici : aucun octet de vidéo n'est
+        // téléchargé tant que le visiteur n'a pas demandé la lecture.
+        const sources = video.querySelectorAll<HTMLSourceElement>('source[data-src]');
+        sources.forEach((source) => {
+          source.src = source.dataset.src ?? '';
+        });
+        video.load();
+        video.controls = true; // contrôles natifs une fois la lecture lancée
+        wrapper.classList.add('is-playing');
+        // Lecture refusée par le navigateur : les contrôles restent utilisables.
+        video.play().catch(() => {});
+        video.focus({ preventScroll: true }); // le bouton disparaît : on garde le focus clavier
+      },
+      { signal, once: true }
+    );
+  }
+
+  document.addEventListener('astro:page-load', initPresentation);
+  document.addEventListener('astro:before-swap', teardown);
+</script>

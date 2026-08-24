@@ -3,13 +3,14 @@
     <div class="hrn-footer__grid">
       <div class="hrn-footer__brand">
         <span class="hrn-footer__logo">HÉRONE</span>
-        <p>Systèmes automatisés et IA sur mesure pour les TPE et PME du Grand Ouest.</p>
+        <p>Systèmes automatisés et IA pour les TPE et PME de Vendée et du Choletais. Les Herbiers, Montaigu, Chantonnay, Pouzauges, Mortagne-sur-Sèvre, La Roche-sur-Yon, Cholet.</p>
         <p class="hrn-footer__address">37 rue Édouard Branly, Les Herbiers 85500</p>
       </div>
 
       <div class="hrn-footer__col">
         <span class="hrn-footer__heading">Site</span>
         <a href="/#systemes">Systèmes</a>
+        <a href="/#offres">Offres</a>
         <a href="/#fondateurs">À propos</a>
         <a href="/#reserver">Réserver un appel</a>
       </div>
@@ -55,11 +56,20 @@
     gap: 40px;
   }
 
+  /* Le texte de marque (zone d'intervention + communes) est plus long que les
+     colonnes de liens : on lui donne une colonne plus large à partir du desktop
+     pour garder 4 colonnes sur une seule ligne, sans changer la grille mobile. */
+  @media (min-width: 900px) {
+    .hrn-footer__grid {
+      grid-template-columns: 1.5fr repeat(3, 1fr);
+    }
+  }
+
   .hrn-footer__brand {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    max-width: 32ch;
+    max-width: 42ch;
   }
 
   .hrn-footer__logo {

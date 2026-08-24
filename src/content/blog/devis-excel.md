@@ -30,11 +30,15 @@ Recalculer un devis à la main, c'est du temps et un risque d'erreur à chaque c
 
 ## Comment le système fonctionne
 
-Le système reprend votre catalogue de prix et vos règles de calcul. Vous saisissez les paramètres du chantier, il produit un devis à jour, cohérent, prêt à envoyer, avec la marge protégée.
+Le système reprend votre catalogue de prix et vos règles de calcul. À partir des éléments du chantier renseignés dans votre outil habituel, le devis à jour est produit, cohérent, prêt à envoyer, avec la marge protégée.
 
 ### Ce que vos équipes voient
 
-L'interface reste simple : vos commerciaux renseignent ce qu'ils connaissent déjà. Le calcul, lui, ne se trompe plus. Chaque devis est archivé proprement, retrouvable en un instant.
+La saisie reste simple : vos commerciaux renseignent, dans l'outil qu'ils utilisent déjà, ce qu'ils connaissent. Le calcul, lui, ne se trompe plus. Chaque devis est archivé proprement, retrouvable en un instant.
+
+### La relance part toute seule
+
+Le devis envoyé, la relance est programmée dans la foulée. Elle se déclenche au moment prévu, et vous suivez d'un seul coup d'œil, dans un tableau unique, ce qui est parti, ce qui attend une réponse et ce qui a été relancé. Le fonctionnement détaillé est décrit dans [Relancer ses clients sans y penser](/blog/relances-clients).
 
 ## Le résultat
 

@@ -1,6 +1,6 @@
 ---
 title: "Automatiser ses comptes rendus de réunion"
-description: "Du boîtier micro au compte rendu envoyé : comment supprimer la prise de notes et la ressaisie après chaque rendez-vous."
+description: "Du rendez-vous enregistré au compte rendu envoyé : comment supprimer la prise de notes et la ressaisie après chaque rendez-vous."
 pubDate: 2026-07-12
 category: Automatisation
 readingTime: 4
@@ -30,7 +30,7 @@ Le compte rendu manuel coûte cher, non pas en logiciel, mais en temps humain et
 
 ## Comment le système fonctionne
 
-Un boîtier capte l'audio du rendez-vous. Une première IA le transcrit au mot près, une seconde en extrait l'essentiel : décisions, montants, prochaines étapes. Le tout est mis en forme dans un modèle propre, à votre image.
+Le rendez-vous est enregistré, avec l'outil de votre choix. Une première IA le transcrit au mot près, une seconde en extrait l'essentiel : décisions, montants, prochaines étapes. Le tout est mis en forme dans un modèle propre, à votre image.
 
 ### Ce que vos équipes voient
 
