@@ -3,7 +3,6 @@ import { ClientRouter } from 'astro:transitions';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CookieBanner from '../components/CookieBanner.astro';
-import StickyMobileCTA from '../components/StickyMobileCTA.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -104,7 +103,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       <slot />
     </main>
     <Footer />
-    <StickyMobileCTA />
     <CookieBanner />
   </body>
 </html>
