@@ -104,7 +104,8 @@ section h2 {
      en page) est respecté. `prefers-reduced-motion` est déjà neutralisé plus bas. */
 .hrn-sweep {
   --sweep-from: currentColor;
-  --sweep-to: var(--amber-600);
+  /* Une seule couleur de survol pour tout le site, celle du pied de page. */
+  --sweep-to: var(--amber-400);
 }
 
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {

@@ -100,10 +100,8 @@ const { theme = 'light' } = Astro.props;
     color: #fff;
   }
 
-  /* Sur fond sombre, l'orange clair passe mieux que l'orange foncé. */
   .hrn-header--dark:not(.is-scrolled) .hrn-header__nav-desktop a.hrn-sweep {
     --sweep-from: #fff;
-    --sweep-to: var(--amber-400);
   }
 
   .hrn-header--dark:not(.is-scrolled) .hrn-header__phone.hrn-sweep {
@@ -128,10 +126,11 @@ const { theme = 'light' } = Astro.props;
     color: var(--text-strong);
   }
 
-  /* Départ et arrivée du balayage au survol, en-tête clair. */
+  /* Couleur de départ du balayage. L'arrivée est commune à tout le site
+     (--sweep-to dans global.css), pour que navbar et pied de page s'allument
+     exactement de la même couleur. */
   .hrn-header__nav-desktop a.hrn-sweep {
     --sweep-from: var(--text-strong);
-    --sweep-to: var(--amber-600);
   }
 
   .hrn-header__phone.hrn-sweep {
@@ -223,7 +222,6 @@ const { theme = 'light' } = Astro.props;
 
   .hrn-mobile-menu__nav a.hrn-sweep {
     --sweep-from: var(--text-strong);
-    --sweep-to: var(--amber-600);
   }
 
   .hrn-mobile-menu__bottom {
@@ -242,7 +240,6 @@ const { theme = 'light' } = Astro.props;
 
   .hrn-mobile-menu__phone.hrn-sweep {
     --sweep-from: var(--text-primary);
-    --sweep-to: var(--amber-600);
   }
 
   @media (min-width: 820px) {
