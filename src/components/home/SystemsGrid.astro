@@ -1,18 +1,29 @@
 ---
+// Grille des systèmes installés. Retirée de la page d'accueil : elle vit
+// désormais sur /systemes, qui fournit son propre titre de page (h1). D'où
+// `showHead` : la page passe `false` pour ne pas doubler le titre, la valeur
+// par défaut garde l'en-tête si la section revient un jour dans une page.
+interface Props {
+  showHead?: boolean;
+}
+
+const { showHead = true } = Astro.props;
 ---
 
-<section id="systemes" class="hrn-systems">
+<section id="systemes" class:list={['hrn-systems', !showHead && 'hrn-systems--bare']}>
   <div class="hrn-section-inner">
-    <div class="hrn-systems__head">
-      <div>
-        <div class="hrn-eyebrow">Nos systèmes</div>
-        <h2>Voici ce que nous installons pour régler ça</h2>
+    {showHead && (
+      <div class="hrn-systems__head">
+        <div>
+          <div class="hrn-eyebrow">Nos systèmes</div>
+          <h2>Voici ce que nous installons pour régler ça</h2>
+        </div>
+        <a href="/blog" class="hrn-systems__all">
+          Voir tous les systèmes
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+        </a>
       </div>
-      <a href="/blog" class="hrn-systems__all">
-        Voir tous les systèmes
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-      </a>
-    </div>
+    )}
 
     <div class="hrn-systems__grid">
       <a href="/blog/comptes-rendus" class="hrn-systems__card">
@@ -81,6 +92,17 @@
     grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
     gap: 20px;
     margin-top: 40px;
+  }
+
+  /* Sans en-tête interne, la marge du titre disparaît : la grille attaque
+     directement sous le titre de page, elle n'a plus besoin de la décoller.
+     Le padding haut se resserre pour ne pas cumuler avec celui du hero. */
+  .hrn-systems--bare {
+    padding-top: clamp(32px, 4vw, 52px);
+  }
+
+  .hrn-systems--bare .hrn-systems__grid {
+    margin-top: 0;
   }
 
   .hrn-systems__card {
