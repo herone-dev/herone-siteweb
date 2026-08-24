@@ -8,7 +8,7 @@
       </div>
 
       <div class="hrn-footer__col">
-        <span class="hrn-footer__heading">Site</span>
+        <span class="hrn-footer__heading">Section</span>
         <a href="/#offres" class="hrn-sweep">Offres</a>
         <a href="/#temoignage" class="hrn-sweep">Témoignage</a>
         <a href="/#fondateurs" class="hrn-sweep">À propos</a>
@@ -57,9 +57,43 @@
     gap: 40px;
   }
 
+  /* Sur téléphone, auto-fit ne tenait qu'une seule colonne : les trois listes
+     de liens s'empilaient sur trois rangées et le pied de page dépassait 840px.
+     On force deux colonnes, la marque occupe toute la largeur (son texte est
+     bien plus long que des libellés de liens) et « Légal », qui se retrouverait
+     seul sur sa rangée avec une demi-rangée vide à côté, se déplie à
+     l'horizontale.
+
+     Le seuil est volontairement bas : au-delà, auto-fit donne déjà deux
+     colonnes et place la marque à côté d'une liste, ce qui est plus compact
+     que cette disposition. */
+  @media (max-width: 479px) {
+    .hrn-footer__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 28px 20px;
+    }
+
+    .hrn-footer__brand {
+      grid-column: 1 / -1;
+    }
+
+    .hrn-footer__col:last-child {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 6px 18px;
+    }
+
+    .hrn-footer__col:last-child .hrn-footer__heading {
+      flex-basis: 100%;
+      margin-bottom: 0;
+    }
+  }
+
   /* Le texte de marque (zone d'intervention + communes) est plus long que les
      colonnes de liens : on lui donne une colonne plus large à partir du desktop
-     pour garder 4 colonnes sur une seule ligne, sans changer la grille mobile. */
+     pour garder 4 colonnes sur une seule ligne. */
   @media (min-width: 900px) {
     .hrn-footer__grid {
       grid-template-columns: 1.5fr repeat(3, 1fr);
