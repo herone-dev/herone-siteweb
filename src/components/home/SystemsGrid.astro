@@ -65,7 +65,7 @@ const { showHead = true } = Astro.props;
 
 <style>
   .hrn-systems {
-    padding: clamp(56px, 8vw, 96px) 0;
+    padding: var(--section-y) 0;
     background: var(--paper);
     scroll-margin-top: 68px;
   }
@@ -98,7 +98,7 @@ const { showHead = true } = Astro.props;
      directement sous le titre de page, elle n'a plus besoin de la décoller.
      Le padding haut se resserre pour ne pas cumuler avec celui du hero. */
   .hrn-systems--bare {
-    padding-top: clamp(32px, 4vw, 52px);
+    padding-top: clamp(26px, 3.2vw, 40px);
   }
 
   .hrn-systems--bare .hrn-systems__grid {
