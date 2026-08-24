@@ -2,7 +2,7 @@
   <div class="hrn-footer__inner">
     <div class="hrn-footer__grid">
       <div class="hrn-footer__brand">
-        <span class="hrn-footer__logo">HÉRONE</span>
+        <a href="/#top" class="hrn-footer__logo">HÉRONE</a>
         <p>Systèmes automatisés et IA pour les TPE et PME de Vendée et du Choletais. Les Herbiers, Montaigu, Chantonnay, Pouzauges, Mortagne-sur-Sèvre, La Roche-sur-Yon, Cholet.</p>
         <p class="hrn-footer__address">37 rue Édouard Branly, Les Herbiers 85500</p>
       </div>
@@ -77,6 +77,12 @@
     font-weight: 800;
     font-size: 24px;
     color: var(--ink-50);
+    align-self: flex-start; /* la zone cliquable s'arrête au mot, pas à la colonne */
+    text-decoration: none;
+  }
+
+  .hrn-footer__logo:hover {
+    color: var(--amber-400);
   }
 
   .hrn-footer__brand p {
