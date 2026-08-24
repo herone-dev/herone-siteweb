@@ -86,6 +86,67 @@ section h2 {
   text-wrap: balance;
 }
 
+/* Survol des liens de navigation : la couleur se remplit de gauche à droite.
+
+   Le texte est peint par un dégradé à deux paliers nets, clippé sur les glyphes
+   (background-clip: text). Le palier de gauche porte la couleur survolée, celui
+   de droite la couleur normale ; on fait glisser le dégradé, donc la frontière
+   traverse le mot de gauche à droite.
+
+   Deux conséquences à connaître avant de modifier ceci :
+   - le rendu ne dépend PAS de la propriété `color` (le remplissage du texte est
+     transparent). Les deux couleurs viennent de --sweep-from et --sweep-to, que
+     chaque contexte définit. Les règles `a:hover { color: … }` existantes n'ont
+     donc aucun effet visuel ici, mais elles restent utiles en repli (voir plus bas).
+   - c'est `background-position` qui est animée, et non transform/opacity comme le
+     veut la convention du projet. C'est une animation de peinture, sans reflow,
+     sur quelques libellés courts : l'esprit de la règle (aucun recalcul de mise
+     en page) est respecté. `prefers-reduced-motion` est déjà neutralisé plus bas. */
+.hrn-sweep {
+  --sweep-from: currentColor;
+  /* Une seule couleur de survol pour tout le site, celle du pied de page. */
+  --sweep-to: var(--amber-400);
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .hrn-sweep {
+    background-image: linear-gradient(to right, var(--sweep-to) 50%, var(--sweep-from) 50%);
+    background-size: 200% 100%;
+    background-position: 100% 0;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: background-position var(--dur-slow) var(--ease-standard);
+  }
+
+  .hrn-sweep:hover,
+  .hrn-sweep:focus-visible {
+    background-position: 0 0;
+  }
+}
+
+/* Repli navigateur : simple fondu de couleur, sans balayage. */
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+  .hrn-sweep {
+    transition: color var(--dur) var(--ease-standard);
+  }
+
+  .hrn-sweep:hover,
+  .hrn-sweep:focus-visible {
+    color: var(--sweep-to);
+  }
+}
+
+/* Contraste forcé (Windows) : les fonds sont supprimés par le système, on rend
+   la main à `color` pour que le texte reste visible. */
+@media (forced-colors: active) {
+  .hrn-sweep {
+    background-image: none;
+    -webkit-text-fill-color: currentColor;
+  }
+}
+
 .hrn-lede {
   font-size: clamp(1.05rem, 1.4vw, 1.19rem);
   line-height: 1.6;

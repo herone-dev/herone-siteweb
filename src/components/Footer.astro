@@ -2,31 +2,32 @@
   <div class="hrn-footer__inner">
     <div class="hrn-footer__grid">
       <div class="hrn-footer__brand">
-        <span class="hrn-footer__logo">HÉRONE</span>
+        <a href="/#top" class="hrn-footer__logo hrn-sweep">HÉRONE</a>
         <p>Systèmes automatisés et IA pour les TPE et PME de Vendée et du Choletais. Les Herbiers, Montaigu, Chantonnay, Pouzauges, Mortagne-sur-Sèvre, La Roche-sur-Yon, Cholet.</p>
         <p class="hrn-footer__address">37 rue Édouard Branly, Les Herbiers 85500</p>
       </div>
 
       <div class="hrn-footer__col">
-        <span class="hrn-footer__heading">Site</span>
-        <a href="/systemes">Systèmes</a>
-        <a href="/#offres">Offres</a>
-        <a href="/#fondateurs">À propos</a>
-        <a href="/#reserver">Réserver un appel</a>
+        <span class="hrn-footer__heading">Section</span>
+        <a href="/#offres" class="hrn-sweep">Offres</a>
+        <a href="/#temoignage" class="hrn-sweep">Témoignage</a>
+        <a href="/#fondateurs" class="hrn-sweep">À propos</a>
+        <a href="/#reserver" class="hrn-sweep">Réserver un appel</a>
       </div>
 
       <div class="hrn-footer__col">
         <span class="hrn-footer__heading">Ressources</span>
-        <a href="/blog">Blog</a>
-        <a href="mailto:contact@herone.fr">contact@herone.fr</a>
-        <a href="tel:+33663710598">06 63 71 05 98</a>
+        <a href="/systemes" class="hrn-sweep">Systèmes</a>
+        <a href="/blog" class="hrn-sweep">Blog</a>
+        <a href="mailto:contact@herone.fr" class="hrn-sweep">contact@herone.fr</a>
+        <a href="tel:+33663710598" class="hrn-sweep">06 63 71 05 98</a>
       </div>
 
       <div class="hrn-footer__col">
         <span class="hrn-footer__heading">Légal</span>
-        <a href="/mentions-legales">Mentions légales</a>
-        <a href="/confidentialite">Confidentialité</a>
-        <a href="/cookies">Cookies</a>
+        <a href="/mentions-legales" class="hrn-sweep">Mentions légales</a>
+        <a href="/confidentialite" class="hrn-sweep">Confidentialité</a>
+        <a href="/cookies" class="hrn-sweep">Cookies</a>
       </div>
     </div>
 
@@ -41,7 +42,7 @@
   .hrn-footer {
     background: var(--ink-950);
     color: var(--ink-300);
-    padding: clamp(48px, 7vw, 80px) 0 32px;
+    padding: var(--section-y-sm) 0 32px;
   }
 
   .hrn-footer__inner {
@@ -56,9 +57,43 @@
     gap: 40px;
   }
 
+  /* Sur téléphone, auto-fit ne tenait qu'une seule colonne : les trois listes
+     de liens s'empilaient sur trois rangées et le pied de page dépassait 840px.
+     On force deux colonnes, la marque occupe toute la largeur (son texte est
+     bien plus long que des libellés de liens) et « Légal », qui se retrouverait
+     seul sur sa rangée avec une demi-rangée vide à côté, se déplie à
+     l'horizontale.
+
+     Le seuil est volontairement bas : au-delà, auto-fit donne déjà deux
+     colonnes et place la marque à côté d'une liste, ce qui est plus compact
+     que cette disposition. */
+  @media (max-width: 479px) {
+    .hrn-footer__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 28px 20px;
+    }
+
+    .hrn-footer__brand {
+      grid-column: 1 / -1;
+    }
+
+    .hrn-footer__col:last-child {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 6px 18px;
+    }
+
+    .hrn-footer__col:last-child .hrn-footer__heading {
+      flex-basis: 100%;
+      margin-bottom: 0;
+    }
+  }
+
   /* Le texte de marque (zone d'intervention + communes) est plus long que les
      colonnes de liens : on lui donne une colonne plus large à partir du desktop
-     pour garder 4 colonnes sur une seule ligne, sans changer la grille mobile. */
+     pour garder 4 colonnes sur une seule ligne. */
   @media (min-width: 900px) {
     .hrn-footer__grid {
       grid-template-columns: 1.5fr repeat(3, 1fr);
@@ -77,6 +112,12 @@
     font-weight: 800;
     font-size: 24px;
     color: var(--ink-50);
+    align-self: flex-start; /* la zone cliquable s'arrête au mot, pas à la colonne */
+    text-decoration: none;
+  }
+
+  .hrn-footer__logo:hover {
+    color: var(--amber-400);
   }
 
   .hrn-footer__brand p {
@@ -111,6 +152,17 @@
     color: var(--ink-100);
   }
 
+  .hrn-footer__col a.hrn-sweep,
+  .hrn-footer__logo.hrn-sweep {
+    --sweep-from: var(--ink-100);
+  }
+
+  .hrn-footer__logo.hrn-sweep {
+    --sweep-from: var(--ink-50);
+  }
+
+  /* Conservé pour le contraste forcé et les navigateurs sans background-clip,
+     où le balayage laisse la main à `color`. */
   .hrn-footer__col a:hover {
     color: var(--amber-400);
   }

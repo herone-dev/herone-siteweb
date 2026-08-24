@@ -118,7 +118,14 @@
   --container-max: 1200px;
   --container-wide: 1360px;
   --container-prose: 68ch;
-  --section-y: var(--space-24);
+  /* Rythme vertical des sections. Trois crans, du plus courant au plus aéré.
+     Modifier ces trois valeurs suffit à resserrer ou détendre toute la page :
+     aucune section ne code son padding vertical en dur. Le header en est
+     volontairement exclu, sa hauteur fixe de 68px sert d'ancrage aux ancres
+     (scroll-margin-top). */
+  --section-y-sm: clamp(34px, 4.8vw, 62px);
+  --section-y: clamp(40px, 5.5vw, 68px);
+  --section-y-lg: clamp(44px, 6vw, 74px);
   --field-height: 2.75rem;
   --field-height-sm: 2.25rem;
 

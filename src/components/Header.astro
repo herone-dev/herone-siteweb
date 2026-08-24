@@ -15,9 +15,10 @@ const { theme = 'light' } = Astro.props;
     <a href="/#top" class="hrn-header__logo">HÉRONE</a>
 
     <nav class="hrn-header__nav-desktop">
-      <a href="/#offres">Offres</a>
-      <a href="/#fondateurs">À propos</a>
-      <a href="tel:+33663710598" class="hrn-header__phone">06 63 71 05 98</a>
+      <a href="/#offres" class="hrn-sweep">Offres</a>
+      <a href="/#temoignage" class="hrn-sweep">Témoignage</a>
+      <a href="/#fondateurs" class="hrn-sweep">À propos</a>
+      <a href="tel:+33663710598" class="hrn-header__phone hrn-sweep">06 63 71 05 98</a>
       <Button variant="accent" size="md" href="/#reserver">Réserver 30 minutes</Button>
     </nav>
 
@@ -31,19 +32,20 @@ const { theme = 'light' } = Astro.props;
 </header>
 
 <div id="hrn-mobile-menu" class="hrn-mobile-menu" hidden>
-  <div class="hrn-mobile-menu__top">
+  <div class="hrn-mobile-menu__top hrn-mobile-menu__item" style="--i:0">
     <span class="hrn-header__logo">HÉRONE</span>
     <button type="button" id="hrn-menu-close" aria-label="Fermer le menu" class="hrn-mobile-menu__close">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M18 6 6 18"></path><path d="M6 6l12 12"></path></svg>
     </button>
   </div>
   <nav class="hrn-mobile-menu__nav">
-    <a href="/#offres">Offres</a>
-    <a href="/#fondateurs">À propos</a>
-    <a href="/#objections">Questions</a>
+    <a href="/#offres" class="hrn-sweep hrn-mobile-menu__item" style="--i:1">Offres</a>
+    <a href="/#temoignage" class="hrn-sweep hrn-mobile-menu__item" style="--i:2">Témoignage</a>
+    <a href="/#fondateurs" class="hrn-sweep hrn-mobile-menu__item" style="--i:3">À propos</a>
+    <a href="/#objections" class="hrn-sweep hrn-mobile-menu__item" style="--i:4">Questions</a>
   </nav>
-  <div class="hrn-mobile-menu__bottom">
-    <a href="tel:+33663710598" class="hrn-mobile-menu__phone">06 63 71 05 98</a>
+  <div class="hrn-mobile-menu__bottom hrn-mobile-menu__item" style="--i:5">
+    <a href="tel:+33663710598" class="hrn-mobile-menu__phone hrn-sweep">06 63 71 05 98</a>
     <Button variant="accent" size="lg" block href="/#reserver">Réserver 30 minutes</Button>
   </div>
 </div>
@@ -98,6 +100,14 @@ const { theme = 'light' } = Astro.props;
     color: #fff;
   }
 
+  .hrn-header--dark:not(.is-scrolled) .hrn-header__nav-desktop a.hrn-sweep {
+    --sweep-from: #fff;
+  }
+
+  .hrn-header--dark:not(.is-scrolled) .hrn-header__phone.hrn-sweep {
+    --sweep-from: color-mix(in srgb, #fff 78%, transparent);
+  }
+
   .hrn-header--dark:not(.is-scrolled) .hrn-header__phone {
     color: color-mix(in srgb, #fff 78%, transparent) !important;
   }
@@ -114,6 +124,17 @@ const { theme = 'light' } = Astro.props;
     font-size: 15px;
     font-weight: 500;
     color: var(--text-strong);
+  }
+
+  /* Couleur de départ du balayage. L'arrivée est commune à tout le site
+     (--sweep-to dans global.css), pour que navbar et pied de page s'allument
+     exactement de la même couleur. */
+  .hrn-header__nav-desktop a.hrn-sweep {
+    --sweep-from: var(--text-strong);
+  }
+
+  .hrn-header__phone.hrn-sweep {
+    --sweep-from: var(--text-secondary);
   }
 
   .hrn-header__phone {
@@ -153,6 +174,10 @@ const { theme = 'light' } = Astro.props;
     .hrn-header__nav-desktop { gap: 28px; }
   }
 
+  /* Ouverture du menu, en deux temps : le panneau se fond, puis ses blocs
+     montent un par un. On n'anime que opacity et transform, conformément aux
+     conventions du projet ; `hidden` reste la source de vérité pour le retrait
+     du flux, la classe .is-open ne pilote que l'animation. */
   .hrn-mobile-menu {
     position: fixed;
     inset: 0;
@@ -161,9 +186,45 @@ const { theme = 'light' } = Astro.props;
     display: flex;
     flex-direction: column;
     padding: 20px clamp(20px, 6vw, 32px);
+    opacity: 0;
+    transition: opacity 220ms var(--ease-standard);
   }
 
   .hrn-mobile-menu[hidden] { display: none; }
+
+  .hrn-mobile-menu.is-open {
+    opacity: 1;
+    transition-duration: 260ms;
+  }
+
+  /* État fermé, qui sert aussi de trajectoire de sortie : rapide et sans
+     décalage, pour que la fermeture ne traîne pas. */
+  .hrn-mobile-menu__item {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition:
+      opacity 150ms var(--ease-standard),
+      transform 150ms var(--ease-standard);
+  }
+
+  /* Entrée : plus lente, courbe signature du projet, et décalée de 45ms par
+     bloc pour que le menu se déplie au lieu d'apparaître d'un bloc. */
+  .hrn-mobile-menu.is-open .hrn-mobile-menu__item {
+    opacity: 1;
+    transform: none;
+    transition-duration: 340ms;
+    transition-timing-function: var(--ease-out);
+    transition-delay: calc(60ms + var(--i, 0) * 45ms);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-mobile-menu,
+    .hrn-mobile-menu__item {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
 
   .hrn-mobile-menu__top {
     height: 28px;
@@ -199,6 +260,10 @@ const { theme = 'light' } = Astro.props;
     border-bottom: 1px solid var(--divider);
   }
 
+  .hrn-mobile-menu__nav a.hrn-sweep {
+    --sweep-from: var(--text-strong);
+  }
+
   .hrn-mobile-menu__bottom {
     margin-top: auto;
     display: flex;
@@ -213,6 +278,10 @@ const { theme = 'light' } = Astro.props;
     color: var(--text-primary);
   }
 
+  .hrn-mobile-menu__phone.hrn-sweep {
+    --sweep-from: var(--text-primary);
+  }
+
   @media (min-width: 820px) {
     .hrn-mobile-menu { display: none !important; }
   }
@@ -220,6 +289,7 @@ const { theme = 'light' } = Astro.props;
 
 <script>
   let ac: AbortController | undefined;
+  let closeTimer: ReturnType<typeof setTimeout> | undefined;
 
   function initHeader() {
     ac?.abort();
@@ -239,23 +309,69 @@ const { theme = 'light' } = Astro.props;
     onScroll();
     window.addEventListener('scroll', onScroll, { signal, passive: true });
 
+    // L'animation ne peut pas partir de `display: none` : à l'ouverture on
+    // retire `hidden`, on force un reflow pour que l'état fermé soit peint,
+    // puis on ajoute la classe qui déclenche la transition. À la fermeture,
+    // l'inverse : on retire la classe et on ne remet `hidden` qu'une fois la
+    // sortie terminée, sinon le panneau disparaîtrait d'un coup.
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const EXIT_MS = 240; // > durée de sortie du panneau (220ms)
+
     const openMenu = () => {
       if (!menu) return;
+      clearTimeout(closeTimer);
       menu.hidden = false;
+      void menu.offsetHeight; // force le reflow, sinon la transition est sautée
+      menu.classList.add('is-open');
       document.body.style.overflow = 'hidden';
       openBtn?.setAttribute('aria-expanded', 'true');
+      closeBtn?.focus();
     };
+
     const closeMenu = () => {
-      if (!menu) return;
-      menu.hidden = true;
+      if (!menu || menu.hidden) return;
+      menu.classList.remove('is-open');
       document.body.style.overflow = '';
       openBtn?.setAttribute('aria-expanded', 'false');
+      clearTimeout(closeTimer);
+      // Sans animation, on masque tout de suite : laisser le panneau invisible
+      // mais présent bloquerait les clics pendant la durée de la transition.
+      if (reduce) {
+        menu.hidden = true;
+        return;
+      }
+      closeTimer = setTimeout(() => {
+        menu.hidden = true;
+      }, EXIT_MS);
     };
 
     openBtn?.addEventListener('click', openMenu, { signal });
-    closeBtn?.addEventListener('click', closeMenu, { signal });
+    closeBtn?.addEventListener('click', () => {
+      closeMenu();
+      openBtn?.focus(); // le focus revient sur le bouton qui a ouvert le menu
+    }, { signal });
     menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', closeMenu, { signal }));
+
+    document.addEventListener(
+      'keydown',
+      (event) => {
+        if (event.key === 'Escape' && menu && !menu.hidden) {
+          closeMenu();
+          openBtn?.focus();
+        }
+      },
+      { signal }
+    );
+  }
+
+  function teardownHeader() {
+    clearTimeout(closeTimer);
+    ac?.abort();
+    // Navigation alors que le menu est ouvert : le verrou de défilement doit
+    // sauter, sinon la page suivante arrive bloquée.
+    document.body.style.overflow = '';
   }
 
   document.addEventListener('astro:page-load', initHeader);
+  document.addEventListener('astro:before-swap', teardownHeader);
 </script>

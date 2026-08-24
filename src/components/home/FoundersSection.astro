@@ -50,7 +50,7 @@ import officesHerbiers from '../../assets/images/offices-herbiers.webp';
 
 <style>
   .hrn-founders {
-    padding: clamp(56px, 8vw, 96px) 0;
+    padding: var(--section-y) 0;
     background: var(--surface);
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
@@ -63,7 +63,9 @@ import officesHerbiers from '../../assets/images/offices-herbiers.webp';
 
   .hrn-founders__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    /* min(320px, 100%) : sur un écran de 320px le conteneur ne fait que 280px,
+       une piste fixe de 320px débordait la page de 20px. */
+    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
     gap: clamp(28px, 5vw, 56px);
     align-items: center;
   }
@@ -136,10 +138,13 @@ import officesHerbiers from '../../assets/images/offices-herbiers.webp';
     object-fit: cover;
   }
 
+  /* Pas de white-space: nowrap ici. Les portraits vivent dans une grille de
+     deux colonnes qui se resserre : sous ~900px la colonne devient plus
+     étroite que la légende, et une légende insécable poussait toute la page
+     en scroll horizontal. On la laisse revenir à la ligne au besoin. */
   .hrn-founders__caption {
     font-family: var(--font-mono);
     font-size: 11.5px;
-    white-space: nowrap;
     color: var(--text-secondary);
   }
 
@@ -154,12 +159,4 @@ import officesHerbiers from '../../assets/images/offices-herbiers.webp';
     font-size: 12.5px;
   }
 
-  /* Sous 560px, les deux portraits font environ 150px de large chacun : la
-     légende en nowrap dépassait et provoquait un scroll horizontal sur toute
-     la page. On la laisse revenir à la ligne à cette largeur seulement. */
-  @media (max-width: 560px) {
-    .hrn-founders__caption {
-      white-space: normal;
-    }
-  }
 </style>
