@@ -30,7 +30,7 @@ const CATEGORY_COLOR: Record<string, string> = {
 const dateLabel = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }).format(post.data.pubDate);
 ---
 
-<Layout title={`${post.data.title} — Blog Hérone`} description={post.data.description}>
+<Layout title={`${post.data.title} · Blog Hérone`} description={post.data.description}>
   <div class="hrn-section-inner hrn-article-top">
     <a href="/blog" class="hrn-article-back">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
@@ -92,7 +92,7 @@ const dateLabel = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'sho
         <div class="hrn-related__system">
           <span>Le système</span>
           <strong>{post.data.systemTitle}</strong>
-          <a href="/#systemes">
+          <a href="/systemes">
             Découvrir le système
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
           </a>

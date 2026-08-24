@@ -11,11 +11,11 @@ import temoignagePoster from '../../assets/images/posters/temoignage-poster.jpg'
     <div class="hrn-proof__grid">
     <div class="hrn-proof__text">
       <blockquote>
-        « Le rendez-vous est enregistré, la fiche client arrive remplie en PDF, prête à envoyer. On choisit qui s'en occupe, le mail part. On ne ressaisit plus rien. »
+        « Le rendez-vous est enregistré, la fiche client arrive remplie en PDF, prête à envoyer. On choisit qui s'en occupe, le mail part. On ne ressaisit plus rien. »
       </blockquote>
 
-      <ol class="hrn-proof__flow">
-        <li>Boîtier micro</li>
+      <ol class="hrn-proof__flow" role="list">
+        <li>Rendez-vous enregistré</li>
         <li>Transcription + fiche PDF</li>
         <li>Attribution et envoi</li>
       </ol>
@@ -67,7 +67,7 @@ import temoignagePoster from '../../assets/images/posters/temoignage-poster.jpg'
 
   .hrn-proof__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
     gap: clamp(28px, 5vw, 64px);
     align-items: center;
     margin-top: 28px;
@@ -197,9 +197,12 @@ import temoignagePoster from '../../assets/images/posters/temoignage-poster.jpg'
     border: 0;
   }
 
+  /* `visibility: hidden` en plus de l'opacité : sans elle, le bouton de lecture
+     invisible resterait dans l'ordre de tabulation (WCAG 2.4.3 / 2.4.7). */
   .hrn-proof__video.is-playing img,
   .hrn-proof__video.is-playing .hrn-proof__play {
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
   }
 

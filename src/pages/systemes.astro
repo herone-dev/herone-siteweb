@@ -1,0 +1,138 @@
+---
+// Page « Nos systèmes ». La grille vivait sur la page d'accueil ; elle a été
+// sortie pour laisser la place à la grille d'offres et n'est plus liée que
+// depuis le pied de page. Le hero reprend le motif de /blog (fond sombre +
+// trame de points) pour rester cohérent avec les autres pages intérieures.
+import Layout from '../layouts/Layout.astro';
+import SystemsGrid from '../components/home/SystemsGrid.astro';
+import Button from '../components/Button.astro';
+---
+
+<Layout
+  title="Les systèmes que nous installons · Hérone"
+  description="Comptes rendus automatiques, connexion de vos logiciels, devis et relances : les systèmes que nous installons chez les TPE et PME de Vendée, sans changer vos outils."
+  headerTheme="dark"
+>
+  <section class="hrn-systems-hero">
+    <div class="hrn-systems-hero__dots" aria-hidden="true"></div>
+    <div class="hrn-section-inner hrn-systems-hero__content">
+      <div class="hrn-eyebrow">Nos systèmes</div>
+      <h1>Voici ce que nous installons pour régler ça</h1>
+      <p>
+        Trois systèmes que nous connectons à vos logiciels existants. Rien à remplacer, rien à
+        réapprendre : ce sont vos outils qui se parlent enfin entre eux.
+      </p>
+    </div>
+  </section>
+
+  <SystemsGrid showHead={false} />
+
+  <section class="hrn-systems-outro">
+    <div class="hrn-section-inner hrn-systems-outro__inner">
+      <div>
+        <h2>Votre besoin ne ressemble à aucun des trois ?</h2>
+        <p>
+          C'est fréquent. Trente minutes d'échange, gratuit et sans engagement, suffisent à savoir si
+          quelque chose est automatisable chez vous.
+        </p>
+      </div>
+      <div class="hrn-systems-outro__actions">
+        <Button variant="accent" size="lg" href="/#reserver">Réserver 30 minutes</Button>
+        <a href="/#offres" class="hrn-systems-outro__link">
+          Voir nos offres et nos prix
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hrn-systems-hero {
+    position: relative;
+    padding: clamp(120px, 14vw, 160px) 0 48px;
+    background: var(--slate-900);
+    color: var(--ink-200);
+    overflow: hidden;
+  }
+
+  .hrn-systems-hero__dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(color-mix(in srgb, #fff 7%, transparent) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+
+  .hrn-systems-hero__content {
+    position: relative;
+  }
+
+  .hrn-systems-hero :global(.hrn-eyebrow) {
+    color: var(--amber-300);
+  }
+
+  .hrn-systems-hero h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    color: var(--text-inverse);
+    max-width: 20ch;
+    margin: 14px 0 0;
+    text-wrap: balance;
+  }
+
+  .hrn-systems-hero p {
+    margin-top: 16px !important;
+    max-width: 60ch;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ink-300);
+    text-wrap: pretty;
+  }
+
+  .hrn-systems-outro {
+    padding: 0 0 clamp(56px, 8vw, 96px);
+    background: var(--paper);
+  }
+
+  .hrn-systems-outro__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    padding-top: clamp(32px, 5vw, 48px);
+    border-top: 1px solid var(--border);
+  }
+
+  .hrn-systems-outro h2 {
+    font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+    max-width: 22ch;
+    margin: 0;
+  }
+
+  .hrn-systems-outro p {
+    margin-top: 10px !important;
+    max-width: 52ch;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  .hrn-systems-outro__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .hrn-systems-outro__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--slate-600);
+  }
+</style>

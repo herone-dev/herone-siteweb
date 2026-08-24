@@ -1,10 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/home/Hero.astro';
+import PresentationVideo from '../components/home/PresentationVideo.astro';
 import ConstatCarousel from '../components/home/ConstatCarousel.astro';
-import SystemsGrid from '../components/home/SystemsGrid.astro';
-import LogosMarquee from '../components/home/LogosMarquee.astro';
+import OffersSection from '../components/home/OffersSection.astro';
 import ProofSection from '../components/home/ProofSection.astro';
+import ReviewsSection from '../components/home/ReviewsSection.astro';
+import LogosMarquee from '../components/home/LogosMarquee.astro';
 import ConvictionSection from '../components/home/ConvictionSection.astro';
 import MethodSection from '../components/home/MethodSection.astro';
 import FoundersSection from '../components/home/FoundersSection.astro';
@@ -13,15 +15,17 @@ import BookingSection from '../components/home/BookingSection.astro';
 ---
 
 <Layout
-  title="Hérone - Audit, Automatisation IA & Formation pour TPE/PME — Hérone Vendée TPE/PME en Vendée"
-  description="Nous auditons votre entreprise, identifions les tâches qui ralentissent vos équipes et déployons des systèmes d'automatisation intégrant l'IA. Du sur-mesure..."
+  title="Hérone : diagnostic, automatisation IA et formation, TPE et PME en Vendée"
+  description="Basés aux Herbiers, nous automatisons les tâches répétitives des TPE et PME de Vendée. Ateliers IA, diagnostic, automatisation. Prix affichés, 300 à 2 500 €."
   headerTheme="dark"
 >
   <Hero />
+  <PresentationVideo />
   <ConstatCarousel />
-  <SystemsGrid />
-  <LogosMarquee />
+  <OffersSection />
   <ProofSection />
+  <ReviewsSection />
+  <LogosMarquee />
   <ConvictionSection />
   <MethodSection />
   <FoundersSection />

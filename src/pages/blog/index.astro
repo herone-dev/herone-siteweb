@@ -5,11 +5,17 @@ import Button from '../../components/Button.astro';
 import ArticleCard from '../../components/blog/ArticleCard.astro';
 
 const posts = (await getCollection('blog')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-const categories = ['Tout', 'Automatisation', 'Devis', 'CRM', 'BTP'];
+// Les filtres sont dérivés des articles réellement publiés : aucune catégorie
+// vide ne peut plus apparaître dans la barre (un filtre vide renverrait sur
+// l'état « Aucun article pour cette recherche »).
+const categories = [
+  'Tout',
+  ...[...new Set(posts.map((post) => post.data.category))].sort((a, b) => a.localeCompare(b, 'fr')),
+];
 ---
 
 <Layout
-  title="Blog Hérone — Automatiser, concrètement."
+  title="Blog Hérone · Automatiser, concrètement."
   description="Des cas réels, des méthodes, des systèmes qui font gagner des heures aux TPE et PME. Cherchez un sujet ou parcourez par thème."
   headerTheme="dark"
 >
@@ -41,7 +47,7 @@ const categories = ['Tout', 'Automatisation', 'Devis', 'CRM', 'BTP'];
   <section class="hrn-blog-list">
     <div class="hrn-section-inner">
       <div class="hrn-blog-list__head">
-        <span id="blog-result-label">{posts.length} articles</span>
+        <span id="blog-result-label">{posts.length} article{posts.length > 1 ? 's' : ''}</span>
         <span>Trié par date</span>
       </div>
 
