@@ -1,20 +1,74 @@
-# Hérone
+# Hérone - Automatisation IA & Systèmes pour TPE et PME
 
-> Hérone conçoit, installe et forme aux systèmes d'automatisation et d'IA pour les TPE et PME de Vendée et du Choletais.
+> Hérone conçoit, intègre et forme aux systèmes d'automatisation et d'intelligence artificielle sur mesure pour les TPE et PME de Vendée et du Choletais.
 
-## Présentation
+## À propos d'Hérone
 
-Basés aux Herbiers, nous supprimons les tâches répétitives (ressaisies, devis Excel, gestion des mails, comptes rendus) sans changer vos logiciels existants. Nous formons vos équipes jusqu'à ce que les systèmes tournent en toute autonomie.
+Fondée par Nolan Genty et Martin Talon, Hérone est une entreprise spécialisée dans le diagnostic et l'installation de systèmes automatisés intelligents. Basée aux Herbiers (85500), Hérone intervient directement au sein des entreprises pour libérer les dirigeants et leurs équipes des tâches manuelles répétitives, chronophages et à faible valeur ajoutée.
 
-## Liens principaux
+Notre philosophie repose sur trois piliers :
+1. **Sans changer vos logiciels** : Nous ne vous imposons aucun nouvel outil complexe. Nous connectons et automatisons les logiciels que vous utilisez déjà au quotidien (CRM, ERP, boîtes mails, comptabilité, Excel, Google Sheets, etc.).
+2. **Autonomie garantie** : Nous formons vos équipes sur place jusqu'à ce que les processus tournent parfaitement sans aucune intervention externe.
+3. **Proximité & Réactivité** : Implantés aux Herbiers, nous intervenons physiquement dans un rayon de 45 minutes (Vendée et Choletais).
 
-- [Accueil](https://herone.fr/) : Présentation globale de l'entreprise, des fondateurs et réservation d'un rdv.
-- [Systèmes](https://herone.fr/systemes) : Catalogue des systèmes automatisés et cas d'usage par métier.
-- [Blog](https://herone.fr/blog) : Guides, conseils et retours d'expérience sur l'automatisation IA.
-- [Réserver un rendez-vous](https://herone.fr/#reserver) : Réserver un échange découverte gratuit de 30 minutes.
+---
 
-## Contact
+## Ce que nous automatisons (Exemples de Systèmes)
 
-- Téléphone : +33663710598
-- Email : contact@herone.fr
-- Adresse : 37 rue Édouard Branly, 85500 Les Herbiers, Vendée, France
+Hérone élimine la pénibilité des processus manuels dans les domaines suivants :
+
+- **Ressaisie de données inter-logiciels** : Connexion automatique entre vos formulaires web, votre CRM, votre logiciel de facturation et votre gestion de stock sans aucune recopie manuelle.
+- **Calcul et génération de devis** : Automatisation des chiffrages complexes dans Excel/Google Sheets avec création automatique du document PDF prêt à envoyer.
+- **Tri intelligent des e-mails et pièces jointes** : Classification automatique des messages entrants, extraction des pièces jointes et pré-remplissage des dossiers clients.
+- **Comptes rendus de réunions par IA** : Enregistrement, transcription et synthèse automatique des échanges avec extraction des points d'action sous forme de tâches.
+- **Relances clients & suivi d'impayés** : Scénarios de relances automatisées et personnalisées avec notifications en cas de retard de paiement.
+- **Reporting mensuel & Tableaux de bord** : Agrégation automatique des données de ventes, de trésorerie et d'activité dans un tableau de bord visuel mis à jour en temps réel.
+
+---
+
+## Notre Méthodologie en 3 étapes
+
+1. **Échange Découverte (30 minutes - Gratuit & Sans engagement)** : Analyse de votre quotidien opérationnel et identification des tâches prioritaires à supprimer.
+2. **Conception & Intégration sur mesure** : Déploiement technique des workflows d'automatisation et des briques d'IA adaptées à vos règles métiers.
+3. **Formation & Accompagnement sur site** : Prise en main par vos collaborateurs et ajustements jusqu'à validation complète de l'autonomie de l'équipe.
+
+---
+
+## Tarification & Transparence
+
+Hérone pratique une politique de prix transparente et affichée dès le départ :
+- **Budget moyen d'un système** : Entre 300 € et 2 500 € selon la complexité des flux et le nombre d'outils interconnectés.
+- Pas de frais cachés ni d'abonnements captifs.
+
+---
+
+## Zone d'intervention
+
+Nous intervenons sur place dans les communes et secteurs suivants :
+- **Vendée (85)** : Les Herbiers, Montaigu-Vendée, Chantonnay, Pouzauges, Mortagne-sur-Sèvre, La Roche-sur-Yon.
+- **Maine-et-Loire (49)** : Cholet et le Choletais.
+
+---
+
+## Liens principaux du site
+
+- [Page d'accueil](https://herone.fr/) : Diagnostic global, vidéo de présentation, témoignages clients et calendrier de réservation.
+- [Catalogue des Systèmes](https://herone.fr/systemes) : Détail complet des cas d'usage par métier et des automatisations installables.
+- [Blog & Ressources](https://herone.fr/blog) : Articles méthodologiques, guides d'automatisation et retours d'expérience TPE/PME.
+- [Réserver un rendez-vous](https://herone.fr/#reserver) : Accès direct au calendrier pour réserver un échange découverte de 30 minutes.
+- [Mentions Légales](https://herone.fr/mentions-legales) : Éditeur et hébergeur du site.
+- [Confidentialité](https://herone.fr/confidentialite) : Politique de protection des données personnelles.
+- [Cookies](https://herone.fr/cookies) : Gestion des cookies et traceurs.
+
+---
+
+## Informations de contact et légales
+
+- **Société** : Hérone (SARL)
+- **Gérants** : Nolan Genty & Martin Talon
+- **Adresse** : 37 rue Édouard Branly, 85500 Les Herbiers, Vendée, France
+- **Téléphone** : +33 6 63 71 05 98
+- **E-mail** : contact@herone.fr
+- **SIRET** : 993 827 237 00013
+- **TVA Intracommunautaire** : FR95993827237
+- **Code APE** : 62.01Z (Programmation informatique)
