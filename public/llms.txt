@@ -1,0 +1,20 @@
+# Hérone
+
+> Hérone conçoit, installe et forme aux systèmes d'automatisation et d'IA pour les TPE et PME de Vendée et du Choletais.
+
+## Présentation
+
+Basés aux Herbiers, nous supprimons les tâches répétitives (ressaisies, devis Excel, gestion des mails, comptes rendus) sans changer vos logiciels existants. Nous formons vos équipes jusqu'à ce que les systèmes tournent en toute autonomie.
+
+## Liens principaux
+
+- [Accueil](https://herone.fr/) : Présentation globale de l'entreprise, des fondateurs et réservation d'un rdv.
+- [Systèmes](https://herone.fr/systemes) : Catalogue des systèmes automatisés et cas d'usage par métier.
+- [Blog](https://herone.fr/blog) : Guides, conseils et retours d'expérience sur l'automatisation IA.
+- [Réserver un rendez-vous](https://herone.fr/#reserver) : Réserver un échange découverte gratuit de 30 minutes.
+
+## Contact
+
+- Téléphone : +33663710598
+- Email : contact@herone.fr
+- Adresse : 37 rue Édouard Branly, 85500 Les Herbiers, Vendée, France
