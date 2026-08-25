@@ -9,9 +9,10 @@ interface Props {
   title: string;
   description: string;
   headerTheme?: 'dark' | 'light';
+  noindex?: boolean;
 }
 
-const { title, description, headerTheme = 'light' } = Astro.props;
+const { title, description, headerTheme = 'light', noindex = false } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
@@ -36,7 +37,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
-    <meta name="robots" content="max-image-preview:large" />
+    {noindex ? (
+      <meta name="robots" content="noindex, follow" />
+    ) : (
+      <meta name="robots" content="index, follow, max-image-preview:large" />
+    )}
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
@@ -90,7 +95,52 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           "publisher": {
             "@id": "https://herone.fr/#organization"
           },
-          "inLanguage": "fr-FR"
+          "inLanguage": "fr-FR",
+          "hasPart": [
+            {
+              "@type": "WebPage",
+              "name": "Systèmes",
+              "url": "https://herone.fr/systemes"
+            },
+            {
+              "@type": "WebPage",
+              "name": "Blog",
+              "url": "https://herone.fr/blog"
+            },
+            {
+              "@type": "WebPage",
+              "name": "Réserver un appel",
+              "url": "https://herone.fr/#reserver"
+            }
+          ]
+        },
+        {
+          "@type": "ItemList",
+          "@id": "https://herone.fr/#sitenavigation",
+          "name": "Navigation principale",
+          "itemListElement": [
+            {
+              "@type": "SiteNavigationElement",
+              "position": 1,
+              "name": "Systèmes",
+              "description": "Découvrez nos systèmes automatisés pour les TPE et PME.",
+              "url": "https://herone.fr/systemes"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 2,
+              "name": "Blog",
+              "description": "Conseils, guides et retours d'expérience sur l'automatisation et l'IA.",
+              "url": "https://herone.fr/blog"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 3,
+              "name": "Réserver un appel",
+              "description": "Réservez un échange découverte gratuit de 30 minutes avec notre équipe.",
+              "url": "https://herone.fr/#reserver"
+            }
+          ]
         }
       ]
     })} />

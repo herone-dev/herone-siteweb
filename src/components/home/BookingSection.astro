@@ -41,14 +41,14 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
 
 <style>
   .hrn-booking {
-    padding: var(--section-y-lg) 0;
+    padding: clamp(32px, 4vh, 52px) 0;
     background: var(--slate-900);
     color: var(--ink-200);
     scroll-margin-top: 68px;
   }
 
   .hrn-booking__header {
-    margin-bottom: clamp(32px, 5vw, 56px);
+    margin-bottom: clamp(16px, 2.5vw, 28px);
   }
 
   .hrn-booking__eyebrow {
@@ -61,7 +61,7 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--amber-300);
-    margin-bottom: 20px;
+    margin-bottom: 12px;
   }
 
   .hrn-booking__eyebrow svg {
@@ -72,21 +72,21 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
   .hrn-booking__header-main {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 16px;
     align-items: center;
   }
 
   @media (min-width: 860px) {
     .hrn-booking__header-main {
       grid-template-columns: 1.4fr 1fr;
-      gap: 48px;
+      gap: 36px;
       align-items: center;
     }
   }
 
   .hrn-booking h2 {
     color: var(--text-inverse);
-    font-size: clamp(2.1rem, 3.8vw, 3.2rem);
+    font-size: clamp(1.75rem, 3.2vw, 2.5rem);
     line-height: 1.08;
     letter-spacing: -0.025em;
     margin: 0;
@@ -95,8 +95,8 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
 
   .hrn-booking__lede {
     margin: 0;
-    font-size: clamp(1.05rem, 1.4vw, 1.25rem);
-    line-height: 1.55;
+    font-size: clamp(0.95rem, 1.2vw, 1.125rem);
+    line-height: 1.5;
     color: var(--ink-200);
     text-wrap: pretty;
   }
@@ -111,9 +111,11 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
 
   .hrn-booking__calendly {
     width: 100%;
-    height: 750px;
+    min-height: 650px;
+    height: 760px;
     border-radius: var(--radius-lg);
     overflow: hidden;
+    transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   @media (max-width: 768px) {
@@ -125,7 +127,8 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
   .hrn-booking__calendly :global(iframe) {
     width: 100% !important;
     height: 100% !important;
-    border: 0;
+    border: 0 !important;
+    overflow: hidden !important;
   }
 
   .hrn-booking__note {
@@ -170,7 +173,32 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
       '<p class="hrn-booking__note"><a href="https://calendly.com/herone/echange-decouverte-de-30-minutes" target="_blank" rel="noopener">Ouvrir le calendrier de réservation ↗</a></p>';
   }
 
+  function setupHeightListener() {
+    const w = window as any;
+    if (w.__calendlyHeightListenerAttached) return;
+    w.__calendlyHeightListenerAttached = true;
+
+    window.addEventListener('message', (e: MessageEvent) => {
+      if (e.data && e.data.event === 'calendly.page_height_changed') {
+        const el = document.querySelector<HTMLElement>('#calendly-embed');
+        if (el && e.data.payload && e.data.payload.height) {
+          const rawHeight = e.data.payload.height;
+          const heightNum = typeof rawHeight === 'number' ? rawHeight : parseInt(rawHeight, 10);
+          if (!isNaN(heightNum)) {
+            const isMobile = window.innerWidth <= 768;
+            // Hauteur minimale pour éviter que le panneau de gauche ne fasse apparaître d'ascenseur interne
+            const minH = isMobile ? 720 : 760;
+            const targetH = Math.max(heightNum, minH);
+            el.style.height = `${targetH}px`;
+          }
+        }
+      }
+    });
+  }
+
   function initCalendly() {
+    setupHeightListener();
+
     const el = document.querySelector<HTMLElement>('#calendly-embed');
     if (!el || el.dataset.inited) return;
 
@@ -182,6 +210,18 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
         clearTimeout(fallbackTimer);
         el.dataset.inited = '1';
         w.Calendly.initInlineWidget({ url: el.dataset.url, parentElement: el });
+        
+        // Empêcher les barres de défilement de l'iframe
+        const disableIframeScroll = () => {
+          const iframe = el.querySelector('iframe');
+          if (iframe) {
+            iframe.setAttribute('scrolling', 'no');
+            iframe.style.overflow = 'hidden';
+          }
+        };
+        disableIframeScroll();
+        setTimeout(disableIframeScroll, 300);
+        setTimeout(disableIframeScroll, 1000);
       })
       .catch(() => {
         clearTimeout(fallbackTimer);
