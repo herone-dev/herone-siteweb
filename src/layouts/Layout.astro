@@ -30,6 +30,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     </script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Preconnect pour améliorer le LCP / TBT des ressources tierces -->
+    <link rel="preconnect" href="https://assets.calendly.com" crossorigin />
+    <link rel="dns-prefetch" href="https://assets.calendly.com" />
+    <link rel="preconnect" href="https://calendly.com" crossorigin />
+
     <link rel="icon" type="image/png" href="/favicon-32x32.png" />
     <link rel="icon" type="image/jpg" href="/favicon.jpg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

@@ -354,6 +354,7 @@ const cards = [
       for (let i = 0; i <= maxIndex(); i++) {
         const dot = document.createElement('button');
         dot.type = 'button';
+        dot.setAttribute('role', 'tab');
         dot.setAttribute('aria-label', `Aller à la position ${i + 1}`);
         const fill = document.createElement('span');
         fill.className = 'hrn-constat__dot-fill';
