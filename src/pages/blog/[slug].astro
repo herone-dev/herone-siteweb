@@ -164,7 +164,11 @@ const dateLabel = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'sho
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 48px;
-    padding: 40px 0 clamp(56px, 8vw, 96px);
+    /* Pas de raccourci `padding` : il écraserait les marges latérales de
+       .hrn-section-inner, que cet élément porte aussi, et le texte de
+       l'article se collerait aux bords sur mobile. */
+    padding-top: 40px;
+    padding-bottom: clamp(56px, 8vw, 96px);
   }
 
   @media (min-width: 960px) {

@@ -1,10 +1,20 @@
+---
+// L'adresse renvoie vers la fiche du lieu sur Google Maps. L'URL est construite
+// ici plutôt qu'en dur dans l'attribut : le `&` d'un lien écrit dans le markup
+// devrait être échappé, et l'encodage des accents est fait proprement.
+const ADRESSE = '37 rue Édouard Branly, Les Herbiers 85500';
+const ADRESSE_MAPS =
+  'https://www.google.com/maps/search/?api=1&query=' +
+  encodeURIComponent('37 rue Edouard Branly, 85500 Les Herbiers');
+---
+
 <footer class="hrn-footer">
   <div class="hrn-footer__inner">
     <div class="hrn-footer__grid">
       <div class="hrn-footer__brand">
-        <a href="/#top" class="hrn-footer__logo hrn-sweep">HÉRONE</a>
+        <a href="/" class="hrn-footer__logo hrn-sweep">HÉRONE</a>
         <p>Systèmes automatisés et IA pour les TPE et PME de Vendée et du Choletais. Les Herbiers, Montaigu, Chantonnay, Pouzauges, Mortagne-sur-Sèvre, La Roche-sur-Yon, Cholet.</p>
-        <p class="hrn-footer__address">37 rue Édouard Branly, Les Herbiers 85500</p>
+        <a class="hrn-footer__address hrn-sweep" href={ADRESSE_MAPS} target="_blank" rel="noopener noreferrer">{ADRESSE}</a>
       </div>
 
       <div class="hrn-footer__col">
@@ -127,9 +137,17 @@
     color: var(--ink-300);
   }
 
+  /* L'adresse est un lien : la zone cliquable s'arrête au texte, comme le
+     logo, et non sur toute la largeur de la colonne. */
   .hrn-footer__address {
-    font-size: 14px !important;
-    color: var(--ink-300) !important;
+    align-self: flex-start;
+    font-size: 14px;
+    color: var(--ink-300);
+    text-decoration: none;
+  }
+
+  .hrn-footer__address.hrn-sweep {
+    --sweep-from: var(--ink-300);
   }
 
   .hrn-footer__col {
