@@ -74,6 +74,8 @@ const row2 = [
     display: flex;
     width: max-content;
     gap: 12px;
+    will-change: transform;
+    transform: translateZ(0);
   }
 
   .hrn-logos__track--left {
@@ -82,6 +84,15 @@ const row2 = [
 
   .hrn-logos__track--right {
     animation: hrn-marq-right 45s linear infinite;
+  }
+
+  @media (max-width: 768px) {
+    .hrn-logos__track--left {
+      animation-duration: 28s;
+    }
+    .hrn-logos__track--right {
+      animation-duration: 28s;
+    }
   }
 
   .hrn-logos__track span {

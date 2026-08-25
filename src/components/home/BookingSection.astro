@@ -111,16 +111,17 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
 
   .hrn-booking__calendly {
     width: 100%;
-    min-height: 650px;
+    min-height: 450px;
     height: 760px;
     border-radius: var(--radius-lg);
     overflow: hidden;
-    transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   @media (max-width: 768px) {
     .hrn-booking__calendly {
-      height: 980px;
+      height: 700px;
+      min-height: 420px;
     }
   }
 
@@ -185,9 +186,8 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
           const rawHeight = e.data.payload.height;
           const heightNum = typeof rawHeight === 'number' ? rawHeight : parseInt(rawHeight, 10);
           if (!isNaN(heightNum)) {
-            const isMobile = window.innerWidth <= 768;
-            // Hauteur minimale pour éviter que le panneau de gauche ne fasse apparaître d'ascenseur interne
-            const minH = isMobile ? 720 : 760;
+            // Hauteur minimale pour éviter le décalage sur mobile tout en conservant le bureau net
+            const minH = isMobile ? 420 : 760;
             const targetH = Math.max(heightNum, minH);
             el.style.height = `${targetH}px`;
           }

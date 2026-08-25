@@ -4,7 +4,7 @@
 
 ## À propos d'Hérone
 
-Fondée par Nolan Genty et Martin Talon, Hérone est une entreprise spécialisée dans le diagnostic et l'installation de systèmes automatisés intelligents. Basée aux Herbiers (85500), Hérone intervient directement au sein des entreprises pour libérer les dirigeants et leurs équipes des tâches manuelles répétitives, chronophages et à faible valeur ajoutée.
+Fondée par Martin Talon et Nolan Genty, Hérone est une entreprise spécialisée dans le diagnostic et l'installation de systèmes automatisés intelligents. Basée aux Herbiers (85500), Hérone intervient directement au sein des entreprises pour libérer les dirigeants et leurs équipes des tâches manuelles répétitives, chronophages et à faible valeur ajoutée.
 
 Notre philosophie repose sur trois piliers :
 1. **Sans changer vos logiciels** : Nous ne vous imposons aucun nouvel outil complexe. Nous connectons et automatisons les logiciels que vous utilisez déjà au quotidien (CRM, ERP, boîtes mails, comptabilité, Excel, Google Sheets, etc.).
@@ -65,7 +65,7 @@ Nous intervenons sur place dans les communes et secteurs suivants :
 ## Informations de contact et légales
 
 - **Société** : Hérone (SARL)
-- **Gérants** : Nolan Genty & Martin Talon
+- **Gérants** : Martin Talon & Nolan Genty
 - **Adresse** : 37 rue Édouard Branly, 85500 Les Herbiers, Vendée, France
 - **Téléphone** : +33 6 63 71 05 98
 - **E-mail** : contact@herone.fr
