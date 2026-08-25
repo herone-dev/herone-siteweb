@@ -10,8 +10,9 @@
 // centralisées dans le tableau `offers` puis bouclées dans le markup, comme
 // dans MethodSection.astro et ConvictionSection.astro.
 //
-// Typographie des prix : espaces insécables (U+00A0) avant le symbole euro et
-// comme séparateur de milliers. Le prix est en `white-space: nowrap` pour ne
+// Typographie des prix : espace insécable (U+00A0) avant le symbole euro, et
+// espace FINE insécable (U+202F) comme séparateur de milliers. L'insécable
+// classique écartait trop le chiffre des milliers de celui des centaines. Le prix est en `white-space: nowrap` pour ne
 // jamais casser au milieu ; l'offre 3 est découpée en deux segments
 // insécables (montant d'installation / mensualité) afin de rester lisibles sur
 // mobile. La liaison entre les deux segments n'est jamais mise dans la donnée :
@@ -39,7 +40,7 @@ const offers = [
   {
     num: '02',
     title: 'Diagnostic IA et automatisation',
-    price: '800 à 1 500 €',
+    price: '800 à 1 500 €',
     priceExtra: null,
     pitch: 'On vous dit où part votre temps, et ce que vaut chaque piste.',
     points: [
@@ -51,7 +52,7 @@ const offers = [
   {
     num: '03',
     title: 'Automatisation à prix fixe',
-    price: '500 à 2 500 €',
+    price: '500 à 2 500 €',
     priceExtra: 'puis 100 à 150 € par mois',
     pitch: 'Vos logiciels se parlent. Plus aucune ressaisie.',
     points: [
@@ -63,7 +64,7 @@ const offers = [
   {
     num: '04',
     title: 'Du rendez-vous au compte rendu',
-    price: '1 500 à 2 500 €',
+    price: '1 500 à 2 500 €',
     priceExtra: null,
     pitch: 'Votre rendez-vous devient un compte rendu envoyé, sans rien taper.',
     points: [
@@ -103,7 +104,7 @@ const offers = [
       ))}
     </ul>
 
-    <p class="hrn-offers__guard">Aucune prestation au-dessus de 3 000 €.</p>
+    <p class="hrn-offers__guard">Aucune prestation au-dessus de 3 000 €. Des tarifs volontairement accessibles : nous voulons nous faire connaître vite dans la région.</p>
 
     <p class="hrn-offers__pivot">
       <a href="#reserver">Vous ne savez pas quelle offre vous correspond ? Trente minutes d'échange, gratuit et sans engagement.</a>

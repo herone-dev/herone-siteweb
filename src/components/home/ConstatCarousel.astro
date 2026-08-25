@@ -150,6 +150,38 @@ const cards = [
     overflow: hidden;
   }
 
+  /* Sous 820px, le carrousel passe en défilement natif : le doigt suit la
+     vignette au pixel près et l'inertie du système s'applique, ce qu'un
+     glissement simulé en JS ne reproduit jamais correctement. Les flèches, les
+     puces et le défilement automatique continuent de fonctionner, mais pilotent
+     scrollLeft au lieu du translate. `transform: none !important` neutralise le
+     translate laissé par le mode bureau : une déclaration !important d'une
+     feuille de style l'emporte sur le style inline posé par le script. */
+  @media (max-width: 819px) {
+    .hrn-constat__viewport {
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .hrn-constat__viewport::-webkit-scrollbar {
+      display: none;
+    }
+
+    .hrn-constat__track {
+      transform: none !important;
+      transition: none;
+      will-change: auto;
+    }
+
+    .hrn-constat__card {
+      scroll-snap-align: start;
+    }
+  }
+
   .hrn-constat__track {
     display: flex;
     gap: 16px;
@@ -308,6 +340,10 @@ const cards = [
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let progress: Animation | undefined; // barre de la puce courante = horloge du défilement
 
+    // Sous 820px on laisse le navigateur défiler nativement (glissement du
+    // doigt + inertie) ; au-dessus, on translate la piste.
+    const swipeMode = () => window.matchMedia('(max-width: 819px)').matches;
+
     // Nombre de cartes visibles à la fois, et donc nombre de positions
     // possibles en avançant d'une carte : maxIndex = cardCount - perView.
     const perView = () => (window.matchMedia('(min-width: 820px)').matches ? 3 : 1);
@@ -327,15 +363,13 @@ const cards = [
       }
     };
 
-    const render = () => {
+    // Puces et flèches. Séparé du déplacement : un glissement au doigt met à
+    // jour l'état sans qu'on ait à redéplacer la piste sous le doigt.
+    const paint = () => {
       const max = maxIndex();
-      if (index > max) index = max;
-      // Décalage réel de la carte cible (gère largeurs + gap, desktop/mobile).
-      const offset = cards[index].offsetLeft - cards[0].offsetLeft;
-      track.style.transform = `translateX(-${offset}px)`;
       prevBtn.disabled = index === 0;
       nextBtn.disabled = index === max;
-      // Puces : les passées sont pleines, les suivantes vides. La courante part
+      // Les puces passées sont pleines, les suivantes vides. La courante part
       // vide (sa barre sera animée) — ou pleine en mode reduced-motion.
       [...dotsEl.children].forEach((dot, i) => {
         dot.setAttribute('aria-current', String(i === index));
@@ -345,6 +379,30 @@ const cards = [
         const filled = i < index || (i === index && reduce);
         fill.style.transform = filled ? 'scaleX(1)' : 'scaleX(0)';
       });
+    };
+
+    // Un défilement déclenché par le code ne doit pas être confondu avec un
+    // glissement de l'utilisateur, sinon le chrono se relancerait en boucle.
+    let programmatic = false;
+    let guardTimer: ReturnType<typeof setTimeout>;
+
+    const move = (smooth = true) => {
+      const offset = cards[index].offsetLeft - cards[0].offsetLeft;
+      if (swipeMode()) {
+        programmatic = true;
+        viewport.scrollTo({ left: offset, behavior: smooth && !reduce ? 'smooth' : 'auto' });
+        clearTimeout(guardTimer);
+        guardTimer = setTimeout(() => { programmatic = false; }, 700);
+      } else {
+        track.style.transform = `translateX(-${offset}px)`;
+      }
+    };
+
+    const render = (smooth = true) => {
+      const max = maxIndex();
+      if (index > max) index = max;
+      move(smooth);
+      paint();
     };
 
     const goTo = (i: number) => {
@@ -381,9 +439,42 @@ const cards = [
     prevBtn.addEventListener('click', () => { goTo(index - 1); restartAuto(); }, { signal });
     nextBtn.addEventListener('click', () => { goTo(index + 1); restartAuto(); }, { signal });
 
+    // Glissement au doigt : on lit la position d'arrêt et on aligne l'état.
+    const nearestIndex = () => {
+      const base = cards[0].offsetLeft;
+      let best = 0;
+      let bestDistance = Infinity;
+      cards.forEach((card, i) => {
+        const distance = Math.abs(card.offsetLeft - base - viewport.scrollLeft);
+        if (distance < bestDistance) { bestDistance = distance; best = i; }
+      });
+      return Math.min(maxIndex(), best);
+    };
+
+    let scrollTimer: ReturnType<typeof setTimeout>;
+    viewport.addEventListener(
+      'scroll',
+      () => {
+        if (!swipeMode()) return;
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(() => {
+          if (programmatic) return; // c'est nous qui avons défilé
+          const next = nearestIndex();
+          if (next === index) return;
+          index = next;
+          paint();     // pas de move() : la vignette est déjà en place
+          startAuto(); // un glissement manuel relance le chrono, comme une flèche
+        }, 120);
+      },
+      { signal, passive: true }
+    );
+
     // Pause au survol / focus clavier, et quand l'onglet passe en arrière-plan.
     viewport.addEventListener('pointerenter', pauseAuto, { signal });
     viewport.addEventListener('pointerleave', resumeAuto, { signal });
+    // Sur tactile, un geste interrompu n'émet pas toujours pointerleave : sans
+    // ce filet, le chrono resterait en pause indéfiniment.
+    viewport.addEventListener('pointercancel', resumeAuto, { signal });
     viewport.addEventListener('focusin', pauseAuto, { signal });
     viewport.addEventListener('focusout', resumeAuto, { signal });
     document.addEventListener(
@@ -394,17 +485,34 @@ const cards = [
     signal.addEventListener('abort', () => progress?.cancel());
 
     buildDots();
-    render();
+    render(false);
     startAuto();
 
+    // Sur mobile, l'apparition et le masquage de la barre d'adresse émettent un
+    // `resize` alors que seule la hauteur change. L'ancien gestionnaire y
+    // relançait startAuto() : la barre de progression repartait à zéro à chaque
+    // défilement de la page. On ne réagit donc qu'aux changements de LARGEUR.
+    let lastWidth = window.innerWidth;
+    let lastPerView = perView();
     let resizeTimer: ReturnType<typeof setTimeout>;
     window.addEventListener(
       'resize',
       () => {
+        if (window.innerWidth === lastWidth) return;
+        lastWidth = window.innerWidth;
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
-          buildDots();
-          render();
+          const nextPerView = perView();
+          const modeChanged = nextPerView !== lastPerView;
+          lastPerView = nextPerView;
+          if (modeChanged) {
+            // On quitte ou on rejoint le défilement natif : les deux modes ne
+            // se positionnent pas pareil, on remet le viewport à plat.
+            viewport.scrollLeft = 0;
+            index = 0;
+            buildDots();
+          }
+          render(false);
           startAuto();
         }, 150);
       },
@@ -413,4 +521,5 @@ const cards = [
   }
 
   document.addEventListener('astro:page-load', initConstat);
+  document.addEventListener('astro:before-swap', () => ac?.abort());
 </script>

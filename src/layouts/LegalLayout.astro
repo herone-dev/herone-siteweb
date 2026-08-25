@@ -20,8 +20,12 @@ const { title, description } = Astro.props;
 </Layout>
 
 <style>
+  /* padding-top/bottom et non le raccourci `padding` : cet élément porte aussi
+     .hrn-section-inner, dont les marges latérales étaient écrasées par le
+     raccourci. Le texte se collait alors aux bords de l'écran sur mobile. */
   .hrn-legal {
-    padding: 128px 0 clamp(56px, 8vw, 96px);
+    padding-top: 128px;
+    padding-bottom: clamp(56px, 8vw, 96px);
     max-width: var(--container-prose);
   }
 
