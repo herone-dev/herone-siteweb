@@ -6,50 +6,132 @@ import temoignagePoster from '../../assets/images/posters/temoignage-poster.jpg'
 
 <section id="temoignage" class="hrn-proof">
   <div class="hrn-section-inner">
-    <div class="hrn-eyebrow">Témoignage</div>
+    <div class="hrn-eyebrow">Témoignages</div>
 
-    <div class="hrn-proof__grid">
-    <div class="hrn-proof__text">
-      <blockquote>
-        « Le rendez-vous est enregistré, la fiche client arrive remplie en PDF, prête à envoyer. On choisit qui s'en occupe, le mail part. On ne ressaisit plus rien. »
-      </blockquote>
+    <!-- Slider wrapper -->
+    <div class="hrn-proof__slider" id="proof-slider" aria-label="Témoignages clients" aria-roledescription="carousel">
 
-      <ol class="hrn-proof__flow" role="list">
-        <li>Rendez-vous enregistré</li>
-        <li>Transcription + fiche PDF</li>
-        <li>Attribution et envoi</li>
-      </ol>
+      <!-- ── SLIDE 1 : Tommy & Audrey Rapin ── -->
+      <div class="hrn-proof__slide is-active" role="group" aria-roledescription="slide" aria-label="1 sur 2">
+        <div class="hrn-proof__grid">
+          <div class="hrn-proof__text">
+            <blockquote>
+              « Le rendez-vous est enregistré, la fiche client arrive remplie en PDF, prête à envoyer. On choisit qui s'en occupe, le mail part. On ne ressaisit plus rien. »
+            </blockquote>
 
-      <div class="hrn-proof__author">
-        <div class="hrn-proof__avatar">
-          <Image src={proofRapin} alt="Tommy et Audrey Rapin" width={96} height={96} />
-        </div>
-        <div>
-          <strong>Tommy et Audrey Rapin</strong>
-          <span>Agence Allianz des Herbiers · 9 personnes</span>
+            <ol class="hrn-proof__flow" role="list">
+              <li>Rendez-vous enregistré</li>
+              <li>Transcription + fiche PDF</li>
+              <li>Attribution et envoi</li>
+            </ol>
+
+            <div class="hrn-proof__author">
+              <div class="hrn-proof__avatar">
+                <Image src={proofRapin} alt="Tommy et Audrey Rapin" width={96} height={96} />
+              </div>
+              <div>
+                <strong>Tommy et Audrey Rapin</strong>
+                <span>Agence Allianz des Herbiers · 9 personnes</span>
+              </div>
+            </div>
+
+            <div class="hrn-proof__badge">
+              <strong>0 saisie</strong>
+              <span>par rendez-vous, compte rendu et fiche client automatisés</span>
+            </div>
+          </div>
+
+          <div class="hrn-proof__video" data-youtube-id="v4twsQsrw4E">
+            <Picture
+              src={temoignagePoster}
+              formats={['avif', 'webp']}
+              widths={[400, 800]}
+              sizes="(max-width: 768px) 100vw, 50vw"
+              alt="Témoignage vidéo de l'agence Allianz des Herbiers"
+              class="hrn-proof__poster"
+            />
+            <button type="button" class="hrn-proof__play" aria-label="Lire le témoignage vidéo de Tommy et Audrey Rapin">
+              <span><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="hrn-proof__badge">
-        <strong>0 saisie</strong>
-        <span>par rendez-vous, compte rendu et fiche client automatisés</span>
-      </div>
-    </div>
+      <!-- ── SLIDE 2 : Lilian Gauthier – Lixogo ── -->
+      <div class="hrn-proof__slide" role="group" aria-roledescription="slide" aria-label="2 sur 2">
+        <div class="hrn-proof__grid">
+          <div class="hrn-proof__text">
+            <blockquote>
+              « Les stats publicitaires sont récupérées, l'IA génère le rapport complet. Le client reçoit son PDF par mail, automatiquement, chaque début de mois. »
+            </blockquote>
 
-    <div class="hrn-proof__video" id="proof-video-wrapper" data-youtube-id="v4twsQsrw4E">
-      <Picture
-        src={temoignagePoster}
-        formats={['avif', 'webp']}
-        widths={[400, 800]}
-        sizes="(max-width: 768px) 100vw, 50vw"
-        alt="Témoignage vidéo de l'agence Allianz des Herbiers"
-        class="hrn-proof__poster"
-      />
-      <button type="button" id="proof-play" class="hrn-proof__play" aria-label="Lire le témoignage vidéo">
-        <span><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
+            <ol class="hrn-proof__flow" role="list">
+              <li>Données récupérées</li>
+              <li>Rapport généré par l'IA</li>
+              <li>PDF envoyé par mail</li>
+            </ol>
+
+            <div class="hrn-proof__author">
+              <div class="hrn-proof__avatar hrn-proof__avatar--initials" aria-hidden="true">
+                <span>LG</span>
+              </div>
+              <div>
+                <strong>Lilian Gauthier</strong>
+                <span>Agence Lixogo · La Rochelle · 7 personnes</span>
+              </div>
+            </div>
+
+            <div class="hrn-proof__badge">
+              <strong>1 rapport</strong>
+              <span>généré et envoyé automatiquement chaque mois par client</span>
+            </div>
+          </div>
+
+          <div class="hrn-proof__video" data-youtube-id="gGe3-iVTSZI">
+            <div class="hrn-proof__poster-placeholder" aria-hidden="true"></div>
+            <button type="button" class="hrn-proof__play" aria-label="Lire le témoignage vidéo de Lixogo">
+              <span><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+    </div><!-- /.hrn-proof__slider -->
+
+    <!-- Navigation -->
+    <div class="hrn-proof__nav" aria-label="Navigation entre les témoignages">
+      <button
+        type="button"
+        id="proof-prev"
+        class="hrn-proof__nav-btn"
+        aria-label="Témoignage précédent"
+        aria-controls="proof-slider"
+        disabled
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+
+      <div class="hrn-proof__dots" role="tablist" aria-label="Témoignages">
+        <button role="tab" type="button" class="hrn-proof__dot is-active" data-index="0" aria-selected="true" aria-label="Témoignage 1 : Tommy et Audrey Rapin"></button>
+        <button role="tab" type="button" class="hrn-proof__dot" data-index="1" aria-selected="false" aria-label="Témoignage 2 : Lilian Gauthier – Lixogo"></button>
+      </div>
+
+      <button
+        type="button"
+        id="proof-next"
+        class="hrn-proof__nav-btn"
+        aria-label="Témoignage suivant"
+        aria-controls="proof-slider"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
       </button>
     </div>
-    </div>
+
   </div>
 </section>
 
@@ -65,12 +147,65 @@ import temoignagePoster from '../../assets/images/posters/temoignage-poster.jpg'
     color: var(--amber-300);
   }
 
+  /* ── Slider ── */
+  /* ── Slider : slide 1 (Tommy) définit la hauteur, slide 2+ en absolu ──
+     Le slide 1 reste dans le flux normal → il définit toujours la hauteur du
+     conteneur. Les slides 2+ sont toujours en position: absolute, ils ne
+     décalent jamais la mise en page. */
+  .hrn-proof__slider {
+    position: relative;
+    overflow: hidden;
+    margin-top: 28px;
+  }
+
+  /* Tous les slides : invisibles par défaut */
+  .hrn-proof__slide {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.32s var(--ease-standard), visibility 0.32s var(--ease-standard);
+  }
+
+  /* Slide 1 : dans le flux → définit la hauteur de la section */
+  .hrn-proof__slide:nth-child(1) {
+    /* position: static (défaut) — contribue à la hauteur du parent */
+  }
+
+  /* Slide 2+ : toujours en absolu → ne changent jamais la hauteur */
+  .hrn-proof__slide:nth-child(n+2) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+  }
+
+  /* Slide actif */
+  .hrn-proof__slide.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    animation: hrn-slide-in 0.38s var(--ease-standard) both;
+  }
+
+  /* Slide sortant */
+  .hrn-proof__slide.is-leaving {
+    animation: hrn-slide-out 0.28s var(--ease-standard) forwards;
+    pointer-events: none;
+  }
+
+  @keyframes hrn-slide-in {
+    from { opacity: 0; transform: translateX(32px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes hrn-slide-out {
+    to { opacity: 0; transform: translateX(-32px); }
+  }
+
   .hrn-proof__grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
     gap: clamp(28px, 5vw, 64px);
     align-items: center;
-    margin-top: 28px;
   }
 
   .hrn-proof blockquote {
@@ -133,6 +268,21 @@ import temoignagePoster from '../../assets/images/posters/temoignage-poster.jpg'
     object-fit: cover;
   }
 
+  /* Avatar initiales pour Lixogo */
+  .hrn-proof__avatar--initials {
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #b45309, #d97706);
+  }
+
+  .hrn-proof__avatar--initials span {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15px;
+    color: #fff;
+    letter-spacing: 0.02em;
+  }
+
   .hrn-proof__author strong {
     display: block;
     font-weight: 600;
@@ -172,6 +322,7 @@ import temoignagePoster from '../../assets/images/posters/temoignage-poster.jpg'
     color: var(--ink-200);
   }
 
+  /* ── Vidéo ── */
   .hrn-proof__video {
     position: relative;
     aspect-ratio: 16 / 9;
@@ -197,9 +348,30 @@ import temoignagePoster from '../../assets/images/posters/temoignage-poster.jpg'
     border: 0;
   }
 
+  /* Placeholder pour la vidéo Lixogo (avant poster réel) */
+  .hrn-proof__poster-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--ink-400);
+    background: var(--slate-800);
+    transition: opacity var(--dur) var(--ease-standard), visibility var(--dur) var(--ease-standard);
+  }
+
+  .hrn-proof__poster-placeholder span {
+    font-size: 13px;
+    font-family: var(--font-mono);
+    color: var(--ink-400);
+  }
+
   /* `visibility: hidden` en plus de l'opacité : sans elle, le bouton de lecture
      invisible resterait dans l'ordre de tabulation (WCAG 2.4.3 / 2.4.7). */
   .hrn-proof__video.is-playing img,
+  .hrn-proof__video.is-playing .hrn-proof__poster-placeholder,
   .hrn-proof__video.is-playing .hrn-proof__play {
     opacity: 0;
     visibility: hidden;
@@ -232,6 +404,63 @@ import temoignagePoster from '../../assets/images/posters/temoignage-poster.jpg'
   .hrn-proof__play:hover span {
     transform: scale(1.06);
   }
+
+  /* ── Navigation ── */
+  .hrn-proof__nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  .hrn-proof__nav-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border-inverse);
+    background: color-mix(in srgb, #fff 6%, transparent);
+    color: var(--ink-200);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition:
+      background var(--dur) var(--ease-standard),
+      color var(--dur) var(--ease-standard),
+      opacity var(--dur) var(--ease-standard);
+  }
+
+  .hrn-proof__nav-btn:hover:not(:disabled) {
+    background: color-mix(in srgb, #fff 14%, transparent);
+    color: var(--text-inverse);
+  }
+
+  .hrn-proof__nav-btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  .hrn-proof__dots {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .hrn-proof__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    background: color-mix(in srgb, #fff 25%, transparent);
+    cursor: pointer;
+    transition: background var(--dur) var(--ease-standard), transform var(--dur) var(--ease-standard);
+  }
+
+  .hrn-proof__dot.is-active {
+    background: var(--amber-300);
+    transform: scale(1.3);
+  }
 </style>
 
 <script>
@@ -242,32 +471,101 @@ import temoignagePoster from '../../assets/images/posters/temoignage-poster.jpg'
     ac = new AbortController();
     const { signal } = ac;
 
-    const wrapper = document.querySelector<HTMLElement>('#proof-video-wrapper');
-    const playBtn = document.querySelector<HTMLButtonElement>('#proof-play');
-    if (!wrapper || !playBtn) return;
+    const slides  = Array.from(document.querySelectorAll<HTMLElement>('.hrn-proof__slide'));
+    const dots    = Array.from(document.querySelectorAll<HTMLButtonElement>('.hrn-proof__dot'));
+    const prevBtn = document.querySelector<HTMLButtonElement>('#proof-prev');
+    const nextBtn = document.querySelector<HTMLButtonElement>('#proof-next');
+    const slider  = document.querySelector<HTMLElement>('#proof-slider');
 
-    const youtubeId = wrapper.dataset.youtubeId;
-    if (!youtubeId) return;
+    let current = 0;
+    const total = slides.length;
 
-    playBtn.addEventListener(
-      'click',
-      () => {
+    // ── Hauteur du slider = hauteur du slide le plus grand ──────────────────
+    // On clone chaque slide en position statique (invisible) pour le mesurer,
+    // puis on retire le clone. Pas de flash, pas de re-layout visible.
+    function lockSliderHeight() {
+      if (!slider) return;
+      let maxH = 0;
+      slides.forEach(slide => {
+        const clone = slide.cloneNode(true) as HTMLElement;
+        clone.style.cssText =
+          'position:static!important;opacity:0!important;visibility:hidden!important;' +
+          'pointer-events:none!important;animation:none!important;';
+        slider.appendChild(clone);
+        maxH = Math.max(maxH, clone.offsetHeight);
+        slider.removeChild(clone);
+      });
+      if (maxH > 0) slider.style.minHeight = maxH + 'px';
+    }
+
+    lockSliderHeight();
+
+    // Recalcul si la fenêtre est redimensionnée (responsive)
+    const ro = new ResizeObserver(() => {
+      slider!.style.minHeight = '0';
+      lockSliderHeight();
+    });
+    if (slider) ro.observe(slider);
+    signal.addEventListener('abort', () => ro.disconnect());
+
+    // ── Navigation ──────────────────────────────────────────────────────────
+    function goTo(index: number) {
+      if (index === current || index < 0 || index >= total) return;
+
+      const leaving = slides[current];
+      leaving.classList.add('is-leaving');
+      leaving.addEventListener('animationend', () => {
+        leaving.classList.remove('is-active', 'is-leaving');
+      }, { once: true });
+
+      current = index;
+      slides[current].classList.add('is-active');
+
+      dots.forEach((d, i) => {
+        d.classList.toggle('is-active', i === current);
+        d.setAttribute('aria-selected', i === current ? 'true' : 'false');
+      });
+
+      if (prevBtn) prevBtn.disabled = current === 0;
+      if (nextBtn) nextBtn.disabled = current === total - 1;
+    }
+
+    prevBtn?.addEventListener('click', () => goTo(current - 1), { signal });
+    nextBtn?.addEventListener('click', () => goTo(current + 1), { signal });
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => goTo(i), { signal });
+    });
+
+    // Swipe tactile
+    let touchStartX = 0;
+    slider?.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    }, { signal, passive: true });
+    slider?.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 50) {
+        if (dx < 0 && current < total - 1) goTo(current + 1);
+        if (dx > 0 && current > 0)         goTo(current - 1);
+      }
+    }, { signal });
+
+    // Lecture vidéo
+    document.querySelectorAll<HTMLElement>('.hrn-proof__video').forEach((wrapper) => {
+      const playBtn   = wrapper.querySelector<HTMLButtonElement>('.hrn-proof__play');
+      const youtubeId = wrapper.dataset.youtubeId;
+      if (!playBtn || !youtubeId || youtubeId === 'LIXOGO_YOUTUBE_ID') return;
+
+      playBtn.addEventListener('click', () => {
         const iframe = document.createElement('iframe');
         iframe.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`;
         iframe.title = 'Témoignage vidéo';
         iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
         iframe.allowFullscreen = true;
-        // Styles inline car l'iframe dynamique n'a pas le scope Astro
-        iframe.style.position = 'absolute';
-        iframe.style.inset = '0';
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        iframe.style.border = 'none';
+        iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
         wrapper.appendChild(iframe);
         wrapper.classList.add('is-playing');
-      },
-      { signal, once: true }
-    );
+      }, { signal, once: true });
+    });
   }
 
   document.addEventListener('astro:page-load', initProof);
