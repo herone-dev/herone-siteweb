@@ -159,5 +159,57 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     </main>
     <Footer />
     <CookieBanner />
+
+    <script>
+      // Défilement des ancres de la même page, pris en charge à un seul
+      // endroit pour que tous les liens y menant se comportent exactement
+      // pareil : le bouton « Réserver 30 minutes » de l'en-tête, celui des
+      // cartes d'offres, la phrase sous les offres, les entrées du menu.
+      //
+      // Le navigateur seul ne suffisait pas : un lien vers une ancre déjà
+      // active ne déclenche aucun défilement, il estime qu'il n'y a rien à
+      // faire. Après un premier clic vers #reserver, les suivants semblaient
+      // donc morts. scrollIntoView respecte scroll-margin-top, l'arrivée est
+      // donc la même que celle du navigateur : sous le header.
+      let ancres: AbortController | undefined;
+
+      function teardownAncres() {
+        ancres?.abort();
+        ancres = undefined;
+      }
+
+      function initAncres() {
+        teardownAncres();
+        ancres = new AbortController();
+
+        const doux = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        document.addEventListener('click', (event) => {
+          if (event.defaultPrevented || event.button !== 0) return;
+          if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+          const lien = (event.target as Element | null)?.closest?.('a[href]');
+          if (!(lien instanceof HTMLAnchorElement)) return;
+          if (lien.target && lien.target !== '_self') return;
+
+          // Même page ? On compare chemin et origine, pour laisser passer les
+          // liens vers une autre page qui portent une ancre.
+          const url = new URL(lien.href, location.href);
+          if (url.origin !== location.origin || url.pathname !== location.pathname) return;
+          if (!url.hash || url.hash === '#') return;
+
+          const cible = document.querySelector(url.hash);
+          if (!cible) return;
+
+          event.preventDefault();
+          cible.scrollIntoView({ behavior: doux ? 'smooth' : 'auto', block: 'start' });
+          // L'adresse suit, sans ajouter d'entrée dans l'historique à chaque clic.
+          history.replaceState(history.state, '', url.hash);
+        }, { signal: ancres.signal });
+      }
+
+      document.addEventListener('astro:page-load', initAncres);
+      document.addEventListener('astro:before-swap', teardownAncres);
+    </script>
   </body>
 </html>

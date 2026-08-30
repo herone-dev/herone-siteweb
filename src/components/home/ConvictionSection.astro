@@ -74,14 +74,22 @@ const items = [
     opacity: 0;
     transform: translateY(26px);
     transition:
-      opacity 520ms var(--ease-out),
-      transform 520ms var(--ease-out);
-    transition-delay: calc(var(--i, 0) * 160ms);
+      opacity 620ms var(--ease-out),
+      transform 620ms var(--ease-out);
+    transition-delay: calc(var(--i, 0) * 340ms);
   }
 
   .hrn-conviction__grid.reveals .hrn-conviction__item.is-visible {
     opacity: 1;
     transform: none;
+  }
+
+  /* Réarmement : quand on remonte au-dessus de la section, les blocs
+     reviennent à leur état masqué sans transition, pour que la séquence
+     reparte du début à la descente suivante au lieu de se rejouer à
+     l'envers. */
+  .hrn-conviction__grid.reveals.is-rearmed .hrn-conviction__item {
+    transition: none;
   }
 </style>
 
@@ -110,19 +118,30 @@ const items = [
     // délai, ce qui garde l'ordre premier, deuxième, troisième même quand les
     // trois entrent dans l'écran en même temps.
     //
-    // Le bord bas de la zone d'observation est remonté à 70% de la fenêtre :
+    // Le bord bas de la zone d'observation est remonté à 60% de la fenêtre :
     // sans cela la séquence partait alors que la grille affleurait à peine en
     // bas de l'écran, et elle était terminée avant que le visiteur ne l'ait
     // sous les yeux.
+    //
+    // L'observateur reste branché : la séquence se rejoue à chaque fois qu'on
+    // redescend sur la section, comme le compteur des prix.
     io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          for (const item of items) item.classList.add('is-visible');
-          io?.disconnect();
+          if (entry.isIntersecting) {
+            grid.classList.remove('is-rearmed');
+            for (const item of items) item.classList.add('is-visible');
+          } else if (entry.boundingClientRect.top > 0) {
+            // La section est repassée SOUS la fenêtre : le visiteur est
+            // remonté au-dessus. On remet à zéro pour rejouer la séquence à
+            // la prochaine descente. Une sortie par le haut, elle, ne
+            // réarme rien : on l'a déjà vue.
+            grid.classList.add('is-rearmed');
+            for (const item of items) item.classList.remove('is-visible');
+          }
         }
       },
-      { threshold: 0, rootMargin: '0px 0px -30% 0px' }
+      { threshold: 0, rootMargin: '0px 0px -40% 0px' }
     );
 
     io.observe(grid);

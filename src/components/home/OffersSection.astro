@@ -887,23 +887,6 @@ const offers = [
       else if (event.key === 'ArrowLeft') { event.preventDefault(); aller(actif - 1); }
     }, { signal });
 
-    // Un lien vers une ancre déjà active ne provoque aucun défilement : le
-    // navigateur estime qu'il n'y a rien à faire. Après un premier clic sur
-    // « Réserver 30 minutes », les liens suivants vers #reserver semblaient
-    // donc morts. On refait le défilement nous-mêmes dans ce seul cas.
-    const versReservation = [
-      ...document.querySelectorAll<HTMLAnchorElement>('.hrn-offers a[href="#reserver"]'),
-    ];
-    for (const lien of versReservation) {
-      lien.addEventListener('click', (event) => {
-        if (location.hash !== '#reserver') return; // le navigateur s'en charge
-        const cible = document.getElementById('reserver');
-        if (!cible) return;
-        event.preventDefault();
-        cible.scrollIntoView({ behavior: reduit ? 'auto' : 'smooth', block: 'start' });
-      }, { signal });
-    }
-
     // Sur mobile, l'apparition de la barre d'adresse émet un resize alors que
     // seule la HAUTEUR change. On ne réagit donc qu'aux changements de largeur.
     derniereLargeur = window.innerWidth;
