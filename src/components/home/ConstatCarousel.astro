@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import constatRessaisie from '../../assets/images/constat-ressaisie.webp';
 import constatDevis from '../../assets/images/constat-devis.webp';
 import constatComptes from '../../assets/images/constat-comptes.webp';
@@ -7,48 +7,74 @@ import constatReporting from '../../assets/images/constat-reporting.webp';
 import constatDocuments from '../../assets/images/constat-documents.webp';
 import constatMails from '../../assets/images/constat-mails.webp';
 
-const cards = [
+// Section « Le constat » : six tâches faites à la main, en grands panneaux
+// qui défilent horizontalement.
+//
+// Mise en page issue d'un handoff Claude Design (« Section constat - Apple »).
+// Le design y était écrit pour le moteur de Claude Design (DCLogic, sc-for,
+// interpolation) : il est porté ici en Astro + JavaScript natif, sans
+// dépendance. Les tokens du design system sont les mêmes que ceux du repo.
+//
+// Le design pose des emplacements d'image vides (« Photo terrain ») dont les
+// identifiants reprennent exactement les six visuels déjà présents dans le
+// repo : ce sont eux qui sont branchés.
+//
+// Écarts assumés par rapport au fichier de design, et pourquoi :
+//
+//  1. Les panneaux sont en 16/10. À cette proportion, sur un écran étroit, le
+//     titre et le texte posés par-dessus débordaient du panneau. La proportion
+//     passe donc en 4/5 sous 760px, où la place manque en largeur mais pas en
+//     hauteur.
+//  2. Le design écoute les flèches du clavier sur `window`, ce qui les
+//     confisquerait à toute la page. L'écoute est posée sur la section.
+//  3. Le padding vertical passe par --section-y : dans ce projet, aucune
+//     section ne code son rythme en dur.
+//  4. color-mix() est remplacé par des rgba() équivalentes.
+//
+// Écart assumé aux conventions d'animation : la puce active s'élargit de 6 à
+// 34px, donc `width` est animée là où la règle est de n'animer que transform
+// et opacity. Sur six éléments de 6px dans une barre isolée, le coût est
+// négligeable, et le rendre en transform fausserait l'espacement des puces.
+//
+// Le défilement automatique de 6 secondes de la version précédente n'existe
+// plus : le design ne le prévoit pas. La navigation est au glissement, à la
+// molette horizontale, aux puces, aux flèches.
+const tasks = [
   {
-    id: 'constat-ressaisie',
     image: constatRessaisie,
-    tag: 'chaque jour',
+    badge: 'chaque jour',
     title: "Ressaisie d'un logiciel à l'autre",
-    text: "Les mêmes informations recopiées d'un outil à un autre, avec le risque d'erreur à chaque fois.",
+    body: "Les mêmes informations recopiées d'un outil à un autre, avec le risque d'erreur à chaque fois.",
   },
   {
-    id: 'constat-devis',
     image: constatDevis,
-    tag: 'à chaque variante',
+    badge: 'à chaque variante',
     title: 'Devis recalculés dans Excel',
-    text: "Des feuilles dupliquées, une formule oubliée, et la marge qui saute sans qu'on le voie.",
+    body: "Des feuilles dupliquées, une formule oubliée, et la marge qui saute sans qu'on le voie.",
   },
   {
-    id: 'constat-comptes',
     image: constatComptes,
-    tag: 'après chaque réunion',
+    badge: 'après chaque réunion',
     title: 'Comptes rendus retapés à la main',
-    text: "Une à deux heures de rédaction après le rendez-vous, et des détails qui filent.",
+    body: 'Une à deux heures de rédaction après le rendez-vous, et des détails qui filent.',
   },
   {
-    id: 'constat-reporting',
     image: constatReporting,
-    tag: 'chaque fin de mois',
+    badge: 'chaque fin de mois',
     title: 'Reporting mensuel refait',
-    text: "Une journée à rassembler des chiffres épars, prêts trop tard pour décider.",
+    body: 'Une journée à rassembler des chiffres épars, prêts trop tard pour décider.',
   },
   {
-    id: 'constat-documents',
     image: constatDocuments,
-    tag: 'dossier par dossier',
+    badge: 'dossier par dossier',
     title: 'Documents envoyés un par un',
-    text: "Le même envoi répété à la main, client après client, sans traçabilité.",
+    body: 'Le même envoi répété à la main, client après client, sans traçabilité.',
   },
   {
-    id: 'constat-mails',
     image: constatMails,
-    tag: 'au quotidien',
+    badge: 'au quotidien',
     title: 'Mails et pièces à trier',
-    text: "Des heures à ranger, transférer et classer ce qui arrive dans la boîte.",
+    body: 'Des heures à ranger, transférer et classer ce qui arrive dans la boîte.',
   },
 ];
 ---
@@ -57,38 +83,64 @@ const cards = [
   <div class="hrn-section-inner">
     <div class="hrn-eyebrow">Le constat</div>
     <h2>Ces tâches, quelqu'un les fait à la main chez vous</h2>
+    <p class="hrn-lede">Vous en reconnaissez au moins une dans votre entreprise.</p>
+  </div>
 
-    <div class="hrn-constat__head">
-      <p class="hrn-lede">Vous en reconnaissez au moins une dans votre entreprise.</p>
-      <div class="hrn-constat__arrows">
-        <button type="button" id="constat-prev" aria-label="Tâche précédente">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
-        </button>
-        <button type="button" id="constat-next" aria-label="Tâche suivante">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
-        </button>
-      </div>
-    </div>
-
-    <div class="hrn-constat__viewport" id="constat-viewport">
-      <div class="hrn-constat__track" id="constat-track">
-        {cards.map((card) => (
-          <div class="hrn-constat__card">
-            <div class="hrn-constat__thumb">
-              <Image src={card.image} alt={card.title} width={678} height={450} />
-              <span class="hrn-constat__badge">{card.tag}</span>
-            </div>
-            <div class="hrn-constat__body">
-              <h3>{card.title}</h3>
-              <p>{card.text}</p>
-            </div>
+  <div
+    class="hrn-constat__viewport"
+    id="constat-viewport"
+    aria-roledescription="carousel"
+    aria-label="Six tâches faites à la main"
+  >
+    <ul class="hrn-constat__track" id="constat-track" role="list">
+      {tasks.map((task, i) => (
+        <li
+          class="hrn-constat__panel"
+          role="group"
+          aria-roledescription="slide"
+          aria-label={`${i + 1} sur ${tasks.length} : ${task.title}`}
+        >
+          <Picture
+            src={task.image}
+            formats={['avif', 'webp']}
+            widths={[400, 678]}
+            sizes="(max-width: 760px) 80vw, 62vw"
+            alt=""
+            loading="lazy"
+            class="hrn-constat__photo"
+          />
+          <span class="hrn-constat__badge">{task.badge}</span>
+          <div class="hrn-constat__overlay">
+            <h3>{task.title}</h3>
+            <p>{task.body}</p>
           </div>
-        ))}
-      </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <div class="hrn-section-inner hrn-constat__controls">
+    <div class="hrn-constat__dots" id="constat-dots">
+      {tasks.map((task, i) => (
+        <button
+          type="button"
+          class:list={['hrn-constat__dot', { 'is-active': i === 0 }]}
+          data-index={i}
+          aria-label={`Aller à : ${task.title}`}
+          aria-current={i === 0 ? 'true' : 'false'}
+        ></button>
+      ))}
     </div>
 
-    <div class="hrn-constat__dots" id="constat-dots" role="tablist" aria-label="Pagination du carrousel"></div>
+    <button type="button" id="constat-prev" class="hrn-constat__arrow" aria-label="Tâche précédente" disabled>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
+    </button>
+    <button type="button" id="constat-next" class="hrn-constat__arrow" aria-label="Tâche suivante">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+    </button>
+  </div>
 
+  <div class="hrn-section-inner hrn-constat__foot">
     <p class="hrn-constat__summary">Des heures chaque semaine, des erreurs de recopie, des retards, et vos équipes sur de la saisie au lieu du client.</p>
     <p class="hrn-constat__accent">Ce temps a une meilleure place.</p>
   </div>
@@ -97,9 +149,8 @@ const cards = [
 <style>
   .hrn-constat {
     padding: var(--section-y) 0;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
+    background: var(--paper);
+    overflow: hidden;
     scroll-margin-top: 68px;
   }
 
@@ -107,371 +158,461 @@ const cards = [
     color: var(--amber-600);
   }
 
-  .hrn-constat__head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    margin: 16px 0 0;
+  /* Le titre est plus grand que celui des autres sections : c'est l'ouverture
+     de la page, le design l'assume comme telle. */
+  .hrn-constat :global(h2) {
+    font-size: clamp(2.1rem, 5.4vw, 4.2rem);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    margin-top: 16px;
+    max-width: 22ch;
   }
 
-  .hrn-constat__arrows {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  .hrn-constat :global(.hrn-lede) {
+    margin-top: 22px;
+    max-width: 48ch;
   }
 
-  .hrn-constat__arrows button {
-    width: 44px;
-    height: 44px;
-    flex: none;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    background: var(--paper);
-    border: 1px solid var(--border-strong);
-    color: var(--text-strong);
-    cursor: pointer;
-    transition: opacity var(--dur) var(--ease-standard), background var(--dur-fast) var(--ease-standard);
-  }
-
-  .hrn-constat__arrows button:hover {
-    background: var(--surface-2);
-  }
-
-  .hrn-constat__arrows button:disabled {
-    opacity: 0.35;
-    cursor: default;
-  }
-
+  /* ---------- Piste ---------- */
+  /* Sans JavaScript, la piste reste parcourable au doigt et à la molette
+     grâce au défilement natif : sinon cinq panneaux sur six seraient
+     inatteignables, coupés par l'overflow. Le script bascule ensuite en
+     overflow: hidden et pilote lui-même la position. */
   .hrn-constat__viewport {
-    margin-top: 36px;
-    overflow: hidden;
+    margin-top: clamp(32px, 4.5vw, 68px);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
   }
 
+  .hrn-constat__viewport::-webkit-scrollbar {
+    display: none;
+  }
 
+  .hrn-constat__viewport.is-live {
+    overflow: hidden;
+    cursor: grab;
+    /* Le glissement horizontal est capté, le défilement vertical de la page
+       reste au navigateur. */
+    touch-action: pan-y;
+  }
+
+  .hrn-constat__viewport.is-dragging {
+    cursor: grabbing;
+  }
 
   .hrn-constat__track {
+    list-style: none;
+    margin: 0;
+    /* Marges de bout, utiles au seul repli sans JavaScript : le script les
+       retire, c'est lui qui calcule le décalage. */
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: clamp(20px, 5vw, 48px);
+    padding-right: clamp(20px, 5vw, 48px);
     display: flex;
-    gap: 16px;
+    gap: 22px;
+    transform: translateX(var(--shift, 0px));
     will-change: transform;
-    transition: transform 520ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .hrn-constat__card {
-    flex: 0 0 100%;
-    display: flex;
-    flex-direction: column;
-    background: var(--paper);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    transition: transform 260ms cubic-bezier(.4,0,.2,1), box-shadow 260ms cubic-bezier(.4,0,.2,1);
+  .hrn-constat__track.is-live {
+    padding-left: 0;
+    padding-right: 0;
+    transition: transform 720ms var(--ease-standard);
   }
 
-  .hrn-constat__card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
+  .hrn-constat__track.is-dragging {
+    transition: none;
   }
 
-  @media (min-width: 820px) {
-    .hrn-constat__card {
-      flex-basis: calc((100% - 32px) / 3);
-    }
-  }
-
-  .hrn-constat__thumb {
+  .hrn-constat__panel {
     position: relative;
+    flex: 0 0 var(--panel-w, 62vw);
     aspect-ratio: 16 / 10;
+    border-radius: 32px;
+    background: var(--surface-2);
     overflow: hidden;
+    user-select: none;
   }
 
-  .hrn-constat__thumb :global(img) {
+  .hrn-constat__photo,
+  .hrn-constat__panel :global(img) {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    /* Le glissement ne doit pas se transformer en glisser-déposer d'image. */
+    -webkit-user-drag: none;
+    pointer-events: none;
   }
 
   .hrn-constat__badge {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: clamp(16px, 2vw, 30px);
+    left: clamp(16px, 2vw, 30px);
     font-family: var(--font-mono);
-    font-size: 10.5px;
-    letter-spacing: 0.04em;
+    font-size: 11px;
+    letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    color: var(--text-secondary);
-    background: var(--surface);
-    padding: 3px 9px;
+    color: var(--slate-700);
+    padding: 7px 14px;
     border-radius: var(--radius-full);
-    border: 1px solid var(--border);
+    background: rgba(248, 244, 232, 0.88);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    pointer-events: none;
   }
 
-  .hrn-constat__body {
-    padding: 18px 20px;
+  .hrn-constat__overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: clamp(20px, 3.2vw, 52px);
+    background: linear-gradient(
+      to top,
+      rgba(15, 29, 20, 0.78) 0%,
+      rgba(15, 29, 20, 0.46) 52%,
+      transparent 100%
+    );
+    pointer-events: none;
   }
 
-  .hrn-constat__body h3 {
+  .hrn-constat__overlay h3 {
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: 1.12rem;
-    color: var(--text-strong);
-    margin: 0 0 5px !important;
+    font-size: clamp(1.25rem, 2.6vw, 2.5rem);
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    color: var(--text-inverse);
+    margin: 0;
+    max-width: 26ch;
+    text-wrap: balance;
   }
 
-  .hrn-constat__body p {
-    font-size: 15px;
+  .hrn-constat__overlay p {
+    font-size: clamp(0.92rem, 1.3vw, 1.2rem);
     line-height: 1.5;
-    color: var(--text-secondary);
+    color: var(--ink-200);
+    margin: 12px 0 0;
+    max-width: 44ch;
+    text-wrap: pretty;
+  }
+
+  /* ---------- Commandes ---------- */
+  .hrn-constat__controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: clamp(24px, 3vw, 40px);
   }
 
   .hrn-constat__dots {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 24px;
-  }
-
-  /* Les puces sont créées en JS : elles n'ont pas l'attribut de scope Astro,
-     d'où :global() pour que ces règles les atteignent réellement.
-     Chaque puce = une piste (fond neutre) + un remplissage accent (barre de
-     progression). Le remplissage est animé en JS via scaleX (transform only). */
-  :global(.hrn-constat__dots button) {
-    position: relative;
-    width: 28px;
-    height: 6px;
+    gap: 12px;
+    padding: 11px 20px;
     border-radius: var(--radius-full);
-    border: 0;
+    background: var(--surface);
+  }
+
+  /* Écart assumé : c'est `width` qui est animée, pas transform. Six éléments
+     de 6px dans une barre isolée, le reflow est négligeable, et passer par un
+     scaleX fausserait l'espacement entre les puces. */
+  .hrn-constat__dot {
+    height: 6px;
+    width: 6px;
     padding: 0;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: var(--ink-300);
     cursor: pointer;
-    overflow: hidden;
-    background: var(--border-strong);
-    transition: width 320ms cubic-bezier(.4,0,.2,1);
+    transition:
+      width 420ms var(--ease-standard),
+      background 420ms var(--ease-standard);
   }
 
-  :global(.hrn-constat__dots button[aria-current='true']) {
+  .hrn-constat__dot.is-active {
+    width: 34px;
+    background: var(--ink-900);
+  }
+
+  .hrn-constat__arrow {
     width: 44px;
+    height: 44px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 0;
+    background: var(--surface);
+    color: var(--text-strong);
+    cursor: pointer;
+    transition:
+      background var(--dur-fast) var(--ease-standard),
+      opacity var(--dur-fast) var(--ease-standard);
   }
 
-  :global(.hrn-constat__dots button .hrn-constat__dot-fill) {
-    position: absolute;
-    inset: 0;
-    background: var(--accent);
-    transform: scaleX(0);
-    transform-origin: left center;
+  .hrn-constat__arrow:hover:not(:disabled) {
+    background: var(--surface-2);
+  }
+
+  .hrn-constat__arrow:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  /* ---------- Pied de section ---------- */
+  .hrn-constat__foot {
+    margin-top: clamp(40px, 5vw, 76px);
   }
 
   .hrn-constat__summary {
-    margin: 34px 0 0;
+    margin: 0;
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(1.15rem, 1.8vw, 1.4rem);
-    line-height: 1.4;
+    font-size: clamp(1.2rem, 2.4vw, 2rem);
+    line-height: 1.32;
+    letter-spacing: -0.02em;
     color: var(--text-strong);
-    max-width: 62ch;
+    max-width: 52ch;
     text-wrap: pretty;
   }
 
   .hrn-constat__accent {
-    margin: 14px 0 0;
+    margin: 18px 0 0;
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(1.1rem, 1.6vw, 1.3rem);
+    font-size: clamp(1.1rem, 2vw, 1.7rem);
+    letter-spacing: -0.02em;
     color: var(--amber-600);
+  }
+
+  /* ---------- Étroit ----------
+     En 16/10 sur un petit écran, le titre et le texte posés par-dessus
+     débordaient du panneau. On rend le panneau plus haut que large. */
+  @media (max-width: 760px) {
+    .hrn-constat__panel {
+      aspect-ratio: 4 / 5;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-constat__track.is-live {
+      transition: none;
+    }
+
+    .hrn-constat__dot {
+      transition: none;
+    }
   }
 </style>
 
 <script>
-  let ac: AbortController | undefined;
+  const GAP = 22;
+
+  let section: HTMLElement | null = null;
+  let viewport: HTMLElement | null = null;
+  let track: HTMLElement | null = null;
+  let panels: HTMLElement[] = [];
+  let dots: HTMLButtonElement[] = [];
+  let actif = 0;
+  let derniereLargeur = 0;
+  let ctrl: AbortController | undefined;
+  let glisse = 0;
+  let enGlissement = false;
+
+  function teardownConstat() {
+    ctrl?.abort();
+    ctrl = undefined;
+    section = null;
+    viewport = null;
+    track = null;
+    panels = [];
+    dots = [];
+    actif = 0;
+    derniereLargeur = 0;
+    glisse = 0;
+    enGlissement = false;
+  }
+
+  // Largeur d'un panneau, portée du fichier de design.
+  function largeurPanneau() {
+    return Math.min(920, Math.max(280, Math.round(window.innerWidth * 0.62)));
+  }
+
+  function placer() {
+    if (!viewport || !track || !panels.length) return;
+
+    const w = window.innerWidth;
+    const panneau = largeurPanneau();
+    track.style.setProperty('--panel-w', `${panneau}px`);
+
+    const marge = Math.max(20, Math.min(48, Math.round(w * 0.05)));
+    const total = panels.length * panneau + (panels.length - 1) * GAP;
+
+    // Le premier panneau s'aligne sur la marge de gauche, le dernier sur celle
+    // de droite : on ne laisse jamais de vide au bout de la piste.
+    const maxDecalage = marge;
+    const minDecalage = Math.min(maxDecalage, w - marge - total);
+
+    let base = w / 2 - panneau / 2 - actif * (panneau + GAP);
+    base = Math.max(minDecalage, Math.min(maxDecalage, base));
+
+    track.style.setProperty('--shift', `${Math.round(base + (enGlissement ? glisse : 0))}px`);
+
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('is-active', i === actif);
+      dot.setAttribute('aria-current', i === actif ? 'true' : 'false');
+    });
+
+    panels.forEach((panneauEl, i) => {
+      panneauEl.setAttribute('aria-hidden', i === actif ? 'false' : 'true');
+    });
+
+    const prec = document.getElementById('constat-prev') as HTMLButtonElement | null;
+    const suiv = document.getElementById('constat-next') as HTMLButtonElement | null;
+    if (prec) prec.disabled = actif === 0;
+    if (suiv) suiv.disabled = actif === panels.length - 1;
+  }
+
+  function aller(cible: number) {
+    const borne = Math.min(panels.length - 1, Math.max(0, cible));
+    if (borne === actif) return;
+    actif = borne;
+    placer();
+  }
 
   function initConstat() {
-    ac?.abort();
-    ac = new AbortController();
-    const { signal } = ac;
+    teardownConstat();
 
-    const viewport = document.querySelector<HTMLElement>('#constat-viewport');
-    const track = document.querySelector<HTMLElement>('#constat-track');
-    const dotsEl = document.querySelector<HTMLElement>('#constat-dots');
-    const prevBtn = document.querySelector<HTMLButtonElement>('#constat-prev');
-    const nextBtn = document.querySelector<HTMLButtonElement>('#constat-next');
-    if (!viewport || !track || !dotsEl || !prevBtn || !nextBtn) return;
+    section = document.getElementById('constat');
+    viewport = document.getElementById('constat-viewport');
+    track = document.getElementById('constat-track');
+    if (!section || !viewport || !track) return;
 
-    const cards = [...track.children] as HTMLElement[];
-    const cardCount = cards.length;
-    let index = 0;
+    panels = [...track.querySelectorAll<HTMLElement>('.hrn-constat__panel')];
+    dots = [...document.querySelectorAll<HTMLButtonElement>('.hrn-constat__dot')];
+    if (!panels.length) return;
 
-    // Défilement automatique : une vignette toutes les 6 s, en boucle continue.
-    // Désactivé si l'utilisateur préfère les animations réduites (accessibilité).
-    const AUTOPLAY_MS = 6000;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let progress: Animation | undefined; // barre de la puce courante = horloge du défilement
+    ctrl = new AbortController();
+    const { signal } = ctrl;
 
-    // Sous 820px on laisse le navigateur défiler nativement (glissement du
-    // doigt + inertie) ; au-dessus, on translate la piste.
-    const swipeMode = () => window.matchMedia('(max-width: 819px)').matches;
+    placer();
+    // La transition n'est armée qu'après le premier placement, sinon la piste
+    // glisserait depuis sa position initiale au chargement de la page.
+    requestAnimationFrame(() => {
+      track?.classList.add('is-live');
+      viewport?.classList.add('is-live');
+    });
 
-    // Nombre de cartes visibles à la fois, et donc nombre de positions
-    // possibles en avançant d'une carte : maxIndex = cardCount - perView.
-    const perView = () => (window.matchMedia('(min-width: 820px)').matches ? 3 : 1);
-    const maxIndex = () => Math.max(0, cardCount - perView());
+    document.getElementById('constat-prev')?.addEventListener('click', () => aller(actif - 1), { signal });
+    document.getElementById('constat-next')?.addEventListener('click', () => aller(actif + 1), { signal });
+    dots.forEach((dot, i) => dot.addEventListener('click', () => aller(i), { signal }));
 
-    const buildDots = () => {
-      dotsEl.innerHTML = '';
-      for (let i = 0; i <= maxIndex(); i++) {
-        const dot = document.createElement('button');
-        dot.type = 'button';
-        dot.setAttribute('role', 'tab');
-        dot.setAttribute('aria-label', `Aller à la position ${i + 1}`);
-        const fill = document.createElement('span');
-        fill.className = 'hrn-constat__dot-fill';
-        dot.appendChild(fill);
-        dot.addEventListener('click', () => { goTo(i); restartAuto(); }, { signal });
-        dotsEl.appendChild(dot);
-      }
-    };
+    // Les flèches sont écoutées sur la section et non sur window : sinon elles
+    // seraient confisquées au reste de la page. Elles agissent donc quand le
+    // focus est sur une puce ou une flèche du carrousel.
+    section.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowRight') { event.preventDefault(); aller(actif + 1); }
+      else if (event.key === 'ArrowLeft') { event.preventDefault(); aller(actif - 1); }
+    }, { signal });
 
-    // Puces et flèches. Séparé du déplacement : un glissement au doigt met à
-    // jour l'état sans qu'on ait à redéplacer la piste sous le doigt.
-    const paint = () => {
-      const max = maxIndex();
-      prevBtn.disabled = index === 0;
-      nextBtn.disabled = index === max;
-      // Les puces passées sont pleines, les suivantes vides. La courante part
-      // vide (sa barre sera animée) — ou pleine en mode reduced-motion.
-      [...dotsEl.children].forEach((dot, i) => {
-        dot.setAttribute('aria-current', String(i === index));
-        const fill = dot.firstElementChild as HTMLElement | null;
-        if (!fill) return;
-        fill.getAnimations().forEach((a) => a.cancel());
-        const filled = i < index || (i === index && reduce);
-        fill.style.transform = filled ? 'scaleX(1)' : 'scaleX(0)';
-      });
-    };
+    /* ---------------------------------------------------------- glissement */
+    let departX = 0;
+    let departY = 0;
+    let axe: 'x' | 'y' | null = null;
+    let pointeur: number | null = null;
 
-    // Un défilement déclenché par le code ne doit pas être confondu avec un
-    // glissement de l'utilisateur, sinon le chrono se relancerait en boucle.
-    let programmatic = false;
-    let guardTimer: ReturnType<typeof setTimeout>;
+    viewport.addEventListener('pointerdown', (event) => {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      pointeur = event.pointerId;
+      departX = event.clientX;
+      departY = event.clientY;
+      axe = null;
+      glisse = 0;
+    }, { signal });
 
-    const move = () => {
-      const offset = cards[index].offsetLeft - cards[0].offsetLeft;
-      track.style.transform = `translateX(-${offset}px)`;
-    };
+    viewport.addEventListener('pointermove', (event) => {
+      if (pointeur === null || event.pointerId !== pointeur) return;
+      const dx = event.clientX - departX;
+      const dy = event.clientY - departY;
 
-    const render = (smooth = true) => {
-      const max = maxIndex();
-      if (index > max) index = max;
-      move(smooth);
-      paint();
-    };
-
-    const goTo = (i: number) => {
-      index = Math.min(maxIndex(), Math.max(0, i));
-      render();
-    };
-
-    const advance = () => {
-      const max = maxIndex();
-      index = index >= max ? 0 : index + 1; // revient au début après la dernière
-      render();
-      startAuto();
-    };
-
-    // Lance (ou relance) la barre de progression de la puce courante ; à la fin
-    // de la barre, on passe à la vignette suivante. Un seul chrono à la fois.
-    const startAuto = () => {
-      progress?.cancel();
-      progress = undefined;
-      if (reduce) return;
-      const fill = dotsEl.children[index]?.firstElementChild as HTMLElement | null;
-      if (!fill) return;
-      progress = fill.animate(
-        [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
-        { duration: AUTOPLAY_MS, easing: 'linear', fill: 'forwards' }
-      );
-      progress.onfinish = advance;
-    };
-    const pauseAuto = () => progress?.pause();
-    const resumeAuto = () => progress?.play();
-    // Après une action manuelle, on repart d'une barre pleine à zéro.
-    const restartAuto = () => startAuto();
-
-    prevBtn.addEventListener('click', () => { goTo(index - 1); restartAuto(); }, { signal });
-    nextBtn.addEventListener('click', () => { goTo(index + 1); restartAuto(); }, { signal });
-
-    // Glissement au doigt sur écran tactile (mobile & tablette)
-    let touchStartX = 0;
-    viewport.addEventListener('touchstart', (e: TouchEvent) => {
-      touchStartX = e.changedTouches[0].clientX;
-    }, { signal, passive: true });
-
-    viewport.addEventListener('touchend', (e: TouchEvent) => {
-      const deltaX = e.changedTouches[0].clientX - touchStartX;
-      if (Math.abs(deltaX) > 35) {
-        if (deltaX < 0) {
-          goTo(index + 1);
-        } else {
-          goTo(index - 1);
+      // On attend d'avoir assez de mouvement pour décider de l'axe. Si c'est
+      // vertical, on rend la main : la page doit pouvoir défiler.
+      if (axe === null) {
+        if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+        axe = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+        if (axe === 'y') {
+          pointeur = null;
+          enGlissement = false;
+          return;
         }
-        restartAuto();
+        viewport?.setPointerCapture(pointeur);
+        enGlissement = true;
+        viewport?.classList.add('is-dragging');
+        track?.classList.add('is-dragging');
       }
-    }, { signal, passive: true });
 
-    // Pause au survol / focus clavier, et quand l'onglet passe en arrière-plan.
-    viewport.addEventListener('pointerenter', pauseAuto, { signal });
-    viewport.addEventListener('pointerleave', resumeAuto, { signal });
-    // Sur tactile, un geste interrompu n'émet pas toujours pointerleave : sans
-    // ce filet, le chrono resterait en pause indéfiniment.
-    viewport.addEventListener('pointercancel', resumeAuto, { signal });
-    viewport.addEventListener('focusin', pauseAuto, { signal });
-    viewport.addEventListener('focusout', resumeAuto, { signal });
-    document.addEventListener(
-      'visibilitychange',
-      () => (document.hidden ? pauseAuto() : resumeAuto()),
-      { signal }
-    );
-    signal.addEventListener('abort', () => progress?.cancel());
+      event.preventDefault();
+      glisse = dx;
+      placer();
+    }, { signal });
 
-    buildDots();
-    render(false);
-    startAuto();
+    const finGlissement = () => {
+      if (pointeur === null) {
+        enGlissement = false;
+        glisse = 0;
+        viewport?.classList.remove('is-dragging');
+        track?.classList.remove('is-dragging');
+        return;
+      }
+      const dx = glisse;
+      pointeur = null;
+      enGlissement = false;
+      glisse = 0;
+      viewport?.classList.remove('is-dragging');
+      track?.classList.remove('is-dragging');
 
-    // Sur mobile, l'apparition et le masquage de la barre d'adresse émettent un
-    // `resize` alors que seule la hauteur change. L'ancien gestionnaire y
-    // relançait startAuto() : la barre de progression repartait à zéro à chaque
-    // défilement de la page. On ne réagit donc qu'aux changements de LARGEUR.
-    let lastWidth = window.innerWidth;
-    let lastPerView = perView();
-    let resizeTimer: ReturnType<typeof setTimeout>;
-    window.addEventListener(
-      'resize',
-      () => {
-        if (window.innerWidth === lastWidth) return;
-        lastWidth = window.innerWidth;
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-          const nextPerView = perView();
-          const modeChanged = nextPerView !== lastPerView;
-          lastPerView = nextPerView;
-          if (modeChanged) {
-            // On quitte ou on rejoint le défilement natif : les deux modes ne
-            // se positionnent pas pareil, on remet le viewport à plat.
-            viewport.scrollLeft = 0;
-            index = 0;
-            buildDots();
-          }
-          render(false);
-          startAuto();
-        }, 150);
-      },
-      { signal }
-    );
+      const seuil = Math.min(120, (largeurPanneau() + GAP) * 0.16);
+      if (Math.abs(dx) > seuil) aller(actif + (dx < 0 ? 1 : -1));
+      else placer();
+    };
+
+    viewport.addEventListener('pointerup', finGlissement, { signal });
+    viewport.addEventListener('pointercancel', finGlissement, { signal });
+    viewport.addEventListener('lostpointercapture', finGlissement, { signal });
+
+    /* ------------------------------------------ molette / pavé horizontal */
+    let cumul = 0;
+    let verrou = false;
+    viewport.addEventListener('wheel', (event) => {
+      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return; // geste vertical : à la page
+      event.preventDefault();
+      cumul += event.deltaX;
+      if (verrou) return;
+      if (Math.abs(cumul) > 60) {
+        aller(actif + (cumul > 0 ? 1 : -1));
+        cumul = 0;
+        verrou = true;
+        setTimeout(() => { verrou = false; }, 480);
+      }
+    }, { signal, passive: false });
+
+    /* ------------------------------------------------------------ resize */
+    // Sur mobile, l'apparition de la barre d'adresse émet un resize alors que
+    // seule la HAUTEUR change. On ne réagit donc qu'aux changements de largeur.
+    derniereLargeur = window.innerWidth;
+    window.addEventListener('resize', () => {
+      if (window.innerWidth === derniereLargeur) return;
+      derniereLargeur = window.innerWidth;
+      placer();
+    }, { signal });
   }
 
   document.addEventListener('astro:page-load', initConstat);
-  document.addEventListener('astro:before-swap', () => ac?.abort());
+  document.addEventListener('astro:before-swap', teardownConstat);
 </script>
