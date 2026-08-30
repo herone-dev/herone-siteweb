@@ -15,7 +15,9 @@
 // classique écartait trop le chiffre des milliers de celui des centaines. Le prix est en `white-space: nowrap` pour ne
 // jamais casser au milieu ; l'offre 3 est découpée en deux segments
 // insécables (montant d'installation / mensualité) afin de rester lisibles sur
-// mobile. La liaison entre les deux segments n'est jamais mise dans la donnée :
+// mobile. Le « À partir de » est lui aussi un segment distinct : colle au
+// montant dans une seule chaîne insécable, il débordait sous 360px.
+// La liaison entre les deux segments n'est jamais mise dans la donnée :
 // une virgule finale resterait orpheline en gros corps quand le segment mensuel
 // passe à la ligne.
 //
@@ -28,7 +30,8 @@ const offers = [
   {
     num: '01',
     title: 'Atelier IA en entreprise',
-    price: '300 à 600 €',
+    price: '500 €',
+    priceFrom: true,
     priceExtra: null,
     pitch: 'On forme votre équipe sur ses vrais dossiers, chez vous.',
     points: [
@@ -40,7 +43,8 @@ const offers = [
   {
     num: '02',
     title: 'Diagnostic IA et automatisation',
-    price: '800 à 1 500 €',
+    price: '800 €',
+    priceFrom: true,
     priceExtra: null,
     pitch: 'On vous dit où part votre temps, et ce que vaut chaque piste.',
     points: [
@@ -52,7 +56,8 @@ const offers = [
   {
     num: '03',
     title: 'Automatisation à prix fixe',
-    price: '500 à 2 500 €',
+    price: '1 000 €',
+    priceFrom: true,
     priceExtra: 'puis 100 à 150 € par mois',
     pitch: 'Vos logiciels se parlent. Plus aucune ressaisie.',
     points: [
@@ -64,7 +69,8 @@ const offers = [
   {
     num: '04',
     title: 'Du rendez-vous au compte rendu',
-    price: '1 500 à 2 500 €',
+    price: '2 000 €',
+    priceFrom: true,
     priceExtra: null,
     pitch: 'Votre rendez-vous devient un compte rendu envoyé, sans rien taper.',
     points: [
@@ -90,6 +96,7 @@ const offers = [
             <h3 class="hrn-offers__title">{offer.title}</h3>
 
             <p class="hrn-offers__price">
+              {offer.priceFrom && <span class="hrn-offers__price-from">À partir de</span>}
               <span class="hrn-offers__price-main">{offer.price}</span>
               {offer.priceExtra && <span class="hrn-offers__price-rec">{offer.priceExtra}</span>}
             </p>
@@ -188,6 +195,15 @@ const offers = [
     flex-wrap: wrap;
     align-items: baseline;
     gap: 0 6px;
+  }
+
+  .hrn-offers__price-from {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: clamp(0.9rem, 1.3vw, 1rem);
+    line-height: 1.3;
+    color: var(--text-secondary);
+    white-space: nowrap;
   }
 
   .hrn-offers__price-main {
