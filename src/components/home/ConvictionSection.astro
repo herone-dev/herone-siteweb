@@ -72,11 +72,11 @@ const items = [
      sont animés. */
   .hrn-conviction__grid.reveals .hrn-conviction__item {
     opacity: 0;
-    transform: translateY(18px);
+    transform: translateY(26px);
     transition:
-      opacity 460ms var(--ease-out),
-      transform 460ms var(--ease-out);
-    transition-delay: calc(var(--i, 0) * 130ms);
+      opacity 520ms var(--ease-out),
+      transform 520ms var(--ease-out);
+    transition-delay: calc(var(--i, 0) * 160ms);
   }
 
   .hrn-conviction__grid.reveals .hrn-conviction__item.is-visible {
@@ -109,6 +109,11 @@ const items = [
     // La grille entière déclenche : les blocs se succèdent ensuite par leur
     // délai, ce qui garde l'ordre premier, deuxième, troisième même quand les
     // trois entrent dans l'écran en même temps.
+    //
+    // Le bord bas de la zone d'observation est remonté à 70% de la fenêtre :
+    // sans cela la séquence partait alors que la grille affleurait à peine en
+    // bas de l'écran, et elle était terminée avant que le visiteur ne l'ait
+    // sous les yeux.
     io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -117,7 +122,7 @@ const items = [
           io?.disconnect();
         }
       },
-      { threshold: 0.2, rootMargin: '0px 0px -8% 0px' }
+      { threshold: 0, rootMargin: '0px 0px -30% 0px' }
     );
 
     io.observe(grid);
