@@ -20,9 +20,9 @@ const items = [
     <div class="hrn-eyebrow">Notre conviction</div>
     <h2>Nous ne construisons que ce qui vous rend du temps.</h2>
 
-    <div class="hrn-conviction__grid">
-      {items.map((item) => (
-        <div class="hrn-conviction__item">
+    <div class="hrn-conviction__grid" id="conviction-grid">
+      {items.map((item, i) => (
+        <div class="hrn-conviction__item" style={`--i:${i}`}>
           <h3>{item.title}</h3>
           <p>{item.text}</p>
         </div>
@@ -65,4 +65,88 @@ const items = [
     line-height: 1.6;
     color: var(--text-secondary);
   }
+
+  /* Apparition des blocs, un par un. L'état masqué n'est appliqué que par la
+     classe .reveals, posée par le script : sans JavaScript ou en mouvement
+     réduit, les trois blocs sont visibles d'emblée. Seuls opacity et transform
+     sont animés. */
+  .hrn-conviction__grid.reveals .hrn-conviction__item {
+    opacity: 0;
+    transform: translateY(26px);
+    transition:
+      opacity 620ms var(--ease-out),
+      transform 620ms var(--ease-out);
+    transition-delay: calc(var(--i, 0) * 340ms);
+  }
+
+  .hrn-conviction__grid.reveals .hrn-conviction__item.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Réarmement : quand on remonte au-dessus de la section, les blocs
+     reviennent à leur état masqué sans transition, pour que la séquence
+     reparte du début à la descente suivante au lieu de se rejouer à
+     l'envers. */
+  .hrn-conviction__grid.reveals.is-rearmed .hrn-conviction__item {
+    transition: none;
+  }
 </style>
+
+<script>
+  let io: IntersectionObserver | undefined;
+
+  function teardownConviction() {
+    io?.disconnect();
+    io = undefined;
+  }
+
+  function initConviction() {
+    teardownConviction();
+
+    const grid = document.getElementById('conviction-grid');
+    if (!grid) return;
+    const items = [...grid.querySelectorAll<HTMLElement>('.hrn-conviction__item')];
+    if (!items.length) return;
+
+    // Sans animation : on laisse tout visible (pas de classe .reveals).
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    grid.classList.add('reveals');
+
+    // La grille entière déclenche : les blocs se succèdent ensuite par leur
+    // délai, ce qui garde l'ordre premier, deuxième, troisième même quand les
+    // trois entrent dans l'écran en même temps.
+    //
+    // Le bord bas de la zone d'observation est remonté à 60% de la fenêtre :
+    // sans cela la séquence partait alors que la grille affleurait à peine en
+    // bas de l'écran, et elle était terminée avant que le visiteur ne l'ait
+    // sous les yeux.
+    //
+    // L'observateur reste branché : la séquence se rejoue à chaque fois qu'on
+    // redescend sur la section, comme le compteur des prix.
+    io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            grid.classList.remove('is-rearmed');
+            for (const item of items) item.classList.add('is-visible');
+          } else if (entry.boundingClientRect.top > 0) {
+            // La section est repassée SOUS la fenêtre : le visiteur est
+            // remonté au-dessus. On remet à zéro pour rejouer la séquence à
+            // la prochaine descente. Une sortie par le haut, elle, ne
+            // réarme rien : on l'a déjà vue.
+            grid.classList.add('is-rearmed');
+            for (const item of items) item.classList.remove('is-visible');
+          }
+        }
+      },
+      { threshold: 0, rootMargin: '0px 0px -40% 0px' }
+    );
+
+    io.observe(grid);
+  }
+
+  document.addEventListener('astro:page-load', initConviction);
+  document.addEventListener('astro:before-swap', teardownConviction);
+</script>

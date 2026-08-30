@@ -46,6 +46,14 @@ html = html.replace(
   }
 );
 
+// 2 bis) Drop the <source> variants of every <picture>. Astro emits one AVIF and
+// one WebP source per width, and inlining them all made the preview balloon from
+// 1.8 MB to 11.4 MB for the same pixels. The <img> fallback inside the <picture>
+// carries the very same photo, so the rendering is unchanged.
+// srcset is dropped on the remaining <img> too: only its src is inlined.
+html = html.replace(/<source\b[^>]*>/gi, '');
+html = html.replace(/\ssrcset="[^"]*"/gi, '');
+
 // 3) Inline images + posters (webp, jpg). Replace every occurrence of each path.
 const assetPaths = new Set();
 for (const m of html.matchAll(/\/(?:_astro|images\/posters)\/[A-Za-z0-9._-]+\.(?:webp|jpe?g|png)/g)) {

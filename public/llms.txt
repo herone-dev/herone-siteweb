@@ -37,7 +37,7 @@ Hérone élimine la pénibilité des processus manuels dans les domaines suivant
 ## Tarification & Transparence
 
 Hérone pratique une politique de prix transparente et affichée dès le départ :
-- **Budget moyen d'un système** : Entre 300 € et 2 500 € selon la complexité des flux et le nombre d'outils interconnectés.
+- **Budget moyen d'un système** : À partir de 1 000 € selon la complexité des flux et le nombre d'outils interconnectés.
 - Pas de frais cachés ni d'abonnements captifs.
 
 ---
