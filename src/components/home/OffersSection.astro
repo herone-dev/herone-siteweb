@@ -111,7 +111,7 @@ const offers = [
       ))}
     </ul>
 
-    <p class="hrn-offers__guard">Aucune prestation au-dessus de 3 000 €. Des tarifs volontairement accessibles : nous voulons nous faire connaître vite dans la région.</p>
+    <p class="hrn-offers__guard">Tous nos prix sont affichés, toutes nos prestations restent abordables. Des tarifs volontairement accessibles : nous voulons nous faire connaître vite dans la région.</p>
 
     <p class="hrn-offers__pivot">
       <a href="#reserver">Vous ne savez pas quelle offre vous correspond ? Trente minutes d'échange, gratuit et sans engagement.</a>
@@ -214,6 +214,78 @@ const offers = [
     letter-spacing: -0.01em;
     color: var(--amber-600);
     white-space: nowrap;
+  }
+
+  /* ---------- Compteur a rouleaux sur le montant ----------
+
+     Le montant part de zero et defile jusqu'a sa valeur, chiffre par chiffre,
+     comme un compteur mecanique. Chaque caractere devient une fenetre d'une
+     ligne contenant une bande verticale ; seule la bande bouge, en translateY.
+     Aucune propriete de mise en page n'est animee.
+
+     Le texte d'origine reste dans le flux (.price-ghost) : c'est lui qui donne
+     sa largeur et sa ligne de base au prix, et c'est lui que lisent les
+     lecteurs d'ecran. Les rouleaux sont superposes en absolu par-dessus et
+     marques aria-hidden. Sans JS, sans intersection, ou en mouvement reduit,
+     le ghost reste visible et rien n'est construit : le prix s'affiche
+     normalement.
+
+     Ces elements sont crees a l'execution : ils ne portent donc pas
+     l'attribut de portee d'Astro, d'ou les :global(). */
+  .hrn-offers__price-main {
+    position: relative;
+  }
+
+  :global(.hrn-offers__price-main.is-odometer .hrn-offers__price-ghost) {
+    opacity: 0;
+  }
+
+  :global(.hrn-offers__price-reels) {
+    display: none;
+  }
+
+  :global(.hrn-offers__price-main.is-odometer .hrn-offers__price-reels) {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    line-height: 1.2;
+    white-space: nowrap;
+    /* Les chiffres hors fenetre existent dans le DOM : sans ceci, copier le
+       prix embarquerait toute la bande. */
+    user-select: none;
+  }
+
+  /* La fenetre : une seule ligne visible sur toute la bande. */
+  :global(.hrn-offers__reel) {
+    display: inline-block;
+    overflow: hidden;
+    height: 1.2em;
+    vertical-align: top;
+  }
+
+  :global(.hrn-offers__reel-strip) {
+    display: block;
+    transform: translateY(0);
+  }
+
+  :global(.hrn-offers__reel-strip > span) {
+    display: block;
+    height: 1.2em;
+    line-height: 1.2;
+  }
+
+  /* Le defilement : chaque bande remonte jusqu'a son chiffre, avec un leger
+     decalage de gauche a droite pour que les chiffres se posent en cascade. */
+  :global(.hrn-offers__price-main.is-rolling .hrn-offers__reel-strip) {
+    transform: translateY(calc(var(--n, 0) * -1.2em));
+    transition: transform 820ms var(--ease-out) var(--d, 0ms);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.hrn-offers__price-main.is-rolling .hrn-offers__reel-strip) {
+      transition: none;
+    }
   }
 
   .hrn-offers__price-rec {
@@ -339,6 +411,74 @@ const offers = [
     io = undefined;
   }
 
+  // Nombre de series completes 0-9 traversees avant de se poser sur le bon
+  // chiffre. Deux tours suffisent a lire le mouvement sans le faire trainer.
+  const TOURS = 2;
+  const DECALAGE = 60; // ms entre deux chiffres voisins
+
+  // Construit les rouleaux a partir du texte deja affiche. Idempotent.
+  function construireRouleaux(prix: HTMLElement) {
+    if (prix.dataset.rouleaux === 'ok') return;
+
+    const texte = prix.textContent ?? '';
+    if (!texte) return;
+
+    const ghost = document.createElement('span');
+    ghost.className = 'hrn-offers__price-ghost';
+    ghost.textContent = texte;
+
+    const reels = document.createElement('span');
+    reels.className = 'hrn-offers__price-reels';
+    reels.setAttribute('aria-hidden', 'true');
+
+    let rang = 0;
+    for (const caractere of texte) {
+      const fenetre = document.createElement('span');
+      fenetre.className = 'hrn-offers__reel';
+
+      const bande = document.createElement('span');
+      bande.className = 'hrn-offers__reel-strip';
+
+      if (caractere >= '0' && caractere <= '9') {
+        // La bande va de 0 jusqu'au chiffre vise, en repassant TOURS fois par
+        // la serie complete. Sa position finale est son dernier index.
+        const arrivee = TOURS * 10 + Number(caractere);
+        for (let i = 0; i <= arrivee; i++) {
+          const cellule = document.createElement('span');
+          cellule.textContent = String(i % 10);
+          bande.appendChild(cellule);
+        }
+        bande.style.setProperty('--n', String(arrivee));
+        bande.style.setProperty('--d', `${rang * DECALAGE}ms`);
+        rang++;
+      } else {
+        // Espaces et symbole euro : une seule cellule, la bande ne bouge pas.
+        const cellule = document.createElement('span');
+        cellule.textContent = caractere;
+        bande.appendChild(cellule);
+      }
+
+      fenetre.appendChild(bande);
+      reels.appendChild(fenetre);
+    }
+
+    prix.textContent = '';
+    prix.append(ghost, reels);
+    prix.dataset.rouleaux = 'ok';
+    prix.classList.add('is-odometer');
+  }
+
+  function lancerRouleaux(carte: Element) {
+    const prix = carte.querySelector<HTMLElement>('.hrn-offers__price-main');
+    if (!prix || prix.classList.contains('is-rolling')) return;
+
+    construireRouleaux(prix);
+    // Une transition ne peut pas partir d'un etat pose dans la meme frame :
+    // sans ce reflow, les bandes sauteraient directement a leur chiffre.
+    void prix.offsetHeight;
+    prix.classList.add('is-rolling');
+  }
+
   function initOffers() {
     teardownOffers();
 
@@ -357,6 +497,7 @@ const offers = [
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
           entry.target.classList.add('is-visible');
+          lancerRouleaux(entry.target);
           io?.unobserve(entry.target); // reveal unique
         }
       },
