@@ -2,6 +2,23 @@
 import { Image, Picture } from 'astro:assets';
 import proofRapin from '../../assets/images/proof-rapin.webp';
 import temoignagePoster from '../../assets/images/posters/temoignage-poster.jpg';
+
+// Portrait de Lilian Gauthier et poster de sa vidéo : importés de façon
+// optionnelle. Tant que le fichier est absent, la section retombe sur les
+// initiales et sur le placeholder, exactement comme avant, et le build passe.
+// Déposer le fichier suffit à l'activer, aucune modification de code n'est
+// nécessaire. Même principe que PresentationVideo et ReviewsSection.
+const gauthierFiles = import.meta.glob<{ default: ImageMetadata }>(
+  '../../assets/images/proof-gauthier.{webp,jpg,jpeg,png}',
+  { eager: true }
+);
+const proofGauthier = Object.values(gauthierFiles)[0]?.default;
+
+const lixogoPosterFiles = import.meta.glob<{ default: ImageMetadata }>(
+  '../../assets/images/posters/temoignage-lixogo-poster.{jpg,jpeg,png,webp}',
+  { eager: true }
+);
+const lixogoPoster = Object.values(lixogoPosterFiles)[0]?.default;
 ---
 
 <section id="temoignage" class="hrn-proof">
@@ -72,9 +89,15 @@ import temoignagePoster from '../../assets/images/posters/temoignage-poster.jpg'
             </ol>
 
             <div class="hrn-proof__author">
-              <div class="hrn-proof__avatar hrn-proof__avatar--initials" aria-hidden="true">
-                <span>LG</span>
-              </div>
+              {proofGauthier ? (
+                <div class="hrn-proof__avatar">
+                  <Image src={proofGauthier} alt="Lilian Gauthier" width={96} height={96} />
+                </div>
+              ) : (
+                <div class="hrn-proof__avatar hrn-proof__avatar--initials" aria-hidden="true">
+                  <span>LG</span>
+                </div>
+              )}
               <div>
                 <strong>Lilian Gauthier</strong>
                 <span>Agence Lixogo · La Rochelle · 7 personnes</span>
@@ -88,7 +111,18 @@ import temoignagePoster from '../../assets/images/posters/temoignage-poster.jpg'
           </div>
 
           <div class="hrn-proof__video" data-youtube-id="gGe3-iVTSZI">
-            <div class="hrn-proof__poster-placeholder" aria-hidden="true"></div>
+            {lixogoPoster ? (
+              <Picture
+                src={lixogoPoster}
+                formats={['avif', 'webp']}
+                widths={[400, 800]}
+                sizes="(max-width: 768px) 100vw, 50vw"
+                alt="Témoignage vidéo de l'agence Lixogo à La Rochelle"
+                class="hrn-proof__poster"
+              />
+            ) : (
+              <div class="hrn-proof__poster-placeholder" aria-hidden="true"></div>
+            )}
             <button type="button" class="hrn-proof__play" aria-label="Lire le témoignage vidéo de Lixogo">
               <span><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
             </button>
