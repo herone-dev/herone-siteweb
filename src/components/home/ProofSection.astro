@@ -172,13 +172,9 @@ const lixogoPoster = Object.values(lixogoPosterFiles)[0]?.default;
 <style>
   .hrn-proof {
     padding: var(--section-y-lg) 0;
-    background: var(--slate-900);
-    color: var(--ink-200);
+    background: var(--paper);
+    color: var(--text-secondary);
     scroll-margin-top: 68px;
-  }
-
-  .hrn-proof :global(.hrn-eyebrow) {
-    color: var(--amber-300);
   }
 
   /* ── Slider ── */
@@ -249,7 +245,7 @@ const lixogoPoster = Object.values(lixogoPosterFiles)[0]?.default;
     font-size: clamp(1.35rem, 2.1vw, 1.75rem);
     line-height: 1.3;
     letter-spacing: -0.015em;
-    color: var(--text-inverse);
+    color: var(--text-strong);
     text-wrap: pretty;
     max-width: 30ch;
   }
@@ -264,7 +260,7 @@ const lixogoPoster = Object.values(lixogoPosterFiles)[0]?.default;
     gap: 8px;
     font-family: var(--font-mono);
     font-size: 12px;
-    color: var(--ink-200);
+    color: var(--text-secondary);
   }
 
   .hrn-proof__flow li {
@@ -277,7 +273,7 @@ const lixogoPoster = Object.values(lixogoPosterFiles)[0]?.default;
   .hrn-proof__flow li:not(:last-child)::after {
     content: '→';
     margin-left: 8px;
-    color: var(--amber-300);
+    color: var(--amber-600);
   }
 
   .hrn-proof__author {
@@ -293,7 +289,7 @@ const lixogoPoster = Object.values(lixogoPosterFiles)[0]?.default;
     flex: none;
     border-radius: 50%;
     overflow: hidden;
-    background: var(--slate-700);
+    background: var(--slate-200);
   }
 
   .hrn-proof__avatar :global(img) {
@@ -320,14 +316,14 @@ const lixogoPoster = Object.values(lixogoPosterFiles)[0]?.default;
   .hrn-proof__author strong {
     display: block;
     font-weight: 600;
-    color: var(--text-inverse);
+    color: var(--text-strong);
     font-size: 16px;
   }
 
   .hrn-proof__author span {
     display: block;
     font-size: 14px;
-    color: var(--ink-300);
+    color: var(--text-secondary);
   }
 
   .hrn-proof__badge {
@@ -336,9 +332,9 @@ const lixogoPoster = Object.values(lixogoPosterFiles)[0]?.default;
     align-items: center;
     gap: 12px;
     padding: 10px 16px;
-    border: 1px solid var(--border-inverse);
+    border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    background: color-mix(in srgb, #fff 4%, transparent);
+    background: var(--surface);
   }
 
   .hrn-proof__badge strong {
@@ -346,14 +342,14 @@ const lixogoPoster = Object.values(lixogoPosterFiles)[0]?.default;
     font-weight: 600;
     font-size: clamp(1.4rem, 2.2vw, 1.8rem);
     line-height: 1;
-    color: var(--amber-300);
+    color: var(--amber-600);
     white-space: nowrap;
   }
 
   .hrn-proof__badge span {
     font-size: 13px;
     line-height: 1.35;
-    color: var(--ink-200);
+    color: var(--text-secondary);
   }
 
   /* ── Vidéo ── */
@@ -362,8 +358,8 @@ const lixogoPoster = Object.values(lixogoPosterFiles)[0]?.default;
     aspect-ratio: 16 / 9;
     border-radius: var(--radius-xl);
     overflow: hidden;
-    border: 1px solid var(--border-inverse);
-    background: var(--slate-800);
+    border: 1px solid var(--border);
+    background: var(--surface-2);
   }
 
   .hrn-proof__video img {
@@ -391,8 +387,8 @@ const lixogoPoster = Object.values(lixogoPosterFiles)[0]?.default;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    color: var(--ink-400);
-    background: var(--slate-800);
+    color: var(--text-muted);
+    background: var(--surface-2);
     transition: opacity var(--dur) var(--ease-standard), visibility var(--dur) var(--ease-standard);
   }
 
@@ -452,9 +448,9 @@ const lixogoPoster = Object.values(lixogoPosterFiles)[0]?.default;
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    border: 1px solid var(--border-inverse);
-    background: color-mix(in srgb, #fff 6%, transparent);
-    color: var(--ink-200);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
     display: grid;
     place-items: center;
     cursor: pointer;
@@ -465,8 +461,8 @@ const lixogoPoster = Object.values(lixogoPosterFiles)[0]?.default;
   }
 
   .hrn-proof__nav-btn:hover:not(:disabled) {
-    background: color-mix(in srgb, #fff 14%, transparent);
-    color: var(--text-inverse);
+    background: var(--surface-2);
+    color: var(--text-strong);
   }
 
   .hrn-proof__nav-btn:disabled {
@@ -486,13 +482,13 @@ const lixogoPoster = Object.values(lixogoPosterFiles)[0]?.default;
     border-radius: 50%;
     border: none;
     padding: 0;
-    background: color-mix(in srgb, #fff 25%, transparent);
+    background: var(--ink-300);
     cursor: pointer;
     transition: background var(--dur) var(--ease-standard), transform var(--dur) var(--ease-standard);
   }
 
   .hrn-proof__dot.is-active {
-    background: var(--amber-300);
+    background: var(--amber-500);
     transform: scale(1.3);
   }
 </style>

@@ -186,34 +186,40 @@ const { theme = 'light' } = Astro.props;
     flex-direction: column;
     padding: 20px clamp(20px, 6vw, 32px);
     opacity: 0;
-    transition: opacity 220ms var(--ease-standard);
+    transition: opacity 320ms var(--ease-standard);
   }
 
   .hrn-mobile-menu[hidden] { display: none; }
 
   .hrn-mobile-menu.is-open {
     opacity: 1;
-    transition-duration: 260ms;
+    transition-duration: 300ms;
+    transition-timing-function: var(--ease-out);
   }
 
-  /* État fermé, qui sert aussi de trajectoire de sortie : rapide et sans
-     décalage, pour que la fermeture ne traîne pas. */
+  /* État fermé, qui sert aussi de trajectoire de sortie. La sortie est
+     échelonnée à l'envers de l'entrée (le bas s'en va d'abord, le haut en
+     dernier) : le menu se replie au lieu de disparaître d'un coup. --DERNIER
+     est l'indice du dernier bloc, il sert à inverser le décalage. */
   .hrn-mobile-menu__item {
+    --dernier: 4;
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-14px);
     transition:
-      opacity 150ms var(--ease-standard),
-      transform 150ms var(--ease-standard);
+      opacity 240ms var(--ease-standard),
+      transform 240ms var(--ease-standard);
+    transition-delay: calc((var(--dernier) - var(--i, 0)) * 30ms);
   }
 
-  /* Entrée : plus lente, courbe signature du projet, et décalée de 45ms par
-     bloc pour que le menu se déplie au lieu d'apparaître d'un bloc. */
+  /* Entrée : plus lente que la sortie, courbe signature du projet, et décalée
+     de 48ms par bloc pour que le menu se déplie au lieu d'apparaître d'un
+     bloc. */
   .hrn-mobile-menu.is-open .hrn-mobile-menu__item {
     opacity: 1;
     transform: none;
-    transition-duration: 340ms;
+    transition-duration: 380ms;
     transition-timing-function: var(--ease-out);
-    transition-delay: calc(60ms + var(--i, 0) * 45ms);
+    transition-delay: calc(60ms + var(--i, 0) * 48ms);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -314,7 +320,7 @@ const { theme = 'light' } = Astro.props;
     // l'inverse : on retire la classe et on ne remet `hidden` qu'une fois la
     // sortie terminée, sinon le panneau disparaîtrait d'un coup.
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const EXIT_MS = 240; // > durée de sortie du panneau (220ms)
+    const EXIT_MS = 380; // > sortie la plus tardive : 4 x 30ms de décalage + 240ms
 
     const openMenu = () => {
       if (!menu) return;

@@ -34,15 +34,17 @@
 // et opacity. C'est le cœur de l'effet de profondeur voulu par le design. Le
 // flou est figé en mouvement réduit, et la bascule reste instantanée.
 //
-// Typographie des prix : espace insécable (U+00A0) avant le symbole euro, et
-// espace FINE insécable (U+202F) comme séparateur de milliers.
+// Typographie des prix : espace FINE insécable (U+202F) avant le symbole euro
+// comme en séparateur de milliers. L'insécable classique occupe une cellule
+// entière en chasse fixe (17,7px contre 10,2px, mesuré) et détachait
+// visiblement l'euro de son montant.
 const offers = [
   {
     num: '01',
     kicker: 'Formation',
     title: 'Atelier IA en entreprise',
     pricePrefix: 'À partir de',
-    price: '500 €',
+    price: '500 €',
     priceNote: null,
     promise: 'On forme votre équipe sur ses vrais dossiers, chez vous.',
     points: [
@@ -56,7 +58,7 @@ const offers = [
     kicker: 'Cadrage',
     title: 'Diagnostic IA et automatisation',
     pricePrefix: 'À partir de',
-    price: '800 €',
+    price: '800 €',
     priceNote: null,
     promise: 'On vous dit où part votre temps, et ce que vaut chaque piste.',
     points: [
@@ -70,8 +72,8 @@ const offers = [
     kicker: 'Mise en œuvre',
     title: 'Automatisation sur mesure',
     pricePrefix: 'À partir de',
-    price: '1 000 €',
-    priceNote: 'puis 100 à 150 € par mois',
+    price: '1 000 €',
+    priceNote: 'puis 100 à 150 € par mois',
     promise: 'Vos logiciels se parlent. Plus aucune ressaisie.',
     points: [
       'Périmètre écrit, prix ferme',
@@ -84,7 +86,7 @@ const offers = [
     kicker: 'Système livré',
     title: 'Système standardisé',
     pricePrefix: 'À partir de',
-    price: '2 000 €',
+    price: '2 000 €',
     priceNote: null,
     promise: 'Votre rendez-vous devient un compte rendu envoyé, sans rien taper.',
     points: [
@@ -179,7 +181,9 @@ const offers = [
       <span class="hrn-offers__counter-total">/ 0{offers.length}</span>
     </p>
 
-    <div class="hrn-offers__rule" aria-hidden="true"></div>
+    <div class="hrn-offers__progress" aria-hidden="true">
+      <span class="hrn-offers__progress-fill"></span>
+    </div>
 
     <p class="hrn-offers__active-title" id="offers-active-title">{offers[0].title}</p>
   </div>
@@ -432,7 +436,7 @@ const offers = [
 
   :global(.hrn-offers__price-main.is-rolling .hrn-offers__reel-strip) {
     transform: translateY(calc(var(--n, 0) * -1.2em));
-    transition: transform 820ms var(--ease-out) var(--d, 0ms);
+    transition: transform 1400ms var(--ease-out) var(--d, 0ms);
   }
 
   /* ---------- Corps de carte ---------- */
@@ -553,10 +557,25 @@ const offers = [
     font-weight: 400;
   }
 
-  .hrn-offers__rule {
+  /* Barre de progression : elle se remplit d'une carte à l'autre et elle est
+     pleine sur la dernière. C'est un scaleX et non une largeur, pour ne pas
+     provoquer de reflow à chaque bascule. */
+  .hrn-offers__progress {
+    position: relative;
     flex: 1;
-    height: 1px;
+    height: 2px;
+    border-radius: 2px;
+    overflow: hidden;
     background: var(--border-inverse);
+  }
+
+  .hrn-offers__progress-fill {
+    position: absolute;
+    inset: 0;
+    background: var(--amber-500);
+    transform: scaleX(var(--p, 0.25));
+    transform-origin: left center;
+    transition: transform 0.5s var(--ease-out);
   }
 
   .hrn-offers__active-title {
@@ -635,6 +654,10 @@ const offers = [
     :global(.hrn-offers__price-main.is-rolling .hrn-offers__reel-strip) {
       transition: none;
     }
+
+    .hrn-offers__progress-fill {
+      transition: none;
+    }
   }
 </style>
 
@@ -643,7 +666,7 @@ const offers = [
 
   // Compteur à rouleaux
   const TOURS = 2; // séries 0-9 traversées avant de se poser
-  const DECALAGE = 60; // ms entre deux chiffres voisins
+  const DECALAGE = 90; // ms entre deux chiffres voisins
 
   let stage: HTMLElement | null = null;
   let deck: HTMLElement | null = null;
@@ -716,13 +739,18 @@ const offers = [
     prix.classList.add('is-odometer');
   }
 
+  // Rejoué à chaque passage au centre, et pas seulement la première fois : on
+  // retire la classe pour que les bandes reviennent à zéro (le retour n'est pas
+  // transitionné, il est donc instantané), puis on la repose.
   function lancerRouleaux(slot: HTMLElement) {
     const prix = slot.querySelector<HTMLElement>('.hrn-offers__price-main');
-    if (!prix || prix.classList.contains('is-rolling')) return;
+    if (!prix) return;
 
     construireRouleaux(prix);
+    prix.classList.remove('is-rolling');
     // Une transition ne peut pas partir d'un état posé dans la même frame :
-    // sans ce reflow, les bandes sauteraient directement à leur chiffre.
+    // sans ce reflow, la remise à zéro et le départ fusionneraient et les
+    // bandes sauteraient directement à leur chiffre.
     void prix.offsetHeight;
     prix.classList.add('is-rolling');
   }
@@ -742,11 +770,16 @@ const offers = [
     return largeur;
   }
 
-  function mesurerHauteur() {
+  // Proportion de carte voulue par le design : 420 de large pour 630 de haut.
+  // Sans ce plancher, la hauteur suivait le seul contenu et les cartes
+  // paraissaient trapues sur grand écran.
+  const RATIO = 1.5;
+
+  function mesurerHauteur(largeurCarte: number) {
     if (!stage || !slots.length) return;
     for (const slot of slots) slot.style.height = '';
     stage.style.height = '';
-    let max = 0;
+    let max = Math.round(largeurCarte * RATIO);
     for (const slot of slots) max = Math.max(max, slot.offsetHeight);
     for (const slot of slots) slot.style.height = `${max}px`;
     stage.style.height = `${max}px`;
@@ -755,8 +788,7 @@ const offers = [
   // Largeur, puis hauteur, puis placement : cet ordre est ce qui garantit que
   // rien n'est rogné.
   function disposer() {
-    poserLargeur();
-    mesurerHauteur();
+    mesurerHauteur(poserLargeur());
     placer();
   }
 
@@ -803,6 +835,9 @@ const offers = [
     const carteActive = slots[actif];
     if (compteur) compteur.textContent = carteActive.querySelector('.hrn-offers__num')?.textContent ?? '';
     if (titre) titre.textContent = carteActive.querySelector('.hrn-offers__title')?.textContent ?? '';
+
+    const barre = document.querySelector<HTMLElement>('.hrn-offers__progress-fill');
+    if (barre) barre.style.setProperty('--p', String((actif + 1) / slots.length));
 
     const prec = document.getElementById('offers-prev') as HTMLButtonElement | null;
     const suiv = document.getElementById('offers-next') as HTMLButtonElement | null;
@@ -851,6 +886,23 @@ const offers = [
       if (event.key === 'ArrowRight') { event.preventDefault(); aller(actif + 1); }
       else if (event.key === 'ArrowLeft') { event.preventDefault(); aller(actif - 1); }
     }, { signal });
+
+    // Un lien vers une ancre déjà active ne provoque aucun défilement : le
+    // navigateur estime qu'il n'y a rien à faire. Après un premier clic sur
+    // « Réserver 30 minutes », les liens suivants vers #reserver semblaient
+    // donc morts. On refait le défilement nous-mêmes dans ce seul cas.
+    const versReservation = [
+      ...document.querySelectorAll<HTMLAnchorElement>('.hrn-offers a[href="#reserver"]'),
+    ];
+    for (const lien of versReservation) {
+      lien.addEventListener('click', (event) => {
+        if (location.hash !== '#reserver') return; // le navigateur s'en charge
+        const cible = document.getElementById('reserver');
+        if (!cible) return;
+        event.preventDefault();
+        cible.scrollIntoView({ behavior: reduit ? 'auto' : 'smooth', block: 'start' });
+      }, { signal });
+    }
 
     // Sur mobile, l'apparition de la barre d'adresse émet un resize alors que
     // seule la HAUTEUR change. On ne réagit donc qu'aux changements de largeur.
