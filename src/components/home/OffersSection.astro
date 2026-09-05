@@ -1,4 +1,6 @@
 ---
+import Button from '../Button.astro';
+
 // Section « Nos offres » : 4 formats, 4 prix affichés en clair.
 //
 // Mise en page issue d'un handoff Claude Design (« Section offres - cartes »).
@@ -9,7 +11,8 @@
 //
 // Les cartes sont empilées en éventail : celle du milieu est nette et lisible,
 // les autres sont décalées, réduites, inclinées et floutées. On navigue avec
-// les deux boutons, en cliquant une carte latérale, ou aux flèches du clavier.
+// les deux boutons, en cliquant une carte latérale, aux flèches du clavier,
+// ou au doigt en balayant horizontalement.
 //
 // Une cinquième étape pose les quatre cartes côte à côte, pour comparer les
 // prestations d'un seul regard. Elle n'est proposée qu'au-dessus de 1000px :
@@ -194,11 +197,23 @@ const offers = [
   </div>
 
   <div class="hrn-section-inner hrn-offers__foot">
-    <p class="hrn-offers__guard">Tous nos prix sont affichés, toutes nos prestations restent abordables. Des tarifs volontairement accessibles : nous voulons nous faire connaître vite dans la région.</p>
+    <div class="hrn-offers__closing">
+      <div class="hrn-offers__closing-top">
+        <div class="hrn-offers__closing-text">
+          <p class="hrn-offers__closing-title">Vous ne savez pas quelle offre vous correspond&#8239;?</p>
+          <p class="hrn-offers__closing-sub">Trente minutes d'échange, gratuit et sans engagement.</p>
+        </div>
+        <Button variant="accent" size="lg" href="#reserver">Réserver 30 minutes</Button>
+      </div>
 
-    <p class="hrn-offers__pivot">
-      <a href="#reserver">Vous ne savez pas quelle offre vous correspond ? Trente minutes d'échange, gratuit et sans engagement.</a>
-    </p>
+      <div class="hrn-offers__closing-bottom">
+        <ul class="hrn-offers__guarantees" role="list">
+          <li>Tous nos prix sont affichés</li>
+          <li>Toutes nos prestations restent abordables</li>
+        </ul>
+        <p class="hrn-offers__guard">Des tarifs volontairement accessibles&#8239;: nous voulons nous faire connaître vite dans la région.</p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -245,6 +260,9 @@ const offers = [
      de repli sert au premier rendu et au cas sans JavaScript. */
   .hrn-offers__stage {
     position: relative;
+    /* Le balayage horizontal nous revient, le défilement vertical de la page
+       reste au navigateur. */
+    touch-action: pan-y;
     margin-top: clamp(14px, 1.6vw, 24px);
     perspective: 1600px;
   }
@@ -630,19 +648,109 @@ const offers = [
     margin-top: clamp(40px, 5vw, 72px);
   }
 
-  .hrn-offers__guard {
-    font-size: 16px;
-    line-height: 1.55;
-    color: var(--ink-200);
+  /* Bloc de clôture : un panneau posé sur le fond sombre, plutôt que deux
+     paragraphes flottants. La question et le bouton en haut, les garanties
+     en dessous, séparés par un filet. */
+  .hrn-offers__closing {
+    border: 1px solid var(--border-inverse);
+    border-radius: var(--radius-xl);
+    background: rgba(255, 255, 255, 0.03);
+    padding: clamp(22px, 3vw, 36px);
+  }
+
+  .hrn-offers__closing-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: clamp(18px, 2.4vw, 32px);
+  }
+
+  .hrn-offers__closing-text {
+    min-width: 0;
+  }
+
+  .hrn-offers__closing-title {
     margin: 0;
-    padding-left: 20px;
-    border-left: 2px solid var(--amber-500);
-    max-width: 78ch;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    color: var(--text-inverse);
+    text-wrap: balance;
+  }
+
+  .hrn-offers__closing-sub {
+    margin: 8px 0 0;
+    font-size: clamp(0.95rem, 1.2vw, 1.05rem);
+    line-height: 1.5;
+    color: var(--ink-300);
+  }
+
+  .hrn-offers__closing-bottom {
+    margin-top: clamp(20px, 2.6vw, 30px);
+    padding-top: clamp(18px, 2.2vw, 26px);
+    border-top: 1px solid var(--border-inverse);
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 10px clamp(20px, 3vw, 40px);
+  }
+
+  /* Les deux garanties : mono, en capitales, avec une puce ambre. Elles se
+     lisent d'un coup d'œil, là où la phrase d'origine se lisait en entier. */
+  .hrn-offers__guarantees {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px clamp(18px, 2.4vw, 28px);
+  }
+
+  .hrn-offers__guarantees li {
+    position: relative;
+    padding-left: 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-200);
+    white-space: nowrap;
+  }
+
+  .hrn-offers__guarantees li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.42em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--amber-500);
+  }
+
+  .hrn-offers__guard {
+    margin: 0;
+    flex: 1 1 30ch;
+    min-width: 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--slate-300);
     text-wrap: pretty;
   }
 
-  .hrn-offers__pivot {
-    margin: 0;
+  @media (max-width: 640px) {
+    /* Le bouton passe pleine largeur : sur un écran étroit, un bouton
+       flottant à droite d'un texte se rate. */
+    .hrn-offers__closing-top :global(.hrn-btn) {
+      width: 100%;
+    }
+
+    .hrn-offers__guarantees li {
+      white-space: normal;
+    }
   }
 
   .hrn-offers__pivot a {
@@ -998,6 +1106,39 @@ const offers = [
     stage.addEventListener('keydown', (event) => {
       if (event.key === 'ArrowRight') { event.preventDefault(); aller(actif + 1); }
       else if (event.key === 'ArrowLeft') { event.preventDefault(); aller(actif - 1); }
+    }, { signal });
+
+    /* --------------------------------------------- balayage horizontal ---
+       Sur un écran tactile, on doit pouvoir passer d'une offre à l'autre au
+       doigt, et pas seulement en visant une carte ou une flèche. On ne suit
+       pas le doigt en continu : on décide au relâchement, ce qui évite de se
+       battre avec le défilement vertical de la page. */
+    let departX = 0;
+    let departY = 0;
+    let axe: 'x' | 'y' | null = null;
+
+    stage.addEventListener('touchstart', (event) => {
+      if (event.touches.length !== 1) return;
+      departX = event.touches[0].clientX;
+      departY = event.touches[0].clientY;
+      axe = null;
+    }, { signal, passive: true });
+
+    stage.addEventListener('touchmove', (event) => {
+      if (axe !== null || event.touches.length !== 1) return;
+      const dx = event.touches[0].clientX - departX;
+      const dy = event.touches[0].clientY - departY;
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      // Geste vertical : on rend la main, la page doit pouvoir défiler.
+      axe = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+    }, { signal, passive: true });
+
+    stage.addEventListener('touchend', (event) => {
+      if (axe !== 'x') return;
+      axe = null;
+      const dx = event.changedTouches[0].clientX - departX;
+      if (Math.abs(dx) < 45) return; // simple tapotement, pas un balayage
+      aller(etape + (dx < 0 ? 1 : -1));
     }, { signal });
 
     // Sur mobile, l'apparition de la barre d'adresse émet un resize alors que

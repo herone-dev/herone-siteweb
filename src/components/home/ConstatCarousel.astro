@@ -45,9 +45,12 @@ import constatMails from '../../assets/images/constat-mails.webp';
 // et opacity. Sur six éléments de 6px dans une barre isolée, le coût est
 // négligeable, et le rendre en transform fausserait l'espacement des puces.
 //
-// Le défilement automatique de 6 secondes de la version précédente n'existe
-// plus : le design ne le prévoit pas. La navigation est au doigt, à la
-// molette, aux puces, aux flèches.
+// Le défilement automatique avance d'une vignette toutes les 6 secondes et
+// repart au début après la dernière. Il s'arrête au survol, quand le focus
+// entre dans la section, et tant que la section n'est pas à l'écran ; il
+// repart du bon endroit après une navigation manuelle, pour ne jamais tirer
+// la piste sous le doigt du visiteur. Il n'existe pas du tout en mouvement
+// réduit. La navigation reste au doigt, à la molette, aux puces, aux flèches.
 //
 // Taille des panneaux : plafonnée à 678px, la largeur native des six photos.
 // Au-delà elles étaient étirées et visiblement molles.
@@ -458,11 +461,21 @@ const tasks = [
   let ctrl: AbortController | undefined;
   let frame = 0;
 
+  // Défilement automatique
+  const DELAI_AUTO = 6000;
+  let minuteur: ReturnType<typeof setInterval> | undefined;
+  let auto = false;      // le défilement automatique est-il souhaité ici ?
+  let enPause = false;   // survol, focus, ou section hors de l'écran
+
   function teardownConstat() {
     ctrl?.abort();
     ctrl = undefined;
     cancelAnimationFrame(frame);
     frame = 0;
+    clearInterval(minuteur);
+    minuteur = undefined;
+    auto = false;
+    enPause = false;
     section = null;
     viewport = null;
     panels = [];
@@ -533,6 +546,20 @@ const tasks = [
     viewport.scrollTo({ left: gauche, behavior: doux ? 'smooth' : 'auto' });
   }
 
+  // Le minuteur est relancé à chaque navigation manuelle : sinon la vignette
+  // suivante pouvait arriver juste après un clic, et donner l'impression que
+  // le carrousel part tout seul au mauvais moment.
+  function relancerAuto() {
+    clearInterval(minuteur);
+    minuteur = undefined;
+    if (!auto || enPause) return;
+    minuteur = setInterval(() => {
+      if (!viewport || !panels.length) return;
+      const courant = panneauCourant();
+      allerVers(courant >= panels.length - 1 ? 0 : courant + 1);
+    }, DELAI_AUTO);
+  }
+
   function initConstat() {
     teardownConstat();
 
@@ -556,9 +583,9 @@ const tasks = [
       frame = requestAnimationFrame(rafraichir);
     }, { signal, passive: true });
 
-    document.getElementById('constat-prev')?.addEventListener('click', () => allerVers(panneauCourant() - 1), { signal });
-    document.getElementById('constat-next')?.addEventListener('click', () => allerVers(panneauCourant() + 1), { signal });
-    dots.forEach((dot, i) => dot.addEventListener('click', () => allerVers(i), { signal }));
+    document.getElementById('constat-prev')?.addEventListener('click', () => { allerVers(panneauCourant() - 1); relancerAuto(); }, { signal });
+    document.getElementById('constat-next')?.addEventListener('click', () => { allerVers(panneauCourant() + 1); relancerAuto(); }, { signal });
+    dots.forEach((dot, i) => dot.addEventListener('click', () => { allerVers(i); relancerAuto(); }, { signal }));
 
     // Les flèches du clavier sont écoutées sur la section et non sur window :
     // sinon elles seraient confisquées au reste de la page.
@@ -611,6 +638,34 @@ const tasks = [
     viewport.addEventListener('pointerup', finGlissement, { signal });
     viewport.addEventListener('pointercancel', finGlissement, { signal });
     viewport.addEventListener('lostpointercapture', finGlissement, { signal });
+
+    /* ------------------------------------ défilement automatique --------- */
+    auto = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (auto) {
+      const suspendre = () => { enPause = true; relancerAuto(); };
+      const reprendre = () => { enPause = false; relancerAuto(); };
+
+      // On ne tire jamais la piste sous le doigt ni sous le curseur.
+      viewport.addEventListener('pointerenter', suspendre, { signal });
+      viewport.addEventListener('pointerleave', reprendre, { signal });
+      viewport.addEventListener('pointerdown', suspendre, { signal });
+      viewport.addEventListener('touchstart', suspendre, { signal, passive: true });
+      section.addEventListener('focusin', suspendre, { signal });
+      section.addEventListener('focusout', reprendre, { signal });
+
+      // Rien ne tourne tant que la section n'est pas à l'écran.
+      const io = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          enPause = !entry.isIntersecting;
+          relancerAuto();
+        }
+      }, { threshold: 0.25 });
+      io.observe(section);
+      signal.addEventListener('abort', () => io.disconnect());
+
+      relancerAuto();
+    }
 
     /* ------------------------------------------- relief sous le doigt ----- */
     for (const panneau of panels) {
