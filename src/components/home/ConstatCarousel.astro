@@ -1,5 +1,5 @@
 ---
-import { Picture } from 'astro:assets';
+import { Image } from 'astro:assets';
 import constatRessaisie from '../../assets/images/constat-ressaisie.webp';
 import constatDevis from '../../assets/images/constat-devis.webp';
 import constatComptes from '../../assets/images/constat-comptes.webp';
@@ -31,14 +31,33 @@ import constatMails from '../../assets/images/constat-mails.webp';
 //     section ne code son rythme en dur.
 //  4. color-mix() est remplacé par des rgba() équivalentes.
 //
+//  5. Le défilement est confié au navigateur (overflow-x + scroll-snap) plutôt
+//     qu'à une piste en translateX pilotée en JavaScript, comme le faisait le
+//     design. Mesuré au navigateur, la version JavaScript avait deux défauts :
+//     un seul geste de trackpad faisait avancer de trois vignettes, et sur
+//     mobile le glissement se battait avec le navigateur, qui reprenait la
+//     main au moindre début vertical. En natif, un geste vaut une vignette par
+//     construction, l'inertie est celle du système, et tout marche sans
+//     JavaScript.
+//
 // Écart assumé aux conventions d'animation : la puce active s'élargit de 6 à
 // 34px, donc `width` est animée là où la règle est de n'animer que transform
 // et opacity. Sur six éléments de 6px dans une barre isolée, le coût est
 // négligeable, et le rendre en transform fausserait l'espacement des puces.
 //
 // Le défilement automatique de 6 secondes de la version précédente n'existe
-// plus : le design ne le prévoit pas. La navigation est au glissement, à la
-// molette horizontale, aux puces, aux flèches.
+// plus : le design ne le prévoit pas. La navigation est au doigt, à la
+// molette, aux puces, aux flèches.
+//
+// Taille des panneaux : plafonnée à 678px, la largeur native des six photos.
+// Au-delà elles étaient étirées et visiblement molles.
+//
+// Les photos sont servies en WebP seul, et non en AVIF puis WebP comme
+// ailleurs sur le site. Les sources sont déjà des WebP compressés : réencoder
+// en AVIF ne fait que ré-encoder leurs artefacts. Mesuré sur la même image en
+// 678px : 69 ko en AVIF contre 45 ko en WebP, pour un rendu identique. Le
+// repli PNG que produisait <Picture> pesait 148 ko et n'aurait servi qu'à des
+// navigateurs sans WebP, c'est-à-dire plus aucun.
 const tasks = [
   {
     image: constatRessaisie,
@@ -100,11 +119,11 @@ const tasks = [
           aria-roledescription="slide"
           aria-label={`${i + 1} sur ${tasks.length} : ${task.title}`}
         >
-          <Picture
+          <Image
             src={task.image}
-            formats={['avif', 'webp']}
             widths={[400, 678]}
-            sizes="(max-width: 760px) 80vw, 62vw"
+            sizes="clamp(280px, 52vw, 678px)"
+            quality={90}
             alt=""
             loading="lazy"
             class="hrn-constat__photo"
@@ -150,7 +169,6 @@ const tasks = [
   .hrn-constat {
     padding: var(--section-y) 0;
     background: var(--paper);
-    overflow: hidden;
     scroll-margin-top: 68px;
   }
 
@@ -173,67 +191,65 @@ const tasks = [
     max-width: 48ch;
   }
 
-  /* ---------- Piste ---------- */
-  /* Sans JavaScript, la piste reste parcourable au doigt et à la molette
-     grâce au défilement natif : sinon cinq panneaux sur six seraient
-     inatteignables, coupés par l'overflow. Le script bascule ensuite en
-     overflow: hidden et pilote lui-même la position. */
+  /* ---------- Piste ----------
+
+     Le défilement est celui du navigateur, avec accrochage. C'est lui qui gère
+     le doigt, la molette, l'inertie et le clavier : un geste vaut une vignette,
+     et rien ne fonctionne « contre » lui. Le script se contente de lire la
+     position pour allumer la bonne puce, et de poser une cible au clic. */
   .hrn-constat__viewport {
     margin-top: clamp(32px, 4.5vw, 68px);
     overflow-x: auto;
     overflow-y: hidden;
+    scroll-snap-type: x mandatory;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
 
   .hrn-constat__viewport::-webkit-scrollbar {
     display: none;
   }
 
-  .hrn-constat__viewport.is-live {
-    overflow: hidden;
-    cursor: grab;
-    /* Le glissement horizontal est capté, le défilement vertical de la page
-       reste au navigateur. */
-    touch-action: pan-y;
+  /* Pendant un glissement à la souris, l'accrochage est suspendu : sinon il
+     ramènerait la piste à chaque micro-mouvement. */
+  .hrn-constat__viewport.is-dragging {
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+    cursor: grabbing;
+    user-select: none;
   }
 
-  .hrn-constat__viewport.is-dragging {
-    cursor: grabbing;
+  @media (hover: hover) and (pointer: fine) {
+    .hrn-constat__viewport {
+      cursor: grab;
+    }
   }
 
   .hrn-constat__track {
     list-style: none;
     margin: 0;
-    /* Marges de bout, utiles au seul repli sans JavaScript : le script les
-       retire, c'est lui qui calcule le décalage. */
+    /* Les marges de bout permettent au premier et au dernier panneau de
+       s'aligner sur la gouttière de la page. */
     padding-top: 0;
     padding-bottom: 0;
     padding-left: clamp(20px, 5vw, 48px);
     padding-right: clamp(20px, 5vw, 48px);
     display: flex;
     gap: 22px;
-    transform: translateX(var(--shift, 0px));
-    will-change: transform;
-  }
-
-  .hrn-constat__track.is-live {
-    padding-left: 0;
-    padding-right: 0;
-    transition: transform 720ms var(--ease-standard);
-  }
-
-  .hrn-constat__track.is-dragging {
-    transition: none;
   }
 
   .hrn-constat__panel {
     position: relative;
-    flex: 0 0 var(--panel-w, 62vw);
+    /* Plafonné à 678px : c'est la largeur native des photos, au-delà elles
+       seraient étirées. */
+    flex: 0 0 clamp(280px, 52vw, 678px);
     aspect-ratio: 16 / 10;
     border-radius: 32px;
     background: var(--surface-2);
     overflow: hidden;
+    scroll-snap-align: center;
     user-select: none;
+    transition: transform var(--dur-slow) var(--ease-out);
   }
 
   .hrn-constat__photo,
@@ -246,6 +262,29 @@ const tasks = [
     /* Le glissement ne doit pas se transformer en glisser-déposer d'image. */
     -webkit-user-drag: none;
     pointer-events: none;
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+
+  /* Léger relief au survol et sous le doigt : la photo avance dans son cadre,
+     le panneau se soulève. Uniquement transform. */
+  @media (hover: hover) and (pointer: fine) {
+    .hrn-constat__panel:hover {
+      transform: translateY(-4px);
+    }
+
+    .hrn-constat__panel:hover .hrn-constat__photo,
+    .hrn-constat__panel:hover :global(img) {
+      transform: scale(1.045);
+    }
+  }
+
+  .hrn-constat__panel.is-pressed {
+    transform: scale(0.985);
+  }
+
+  .hrn-constat__panel.is-pressed .hrn-constat__photo,
+  .hrn-constat__panel.is-pressed :global(img) {
+    transform: scale(1.02);
   }
 
   .hrn-constat__badge {
@@ -270,7 +309,7 @@ const tasks = [
     left: 0;
     right: 0;
     bottom: 0;
-    padding: clamp(20px, 3.2vw, 52px);
+    padding: clamp(20px, 3.2vw, 44px);
     background: linear-gradient(
       to top,
       rgba(15, 29, 20, 0.78) 0%,
@@ -283,7 +322,7 @@ const tasks = [
   .hrn-constat__overlay h3 {
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: clamp(1.25rem, 2.6vw, 2.5rem);
+    font-size: clamp(1.25rem, 2.2vw, 2.1rem);
     line-height: 1.08;
     letter-spacing: -0.025em;
     color: var(--text-inverse);
@@ -293,7 +332,7 @@ const tasks = [
   }
 
   .hrn-constat__overlay p {
-    font-size: clamp(0.92rem, 1.3vw, 1.2rem);
+    font-size: clamp(0.92rem, 1.15vw, 1.1rem);
     line-height: 1.5;
     color: var(--ink-200);
     margin: 12px 0 0;
@@ -393,7 +432,7 @@ const tasks = [
 
   /* ---------- Étroit ----------
      En 16/10 sur un petit écran, le titre et le texte posés par-dessus
-     débordaient du panneau. On rend le panneau plus haut que large. */
+     débordaient du panneau. On le rend plus haut que large. */
   @media (max-width: 760px) {
     .hrn-constat__panel {
       aspect-ratio: 4 / 5;
@@ -401,10 +440,9 @@ const tasks = [
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hrn-constat__track.is-live {
-      transition: none;
-    }
-
+    .hrn-constat__panel,
+    .hrn-constat__photo,
+    .hrn-constat__panel :global(img),
     .hrn-constat__dot {
       transition: none;
     }
@@ -412,78 +450,87 @@ const tasks = [
 </style>
 
 <script>
-  const GAP = 22;
-
   let section: HTMLElement | null = null;
   let viewport: HTMLElement | null = null;
-  let track: HTMLElement | null = null;
   let panels: HTMLElement[] = [];
   let dots: HTMLButtonElement[] = [];
   let actif = 0;
-  let derniereLargeur = 0;
   let ctrl: AbortController | undefined;
-  let glisse = 0;
-  let enGlissement = false;
+  let frame = 0;
 
   function teardownConstat() {
     ctrl?.abort();
     ctrl = undefined;
+    cancelAnimationFrame(frame);
+    frame = 0;
     section = null;
     viewport = null;
-    track = null;
     panels = [];
     dots = [];
     actif = 0;
-    derniereLargeur = 0;
-    glisse = 0;
-    enGlissement = false;
   }
 
-  // Largeur d'un panneau, portée du fichier de design.
-  function largeurPanneau() {
-    return Math.min(920, Math.max(280, Math.round(window.innerWidth * 0.62)));
+  // Le panneau actif est celui dont le centre est le plus proche du centre de
+  // la fenêtre de défilement. On le déduit de la position réelle plutôt que de
+  // le compter : le navigateur reste seul maître du défilement.
+  function panneauCourant() {
+    if (!viewport || !panels.length) return 0;
+
+    // Aux deux extrémités, la piste est bloquée : le dernier panneau ne peut
+    // plus se centrer, et c'est son voisin qui se retrouve le plus près du
+    // milieu. Sans ce cas particulier, cliquer la dernière puce en allumait
+    // une autre. On tranche donc par la position de défilement.
+    const fin = viewport.scrollWidth - viewport.clientWidth;
+    if (viewport.scrollLeft <= 1) return 0;
+    if (viewport.scrollLeft >= fin - 1) return panels.length - 1;
+
+    const centre = viewport.scrollLeft + viewport.clientWidth / 2;
+    let meilleur = 0;
+    let ecartMin = Infinity;
+    panels.forEach((panneau, i) => {
+      const c = panneau.offsetLeft + panneau.offsetWidth / 2;
+      const ecart = Math.abs(c - centre);
+      if (ecart < ecartMin) {
+        ecartMin = ecart;
+        meilleur = i;
+      }
+    });
+    return meilleur;
   }
 
-  function placer() {
-    if (!viewport || !track || !panels.length) return;
+  function rafraichir() {
+    if (!viewport) return;
+    const courant = panneauCourant();
+    if (courant !== actif) {
+      actif = courant;
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('is-active', i === actif);
+        dot.setAttribute('aria-current', i === actif ? 'true' : 'false');
+      });
+      panels.forEach((panneau, i) => {
+        panneau.setAttribute('aria-hidden', i === actif ? 'false' : 'true');
+      });
+    }
 
-    const w = window.innerWidth;
-    const panneau = largeurPanneau();
-    track.style.setProperty('--panel-w', `${panneau}px`);
-
-    const marge = Math.max(20, Math.min(48, Math.round(w * 0.05)));
-    const total = panels.length * panneau + (panels.length - 1) * GAP;
-
-    // Le premier panneau s'aligne sur la marge de gauche, le dernier sur celle
-    // de droite : on ne laisse jamais de vide au bout de la piste.
-    const maxDecalage = marge;
-    const minDecalage = Math.min(maxDecalage, w - marge - total);
-
-    let base = w / 2 - panneau / 2 - actif * (panneau + GAP);
-    base = Math.max(minDecalage, Math.min(maxDecalage, base));
-
-    track.style.setProperty('--shift', `${Math.round(base + (enGlissement ? glisse : 0))}px`);
-
-    dots.forEach((dot, i) => {
-      dot.classList.toggle('is-active', i === actif);
-      dot.setAttribute('aria-current', i === actif ? 'true' : 'false');
-    });
-
-    panels.forEach((panneauEl, i) => {
-      panneauEl.setAttribute('aria-hidden', i === actif ? 'false' : 'true');
-    });
-
+    // Les flèches suivent les extrémités réelles du défilement, et non l'index :
+    // sur un grand écran plusieurs panneaux tiennent à la fois, la dernière
+    // vignette peut donc être atteinte avant le dernier index.
     const prec = document.getElementById('constat-prev') as HTMLButtonElement | null;
     const suiv = document.getElementById('constat-next') as HTMLButtonElement | null;
-    if (prec) prec.disabled = actif === 0;
-    if (suiv) suiv.disabled = actif === panels.length - 1;
+    const fin = viewport.scrollWidth - viewport.clientWidth;
+    if (prec) prec.disabled = viewport.scrollLeft <= 1;
+    if (suiv) suiv.disabled = viewport.scrollLeft >= fin - 1;
   }
 
-  function aller(cible: number) {
-    const borne = Math.min(panels.length - 1, Math.max(0, cible));
-    if (borne === actif) return;
-    actif = borne;
-    placer();
+  function allerVers(index: number) {
+    if (!viewport || !panels.length) return;
+    const cible = panels[Math.min(panels.length - 1, Math.max(0, index))];
+    if (!cible) return;
+    const doux = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // On vise le centre : le même point que celui sur lequel l'accrochage se
+    // cale, la position finale est donc exactement la même qu'au doigt.
+    const gauche = cible.offsetLeft - (viewport.clientWidth - cible.offsetWidth) / 2;
+    viewport.scrollTo({ left: gauche, behavior: doux ? 'smooth' : 'auto' });
   }
 
   function initConstat() {
@@ -491,126 +538,87 @@ const tasks = [
 
     section = document.getElementById('constat');
     viewport = document.getElementById('constat-viewport');
-    track = document.getElementById('constat-track');
-    if (!section || !viewport || !track) return;
+    if (!section || !viewport) return;
 
-    panels = [...track.querySelectorAll<HTMLElement>('.hrn-constat__panel')];
+    panels = [...viewport.querySelectorAll<HTMLElement>('.hrn-constat__panel')];
     dots = [...document.querySelectorAll<HTMLButtonElement>('.hrn-constat__dot')];
     if (!panels.length) return;
 
     ctrl = new AbortController();
     const { signal } = ctrl;
 
-    placer();
-    // La transition n'est armée qu'après le premier placement, sinon la piste
-    // glisserait depuis sa position initiale au chargement de la page.
-    requestAnimationFrame(() => {
-      track?.classList.add('is-live');
-      viewport?.classList.add('is-live');
-    });
+    rafraichir();
 
-    document.getElementById('constat-prev')?.addEventListener('click', () => aller(actif - 1), { signal });
-    document.getElementById('constat-next')?.addEventListener('click', () => aller(actif + 1), { signal });
-    dots.forEach((dot, i) => dot.addEventListener('click', () => aller(i), { signal }));
+    // Le défilement est lu au rythme de l'affichage : on ne fait qu'y lire des
+    // positions, jamais écrire, donc aucune lutte avec le navigateur.
+    viewport.addEventListener('scroll', () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(rafraichir);
+    }, { signal, passive: true });
 
-    // Les flèches sont écoutées sur la section et non sur window : sinon elles
-    // seraient confisquées au reste de la page. Elles agissent donc quand le
-    // focus est sur une puce ou une flèche du carrousel.
+    document.getElementById('constat-prev')?.addEventListener('click', () => allerVers(panneauCourant() - 1), { signal });
+    document.getElementById('constat-next')?.addEventListener('click', () => allerVers(panneauCourant() + 1), { signal });
+    dots.forEach((dot, i) => dot.addEventListener('click', () => allerVers(i), { signal }));
+
+    // Les flèches du clavier sont écoutées sur la section et non sur window :
+    // sinon elles seraient confisquées au reste de la page.
     section.addEventListener('keydown', (event) => {
-      if (event.key === 'ArrowRight') { event.preventDefault(); aller(actif + 1); }
-      else if (event.key === 'ArrowLeft') { event.preventDefault(); aller(actif - 1); }
+      if (event.key === 'ArrowRight') { event.preventDefault(); allerVers(panneauCourant() + 1); }
+      else if (event.key === 'ArrowLeft') { event.preventDefault(); allerVers(panneauCourant() - 1); }
     }, { signal });
 
-    /* ---------------------------------------------------------- glissement */
+    /* -------------------------------------------- glissement à la souris ---
+       Uniquement à la souris : au doigt, c'est le navigateur qui défile, et
+       s'interposer était précisément ce qui cassait le tactile. On ne fait
+       que déplacer scrollLeft, l'accrochage reprend la main au relâchement. */
     let departX = 0;
-    let departY = 0;
-    let axe: 'x' | 'y' | null = null;
+    let departScroll = 0;
     let pointeur: number | null = null;
+    let aBouge = false;
 
     viewport.addEventListener('pointerdown', (event) => {
-      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      if (event.pointerType !== 'mouse') return;
+      if (event.button !== 0) return;
       pointeur = event.pointerId;
       departX = event.clientX;
-      departY = event.clientY;
-      axe = null;
-      glisse = 0;
+      departScroll = viewport!.scrollLeft;
+      aBouge = false;
     }, { signal });
 
     viewport.addEventListener('pointermove', (event) => {
-      if (pointeur === null || event.pointerId !== pointeur) return;
+      if (pointeur === null || event.pointerId !== pointeur || !viewport) return;
       const dx = event.clientX - departX;
-      const dy = event.clientY - departY;
-
-      // On attend d'avoir assez de mouvement pour décider de l'axe. Si c'est
-      // vertical, on rend la main : la page doit pouvoir défiler.
-      if (axe === null) {
-        if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
-        axe = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
-        if (axe === 'y') {
-          pointeur = null;
-          enGlissement = false;
-          return;
-        }
-        viewport?.setPointerCapture(pointeur);
-        enGlissement = true;
-        viewport?.classList.add('is-dragging');
-        track?.classList.add('is-dragging');
+      if (!aBouge) {
+        if (Math.abs(dx) < 5) return;
+        aBouge = true;
+        viewport.setPointerCapture(pointeur);
+        viewport.classList.add('is-dragging');
       }
-
       event.preventDefault();
-      glisse = dx;
-      placer();
+      viewport.scrollLeft = departScroll - dx;
     }, { signal });
 
     const finGlissement = () => {
-      if (pointeur === null) {
-        enGlissement = false;
-        glisse = 0;
-        viewport?.classList.remove('is-dragging');
-        track?.classList.remove('is-dragging');
-        return;
-      }
-      const dx = glisse;
+      if (pointeur === null || !viewport) return;
       pointeur = null;
-      enGlissement = false;
-      glisse = 0;
-      viewport?.classList.remove('is-dragging');
-      track?.classList.remove('is-dragging');
-
-      const seuil = Math.min(120, (largeurPanneau() + GAP) * 0.16);
-      if (Math.abs(dx) > seuil) aller(actif + (dx < 0 ? 1 : -1));
-      else placer();
+      viewport.classList.remove('is-dragging');
+      if (!aBouge) return;
+      // L'accrochage est de nouveau actif : on le laisse choisir la vignette la
+      // plus proche, exactement comme après un geste au doigt.
+      allerVers(panneauCourant());
     };
 
     viewport.addEventListener('pointerup', finGlissement, { signal });
     viewport.addEventListener('pointercancel', finGlissement, { signal });
     viewport.addEventListener('lostpointercapture', finGlissement, { signal });
 
-    /* ------------------------------------------ molette / pavé horizontal */
-    let cumul = 0;
-    let verrou = false;
-    viewport.addEventListener('wheel', (event) => {
-      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return; // geste vertical : à la page
-      event.preventDefault();
-      cumul += event.deltaX;
-      if (verrou) return;
-      if (Math.abs(cumul) > 60) {
-        aller(actif + (cumul > 0 ? 1 : -1));
-        cumul = 0;
-        verrou = true;
-        setTimeout(() => { verrou = false; }, 480);
+    /* ------------------------------------------- relief sous le doigt ----- */
+    for (const panneau of panels) {
+      panneau.addEventListener('pointerdown', () => panneau.classList.add('is-pressed'), { signal });
+      for (const fin of ['pointerup', 'pointercancel', 'pointerleave'] as const) {
+        panneau.addEventListener(fin, () => panneau.classList.remove('is-pressed'), { signal });
       }
-    }, { signal, passive: false });
-
-    /* ------------------------------------------------------------ resize */
-    // Sur mobile, l'apparition de la barre d'adresse émet un resize alors que
-    // seule la HAUTEUR change. On ne réagit donc qu'aux changements de largeur.
-    derniereLargeur = window.innerWidth;
-    window.addEventListener('resize', () => {
-      if (window.innerWidth === derniereLargeur) return;
-      derniereLargeur = window.innerWidth;
-      placer();
-    }, { signal });
+    }
   }
 
   document.addEventListener('astro:page-load', initConstat);

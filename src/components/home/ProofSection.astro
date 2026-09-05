@@ -1,171 +1,114 @@
 ---
-import { Image, Picture } from 'astro:assets';
-import proofRapin from '../../assets/images/proof-rapin.webp';
-import temoignagePoster from '../../assets/images/posters/temoignage-poster.jpg';
+import { Image } from 'astro:assets';
+import posterRapin from '../../assets/images/posters/temoignage-poster.jpg';
+import posterGauthier from '../../assets/images/posters/temoignage-lixogo-poster.jpg';
+import avatarRapin from '../../assets/images/proof-rapin.webp';
+import avatarGauthier from '../../assets/images/proof-gauthier.webp';
 
-// Portrait de Lilian Gauthier et poster de sa vidéo : importés de façon
-// optionnelle. Tant que le fichier est absent, la section retombe sur les
-// initiales et sur le placeholder, exactement comme avant, et le build passe.
-// Déposer le fichier suffit à l'activer, aucune modification de code n'est
-// nécessaire. Même principe que PresentationVideo et ReviewsSection.
-const gauthierFiles = import.meta.glob<{ default: ImageMetadata }>(
-  '../../assets/images/proof-gauthier.{webp,jpg,jpeg,png}',
-  { eager: true }
-);
-const proofGauthier = Object.values(gauthierFiles)[0]?.default;
-
-const lixogoPosterFiles = import.meta.glob<{ default: ImageMetadata }>(
-  '../../assets/images/posters/temoignage-lixogo-poster.{jpg,jpeg,png,webp}',
-  { eager: true }
-);
-const lixogoPoster = Object.values(lixogoPosterFiles)[0]?.default;
+// Section « Témoignages » : les avis en cartes vidéo, deux de front.
+//
+// Mise en page issue d'un handoff Claude Design (« Section témoignages »).
+// Le design y était écrit pour le moteur de Claude Design (DCLogic, sc-for,
+// sc-if) : il est porté ici en Astro + JavaScript natif, sans dépendance.
+// Les tokens du design system sont les mêmes que ceux du repo.
+//
+// Écarts assumés par rapport au fichier de design, et pourquoi :
+//
+//  1. Le design lit des fichiers .mp4 posés dans le projet de maquette. Les
+//     vrais témoignages sont sur YouTube, et la convention du repo est de ne
+//     jamais charger un lecteur tiers avant le clic. Chaque carte reste donc
+//     une façade : l'affiche et la citation d'abord, le lecteur injecté au
+//     clic seulement. C'est aussi ce qui garde la section légère.
+//  2. Le lecteur est chargé depuis youtube-nocookie.com : rien n'est déposé
+//     tant que le visiteur n'a pas lancé la vidéo lui-même.
+//  3. Le design fait de la carte entière un <button> contenant la citation.
+//     Un bouton ne peut pas contenir de blockquote : la citation reste du
+//     contenu normal, lisible par les lecteurs d'écran, et la commande est la
+//     pastille de lecture. Le clic n'importe où sur la carte la déclenche
+//     quand même, par commodité à la souris.
+//     Cette pastille est un bouton, sans adresse YouTube. Elle a un temps
+//     été un lien vers la vidéo, pour qu'elle reste utile sans JavaScript ;
+//     mais un lien peut être intercepté avant notre code par ce qui entoure
+//     la page, et le visiteur se retrouvait sur YouTube au lieu de regarder
+//     sur place. Sans adresse, plus rien ne peut naviguer : le clic ne peut
+//     que lancer la vidéo dans la carte. Contrepartie assumée : sans
+//     JavaScript la vidéo ne se lance pas, mais l'affiche, la citation et
+//     l'auteur restent tous lisibles.
+//  4. Les cartes sont en 5/4. À cette proportion, sur un petit écran, la
+//     citation débordait : la carte passe en 3/4 sous 560px. Au-delà, en
+//     colonne unique, elle est déjà assez large pour que le 5/4 suffise.
+//  5. Le padding vertical passe par --section-y, le rythme du projet, et
+//     color-mix() est remplacé par des rgba() équivalentes.
+//
+// Ce que le design retire par rapport à la version précédente : le fil des
+// étapes (« Rendez-vous enregistré, Transcription, Attribution ») et l'encart
+// chiffré (« 0 saisie », « 1 rapport »), ainsi que les flèches et les puces
+// du carrousel. Les deux avis sont désormais visibles en même temps.
+const testimonials = [
+  {
+    id: 'rapin',
+    youtubeId: 'v4twsQsrw4E',
+    poster: posterRapin,
+    avatar: avatarRapin,
+    quote: "« Le rendez-vous est enregistré, la fiche client arrive remplie en PDF, prête à envoyer. On choisit qui s'en occupe, le mail part. On ne ressaisit plus rien. »",
+    name: 'Tommy et Audrey Rapin',
+    org: 'Agence Allianz des Herbiers · 9 personnes',
+  },
+  {
+    id: 'gauthier',
+    youtubeId: 'gGe3-iVTSZI',
+    poster: posterGauthier,
+    avatar: avatarGauthier,
+    quote: "« Les stats publicitaires sont récupérées, l'IA génère le rapport complet. Le client reçoit son PDF par mail, automatiquement, chaque début de mois. »",
+    name: 'Lilian Gauthier',
+    org: 'Agence Lixogo · La Rochelle · 7 personnes',
+  },
+];
 ---
 
 <section id="temoignage" class="hrn-proof">
-  <div class="hrn-section-inner">
+  <div class="hrn-proof__inner">
     <div class="hrn-eyebrow">Témoignages</div>
+    <h2>Ils l'utilisent tous les jours</h2>
 
-    <!-- Slider wrapper -->
-    <div class="hrn-proof__slider" id="proof-slider" aria-label="Témoignages clients" aria-roledescription="carousel">
+    <div class="hrn-proof__grid">
+      {testimonials.map((t) => (
+        <article class="hrn-proof__card" data-youtube-id={t.youtubeId}>
+          <Image
+            src={t.poster}
+            widths={[480, 900]}
+            sizes="(max-width: 700px) 92vw, min(46vw, 640px)"
+            quality={82}
+            alt=""
+            loading="lazy"
+            class="hrn-proof__poster"
+          />
 
-      <!-- ── SLIDE 1 : Tommy & Audrey Rapin ── -->
-      <div class="hrn-proof__slide is-active" role="group" aria-roledescription="slide" aria-label="1 sur 2">
-        <div class="hrn-proof__grid">
-          <div class="hrn-proof__text">
-            <blockquote>
-              « Le rendez-vous est enregistré, la fiche client arrive remplie en PDF, prête à envoyer. On choisit qui s'en occupe, le mail part. On ne ressaisit plus rien. »
-            </blockquote>
+          <div class="hrn-proof__veil" aria-hidden="true"></div>
 
-            <ol class="hrn-proof__flow" role="list">
-              <li>Rendez-vous enregistré</li>
-              <li>Transcription + fiche PDF</li>
-              <li>Attribution et envoi</li>
-            </ol>
+          <button
+            type="button"
+            class="hrn-proof__play"
+            aria-label={`Lire le témoignage vidéo de ${t.name}`}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"></path></svg>
+          </button>
 
-            <div class="hrn-proof__author">
-              <div class="hrn-proof__avatar">
-                <Image src={proofRapin} alt="Tommy et Audrey Rapin" width={96} height={96} />
-              </div>
-              <div>
-                <strong>Tommy et Audrey Rapin</strong>
-                <span>Agence Allianz des Herbiers · 9 personnes</span>
-              </div>
-            </div>
-
-            <div class="hrn-proof__badge">
-              <strong>0 saisie</strong>
-              <span>par rendez-vous, compte rendu et fiche client automatisés</span>
-            </div>
-          </div>
-
-          <div class="hrn-proof__video" data-youtube-id="v4twsQsrw4E">
-            <Picture
-              src={temoignagePoster}
-              formats={['avif', 'webp']}
-              widths={[400, 800]}
-              sizes="(max-width: 768px) 100vw, 50vw"
-              alt="Témoignage vidéo de l'agence Allianz des Herbiers"
-              class="hrn-proof__poster"
-            />
-            <button type="button" class="hrn-proof__play" aria-label="Lire le témoignage vidéo de Tommy et Audrey Rapin">
-              <span><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── SLIDE 2 : Lilian Gauthier – Lixogo ── -->
-      <div class="hrn-proof__slide" role="group" aria-roledescription="slide" aria-label="2 sur 2">
-        <div class="hrn-proof__grid">
-          <div class="hrn-proof__text">
-            <blockquote>
-              « Les stats publicitaires sont récupérées, l'IA génère le rapport complet. Le client reçoit son PDF par mail, automatiquement, chaque début de mois. »
-            </blockquote>
-
-            <ol class="hrn-proof__flow" role="list">
-              <li>Données récupérées</li>
-              <li>Rapport généré par l'IA</li>
-              <li>PDF envoyé par mail</li>
-            </ol>
-
-            <div class="hrn-proof__author">
-              {proofGauthier ? (
-                <div class="hrn-proof__avatar">
-                  <Image src={proofGauthier} alt="Lilian Gauthier" width={96} height={96} />
-                </div>
-              ) : (
-                <div class="hrn-proof__avatar hrn-proof__avatar--initials" aria-hidden="true">
-                  <span>LG</span>
-                </div>
-              )}
-              <div>
-                <strong>Lilian Gauthier</strong>
-                <span>Agence Lixogo · La Rochelle · 7 personnes</span>
-              </div>
-            </div>
-
-            <div class="hrn-proof__badge">
-              <strong>1 rapport</strong>
-              <span>généré et envoyé automatiquement chaque mois par client</span>
-            </div>
-          </div>
-
-          <div class="hrn-proof__video" data-youtube-id="gGe3-iVTSZI">
-            {lixogoPoster ? (
-              <Picture
-                src={lixogoPoster}
-                formats={['avif', 'webp']}
-                widths={[400, 800]}
-                sizes="(max-width: 768px) 100vw, 50vw"
-                alt="Témoignage vidéo de l'agence Lixogo à La Rochelle"
-                class="hrn-proof__poster"
-              />
-            ) : (
-              <div class="hrn-proof__poster-placeholder" aria-hidden="true"></div>
-            )}
-            <button type="button" class="hrn-proof__play" aria-label="Lire le témoignage vidéo de Lixogo">
-              <span><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-
-    </div><!-- /.hrn-proof__slider -->
-
-    <!-- Navigation -->
-    <div class="hrn-proof__nav" aria-label="Navigation entre les témoignages">
-      <button
-        type="button"
-        id="proof-prev"
-        class="hrn-proof__nav-btn"
-        aria-label="Témoignage précédent"
-        aria-controls="proof-slider"
-        disabled
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"/>
-        </svg>
-      </button>
-
-      <div class="hrn-proof__dots" role="tablist" aria-label="Témoignages">
-        <button role="tab" type="button" class="hrn-proof__dot is-active" data-index="0" aria-selected="true" aria-label="Témoignage 1 : Tommy et Audrey Rapin"></button>
-        <button role="tab" type="button" class="hrn-proof__dot" data-index="1" aria-selected="false" aria-label="Témoignage 2 : Lilian Gauthier – Lixogo"></button>
-      </div>
-
-      <button
-        type="button"
-        id="proof-next"
-        class="hrn-proof__nav-btn"
-        aria-label="Témoignage suivant"
-        aria-controls="proof-slider"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="9 18 15 12 9 6"/>
-        </svg>
-      </button>
+          <figure class="hrn-proof__content">
+            <blockquote>{t.quote}</blockquote>
+            <figcaption class="hrn-proof__author">
+              <span class="hrn-proof__avatar">
+                <Image src={t.avatar} width={80} height={80} alt="" loading="lazy" />
+              </span>
+              <span class="hrn-proof__who">
+                <span class="hrn-proof__name">{t.name}</span>
+                <span class="hrn-proof__org">{t.org}</span>
+              </span>
+            </figcaption>
+          </figure>
+        </article>
+      ))}
     </div>
-
   </div>
 </section>
 
@@ -177,426 +120,236 @@ const lixogoPoster = Object.values(lixogoPosterFiles)[0]?.default;
     scroll-margin-top: 68px;
   }
 
-  /* ── Slider ── */
-  /* ── Slider : slide 1 (Tommy) définit la hauteur, slide 2+ en absolu ──
-     Le slide 1 reste dans le flux normal → il définit toujours la hauteur du
-     conteneur. Les slides 2+ sont toujours en position: absolute, ils ne
-     décalent jamais la mise en page. */
-  .hrn-proof__slider {
-    position: relative;
-    overflow: hidden;
-    margin-top: 28px;
+  /* Le design ouvre le conteneur : --container-wide au lieu de --container-max,
+     pour que les deux cartes respirent. */
+  .hrn-proof__inner {
+    max-width: var(--container-wide);
+    margin: 0 auto;
+    padding-left: clamp(20px, 4vw, 56px);
+    padding-right: clamp(20px, 4vw, 56px);
   }
 
-  /* Tous les slides : invisibles par défaut */
-  .hrn-proof__slide {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition: opacity 0.32s var(--ease-standard), visibility 0.32s var(--ease-standard);
+  .hrn-proof :global(.hrn-eyebrow) {
+    color: var(--slate-500);
   }
 
-  /* Slide 1 : dans le flux → définit la hauteur de la section */
-  .hrn-proof__slide:nth-child(1) {
-    /* position: static (défaut) — contribue à la hauteur du parent */
-  }
-
-  /* Slide 2+ : toujours en absolu → ne changent jamais la hauteur */
-  .hrn-proof__slide:nth-child(n+2) {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-  }
-
-  /* Slide actif */
-  .hrn-proof__slide.is-active {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    animation: hrn-slide-in 0.38s var(--ease-standard) both;
-  }
-
-  /* Slide sortant */
-  .hrn-proof__slide.is-leaving {
-    animation: hrn-slide-out 0.28s var(--ease-standard) forwards;
-    pointer-events: none;
-  }
-
-  @keyframes hrn-slide-in {
-    from { opacity: 0; transform: translateX(32px); }
-    to   { opacity: 1; transform: translateX(0); }
-  }
-
-  @keyframes hrn-slide-out {
-    to { opacity: 0; transform: translateX(-32px); }
+  .hrn-proof :global(h2) {
+    font-size: clamp(2rem, 3.6vw, 3.2rem);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    margin-top: 14px;
+    max-width: 22ch;
   }
 
   .hrn-proof__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-    gap: clamp(28px, 5vw, 64px);
-    align-items: center;
+    /* min(320px, 100%) et non 320px : une piste fixe plus large que le
+       conteneur pousse toute la page en défilement horizontal. Mesuré à
+       320px de fenêtre avant correction : 340px de contenu. */
+    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+    gap: clamp(20px, 2.2vw, 32px);
+    margin-top: clamp(32px, 4vw, 56px);
   }
 
-  .hrn-proof blockquote {
+  /* ---------- Carte ---------- */
+  .hrn-proof__card {
+    position: relative;
+    aspect-ratio: 5 / 4;
+    border-radius: 24px;
+    overflow: hidden;
+    background: var(--slate-800);
+    cursor: pointer;
+  }
+
+  .hrn-proof__poster,
+  .hrn-proof__card :global(.hrn-proof__poster) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Voile dégradé : la citation doit rester lisible quelle que soit l'affiche. */
+  .hrn-proof__veil {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(15, 29, 20, 0.88) 0%,
+      rgba(15, 29, 20, 0.52) 46%,
+      rgba(15, 29, 20, 0.12) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* ---------- Pastille de lecture ---------- */
+  .hrn-proof__play {
+    position: absolute;
+    text-decoration: none;
+    top: clamp(20px, 2.6vw, 40px);
+    left: clamp(20px, 2.6vw, 40px);
+    width: 60px;
+    height: 60px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--ink-950);
+    cursor: pointer;
+    transition:
+      transform var(--dur) var(--ease-out),
+      background var(--dur) var(--ease-standard);
+  }
+
+  .hrn-proof__card:hover .hrn-proof__play,
+  .hrn-proof__play:focus-visible {
+    background: #fff;
+    transform: scale(1.06);
+  }
+
+  /* ---------- Citation et auteur ---------- */
+  .hrn-proof__content {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: clamp(20px, 2.6vw, 40px);
+    /* Le clic passe à travers : c'est la carte qui l'attrape. */
+    pointer-events: none;
+  }
+
+  .hrn-proof__content blockquote {
     margin: 0;
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(1.35rem, 2.1vw, 1.75rem);
-    line-height: 1.3;
-    letter-spacing: -0.015em;
-    color: var(--text-strong);
+    font-size: clamp(1.05rem, 1.8vw, 1.75rem);
+    line-height: 1.24;
+    letter-spacing: -0.02em;
+    color: #fff;
     text-wrap: pretty;
-    max-width: 30ch;
-  }
-
-  .hrn-proof__flow {
-    list-style: none;
-    margin: 18px 0 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--text-secondary);
-  }
-
-  .hrn-proof__flow li {
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    padding: 0;
-  }
-
-  .hrn-proof__flow li:not(:last-child)::after {
-    content: '→';
-    margin-left: 8px;
-    color: var(--amber-600);
   }
 
   .hrn-proof__author {
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin-top: 22px;
+    gap: 12px;
+    margin-top: clamp(14px, 1.6vw, 22px);
   }
 
   .hrn-proof__avatar {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     flex: none;
     border-radius: 50%;
     overflow: hidden;
-    background: var(--slate-200);
+    background: var(--slate-700);
+    display: block;
   }
 
   .hrn-proof__avatar :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
-
-  /* Avatar initiales pour Lixogo */
-  .hrn-proof__avatar--initials {
-    display: grid;
-    place-items: center;
-    background: linear-gradient(135deg, #b45309, #d97706);
-  }
-
-  .hrn-proof__avatar--initials span {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 15px;
-    color: #fff;
-    letter-spacing: 0.02em;
-  }
-
-  .hrn-proof__author strong {
     display: block;
-    font-weight: 600;
-    color: var(--text-strong);
-    font-size: 16px;
   }
 
-  .hrn-proof__author span {
-    display: block;
-    font-size: 14px;
-    color: var(--text-secondary);
-  }
-
-  .hrn-proof__badge {
-    margin-top: 20px;
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background: var(--surface);
-  }
-
-  .hrn-proof__badge strong {
-    font-family: var(--font-mono);
-    font-weight: 600;
-    font-size: clamp(1.4rem, 2.2vw, 1.8rem);
-    line-height: 1;
-    color: var(--amber-600);
-    white-space: nowrap;
-  }
-
-  .hrn-proof__badge span {
-    font-size: 13px;
-    line-height: 1.35;
-    color: var(--text-secondary);
-  }
-
-  /* ── Vidéo ── */
-  .hrn-proof__video {
-    position: relative;
-    aspect-ratio: 16 / 9;
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    border: 1px solid var(--border);
-    background: var(--surface-2);
-  }
-
-  .hrn-proof__video img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .hrn-proof__video :global(iframe) {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border: 0;
-  }
-
-  /* Placeholder pour la vidéo Lixogo (avant poster réel) */
-  .hrn-proof__poster-placeholder {
-    position: absolute;
-    inset: 0;
+  .hrn-proof__who {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    color: var(--text-muted);
-    background: var(--surface-2);
-    transition: opacity var(--dur) var(--ease-standard), visibility var(--dur) var(--ease-standard);
+    gap: 1px;
+    min-width: 0;
   }
 
-  .hrn-proof__poster-placeholder span {
+  .hrn-proof__name {
+    font-weight: 600;
+    font-size: 15px;
+    color: #fff;
+  }
+
+  .hrn-proof__org {
     font-size: 13px;
-    font-family: var(--font-mono);
-    color: var(--ink-400);
+    color: var(--ink-300);
   }
 
-  /* `visibility: hidden` en plus de l'opacité : sans elle, le bouton de lecture
-     invisible resterait dans l'ordre de tabulation (WCAG 2.4.3 / 2.4.7). */
-  .hrn-proof__video.is-playing img,
-  .hrn-proof__video.is-playing .hrn-proof__poster-placeholder,
-  .hrn-proof__video.is-playing .hrn-proof__play {
+  /* ---------- Lecture en cours ---------- */
+  /* `visibility` en plus de l'opacité : sans elle, la pastille invisible
+     resterait dans l'ordre de tabulation. */
+  .hrn-proof__card.is-playing .hrn-proof__veil,
+  .hrn-proof__card.is-playing .hrn-proof__content,
+  .hrn-proof__card.is-playing .hrn-proof__play,
+  .hrn-proof__card.is-playing .hrn-proof__poster,
+  .hrn-proof__card.is-playing :global(.hrn-proof__poster) {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
   }
 
-  .hrn-proof__play {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    border: none;
-    background: color-mix(in srgb, var(--ink-950) 34%, transparent);
-    cursor: pointer;
-    transition: opacity var(--dur) var(--ease-standard);
-  }
-
-  .hrn-proof__play span {
-    width: 68px;
-    height: 68px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    background: color-mix(in srgb, var(--ink-950) 58%, transparent);
-    color: #fff;
-    box-shadow: 0 6px 24px -8px rgba(0, 0, 0, 0.6);
-    transition: transform var(--dur) var(--ease-standard);
-  }
-
-  .hrn-proof__play:hover span {
-    transform: scale(1.06);
-  }
-
-  /* ── Navigation ── */
-  .hrn-proof__nav {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 32px;
-  }
-
-  .hrn-proof__nav-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text-secondary);
-    display: grid;
-    place-items: center;
-    cursor: pointer;
-    transition:
-      background var(--dur) var(--ease-standard),
-      color var(--dur) var(--ease-standard),
-      opacity var(--dur) var(--ease-standard);
-  }
-
-  .hrn-proof__nav-btn:hover:not(:disabled) {
-    background: var(--surface-2);
-    color: var(--text-strong);
-  }
-
-  .hrn-proof__nav-btn:disabled {
-    opacity: 0.3;
+  .hrn-proof__card.is-playing {
     cursor: default;
   }
 
-  .hrn-proof__dots {
-    display: flex;
-    gap: 8px;
-    align-items: center;
+  /* ---------- Étroit ----------
+     En 5/4 sur un petit écran, la citation débordait de la carte : on la rend
+     plus haute que large. */
+  @media (max-width: 560px) {
+    .hrn-proof__card {
+      aspect-ratio: 3 / 4;
+    }
   }
 
-  .hrn-proof__dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    border: none;
-    padding: 0;
-    background: var(--ink-300);
-    cursor: pointer;
-    transition: background var(--dur) var(--ease-standard), transform var(--dur) var(--ease-standard);
-  }
-
-  .hrn-proof__dot.is-active {
-    background: var(--amber-500);
-    transform: scale(1.3);
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-proof__play {
+      transition: none;
+    }
   }
 </style>
 
 <script>
-  let ac: AbortController | undefined;
+  let ctrl: AbortController | undefined;
+
+  function teardownProof() {
+    ctrl?.abort();
+    ctrl = undefined;
+  }
 
   function initProof() {
-    ac?.abort();
-    ac = new AbortController();
-    const { signal } = ac;
+    teardownProof();
+    ctrl = new AbortController();
+    const { signal } = ctrl;
 
-    const slides  = Array.from(document.querySelectorAll<HTMLElement>('.hrn-proof__slide'));
-    const dots    = Array.from(document.querySelectorAll<HTMLButtonElement>('.hrn-proof__dot'));
-    const prevBtn = document.querySelector<HTMLButtonElement>('#proof-prev');
-    const nextBtn = document.querySelector<HTMLButtonElement>('#proof-next');
-    const slider  = document.querySelector<HTMLElement>('#proof-slider');
+    const cartes = [...document.querySelectorAll<HTMLElement>('.hrn-proof__card')];
 
-    let current = 0;
-    const total = slides.length;
+    for (const carte of cartes) {
+      const id = carte.dataset.youtubeId;
+      if (!id) continue;
 
-    // ── Hauteur du slider = hauteur du slide le plus grand ──────────────────
-    // On clone chaque slide en position statique (invisible) pour le mesurer,
-    // puis on retire le clone. Pas de flash, pas de re-layout visible.
-    function lockSliderHeight() {
-      if (!slider) return;
-      let maxH = 0;
-      slides.forEach(slide => {
-        const clone = slide.cloneNode(true) as HTMLElement;
-        clone.style.cssText =
-          'position:static!important;opacity:0!important;visibility:hidden!important;' +
-          'pointer-events:none!important;animation:none!important;';
-        slider.appendChild(clone);
-        maxH = Math.max(maxH, clone.offsetHeight);
-        slider.removeChild(clone);
-      });
-      if (maxH > 0) slider.style.minHeight = maxH + 'px';
-    }
+      const lancer = () => {
+        if (carte.classList.contains('is-playing')) return;
 
-    lockSliderHeight();
-
-    // Recalcul si la fenêtre est redimensionnée (responsive)
-    const ro = new ResizeObserver(() => {
-      slider!.style.minHeight = '0';
-      lockSliderHeight();
-    });
-    if (slider) ro.observe(slider);
-    signal.addEventListener('abort', () => ro.disconnect());
-
-    // ── Navigation ──────────────────────────────────────────────────────────
-    function goTo(index: number) {
-      if (index === current || index < 0 || index >= total) return;
-
-      const leaving = slides[current];
-      leaving.classList.add('is-leaving');
-      leaving.addEventListener('animationend', () => {
-        leaving.classList.remove('is-active', 'is-leaving');
-      }, { once: true });
-
-      current = index;
-      slides[current].classList.add('is-active');
-
-      dots.forEach((d, i) => {
-        d.classList.toggle('is-active', i === current);
-        d.setAttribute('aria-selected', i === current ? 'true' : 'false');
-      });
-
-      if (prevBtn) prevBtn.disabled = current === 0;
-      if (nextBtn) nextBtn.disabled = current === total - 1;
-    }
-
-    prevBtn?.addEventListener('click', () => goTo(current - 1), { signal });
-    nextBtn?.addEventListener('click', () => goTo(current + 1), { signal });
-    dots.forEach((dot, i) => {
-      dot.addEventListener('click', () => goTo(i), { signal });
-    });
-
-    // Swipe tactile
-    let touchStartX = 0;
-    slider?.addEventListener('touchstart', (e) => {
-      touchStartX = e.touches[0].clientX;
-    }, { signal, passive: true });
-    slider?.addEventListener('touchend', (e) => {
-      const dx = e.changedTouches[0].clientX - touchStartX;
-      if (Math.abs(dx) > 50) {
-        if (dx < 0 && current < total - 1) goTo(current + 1);
-        if (dx > 0 && current > 0)         goTo(current - 1);
-      }
-    }, { signal });
-
-    // Lecture vidéo
-    document.querySelectorAll<HTMLElement>('.hrn-proof__video').forEach((wrapper) => {
-      const playBtn   = wrapper.querySelector<HTMLButtonElement>('.hrn-proof__play');
-      const youtubeId = wrapper.dataset.youtubeId;
-      if (!playBtn || !youtubeId || youtubeId === 'LIXOGO_YOUTUBE_ID') return;
-
-      playBtn.addEventListener('click', () => {
+        // Le lecteur n'est injecté qu'ici : rien n'est chargé chez YouTube
+        // tant que le visiteur n'a pas cliqué.
         const iframe = document.createElement('iframe');
-        iframe.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`;
+        iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
         iframe.title = 'Témoignage vidéo';
         iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
         iframe.allowFullscreen = true;
         iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
-        wrapper.appendChild(iframe);
-        wrapper.classList.add('is-playing');
-      }, { signal, once: true });
-    });
+        carte.appendChild(iframe);
+        carte.classList.add('is-playing');
+      };
+
+      // La pastille est la commande réelle, celle que voient le clavier et les
+      // lecteurs d'écran. Le clic sur la carte n'est qu'une commodité.
+      carte.querySelector<HTMLButtonElement>('.hrn-proof__play')
+        ?.addEventListener('click', (event) => { event.stopPropagation(); lancer(); }, { signal });
+      carte.addEventListener('click', lancer, { signal });
+    }
   }
 
   document.addEventListener('astro:page-load', initProof);
+  document.addEventListener('astro:before-swap', teardownProof);
 </script>

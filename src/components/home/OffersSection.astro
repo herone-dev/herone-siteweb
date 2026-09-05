@@ -11,6 +11,11 @@
 // les autres sont décalées, réduites, inclinées et floutées. On navigue avec
 // les deux boutons, en cliquant une carte latérale, ou aux flèches du clavier.
 //
+// Une cinquième étape pose les quatre cartes côte à côte, pour comparer les
+// prestations d'un seul regard. Elle n'est proposée qu'au-dessus de 1000px :
+// en dessous, quatre cartes de front tomberaient sous les 200px de large et
+// seraient illisibles. Le compteur passe alors de 04 à 05 étapes.
+//
 // Écarts assumés par rapport au fichier de design, et pourquoi :
 //
 //  1. Le design fixe la carte à 420px de large. En dessous de 460px de
@@ -46,7 +51,7 @@ const offers = [
     pricePrefix: 'À partir de',
     price: '500 €',
     priceNote: null,
-    promise: 'On forme votre équipe sur ses vrais dossiers, chez vous.',
+    promise: 'Nous formons votre équipe sur ses vrais dossiers, chez vous.',
     points: [
       '2 à 4 heures selon le nombre de participants',
       '5 à 15 personnes, chacun sur son poste',
@@ -60,7 +65,7 @@ const offers = [
     pricePrefix: 'À partir de',
     price: '800 €',
     priceNote: null,
-    promise: 'On vous dit où part votre temps, et ce que vaut chaque piste.',
+    promise: 'Nous vous disons où part votre temps, et ce que vaut chaque piste.',
     points: [
       'Entretiens dirigeant et postes clés',
       'Vos processus cartographiés',
@@ -178,7 +183,7 @@ const offers = [
 
     <p class="hrn-offers__counter">
       <span id="offers-counter">01</span>
-      <span class="hrn-offers__counter-total">/ 0{offers.length}</span>
+      <span class="hrn-offers__counter-total" id="offers-total">/ 0{offers.length}</span>
     </p>
 
     <div class="hrn-offers__progress" aria-hidden="true">
@@ -291,6 +296,34 @@ const offers = [
      sélectionnent au clic. */
   .hrn-offers__deck.is-deck .hrn-offers__slot:not(.is-active) {
     cursor: pointer;
+  }
+
+  /* Étape de comparaison : les quatre cartes de front. Elles sont plus
+     étroites, on resserre donc un peu leur typographie pour que les quatre
+     restent lisibles côte à côte. */
+  .hrn-offers__deck.is-comparing .hrn-offers__slot {
+    cursor: pointer;
+  }
+
+  .hrn-offers__deck.is-comparing .hrn-offers__title {
+    font-size: clamp(1.15rem, 1.5vw, 1.4rem);
+    margin-top: clamp(18px, 2vw, 26px);
+  }
+
+  .hrn-offers__deck.is-comparing .hrn-offers__price-main {
+    font-size: clamp(1.3rem, 1.7vw, 1.55rem);
+  }
+
+  .hrn-offers__deck.is-comparing .hrn-offers__card {
+    padding: clamp(20px, 2vw, 26px) clamp(18px, 1.8vw, 22px) clamp(20px, 2vw, 24px);
+  }
+
+  .hrn-offers__deck.is-comparing .hrn-offers__pitch {
+    font-size: 15px;
+  }
+
+  .hrn-offers__deck.is-comparing .hrn-offers__points li {
+    font-size: 14px;
   }
 
   .hrn-offers__card {
@@ -622,14 +655,6 @@ const offers = [
 
   /* ---------- Étroit ---------- */
   @media (max-width: 720px) {
-    /* Le flou coûte cher (mesuré : environ 2,5 fois plus d'images perdues
-       pendant la bascule) et ne rapporte presque rien ici, où les cartes
-       latérales ne dépassent que d'un liseré. Le retrait et l'échelle
-       suffisent à donner la profondeur. */
-    .hrn-offers__deck.is-deck .hrn-offers__slot {
-      filter: none;
-    }
-
     .hrn-offers__nav {
       flex-wrap: wrap;
     }
@@ -668,9 +693,18 @@ const offers = [
   const TOURS = 2; // séries 0-9 traversées avant de se poser
   const DECALAGE = 90; // ms entre deux chiffres voisins
 
+  // Largeur en dessous de laquelle l'étape de comparaison n'est pas proposée :
+  // quatre cartes de front y tomberaient sous les 200px et seraient illisibles.
+  const LARGEUR_COMPARAISON = 1000;
+  const ECART_COMPARAISON = 16;
+
   let stage: HTMLElement | null = null;
   let deck: HTMLElement | null = null;
   let slots: HTMLElement[] = [];
+  // `etape` va de 0 à 3 pour les quatre cartes, et vaut 4 pour la comparaison.
+  // `actif` est la carte mise en avant : il suit `etape` sauf en comparaison,
+  // où il n'y a plus de carte unique au centre.
+  let etape = 0;
   let actif = 0;
   let derniereLargeur = 0;
   let ctrl: AbortController | undefined;
@@ -682,6 +716,7 @@ const offers = [
     stage = null;
     deck = null;
     slots = [];
+    etape = 0;
     actif = 0;
     derniereLargeur = 0;
   }
@@ -760,12 +795,34 @@ const offers = [
   // Hauteur commune aux quatre cartes : on efface, on mesure la plus haute, on
   // l'applique à toutes. Sans cela l'éventail serait irrégulier, et une carte
   // plus longue que la scène se ferait rogner.
+  function nbEtapes() {
+    return stage && stage.clientWidth >= LARGEUR_COMPARAISON ? 5 : 4;
+  }
+
+  function enComparaison() {
+    return etape === 4 && nbEtapes() === 5;
+  }
+
   // La largeur de carte est posée d'abord : mesurer avant elle reviendrait à
   // mesurer la hauteur du contenu pour une carte plus large que celle qui sera
   // réellement affichée, et le texte finirait rogné en étroit.
   function poserLargeur() {
     if (!stage) return 420;
-    const largeur = Math.min(420, stage.clientWidth - 40);
+    const scene = stage.clientWidth;
+
+    if (enComparaison()) {
+      // Quatre cartes de front, marges de page comprises.
+      const marge = Math.max(20, Math.min(48, Math.round(scene * 0.05)));
+      const largeur = Math.floor((scene - 2 * marge - 3 * ECART_COMPARAISON) / 4);
+      stage.style.setProperty('--card-w', `${largeur}px`);
+      return largeur;
+    }
+
+    // La carte laisse de la place de chaque côté pour que les suivantes se
+    // devinent. À 350px de large sur un écran de 390, il n'en restait aucune :
+    // le visiteur qui découvre la section ne voyait pas qu'il y a d'autres
+    // offres.
+    const largeur = Math.max(220, Math.min(420, Math.round(scene * 0.66)));
     stage.style.setProperty('--card-w', `${largeur}px`);
     return largeur;
   }
@@ -798,11 +855,43 @@ const offers = [
     if (!stage || !slots.length) return;
 
     const largeurScene = stage.clientWidth;
-    const largeurCarte = Math.min(420, largeurScene - 40);
+    const largeurCarte = parseFloat(stage.style.getPropertyValue('--card-w')) || 420;
+
+    // ---- Étape de comparaison : une simple rangée centrée ----
+    if (enComparaison()) {
+      slots.forEach((slot, i) => {
+        const x = (i - (slots.length - 1) / 2) * (largeurCarte + ECART_COMPARAISON);
+        slot.style.setProperty('--x', `${Math.round(x)}px`);
+        slot.style.setProperty('--s', '1');
+        slot.style.setProperty('--r', '0deg');
+        slot.style.setProperty('--blur', '0px');
+        slot.style.setProperty('--sat', '1');
+        slot.style.setProperty('--op', '1');
+        slot.style.setProperty('--z', '1');
+        slot.classList.remove('is-active');
+        // Les quatre cartes sont lisibles : toutes reprennent leur place dans
+        // l'arbre d'accessibilité et dans le parcours au clavier.
+        slot.setAttribute('aria-hidden', 'false');
+        const lien = slot.querySelector<HTMLAnchorElement>('.hrn-offers__cta-link');
+        if (lien) lien.tabIndex = 0;
+      });
+      majNavigation();
+      return;
+    }
 
     const marge = Math.max(0, (largeurScene - largeurCarte) / 2 - 24);
-    const ecart = Math.max(largeurCarte * 0.36, Math.min(302, marge - 100));
+    // Le plancher passe de 0,36 à 0,72 fois la largeur de carte : en étroit,
+    // les voisines se posaient presque entièrement derrière l'active.
+    const ecart = Math.max(largeurCarte * 0.72, Math.min(302, marge - 100));
     const pas = Math.max(24, Math.min(46, (marge - ecart + largeurCarte / 2) / 5));
+
+    // Le flou avait été coupé sous 720px pour la fluidité, avec les cartes de
+    // 350px de large d'alors : les voisines restaient nettes et lisibles à 62%
+    // d'opacité, ce qui donnait l'impression que la carte du dessus était
+    // transparente. Les cartes réduites l'ont rendu abordable (mesuré sur un
+    // écran de 390px : 17,9 ms par image contre 16,6 sans flou, aucune image
+    // perdue). Il est donc rétabli, simplement plafonné à 4px.
+    const etroit = largeurScene <= 720;
 
     slots.forEach((slot, i) => {
       const offset = i - actif;
@@ -811,7 +900,7 @@ const offers = [
       const x = offset === 0 ? 0 : sens * (ecart + (distance - 1) * pas);
       const echelle = offset === 0 ? 1 : Math.max(0.72, 0.87 - (distance - 1) * 0.045);
       const rotation = offset === 0 ? 0 : sens * (3 + (distance - 1) * 1.2);
-      const flou = offset === 0 ? 0 : Math.min(9, 4.5 + (distance - 1) * 2);
+      const flou = offset === 0 ? 0 : etroit ? 4 : Math.min(9, 4.5 + (distance - 1) * 2);
       const opacite = offset === 0 ? 1 : Math.max(0.3, 0.62 - (distance - 1) * 0.14);
 
       slot.style.setProperty('--x', `${x}px`);
@@ -830,27 +919,50 @@ const offers = [
       if (lien) lien.tabIndex = offset === 0 ? 0 : -1;
     });
 
+    majNavigation();
+  }
+
+  // Compteur, titre, barre et boutons, communs aux deux étapes.
+  function majNavigation() {
+    if (!slots.length) return;
+    const total = nbEtapes();
+
     const compteur = document.getElementById('offers-counter');
+    const totalEl = document.getElementById('offers-total');
     const titre = document.getElementById('offers-active-title');
-    const carteActive = slots[actif];
-    if (compteur) compteur.textContent = carteActive.querySelector('.hrn-offers__num')?.textContent ?? '';
-    if (titre) titre.textContent = carteActive.querySelector('.hrn-offers__title')?.textContent ?? '';
+
+    if (enComparaison()) {
+      if (compteur) compteur.textContent = '05';
+      if (titre) titre.textContent = 'Les quatre offres côte à côte';
+    } else {
+      const carteActive = slots[actif];
+      if (compteur) compteur.textContent = carteActive.querySelector('.hrn-offers__num')?.textContent ?? '';
+      if (titre) titre.textContent = carteActive.querySelector('.hrn-offers__title')?.textContent ?? '';
+    }
+    if (totalEl) totalEl.textContent = `/ 0${total}`;
 
     const barre = document.querySelector<HTMLElement>('.hrn-offers__progress-fill');
-    if (barre) barre.style.setProperty('--p', String((actif + 1) / slots.length));
+    if (barre) barre.style.setProperty('--p', String((etape + 1) / total));
 
     const prec = document.getElementById('offers-prev') as HTMLButtonElement | null;
     const suiv = document.getElementById('offers-next') as HTMLButtonElement | null;
-    if (prec) prec.disabled = actif === 0;
-    if (suiv) suiv.disabled = actif === slots.length - 1;
+    if (prec) prec.disabled = etape === 0;
+    if (suiv) suiv.disabled = etape === total - 1;
   }
 
   function aller(cible: number) {
-    const borne = Math.min(slots.length - 1, Math.max(0, cible));
-    if (borne === actif) return;
-    actif = borne;
-    placer();
-    if (!reduit) lancerRouleaux(slots[actif]);
+    const borne = Math.min(nbEtapes() - 1, Math.max(0, cible));
+    if (borne === etape) return;
+    etape = borne;
+    actif = Math.min(slots.length - 1, etape);
+    deck?.classList.toggle('is-comparing', enComparaison());
+    // La largeur de carte change entre l'éventail et la rangée : il faut
+    // reprendre la mesure de hauteur, sinon les cartes seraient rognées.
+    disposer();
+    if (reduit) return;
+    // En comparaison, les quatre montants défilent l'un après l'autre.
+    if (enComparaison()) slots.forEach((slot, i) => setTimeout(() => lancerRouleaux(slot), i * 130));
+    else lancerRouleaux(slots[actif]);
   }
 
   function initOffers() {
@@ -877,7 +989,8 @@ const offers = [
     document.getElementById('offers-next')?.addEventListener('click', () => aller(actif + 1), { signal });
 
     slots.forEach((slot, i) => {
-      slot.addEventListener('click', () => { if (i !== actif) aller(i); }, { signal });
+      // En comparaison, cliquer une carte y ramène l'éventail.
+      slot.addEventListener('click', () => { if (enComparaison() || i !== actif) aller(i); }, { signal });
     });
 
     // Les flèches sont écoutées sur le carrousel et non sur window : sinon
@@ -893,6 +1006,13 @@ const offers = [
     window.addEventListener('resize', () => {
       if (window.innerWidth === derniereLargeur) return;
       derniereLargeur = window.innerWidth;
+      // En rétrécissant, l'étape de comparaison peut disparaître : on revient
+      // alors sur la dernière carte.
+      if (etape >= nbEtapes()) {
+        etape = nbEtapes() - 1;
+        actif = Math.min(slots.length - 1, etape);
+      }
+      deck?.classList.toggle('is-comparing', enComparaison());
       disposer();
     }, { signal });
 
