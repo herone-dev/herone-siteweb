@@ -26,9 +26,14 @@ import avatarGauthier from '../../assets/images/proof-gauthier.webp';
 //     contenu normal, lisible par les lecteurs d'écran, et la commande est la
 //     pastille de lecture. Le clic n'importe où sur la carte la déclenche
 //     quand même, par commodité à la souris.
-//     Cette pastille est un vrai lien vers la vidéo : sans JavaScript, elle
-//     ouvre YouTube dans un nouvel onglet au lieu de ne rien faire. Le script
-//     intercepte le clic pour jouer la vidéo sur place.
+//     Cette pastille est un bouton, sans adresse YouTube. Elle a un temps
+//     été un lien vers la vidéo, pour qu'elle reste utile sans JavaScript ;
+//     mais un lien peut être intercepté avant notre code par ce qui entoure
+//     la page, et le visiteur se retrouvait sur YouTube au lieu de regarder
+//     sur place. Sans adresse, plus rien ne peut naviguer : le clic ne peut
+//     que lancer la vidéo dans la carte. Contrepartie assumée : sans
+//     JavaScript la vidéo ne se lance pas, mais l'affiche, la citation et
+//     l'auteur restent tous lisibles.
 //  4. Les cartes sont en 5/4. À cette proportion, sur un petit écran, la
 //     citation débordait : la carte passe en 3/4 sous 560px. Au-delà, en
 //     colonne unique, elle est déjà assez large pour que le 5/4 suffise.
@@ -81,15 +86,13 @@ const testimonials = [
 
           <div class="hrn-proof__veil" aria-hidden="true"></div>
 
-          <a
+          <button
+            type="button"
             class="hrn-proof__play"
-            href={`https://www.youtube.com/watch?v=${t.youtubeId}`}
-            target="_blank"
-            rel="noopener"
             aria-label={`Lire le témoignage vidéo de ${t.name}`}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"></path></svg>
-          </a>
+          </button>
 
           <figure class="hrn-proof__content">
             <blockquote>{t.quote}</blockquote>
@@ -340,16 +343,9 @@ const testimonials = [
       };
 
       // La pastille est la commande réelle, celle que voient le clavier et les
-      // lecteurs d'écran. C'est un lien vers YouTube : le script l'intercepte
-      // pour jouer sur place, mais sans JavaScript il reste fonctionnel.
-      carte.querySelector<HTMLAnchorElement>('.hrn-proof__play')
-        ?.addEventListener('click', (event) => {
-          // On laisse passer les ouvertures volontaires dans un nouvel onglet.
-          if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
-          event.preventDefault();
-          event.stopPropagation();
-          lancer();
-        }, { signal });
+      // lecteurs d'écran. Le clic sur la carte n'est qu'une commodité.
+      carte.querySelector<HTMLButtonElement>('.hrn-proof__play')
+        ?.addEventListener('click', (event) => { event.stopPropagation(); lancer(); }, { signal });
       carte.addEventListener('click', lancer, { signal });
     }
   }
