@@ -1,7 +1,7 @@
 ---
 import Button from '../Button.astro';
 
-// Section « Nos offres » : 4 formats, 4 prix affichés en clair.
+// Section « Nos offres » : 2 formats, 2 prix affichés en clair, hors taxes.
 //
 // Mise en page issue d'un handoff Claude Design (« Section offres - cartes »).
 // Le design y était écrit pour le moteur de Claude Design (DCLogic, sc-for,
@@ -52,15 +52,15 @@ const offers = [
   {
     num: '01',
     kicker: 'Formation',
-    title: 'Atelier IA en entreprise',
+    title: 'Formation IA en entreprise',
     pricePrefix: 'À partir de',
-    price: '500 €',
-    priceNote: null,
-    promise: 'Nous formons votre équipe sur ses vrais dossiers, chez vous.',
+    price: '1 500 € HT',
+    priceNote: "la journée, jusqu'à 3 personnes, puis 500 € HT par personne",
+    promise: 'Nous formons votre équipe sur ses vrais dossiers, chez vous, en une journée.',
     points: [
-      '2 à 4 heures selon le nombre de participants',
-      '5 à 15 personnes, chacun sur son poste',
-      'Cinq usages installés en repartant',
+      'Une journée complète, animée à deux',
+      'Préparée en amont sur vos dossiers',
+      'Six livrables emportés par chaque participant',
     ],
   },
   {
@@ -68,8 +68,8 @@ const offers = [
     kicker: 'Mise en œuvre',
     title: 'Automatisation sur mesure',
     pricePrefix: 'À partir de',
-    price: '1 000 €',
-    priceNote: 'puis 100 à 150 € par mois',
+    price: '1 000 € HT',
+    priceNote: 'puis 100 à 150 € HT par mois',
     promise: 'Vos logiciels se parlent. Plus aucune ressaisie.',
     points: [
       'Périmètre écrit, prix ferme',
@@ -85,8 +85,8 @@ const offers = [
 
   <div class="hrn-section-inner">
     <div class="hrn-eyebrow">Offres</div>
-    <h2>Découvrez nos offres</h2>
-    <p class="hrn-lede">Deux formats, deux prix affichés. Vous savez avant d'appeler ce que ça coûte et ce que vous recevez.</p>
+    <h2>Deux façons de mettre l'IA au travail</h2>
+    <p class="hrn-lede">Former vos équipes, ou automatiser ce qui peut l'être. Les deux prix sont affichés : vous savez avant d'appeler ce que ça coûte et ce que vous recevez.</p>
   </div>
 
   <div

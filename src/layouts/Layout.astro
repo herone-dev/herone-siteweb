@@ -104,6 +104,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           "hasPart": [
             {
               "@type": "WebPage",
+              "name": "Formation IA en entreprise",
+              "url": "https://herone.fr/formation"
+            },
+            {
+              "@type": "WebPage",
               "name": "Systèmes",
               "url": "https://herone.fr/systemes"
             },
@@ -127,25 +132,68 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
             {
               "@type": "SiteNavigationElement",
               "position": 1,
+              "name": "Formation IA",
+              "description": "Une journée de formation à l'intelligence artificielle, dans votre entreprise.",
+              "url": "https://herone.fr/formation"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 2,
               "name": "Systèmes",
               "description": "Découvrez nos systèmes automatisés pour les TPE et PME.",
               "url": "https://herone.fr/systemes"
             },
             {
               "@type": "SiteNavigationElement",
-              "position": 2,
+              "position": 3,
               "name": "Blog",
               "description": "Conseils, guides et retours d'expérience sur l'automatisation et l'IA.",
               "url": "https://herone.fr/blog"
             },
             {
               "@type": "SiteNavigationElement",
-              "position": 3,
+              "position": 4,
               "name": "Réserver un appel",
               "description": "Réservez un échange découverte gratuit de 30 minutes avec notre équipe.",
               "url": "https://herone.fr/#reserver"
             }
           ]
+        },
+        {
+          "@type": "Service",
+          "@id": "https://herone.fr/#formation",
+          "name": "Formation IA en entreprise",
+          "serviceType": "Formation a l'intelligence artificielle en entreprise",
+          "url": "https://herone.fr/formation",
+          "description": "Une journee de formation a l'intelligence artificielle, animee a deux dans les locaux de l'entreprise, sans prerequis technique.",
+          "provider": { "@id": "https://herone.fr/#organization" },
+          "areaServed": { "@id": "https://herone.fr/#organization" },
+          "offers": {
+            "@type": "Offer",
+            "price": "1500",
+            "priceCurrency": "EUR",
+            "valueAddedTaxIncluded": false,
+            "description": "La journee, jusqu'a 3 personnes. Puis 500 EUR HT par personne.",
+            "url": "https://herone.fr/formation"
+          }
+        },
+        {
+          "@type": "Service",
+          "@id": "https://herone.fr/#automatisation",
+          "name": "Automatisation sur mesure",
+          "serviceType": "Automatisation de processus et integration de logiciels",
+          "url": "https://herone.fr/systemes",
+          "description": "Connexion des logiciels deja en place pour supprimer les ressaisies, avec un suivi mensuel.",
+          "provider": { "@id": "https://herone.fr/#organization" },
+          "areaServed": { "@id": "https://herone.fr/#organization" },
+          "offers": {
+            "@type": "Offer",
+            "price": "1000",
+            "priceCurrency": "EUR",
+            "valueAddedTaxIncluded": false,
+            "description": "A partir de 1000 EUR HT, puis 100 a 150 EUR HT par mois.",
+            "url": "https://herone.fr/#offres"
+          }
         }
       ]
     })} />

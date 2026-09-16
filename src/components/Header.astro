@@ -15,6 +15,7 @@ const { theme = 'light' } = Astro.props;
     <a href="/" class="hrn-header__logo">HÉRONE</a>
 
     <nav class="hrn-header__nav-desktop">
+      <a href="/formation" class="hrn-sweep">Formation IA</a>
       <a href="/#offres" class="hrn-sweep">Offres</a>
       <a href="/#temoignage" class="hrn-sweep">Témoignage</a>
       <a href="/#fondateurs" class="hrn-sweep">À propos</a>
@@ -39,11 +40,12 @@ const { theme = 'light' } = Astro.props;
     </button>
   </div>
   <nav class="hrn-mobile-menu__nav">
-    <a href="/#offres" class="hrn-sweep hrn-mobile-menu__item" style="--i:1">Offres</a>
-    <a href="/#temoignage" class="hrn-sweep hrn-mobile-menu__item" style="--i:2">Témoignage</a>
-    <a href="/#fondateurs" class="hrn-sweep hrn-mobile-menu__item" style="--i:3">À propos</a>
+    <a href="/formation" class="hrn-sweep hrn-mobile-menu__item" style="--i:1">Formation IA</a>
+    <a href="/#offres" class="hrn-sweep hrn-mobile-menu__item" style="--i:2">Offres</a>
+    <a href="/#temoignage" class="hrn-sweep hrn-mobile-menu__item" style="--i:3">Témoignage</a>
+    <a href="/#fondateurs" class="hrn-sweep hrn-mobile-menu__item" style="--i:4">À propos</a>
   </nav>
-  <div class="hrn-mobile-menu__bottom hrn-mobile-menu__item" style="--i:4">
+  <div class="hrn-mobile-menu__bottom hrn-mobile-menu__item" style="--i:5">
     <a href="tel:+33663710598" class="hrn-mobile-menu__phone hrn-sweep">06 63 71 05 98</a>
     <Button variant="accent" size="lg" block href="/#reserver">Réserver 30 minutes</Button>
   </div>
@@ -202,7 +204,7 @@ const { theme = 'light' } = Astro.props;
      dernier) : le menu se replie au lieu de disparaître d'un coup. --DERNIER
      est l'indice du dernier bloc, il sert à inverser le décalage. */
   .hrn-mobile-menu__item {
-    --dernier: 4;
+    --dernier: 5;
     opacity: 0;
     transform: translateY(-14px);
     transition:
