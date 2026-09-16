@@ -14,10 +14,12 @@ import Button from '../Button.astro';
 // les deux boutons, en cliquant une carte latérale, aux flèches du clavier,
 // ou au doigt en balayant horizontalement.
 //
-// Une cinquième étape pose les quatre cartes côte à côte, pour comparer les
-// prestations d'un seul regard. Elle n'est proposée qu'au-dessus de 1000px :
-// en dessous, quatre cartes de front tomberaient sous les 200px de large et
-// seraient illisibles. Le compteur passe alors de 04 à 05 étapes.
+// Une étape supplémentaire, après les cartes, les pose côte à côte pour
+// comparer les prestations d'un seul regard. Elle n'est proposée que si les
+// cartes y tiennent sans descendre sous 240px de large : en dessous elles
+// seraient illisibles. Le nombre d'étapes se déduit du nombre d'offres,
+// ajouter ou retirer une offre ne demande donc rien d'autre que de toucher
+// au tableau ci-dessous.
 //
 // Écarts assumés par rapport au fichier de design, et pourquoi :
 //
@@ -63,20 +65,6 @@ const offers = [
   },
   {
     num: '02',
-    kicker: 'Cadrage',
-    title: 'Diagnostic IA et automatisation',
-    pricePrefix: 'À partir de',
-    price: '800 €',
-    priceNote: null,
-    promise: 'Nous vous disons où part votre temps, et ce que vaut chaque piste.',
-    points: [
-      'Entretiens dirigeant et postes clés',
-      'Vos processus cartographiés',
-      '3 à 10 pistes chiffrées et classées',
-    ],
-  },
-  {
-    num: '03',
     kicker: 'Mise en œuvre',
     title: 'Automatisation sur mesure',
     pricePrefix: 'À partir de',
@@ -89,20 +77,6 @@ const offers = [
       'Suivi mensuel inclus',
     ],
   },
-  {
-    num: '04',
-    kicker: 'Système livré',
-    title: 'Système standardisé',
-    pricePrefix: 'À partir de',
-    price: '2 000 €',
-    priceNote: null,
-    promise: 'Votre rendez-vous devient un compte rendu envoyé, sans rien taper.',
-    points: [
-      'Installé chez notre client qui a témoigné ci-dessous',
-      'Agences, artisans, commerciaux, cabinets',
-      "La source d'enregistrement reste la vôtre",
-    ],
-  },
 ];
 ---
 
@@ -112,14 +86,14 @@ const offers = [
   <div class="hrn-section-inner">
     <div class="hrn-eyebrow">Offres</div>
     <h2>Découvrez nos offres</h2>
-    <p class="hrn-lede">Quatre formats, quatre prix affichés. Vous savez avant d'appeler ce que ça coûte et ce que vous recevez.</p>
+    <p class="hrn-lede">Deux formats, deux prix affichés. Vous savez avant d'appeler ce que ça coûte et ce que vous recevez.</p>
   </div>
 
   <div
     class="hrn-offers__stage"
     id="offers-stage"
     aria-roledescription="carousel"
-    aria-label="Nos quatre offres"
+    aria-label="Nos offres"
   >
     <ul class="hrn-offers__deck" id="offers-deck" role="list">
       {offers.map((offer, i) => (
@@ -186,7 +160,7 @@ const offers = [
 
     <p class="hrn-offers__counter">
       <span id="offers-counter">01</span>
-      <span class="hrn-offers__counter-total" id="offers-total">/ 0{offers.length}</span>
+      <span class="hrn-offers__counter-total" id="offers-total">/ {String(offers.length).padStart(2, '0')}</span>
     </p>
 
     <div class="hrn-offers__progress" aria-hidden="true">
@@ -795,23 +769,24 @@ const offers = [
 </style>
 
 <script>
-  const NB_CARTES = 4;
-
   // Compteur à rouleaux
   const TOURS = 2; // séries 0-9 traversées avant de se poser
   const DECALAGE = 90; // ms entre deux chiffres voisins
 
-  // Largeur en dessous de laquelle l'étape de comparaison n'est pas proposée :
-  // quatre cartes de front y tomberaient sous les 200px et seraient illisibles.
-  const LARGEUR_COMPARAISON = 1000;
+  // Largeur minimale d'une carte dans l'étape de comparaison : en dessous,
+  // elle devient illisible. Le seuil de la fenêtre s'en déduit, il n'est donc
+  // pas à revoir quand le nombre d'offres change.
+  const LARGEUR_MIN_COMPARAISON = 240;
+  // Largeur de carte du fichier de design : on ne va jamais au-delà.
+  const LARGEUR_CARTE_MAX = 420;
   const ECART_COMPARAISON = 16;
 
   let stage: HTMLElement | null = null;
   let deck: HTMLElement | null = null;
   let slots: HTMLElement[] = [];
-  // `etape` va de 0 à 3 pour les quatre cartes, et vaut 4 pour la comparaison.
-  // `actif` est la carte mise en avant : il suit `etape` sauf en comparaison,
-  // où il n'y a plus de carte unique au centre.
+  // `etape` parcourt les cartes, puis vaut le nombre de cartes quand on arrive
+  // sur la comparaison. `actif` est la carte mise en avant : il suit `etape`
+  // sauf en comparaison, où il n'y a plus de carte unique au centre.
   let etape = 0;
   let actif = 0;
   let derniereLargeur = 0;
@@ -903,12 +878,21 @@ const offers = [
   // Hauteur commune aux quatre cartes : on efface, on mesure la plus haute, on
   // l'applique à toutes. Sans cela l'éventail serait irrégulier, et une carte
   // plus longue que la scène se ferait rogner.
+  // La comparaison n'est proposée que si les cartes y tiennent côte à côte
+  // sans descendre sous leur largeur minimale.
+  function comparaisonPossible() {
+    if (!stage || slots.length < 2) return false;
+    const marge = Math.max(20, Math.min(48, Math.round(stage.clientWidth * 0.05)));
+    const dispo = stage.clientWidth - 2 * marge - (slots.length - 1) * ECART_COMPARAISON;
+    return dispo / slots.length >= LARGEUR_MIN_COMPARAISON;
+  }
+
   function nbEtapes() {
-    return stage && stage.clientWidth >= LARGEUR_COMPARAISON ? 5 : 4;
+    return slots.length + (comparaisonPossible() ? 1 : 0);
   }
 
   function enComparaison() {
-    return etape === 4 && nbEtapes() === 5;
+    return etape === slots.length && comparaisonPossible();
   }
 
   // La largeur de carte est posée d'abord : mesurer avant elle reviendrait à
@@ -919,9 +903,13 @@ const offers = [
     const scene = stage.clientWidth;
 
     if (enComparaison()) {
-      // Quatre cartes de front, marges de page comprises.
+      // Les cartes de front, marges de page comprises. La largeur est plafonnée
+      // à celle du design : à deux cartes sur grand écran, la division seule
+      // aurait donné des cartes énormes, et le ratio les aurait faites plus
+      // hautes que la fenêtre.
       const marge = Math.max(20, Math.min(48, Math.round(scene * 0.05)));
-      const largeur = Math.floor((scene - 2 * marge - 3 * ECART_COMPARAISON) / 4);
+      const dispo = scene - 2 * marge - (slots.length - 1) * ECART_COMPARAISON;
+      const largeur = Math.min(LARGEUR_CARTE_MAX, Math.floor(dispo / slots.length));
       stage.style.setProperty('--card-w', `${largeur}px`);
       return largeur;
     }
@@ -930,7 +918,7 @@ const offers = [
     // devinent. À 350px de large sur un écran de 390, il n'en restait aucune :
     // le visiteur qui découvre la section ne voyait pas qu'il y a d'autres
     // offres.
-    const largeur = Math.max(220, Math.min(420, Math.round(scene * 0.66)));
+    const largeur = Math.max(220, Math.min(LARGEUR_CARTE_MAX, Math.round(scene * 0.66)));
     stage.style.setProperty('--card-w', `${largeur}px`);
     return largeur;
   }
@@ -977,7 +965,7 @@ const offers = [
         slot.style.setProperty('--op', '1');
         slot.style.setProperty('--z', '1');
         slot.classList.remove('is-active');
-        // Les quatre cartes sont lisibles : toutes reprennent leur place dans
+        // Toutes les cartes sont lisibles : toutes reprennent leur place dans
         // l'arbre d'accessibilité et dans le parcours au clavier.
         slot.setAttribute('aria-hidden', 'false');
         const lien = slot.querySelector<HTMLAnchorElement>('.hrn-offers__cta-link');
@@ -1040,14 +1028,14 @@ const offers = [
     const titre = document.getElementById('offers-active-title');
 
     if (enComparaison()) {
-      if (compteur) compteur.textContent = '05';
-      if (titre) titre.textContent = 'Les quatre offres côte à côte';
+      if (compteur) compteur.textContent = String(total).padStart(2, '0');
+      if (titre) titre.textContent = 'Les offres côte à côte';
     } else {
       const carteActive = slots[actif];
       if (compteur) compteur.textContent = carteActive.querySelector('.hrn-offers__num')?.textContent ?? '';
       if (titre) titre.textContent = carteActive.querySelector('.hrn-offers__title')?.textContent ?? '';
     }
-    if (totalEl) totalEl.textContent = `/ 0${total}`;
+    if (totalEl) totalEl.textContent = `/ ${String(total).padStart(2, '0')}`;
 
     const barre = document.querySelector<HTMLElement>('.hrn-offers__progress-fill');
     if (barre) barre.style.setProperty('--p', String((etape + 1) / total));
@@ -1068,7 +1056,7 @@ const offers = [
     // reprendre la mesure de hauteur, sinon les cartes seraient rognées.
     disposer();
     if (reduit) return;
-    // En comparaison, les quatre montants défilent l'un après l'autre.
+    // En comparaison, les montants défilent l'un après l'autre.
     if (enComparaison()) slots.forEach((slot, i) => setTimeout(() => lancerRouleaux(slot), i * 130));
     else lancerRouleaux(slots[actif]);
   }
@@ -1081,7 +1069,8 @@ const offers = [
     if (!stage || !deck) return;
 
     slots = [...deck.querySelectorAll<HTMLElement>('.hrn-offers__slot')];
-    if (slots.length !== NB_CARTES) return;
+    // L'éventail n'a de sens qu'à partir de deux cartes.
+    if (slots.length < 2) return;
 
     reduit = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     ctrl = new AbortController();
@@ -1093,8 +1082,8 @@ const offers = [
     // cartes glisseraient depuis le centre au chargement de la page.
     requestAnimationFrame(() => deck?.classList.add('is-live'));
 
-    document.getElementById('offers-prev')?.addEventListener('click', () => aller(actif - 1), { signal });
-    document.getElementById('offers-next')?.addEventListener('click', () => aller(actif + 1), { signal });
+    document.getElementById('offers-prev')?.addEventListener('click', () => aller(etape - 1), { signal });
+    document.getElementById('offers-next')?.addEventListener('click', () => aller(etape + 1), { signal });
 
     slots.forEach((slot, i) => {
       // En comparaison, cliquer une carte y ramène l'éventail.
@@ -1104,8 +1093,8 @@ const offers = [
     // Les flèches sont écoutées sur le carrousel et non sur window : sinon
     // elles seraient confisquées au reste de la page.
     stage.addEventListener('keydown', (event) => {
-      if (event.key === 'ArrowRight') { event.preventDefault(); aller(actif + 1); }
-      else if (event.key === 'ArrowLeft') { event.preventDefault(); aller(actif - 1); }
+      if (event.key === 'ArrowRight') { event.preventDefault(); aller(etape + 1); }
+      else if (event.key === 'ArrowLeft') { event.preventDefault(); aller(etape - 1); }
     }, { signal });
 
     /* --------------------------------------------- balayage horizontal ---
