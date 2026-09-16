@@ -1,0 +1,86 @@
+---
+// Questions fréquentes propres à une offre, commun aux deux pages.
+//
+// Volontairement SANS accordéon, contrairement à la FAQ de l'accueil. Trois
+// raisons : les réponses sont ici des levées d'objection décisives (ce que
+// devient le système, ce qui est financé, ce qui arrive aux données), elles
+// doivent être lues sans qu'on ait à cliquer ; un texte replié n'est pas
+// toujours pris en compte de la même façon par les moteurs ; et une page sans
+// le moindre JavaScript reste une page sans le moindre JavaScript.
+//
+// Placement : après le tarif, avant le pont. C'est la dernière objection
+// avant de proposer l'autre porte.
+
+interface Props {
+  eyebrow?: string;
+  titre: string;
+  questions: { q: string; r: string }[];
+  /** Fond de la section, à choisir pour ne jamais répéter celui de la section précédente. */
+  fond?: 'paper' | 'surface';
+}
+
+const { eyebrow = 'Vos questions', titre, questions, fond = 'surface' } = Astro.props;
+---
+
+<section class:list={['hrn-offre-faq', `hrn-offre-faq--${fond}`]}>
+  <div class="hrn-section-inner">
+    <div class="hrn-eyebrow">{eyebrow}</div>
+    <h2>{titre}</h2>
+
+    <dl class="hrn-offre-faq__list">
+      {questions.map((item) => (
+        <div class="hrn-offre-faq__item">
+          <dt>{item.q}</dt>
+          <dd>{item.r}</dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+</section>
+
+<style>
+  .hrn-offre-faq {
+    padding: var(--section-y) 0;
+  }
+
+  .hrn-offre-faq--paper {
+    background: var(--paper);
+  }
+
+  .hrn-offre-faq--surface {
+    background: var(--surface);
+  }
+
+  /* minmax(min(…, 100%), 1fr) et non minmax(340px, 1fr) : sur un écran de
+     320px, une piste fixe plus large que le conteneur déborde et pousse toute
+     la page en défilement horizontal (piège n°1 du projet). */
+  .hrn-offre-faq__list {
+    margin: 40px 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+    gap: 0 clamp(28px, 4vw, 56px);
+  }
+
+  .hrn-offre-faq__item {
+    min-width: 0;
+    padding: 22px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .hrn-offre-faq__item dt {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+    letter-spacing: -0.015em;
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  .hrn-offre-faq__item dd {
+    margin: 10px 0 0;
+    font-size: 15.5px;
+    line-height: 1.62;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+</style>

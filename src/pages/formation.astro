@@ -17,7 +17,10 @@ import Layout from '../layouts/Layout.astro';
 import OffreHero from '../components/offre/OffreHero.astro';
 import OffreEtapes from '../components/offre/OffreEtapes.astro';
 import OffreTarif from '../components/offre/OffreTarif.astro';
+import OffreAvis from '../components/offre/OffreAvis.astro';
+import OffreFaq from '../components/offre/OffreFaq.astro';
 import OffrePont from '../components/offre/OffrePont.astro';
+import avisFormation from '../data/avis-formation.json';
 
 // Espaces insécables construits par leur point de code, jamais posés en clair
 // dans le fichier : le shell et certains éditeurs reconvertissent les espaces
@@ -110,6 +113,29 @@ const exemples = [
   { qui: '3 personnes', prix: `1${F}500${F}${EUR}${F}HT` },
   { qui: '5 personnes', prix: `2${F}500${F}${EUR}${F}HT` },
   { qui: '10 personnes', prix: `5${F}000${F}${EUR}${F}HT` },
+  { qui: '15 personnes, en 2 journées', prix: `7${F}500${F}${EUR}${F}HT` },
+];
+
+// Questions propres à la formation. Le financement arrive en premier : c'est
+// la première question d'un dirigeant devant une formation, et la réponse est
+// aujourd'hui « pas encore ». Autant qu'elle se lise avant le rendez-vous.
+const questions = [
+  {
+    q: 'La formation peut-elle être financée ?',
+    r: "Pas aujourd'hui. Notre certification Qualiopi est en cours : tant qu'elle n'est pas obtenue, la journée ne peut pas être prise en charge par un OPCO. Nous préférons le dire ici plutôt qu'en fin de rendez-vous. La journée se facture donc comme une prestation ordinaire.",
+  },
+  {
+    q: 'Combien de personnes peut-on former en même temps ?',
+    r: "Dix au maximum par session. Chacun travaille sur son propre poste et sur ses vrais dossiers, et c'est ce qui fixe la limite : au-delà, nous ne pouvons plus passer derrière tout le monde. Quinze personnes à former, ce sont donc deux journées, par exemple sept puis huit.",
+  },
+  {
+    q: 'Que faut-il préparer avant la journée ?',
+    r: "Les comptes et les accès, créés et distribués avant la session, pour que la journée commence sur du travail et pas sur de l'installation. Nous vous demandons aussi vos documents de référence et la liste de vos logiciels : c'est avec cela que nous préparons les exemples. La présence du dirigeant est nécessaire sur le passage consacré à la charte d'usage, c'est lui qui tranche ce qui entre dans l'outil et ce qui n'y entre jamais.",
+  },
+  {
+    q: 'Faut-il des connaissances techniques ?',
+    r: "Aucune. La journée s'adresse à des professionnels en entreprise, quel que soit leur poste. Chacun part de la tâche qu'il refait le plus souvent, et repart avec sa procédure écrite.",
+  },
 ];
 ---
 
@@ -124,7 +150,7 @@ const exemples = [
     lede="Nous venons dans vos locaux, à deux, et nous travaillons sur vos vrais dossiers. Pas de cas d'école, aucun prérequis technique. Le soir, chacun repart avec sa méthode écrite et sa première tâche à automatiser identifiée."
     faits={[
       { cle: 'Une journée', valeur: `${DUREE_NETTE} net, environ ${DUREE_TOTALE} avec les pauses` },
-      { cle: 'Animée à deux', valeur: 'Deux formateurs présents toute la journée' },
+      { cle: 'Animée à deux', valeur: 'Deux formateurs, dix participants au maximum' },
       { cle: 'Chez vous', valeur: 'Dans un rayon de 45 minutes autour des Herbiers' },
       { cle: `À partir de ${PRIX_JOUR}`, valeur: "La journée, jusqu'à 3 personnes" },
     ]}
@@ -197,6 +223,13 @@ const exemples = [
     </div>
   </section>
 
+  <OffreAvis
+    eyebrow="Ils y étaient"
+    titre="Ce qu'en disent les équipes formées"
+    avis={avisFormation.avis}
+    fond="surface"
+  />
+
   <OffreTarif
     titre="Affiché, comme tout le reste"
     regles={[
@@ -204,7 +237,13 @@ const exemples = [
       { prix: PRIX_PERSONNE, detail: 'par personne et par jour, dès 4 personnes' },
     ]}
     exemples={exemples}
-    inclus="La préparation est comprise. Avant de venir, nous travaillons sur vos dossiers et sur vos métiers, pour que les exemples de la journée soient les vôtres."
+    inclus="La préparation est comprise : avant de venir, nous travaillons sur vos dossiers et sur vos métiers, pour que les exemples de la journée soient les vôtres. Dix participants au maximum par session, au-delà nous revenons sur une seconde journée."
+  />
+
+  <OffreFaq
+    titre="Ce que les dirigeants nous demandent avant de réserver"
+    questions={questions}
+    fond="surface"
   />
 
   <OffrePont

@@ -13,8 +13,13 @@
 //
 // Aucun contenu inventé : les six tâches viennent du carrousel « Le constat »
 // de l'accueil, le déroulé vient de la FAQ et des points de la carte d'offre,
-// les prix sont ceux affichés sur l'accueil, et n8n, Make et Zapier sont les
-// outils que l'utilisateur a nommés.
+// les prix sont ceux affichés sur l'accueil. Le moteur d'automatisation est
+// n8n, auto-hébergé sur le serveur d'Hérone : c'est ce qui permet de dire
+// qu'aucun éditeur ne voit passer les données du client, et c'est l'argument
+// le plus fort de la page. Make et Zapier restent cités comme solutions de
+// repli quand les outils du client l'imposent, mais ce sont des services en
+// ligne : ils verraient les données. L'ordre des deux phrases n'est donc pas
+// cosmétique.
 //
 // Le seul JavaScript de la page est celui des témoignages (façade YouTube),
 // porté par le composant lui-même.
@@ -22,6 +27,7 @@ import Layout from '../layouts/Layout.astro';
 import OffreHero from '../components/offre/OffreHero.astro';
 import OffreEtapes from '../components/offre/OffreEtapes.astro';
 import OffreTarif from '../components/offre/OffreTarif.astro';
+import OffreFaq from '../components/offre/OffreFaq.astro';
 import OffrePont from '../components/offre/OffrePont.astro';
 import SystemsGrid from '../components/home/SystemsGrid.astro';
 import ProofSection from '../components/home/ProofSection.astro';
@@ -69,6 +75,28 @@ const taches = [
     quand: 'au quotidien',
     titre: 'Mails et pièces à trier',
     texte: 'Des heures à ranger, transférer et classer ce qui arrive dans la boîte.',
+  },
+];
+
+// Questions propres à l'automatisation. Les deux premières lèvent le frein de
+// la dépendance, qui est le vrai sujet d'un dirigeant devant un prestataire
+// technique : à qui appartient le système, et que se passe-t-il si on arrête.
+const questions = [
+  {
+    q: 'À qui appartient le système ?',
+    r: "À vous. Le jour où nous arrêtons de travailler ensemble, nous installons le système chez vous, en local, et il continue de tourner. Les évolutions sont alors à votre charge, mais vous ne repartez pas les mains vides. C'est voulu : personne ne devrait rester chez un prestataire faute de pouvoir en partir.",
+  },
+  {
+    q: 'Le suivi mensuel est-il un engagement ?',
+    r: "Au mois, non : ni vous ni nous ne sommes tenus, chacun peut arrêter. À l'année, oui, et dans les deux sens : nous nous engageons à rester à vos côtés douze mois, et vous ne pouvez pas vous retrouver sans interlocuteur du jour au lendemain. C'est ce que choisissent les entreprises pour qui le système est devenu critique. Nous en parlons au moment d'écrire le périmètre.",
+  },
+  {
+    q: 'Et si je change de logiciel ?',
+    r: "Un changement courant est absorbé par le suivi mensuel : nous rebranchons le système sur le nouvel outil. Une refonte lourde sort de ce cadre et fait l'objet d'un périmètre à part, écrit et chiffré comme le premier. La limite est posée par écrit avant de démarrer, elle ne se découvre pas en route.",
+  },
+  {
+    q: 'Mes données passent-elles par un prestataire extérieur ?',
+    r: "Le moteur qui fait tourner vos automatisations est une solution open source hébergée sur notre propre serveur : aucun éditeur d'automatisation ne voit passer vos données, et nous ne sous-traitons à personne. Quand une étape fait appel à l'intelligence artificielle, en revanche, le contenu traité est transmis au moteur d'IA retenu. Nous vous disons lequel et ce qui lui est envoyé avant de démarrer, et c'est écrit dans le périmètre.",
   },
 ];
 
@@ -170,9 +198,11 @@ const deroule = [
           <div class="hrn-eyebrow">Nos outils</div>
           <h2>Avec quoi nous construisons</h2>
           <p class="hrn-lede">
-            Nous construisons vos automatisations sur n8n, Make ou Zapier, selon ce qui convient à
-            vos logiciels et à votre budget. Le choix est discuté avec vous et écrit dans le
-            périmètre. Pas de frais cachés, pas d'abonnement captif.
+            Nous construisons vos automatisations sur n8n, une solution open source que nous
+            hébergeons sur notre propre serveur. Aucun éditeur d'automatisation ne voit donc passer
+            vos données. Quand vos outils l'imposent, nous savons aussi travailler avec Make ou
+            Zapier : le choix est discuté avec vous et écrit dans le périmètre. Pas de frais cachés,
+            pas d'abonnement captif.
           </p>
         </div>
         <div class="hrn-auto-outils__col">
@@ -200,6 +230,12 @@ const deroule = [
       { prix: PRIX_SUIVI, detail: 'par mois, pour la surveillance et la maintenance' },
     ]}
     inclus="Le périmètre et le prix sont écrits avant que nous démarrions, et le prix est ferme. En fonction de la complexité, du nombre d'outils à relier et de la taille de l'entreprise, un projet peut monter à plusieurs milliers d'euros : c'est justement ce que l'échange de trente minutes permet de savoir, sans engagement."
+  />
+
+  <OffreFaq
+    titre="Ce que les dirigeants nous demandent avant de signer"
+    questions={questions}
+    fond="surface"
   />
 
   <OffrePont
