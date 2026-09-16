@@ -1,0 +1,121 @@
+---
+// Déroulé en étapes, commun aux deux pages d'offre.
+//
+// Sur /formation, `meta` porte la durée du bloc (« 30 min »). Sur
+// /automatisation, elle porte le moment (« avant de démarrer »). Elle peut
+// aussi rester vide : la ligne se referme toute seule.
+//
+// Pas de white-space: nowrap sur le titre ni sur la méta. C'est ce qui a déjà
+// poussé la page en défilement horizontal ailleurs sur le site (piège n°1).
+// Les durées restent d'un seul tenant par leurs espaces insécables, ce qui
+// suffit et ne bloque pas le repli du reste.
+
+interface Props {
+  eyebrow: string;
+  titre: string;
+  lede?: string;
+  etapes: { num: string; titre: string; meta?: string; texte: string }[];
+  /** Fond de la section, à choisir pour ne jamais répéter celui de la section précédente. */
+  fond?: 'paper' | 'surface';
+  id?: string;
+}
+
+const { eyebrow, titre, lede, etapes, fond = 'surface', id } = Astro.props;
+---
+
+<section class:list={['hrn-offre-etapes', `hrn-offre-etapes--${fond}`]} id={id}>
+  <div class="hrn-section-inner">
+    <div class="hrn-eyebrow">{eyebrow}</div>
+    <h2>{titre}</h2>
+    {lede && <p class="hrn-lede">{lede}</p>}
+
+    <ol class="hrn-offre-etapes__list" role="list">
+      {etapes.map((etape) => (
+        <li class="hrn-offre-etape">
+          <div class="hrn-offre-etape__head">
+            <span class="hrn-offre-etape__num">{etape.num}</span>
+            <h3>{etape.titre}</h3>
+            {etape.meta && <span class="hrn-offre-etape__meta">{etape.meta}</span>}
+          </div>
+          <p>{etape.texte}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .hrn-offre-etapes {
+    padding: var(--section-y) 0;
+    scroll-margin-top: 68px;
+  }
+
+  .hrn-offre-etapes--paper {
+    background: var(--paper);
+  }
+
+  .hrn-offre-etapes--surface {
+    background: var(--surface);
+  }
+
+  .hrn-offre-etapes .hrn-lede {
+    margin-top: 16px !important;
+  }
+
+  .hrn-offre-etapes__list {
+    list-style: none;
+    margin: 40px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0;
+  }
+
+  .hrn-offre-etape {
+    padding: 22px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .hrn-offre-etape:last-child {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hrn-offre-etape__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 14px;
+  }
+
+  .hrn-offre-etape__num {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    color: var(--amber-600);
+  }
+
+  .hrn-offre-etape__head h3 {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.15rem, 1.8vw, 1.4rem);
+    letter-spacing: -0.015em;
+    color: var(--text-strong);
+  }
+
+  .hrn-offre-etape__meta {
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    color: var(--ink-500);
+  }
+
+  .hrn-offre-etape p {
+    margin-top: 10px !important;
+    max-width: 82ch;
+    font-size: 15.5px;
+    line-height: 1.62;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+</style>

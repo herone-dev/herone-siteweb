@@ -1,0 +1,315 @@
+---
+// Page « Automatisation IA ». Sous-page d'offre, jumelle de /formation : même
+// hero, même déroulé en étapes, même bloc de tarif, même pont vers l'autre
+// offre. Ne restent propres à cette page que les tâches visées et le choix
+// des outils.
+//
+// Cette page remplace l'ancienne /systemes, qui n'était liée que depuis le
+// pied de page et couvrait le même sujet sans jamais parler du prix. Les deux
+// auraient été en concurrence sur les mêmes recherches. La grille des trois
+// systèmes est reprise telle quelle ici, et netlify.toml renvoie /systemes en
+// 301 vers cette adresse (règle placée AVANT l'attrape-tout, sinon elle ne
+// s'appliquerait jamais, voir le piège n°8 bis).
+//
+// Aucun contenu inventé : les six tâches viennent du carrousel « Le constat »
+// de l'accueil, le déroulé vient de la FAQ et des points de la carte d'offre,
+// les prix sont ceux affichés sur l'accueil, et n8n, Make et Zapier sont les
+// outils que l'utilisateur a nommés.
+//
+// Le seul JavaScript de la page est celui des témoignages (façade YouTube),
+// porté par le composant lui-même.
+import Layout from '../layouts/Layout.astro';
+import OffreHero from '../components/offre/OffreHero.astro';
+import OffreEtapes from '../components/offre/OffreEtapes.astro';
+import OffreTarif from '../components/offre/OffreTarif.astro';
+import OffrePont from '../components/offre/OffrePont.astro';
+import SystemsGrid from '../components/home/SystemsGrid.astro';
+import ProofSection from '../components/home/ProofSection.astro';
+
+// Espaces insécables construits par leur point de code, jamais posés en clair
+// dans le fichier (piège n°7). Voir l'en-tête de formation.astro pour le
+// détail de la mesure qui a fait choisir la fine avant « HT ».
+const F = String.fromCodePoint(0x202f);
+const EUR = String.fromCodePoint(0x20ac);
+
+const PRIX_MISE_EN_PLACE = `1${F}000${F}${EUR}${F}HT`;
+const PRIX_SUIVI = `100 à 150${F}${EUR}${F}HT`;
+const PRIX_FORMATION = `1${F}500${F}${EUR}${F}HT`;
+
+// Les six tâches visées, reprises mot pour mot du carrousel « Le constat » de
+// la page d'accueil : c'est un contenu déjà validé, il ne doit pas diverger
+// entre les deux endroits.
+const taches = [
+  {
+    quand: 'chaque jour',
+    titre: "Ressaisie d'un logiciel à l'autre",
+    texte: "Les mêmes informations recopiées d'un outil à un autre, avec le risque d'erreur à chaque fois.",
+  },
+  {
+    quand: 'à chaque variante',
+    titre: 'Devis recalculés dans Excel',
+    texte: "Des feuilles dupliquées, une formule oubliée, et la marge qui saute sans qu'on le voie.",
+  },
+  {
+    quand: 'après chaque réunion',
+    titre: 'Comptes rendus retapés à la main',
+    texte: 'Une à deux heures de rédaction après le rendez-vous, et des détails qui filent.',
+  },
+  {
+    quand: 'chaque fin de mois',
+    titre: 'Reporting mensuel refait',
+    texte: 'Une journée à rassembler des chiffres épars, prêts trop tard pour décider.',
+  },
+  {
+    quand: 'dossier par dossier',
+    titre: 'Documents envoyés un par un',
+    texte: 'Le même envoi répété à la main, client après client, sans traçabilité.',
+  },
+  {
+    quand: 'au quotidien',
+    titre: 'Mails et pièces à trier',
+    texte: 'Des heures à ranger, transférer et classer ce qui arrive dans la boîte.',
+  },
+];
+
+// Le déroulé d'un projet, repris de la réponse « Comment se déroule un projet »
+// de la FAQ et des trois points de la carte d'offre.
+const deroule = [
+  {
+    num: '01',
+    titre: "L'échange découverte",
+    meta: '30 minutes, gratuit',
+    texte: `Vous décrivez votre quotidien, nous repérons ce qui peut être retiré des mains de vos équipes. Sans engagement, et sans que rien ne soit encore décidé. C'est aussi là que nous disons quand une automatisation ne vaut pas le coup.`,
+  },
+  {
+    num: '02',
+    titre: 'Le périmètre écrit',
+    meta: 'avant de démarrer',
+    texte: `Nous posons noir sur blanc ce que le système fera, ce qu'il ne fera pas, et son prix. Ferme. Rien ne commence avant votre accord sur ce document, et il ne bouge plus ensuite.`,
+  },
+  {
+    num: '03',
+    titre: 'La conception, validée par vous',
+    texte: `Nous vous montrons le fonctionnement prévu avant de construire quoi que ce soit. Un système validé sur le papier ne se découvre pas le jour de la livraison, et les corrections coûtent une conversation au lieu d'une semaine.`,
+  },
+  {
+    num: '04',
+    titre: "L'installation et la prise en main",
+    meta: 'chez vous',
+    texte: `Nous venons brancher le système sur vos outils, puis nous formons les personnes qui s'en serviront, jusqu'à ce que ça tourne sans nous. Comptez 1 à 4 semaines entre le périmètre signé et le système en service.`,
+  },
+  {
+    num: '05',
+    titre: 'Le suivi mensuel',
+    meta: PRIX_SUIVI,
+    texte: `Surveillance du système, correctifs en cas de dysfonctionnement, améliorations quand vos outils évoluent, et notre présence dans les meilleurs délais dès qu'un besoin surgit. Vos équipes gardent toujours la possibilité de reprendre la main.`,
+  },
+];
+---
+
+<Layout
+  title="Automatisation IA pour TPE et PME, en Vendée | Hérone"
+  description={`Nous relions les logiciels que vous utilisez déjà pour supprimer les ressaisies. Périmètre écrit, prix ferme, livré en 1 à 4 semaines. À partir de ${PRIX_MISE_EN_PLACE}. Les Herbiers, Vendée.`}
+  headerTheme="dark"
+>
+  <OffreHero
+    eyebrow="Automatisation IA"
+    titre="Vos logiciels se parlent. Plus aucune ressaisie."
+    lede="Nous relions les outils que vous utilisez déjà pour que l'information circule seule, d'un logiciel à l'autre. Rien à remplacer, rien à réapprendre, et un périmètre écrit avec son prix ferme avant que nous démarrions."
+    faits={[
+      { cle: `À partir de ${PRIX_MISE_EN_PLACE}`, valeur: `Puis ${PRIX_SUIVI} de suivi mensuel` },
+      { cle: 'Livré en 1 à 4 semaines', valeur: 'Périmètre écrit et prix ferme avant de démarrer' },
+      { cle: 'Sans changer vos logiciels', valeur: 'Nous connectons ceux que vous avez déjà' },
+      { cle: 'Chez vous', valeur: 'Dans un rayon de 45 minutes autour des Herbiers' },
+    ]}
+    lienHref="#tarif"
+    lienLabel="Voir le tarif"
+  />
+
+  <section class="hrn-auto-taches">
+    <div class="hrn-section-inner">
+      <div class="hrn-eyebrow">Ce que nous visons</div>
+      <h2>Les tâches que quelqu'un fait encore à la main</h2>
+      <p class="hrn-lede">
+        Vous en reconnaissez au moins une chez vous. Ce sont celles qui reviennent, qui ne demandent
+        aucun jugement, et qui coûtent des heures chaque semaine.
+      </p>
+
+      <ul class="hrn-auto-taches__grid" role="list">
+        {taches.map((t) => (
+          <li class="hrn-auto-tache">
+            <span class="hrn-auto-tache__quand">{t.quand}</span>
+            <h3>{t.titre}</h3>
+            <p>{t.texte}</p>
+          </li>
+        ))}
+      </ul>
+
+      <p class="hrn-auto-note">
+        Une tâche qui demande du jugement, la relation client, ou la responsabilité de ce qui sort de
+        l'entreprise, nous ne l'automatisons pas. Nous le disons dès l'échange découverte.
+      </p>
+    </div>
+  </section>
+
+  <SystemsGrid fond="surface" />
+
+  <OffreEtapes
+    eyebrow="Comment ça se passe"
+    titre="Du premier appel au système en service"
+    lede="Cinq étapes, dans cet ordre, et vous validez chacune avant de passer à la suivante."
+    etapes={deroule}
+    fond="paper"
+    id="deroule"
+  />
+
+  <section class="hrn-auto-outils">
+    <div class="hrn-section-inner">
+      <div class="hrn-auto-outils__grid">
+        <div class="hrn-auto-outils__col">
+          <div class="hrn-eyebrow">Nos outils</div>
+          <h2>Avec quoi nous construisons</h2>
+          <p class="hrn-lede">
+            Nous construisons vos automatisations sur n8n, Make ou Zapier, selon ce qui convient à
+            vos logiciels et à votre budget. Le choix est discuté avec vous et écrit dans le
+            périmètre. Pas de frais cachés, pas d'abonnement captif.
+          </p>
+        </div>
+        <div class="hrn-auto-outils__col">
+          <div class="hrn-eyebrow">Vos outils</div>
+          <h2>Ce que nous connectons</h2>
+          <p class="hrn-lede">
+            Nous construisons autour de l'existant : CRM, tableur, messagerie, comptabilité,
+            logiciel métier. Le système les relie plutôt que de les remplacer.
+          </p>
+          <a href="/#logiciels" class="hrn-auto-outils__link">
+            Voir les logiciels que nous connectons
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <ProofSection eyebrow="La preuve" titre="Deux systèmes, filmés chez nos clients" />
+
+  <OffreTarif
+    titre="Affiché, comme tout le reste"
+    regles={[
+      { prix: PRIX_MISE_EN_PLACE, detail: 'à partir de, pour la mise en place du système' },
+      { prix: PRIX_SUIVI, detail: 'par mois, pour la surveillance et la maintenance' },
+    ]}
+    inclus="Le périmètre et le prix sont écrits avant que nous démarrions, et le prix est ferme. En fonction de la complexité, du nombre d'outils à relier et de la taille de l'entreprise, un projet peut monter à plusieurs milliers d'euros : c'est justement ce que l'échange de trente minutes permet de savoir, sans engagement."
+  />
+
+  <OffrePont
+    titre="Et si vos équipes savaient déjà quoi automatiser&#8239;?"
+    texte={`Une journée de formation à l'IA leur apprend à repérer elles-mêmes les tâches qui valent la peine, et à s'en servir au quotidien. Beaucoup commencent par là : les automatisations qui suivent sont mieux ciblées. À partir de ${PRIX_FORMATION} la journée.`}
+    liens={[
+      { href: '/formation', label: "Voir l'offre de formation IA" },
+      { href: '/#offres', label: 'Comparer les deux offres et leurs prix' },
+    ]}
+  />
+</Layout>
+
+<style>
+  /* --------------------------------------------------- Tâches visées */
+  .hrn-auto-taches {
+    padding: var(--section-y) 0;
+    background: var(--paper);
+  }
+
+  .hrn-auto-taches .hrn-lede {
+    margin-top: 16px !important;
+  }
+
+  /* minmax(min(…, 100%), 1fr) et non minmax(280px, 1fr) : sur un écran de
+     320px, une piste fixe plus large que le conteneur déborde et pousse toute
+     la page en défilement horizontal (piège n°1 du projet). */
+  .hrn-auto-taches__grid {
+    list-style: none;
+    margin: 40px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    gap: 28px;
+  }
+
+  .hrn-auto-tache {
+    min-width: 0;
+    padding-top: 18px;
+    border-top: 2px solid var(--amber-500);
+  }
+
+  .hrn-auto-tache__quand {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-400);
+  }
+
+  .hrn-auto-tache h3 {
+    margin: 8px 0 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.1rem, 1.6vw, 1.3rem);
+    letter-spacing: -0.015em;
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  .hrn-auto-tache p {
+    margin-top: 10px !important;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  .hrn-auto-note {
+    margin-top: 34px !important;
+    max-width: 78ch;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    text-wrap: pretty;
+  }
+
+  /* ---------------------------------------------------------- Outils */
+  .hrn-auto-outils {
+    padding: var(--section-y) 0;
+    background: var(--surface);
+  }
+
+  .hrn-auto-outils__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+    gap: clamp(28px, 4vw, 56px);
+    align-items: start;
+  }
+
+  .hrn-auto-outils__col {
+    min-width: 0;
+  }
+
+  .hrn-auto-outils__col h2 {
+    font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+  }
+
+  .hrn-auto-outils__col .hrn-lede {
+    margin-top: 14px !important;
+  }
+
+  .hrn-auto-outils__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 18px;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--slate-600);
+  }
+</style>

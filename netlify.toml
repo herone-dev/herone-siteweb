@@ -5,6 +5,16 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# /systemes a été absorbée par /automatisation : même sujet, mais la nouvelle
+# page porte aussi le prix et le déroulé. Les deux se seraient concurrencées
+# sur les mêmes recherches. Cette règle doit rester AVANT tout attrape-tout,
+# la première correspondance gagne.
+[[redirects]]
+  from = "/systemes"
+  to = "/automatisation"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "/blog/metre-dwg"
   to = "/blog"

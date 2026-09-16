@@ -1,0 +1,169 @@
+---
+// Bloc de tarif, commun aux deux pages d'offre. Fond jade, montants en
+// accent, et une rangée d'exemples chiffrés quand la grille n'est pas une
+// simple ligne (c'est le cas de la formation, où le prix dépend du nombre de
+// personnes : montrer trois cas évite au visiteur de faire le calcul).
+//
+// Les montants ne portent PAS de white-space: nowrap. Ils tiennent d'un seul
+// tenant par leurs espaces insécables, ce qui suffit et ne fait pas déborder
+// la carte en étroit (piège n°1, déjà vécu sur les cartes d'offres).
+import Button from '../Button.astro';
+
+interface Props {
+  eyebrow?: string;
+  titre: string;
+  /** Une carte par règle de facturation. */
+  regles: { prix: string; detail: string }[];
+  /** Exemples chiffrés, facultatifs. */
+  exemples?: { qui: string; prix: string }[];
+  /** Ce que le prix comprend, sous les cartes. */
+  inclus?: string;
+  id?: string;
+}
+
+const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif' } = Astro.props;
+---
+
+<section class="hrn-offre-tarif" id={id}>
+  <div class="hrn-section-inner">
+    <div class="hrn-eyebrow">{eyebrow}</div>
+    <h2>{titre}</h2>
+
+    <div class="hrn-offre-tarif__grid">
+      {regles.map((r) => (
+        <div class="hrn-offre-tarif__regle">
+          <p class="hrn-offre-tarif__prix">{r.prix}</p>
+          <p class="hrn-offre-tarif__detail">{r.detail}</p>
+        </div>
+      ))}
+    </div>
+
+    {exemples && exemples.length > 0 && (
+      <ul class="hrn-offre-tarif__exemples" role="list">
+        {exemples.map((ex) => (
+          <li>
+            <span class="hrn-offre-tarif__qui">{ex.qui}</span>
+            <span class="hrn-offre-tarif__montant">{ex.prix}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+
+    {inclus && <p class="hrn-offre-tarif__inclus">{inclus}</p>}
+
+    <div class="hrn-offre-tarif__actions">
+      <Button variant="accent" size="lg" href="/#reserver">Réserver 30 minutes</Button>
+      <span class="hrn-offre-tarif__gratuit">Trente minutes d'échange, gratuit et sans engagement.</span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hrn-offre-tarif {
+    padding: var(--section-y) 0;
+    background: var(--slate-900);
+    scroll-margin-top: 68px;
+  }
+
+  .hrn-offre-tarif :global(.hrn-eyebrow) {
+    color: var(--amber-300);
+  }
+
+  .hrn-offre-tarif h2 {
+    color: var(--text-inverse);
+  }
+
+  .hrn-offre-tarif__grid {
+    margin-top: 34px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+    gap: 24px;
+  }
+
+  .hrn-offre-tarif__regle {
+    min-width: 0;
+    padding: 24px;
+    border: 1px solid var(--border-inverse);
+    border-radius: var(--radius-xl);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .hrn-offre-tarif__prix {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: clamp(1.7rem, 3vw, 2.2rem);
+    letter-spacing: -0.015em;
+    color: var(--amber-400);
+  }
+
+  .hrn-offre-tarif__detail {
+    margin-top: 8px !important;
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--ink-300);
+    text-wrap: pretty;
+  }
+
+  .hrn-offre-tarif__exemples {
+    list-style: none;
+    margin: 24px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+    gap: 2px;
+  }
+
+  .hrn-offre-tarif__exemples li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px 14px;
+    min-width: 0;
+    padding: 13px 16px;
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .hrn-offre-tarif__qui {
+    font-size: 14.5px;
+    color: var(--ink-300);
+  }
+
+  .hrn-offre-tarif__montant {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-inverse);
+  }
+
+  .hrn-offre-tarif__inclus {
+    margin-top: 26px !important;
+    max-width: 70ch;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-300);
+    text-wrap: pretty;
+  }
+
+  .hrn-offre-tarif__actions {
+    margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .hrn-offre-tarif__gratuit {
+    font-size: 14.5px;
+    color: var(--ink-300);
+  }
+
+  @media (max-width: 640px) {
+    .hrn-offre-tarif__actions {
+      align-items: stretch;
+      flex-direction: column;
+    }
+  }
+</style>

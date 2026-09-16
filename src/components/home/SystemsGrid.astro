@@ -5,12 +5,16 @@
 // par défaut garde l'en-tête si la section revient un jour dans une page.
 interface Props {
   showHead?: boolean;
+  /** Fond de la section, à choisir pour ne jamais répéter celui de la section
+      précédente. La grille vit maintenant sur /automatisation, où l'ordre des
+      sections n'est pas celui de l'accueil. */
+  fond?: 'paper' | 'surface';
 }
 
-const { showHead = true } = Astro.props;
+const { showHead = true, fond = 'paper' } = Astro.props;
 ---
 
-<section id="systemes" class:list={['hrn-systems', !showHead && 'hrn-systems--bare']}>
+<section id="systemes" class:list={['hrn-systems', `hrn-systems--${fond}`, !showHead && 'hrn-systems--bare']}>
   <div class="hrn-section-inner">
     {showHead && (
       <div class="hrn-systems__head">
@@ -66,8 +70,22 @@ const { showHead = true } = Astro.props;
 <style>
   .hrn-systems {
     padding: var(--section-y) 0;
-    background: var(--paper);
     scroll-margin-top: 68px;
+  }
+
+  .hrn-systems--paper {
+    background: var(--paper);
+  }
+
+  /* Sur fond surface, les cartes prendraient exactement la couleur de la
+     section et s'y fondraient : elles passent sur le fond papier, plus
+     sombre, pour rester lisibles comme des cartes. */
+  .hrn-systems--surface {
+    background: var(--surface);
+  }
+
+  .hrn-systems--surface .hrn-systems__card {
+    background: var(--paper);
   }
 
   .hrn-systems__head {

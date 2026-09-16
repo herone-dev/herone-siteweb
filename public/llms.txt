@@ -69,7 +69,7 @@ Nous intervenons sur place dans les communes et secteurs suivants :
 
 - [Page d'accueil](https://herone.fr/) : Présentation, offres et prix, témoignages clients et calendrier de réservation.
 - [Formation IA en entreprise](https://herone.fr/formation) : Le déroulé complet de la journée, les six livrables et le tarif affiché.
-- [Catalogue des Systèmes](https://herone.fr/systemes) : Détail complet des cas d'usage par métier et des automatisations installables.
+- [Automatisation IA](https://herone.fr/automatisation) : Le déroulé complet d'un projet en cinq étapes, les systèmes installés et le tarif affiché.
 - [Blog & Ressources](https://herone.fr/blog) : Articles méthodologiques, guides d'automatisation et retours d'expérience TPE/PME.
 - [Réserver un rendez-vous](https://herone.fr/#reserver) : Accès direct au calendrier pour réserver un échange découverte de 30 minutes.
 - [Mentions Légales](https://herone.fr/mentions-legales) : Éditeur et hébergeur du site.

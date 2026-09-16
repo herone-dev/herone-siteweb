@@ -53,6 +53,8 @@ const offers = [
     num: '01',
     kicker: 'Formation',
     title: 'Formation IA en entreprise',
+    pageHref: '/formation',
+    pageLabel: 'Voir la journée en détail',
     pricePrefix: 'À partir de',
     price: '1 500 € HT',
     priceNote: "la journée, jusqu'à 3 personnes, puis 500 € HT par personne",
@@ -67,6 +69,8 @@ const offers = [
     num: '02',
     kicker: 'Mise en œuvre',
     title: 'Automatisation sur mesure',
+    pageHref: '/automatisation',
+    pageLabel: 'Voir le déroulé en détail',
     pricePrefix: 'À partir de',
     price: '1 000 € HT',
     priceNote: 'puis 100 à 150 € HT par mois',
@@ -127,7 +131,8 @@ const offers = [
             </ul>
 
             <div class="hrn-offers__cta">
-              <a href="#reserver" class="hrn-offers__cta-link">Réserver 30 minutes</a>
+              <a href={offer.pageHref} class="hrn-offers__cta-link">{offer.pageLabel}</a>
+              <a href="#reserver" class="hrn-offers__cta-link hrn-offers__cta-link--soft">Réserver 30 minutes</a>
             </div>
           </article>
         </li>
@@ -506,6 +511,10 @@ const offers = [
   .hrn-offers__cta {
     margin-top: auto;
     padding-top: 26px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 10px 20px;
   }
 
   .hrn-offers__cta-link {
@@ -521,6 +530,15 @@ const offers = [
   .hrn-offers__cta-link:hover {
     color: var(--amber-600);
     border-bottom-color: var(--amber-600);
+  }
+
+  /* Le second lien reste disponible mais ne dispute pas la vedette au
+     premier : sur une carte d'offre, la page de l'offre est la suite
+     naturelle, la réservation est déjà proposée en gros juste en dessous. */
+  .hrn-offers__cta-link--soft {
+    font-weight: 500;
+    color: var(--ink-500);
+    border-bottom-color: var(--ink-300);
   }
 
   /* ---------- Barre de navigation ---------- */
@@ -968,8 +986,8 @@ const offers = [
         // Toutes les cartes sont lisibles : toutes reprennent leur place dans
         // l'arbre d'accessibilité et dans le parcours au clavier.
         slot.setAttribute('aria-hidden', 'false');
-        const lien = slot.querySelector<HTMLAnchorElement>('.hrn-offers__cta-link');
-        if (lien) lien.tabIndex = 0;
+        slot.querySelectorAll<HTMLAnchorElement>('.hrn-offers__cta-link')
+          .forEach((lien) => { lien.tabIndex = 0; });
       });
       majNavigation();
       return;
@@ -1011,8 +1029,8 @@ const offers = [
       // Une carte en retrait est décorative : elle sort du parcours au clavier
       // et de l'arbre d'accessibilité, sinon on tabulerait dans du texte flou.
       slot.setAttribute('aria-hidden', offset === 0 ? 'false' : 'true');
-      const lien = slot.querySelector<HTMLAnchorElement>('.hrn-offers__cta-link');
-      if (lien) lien.tabIndex = offset === 0 ? 0 : -1;
+      slot.querySelectorAll<HTMLAnchorElement>('.hrn-offers__cta-link')
+        .forEach((lien) => { lien.tabIndex = offset === 0 ? 0 : -1; });
     });
 
     majNavigation();
