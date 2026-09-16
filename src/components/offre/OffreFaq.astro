@@ -1,12 +1,15 @@
 ---
 // Questions fréquentes propres à une offre, commun aux deux pages.
 //
-// Volontairement SANS accordéon, contrairement à la FAQ de l'accueil. Trois
-// raisons : les réponses sont ici des levées d'objection décisives (ce que
-// devient le système, ce qui est financé, ce qui arrive aux données), elles
-// doivent être lues sans qu'on ait à cliquer ; un texte replié n'est pas
-// toujours pris en compte de la même façon par les moteurs ; et une page sans
-// le moindre JavaScript reste une page sans le moindre JavaScript.
+// Porté du handoff Claude Design « Blocs Offres Herone » (bloc 1d).
+//
+// Volontairement SANS accordéon, contrairement à la FAQ de l'accueil, et le
+// design le confirme. Trois raisons : les réponses sont ici des levées
+// d'objection décisives (ce que devient le système, ce qui est financé, ce qui
+// arrive aux données), elles doivent être lues sans qu'on ait à cliquer ; un
+// texte replié n'est pas toujours pris en compte de la même façon par les
+// moteurs ; et une page sans le moindre JavaScript reste une page sans le
+// moindre JavaScript.
 //
 // Placement : après le tarif, avant le pont. C'est la dernière objection
 // avant de proposer l'autre porte.
@@ -19,13 +22,15 @@ interface Props {
   fond?: 'paper' | 'surface';
 }
 
-const { eyebrow = 'Vos questions', titre, questions, fond = 'surface' } = Astro.props;
+const { eyebrow = 'Questions fréquentes', titre, questions, fond = 'surface' } = Astro.props;
 ---
 
 <section class:list={['hrn-offre-faq', `hrn-offre-faq--${fond}`]}>
-  <div class="hrn-section-inner">
-    <div class="hrn-eyebrow">{eyebrow}</div>
-    <h2>{titre}</h2>
+  <div class="hrn-section-inner hrn-offre-faq__inner">
+    <div class="hrn-offre-faq__head">
+      <div class="hrn-eyebrow">{eyebrow}</div>
+      <h2>{titre}</h2>
+    </div>
 
     <dl class="hrn-offre-faq__list">
       {questions.map((item) => (
@@ -44,42 +49,65 @@ const { eyebrow = 'Vos questions', titre, questions, fond = 'surface' } = Astro.
   }
 
   .hrn-offre-faq--paper {
-    background: var(--paper);
+    background: var(--bg-page);
   }
 
   .hrn-offre-faq--surface {
-    background: var(--surface);
+    background: var(--bg-surface);
   }
 
-  /* minmax(min(…, 100%), 1fr) et non minmax(340px, 1fr) : sur un écran de
-     320px, une piste fixe plus large que le conteneur déborde et pousse toute
-     la page en défilement horizontal (piège n°1 du projet). */
-  .hrn-offre-faq__list {
-    margin: 40px 0 0;
+  .hrn-offre-faq__inner {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
-    gap: 0 clamp(28px, 4vw, 56px);
+    gap: clamp(var(--space-8), 5vw, var(--space-12));
+  }
+
+  .hrn-offre-faq__head {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .hrn-offre-faq__head h2 {
+    margin: 0;
+    font: var(--type-h2);
+    letter-spacing: var(--tracking-tight);
+    color: var(--text-strong);
+    max-width: none;
+    text-wrap: balance;
+  }
+
+  /* minmax(min(…, 100%), 1fr) : une piste fixe plus large que le conteneur
+     pousse toute la page en défilement horizontal sur un écran de 320px
+     (piège n°1 du projet). */
+  .hrn-offre-faq__list {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+    gap: var(--space-8) var(--space-16);
   }
 
   .hrn-offre-faq__item {
     min-width: 0;
-    padding: 22px 0;
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    padding-top: var(--space-5);
     border-top: 1px solid var(--border);
   }
 
+  /* La question est en sans, pas en display : c'est du texte à lire, pas un
+     titre de section. Le design pose bold sur --text-md. */
   .hrn-offre-faq__item dt {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
-    letter-spacing: -0.015em;
+    font-family: var(--font-sans);
+    font-weight: var(--weight-bold);
+    font-size: var(--text-md);
+    line-height: var(--leading-snug);
     color: var(--text-strong);
     text-wrap: balance;
   }
 
   .hrn-offre-faq__item dd {
-    margin: 10px 0 0;
-    font-size: 15.5px;
-    line-height: 1.62;
+    margin: 0;
+    font: var(--type-body);
     color: var(--text-secondary);
     text-wrap: pretty;
   }

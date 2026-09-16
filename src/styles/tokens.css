@@ -93,6 +93,23 @@
   --tracking-wide: 0.02em;
   --tracking-label: 0.14em;
 
+  /* Rôles typographiques. Repris du design system Claude Design (h-rone-ds2),
+     où ils existaient déjà : les handoffs les utilisent, le repo ne les avait
+     pas encore. Ajoutés tels quels, sans rien redéfinir au passage. Un rôle
+     est un raccourci `font:` complet, à poser d'un coup :
+       font: var(--type-h2);
+     Attention, la forme courte `font:` réinitialise les propriétés non
+     citées : poser la couleur et l'interlettrage séparément. */
+  --type-display: var(--weight-extrabold) var(--text-6xl)/var(--leading-none) var(--font-display);
+  --type-h1: var(--weight-bold) var(--text-4xl)/var(--leading-tight) var(--font-display);
+  --type-h2: var(--weight-bold) var(--text-3xl)/var(--leading-tight) var(--font-display);
+  --type-h3: var(--weight-semibold) var(--text-2xl)/var(--leading-snug) var(--font-display);
+  --type-h4: var(--weight-semibold) var(--text-xl)/var(--leading-snug) var(--font-display);
+  --type-body: var(--weight-regular) var(--text-base)/var(--leading-relaxed) var(--font-sans);
+  --type-body-lg: var(--weight-regular) var(--text-md)/var(--leading-relaxed) var(--font-sans);
+  --type-small: var(--weight-regular) var(--text-sm)/var(--leading-normal) var(--font-sans);
+  --type-eyebrow: var(--weight-medium) var(--text-xs)/var(--leading-normal) var(--font-mono);
+
   /* ============ Espacement (base 4px) ============ */
   --space-0: 0;
   --space-px: 1px;

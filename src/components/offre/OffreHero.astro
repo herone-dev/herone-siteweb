@@ -1,22 +1,39 @@
 ---
 // Hero commun aux pages d'offre (/formation, /automatisation).
 //
-// Les deux pages sont des jumelles volontaires : même hero, même déroulé en
-// étapes, même bloc de tarif, même pont vers l'autre offre. Un visiteur qui
-// passe de l'une à l'autre doit reconnaître la structure et comparer sans
-// effort. C'est aussi ce qui fait qu'un futur handoff de design ne s'applique
-// qu'à un seul endroit au lieu de deux.
+// Porté du handoff Claude Design « Blocs Offres Herone » (bloc 1a), projet
+// ef0bd883. La géométrie et le rythme viennent du design ; les écarts assumés
+// sont listés plus bas.
 //
-// Motif repris de /blog : fond jade, trame de points, titre display. Le
-// padding haut laisse passer le header fixe de 68px (mesuré : le texte
-// commence à 104px en étroit, 128px au large).
+// Les deux pages d'offre sont des jumelles volontaires : un visiteur qui passe
+// de l'une à l'autre doit reconnaître la structure et comparer sans effort.
+// C'est aussi ce qui fait qu'un handoff ne s'applique qu'à un seul endroit.
+//
+// Écarts assumés par rapport au fichier de design, et pourquoi :
+//
+//  1. Le design mesure ses espacements en `cqi` (unités de conteneur), parce
+//     que chaque bloc y est rendu dans une carte d'aperçu de largeur fixe.
+//     Sur le site réel il n'y a pas de conteneur : les `cqi` retomberaient
+//     silencieusement sur la fenêtre. Ils sont donc traduits en `vw`, ce qui
+//     est leur sens ici, et le calcul reste le même.
+//  2. Le padding vertical passe par --section-y au lieu du clamp du design.
+//     Dans ce projet, aucune section ne code son rythme en dur : --section-y
+//     est déjà un clamp, et c'est lui le réglage unique de toute la page.
+//     Le padding horizontal, lui, est repris tel quel par .hrn-section-inner,
+//     dont la formule est identique à celle du design.
+//  3. Le design pose `overflow-wrap:anywhere` globalement. Non repris : cela
+//     coupe les mots au milieu sur les titres. Les débordements sont traités
+//     à la source (minmax(min(...,100%),1fr), aucun libellé insécable).
+//  4. La trame de points du hero vient des pages intérieures existantes
+//     (/blog) et n'est pas dans le design. Conservée pour que les pages
+//     intérieures restent cohérentes entre elles.
 import Button from '../Button.astro';
 
 interface Props {
   eyebrow: string;
   titre: string;
   lede: string;
-  /** Rangée de faits sous le chapô. Le libellé porte le chiffre, la valeur l'explique. */
+  /** Rangée de faits sous le chapô. Le design en pose quatre, le prix en dernier. */
   faits: { cle: string; valeur: string }[];
   /** Lien secondaire à côté du bouton, typiquement vers l'ancre du tarif. */
   lienHref?: string;
@@ -29,15 +46,17 @@ const { eyebrow, titre, lede, faits, lienHref, lienLabel } = Astro.props;
 <section class="hrn-offre-hero">
   <div class="hrn-offre-hero__dots" aria-hidden="true"></div>
   <div class="hrn-section-inner hrn-offre-hero__content">
-    <div class="hrn-eyebrow">{eyebrow}</div>
-    <h1>{titre}</h1>
-    <p class="hrn-offre-hero__lede">{lede}</p>
+    <div class="hrn-offre-hero__intro">
+      <div class="hrn-eyebrow">{eyebrow}</div>
+      <h1>{titre}</h1>
+      <p class="hrn-offre-hero__lede">{lede}</p>
+    </div>
 
     <ul class="hrn-offre-facts" role="list">
       {faits.map((f) => (
         <li>
-          <span class="hrn-offre-facts__key">{f.cle}</span>
-          <span class="hrn-offre-facts__val">{f.valeur}</span>
+          <strong>{f.cle}</strong>
+          <span>{f.valeur}</span>
         </li>
       ))}
     </ul>
@@ -47,7 +66,7 @@ const { eyebrow, titre, lede, faits, lienHref, lienLabel } = Astro.props;
       {lienHref && lienLabel && (
         <a href={lienHref} class="hrn-offre-hero__link">
           {lienLabel}
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
         </a>
       )}
     </div>
@@ -55,11 +74,13 @@ const { eyebrow, titre, lede, faits, lienHref, lienLabel } = Astro.props;
 </section>
 
 <style>
+  /* Le padding haut laisse passer le header fixe de 68px (mesuré : le texte
+     commence à 104px en étroit, 128px au large). */
   .hrn-offre-hero {
     position: relative;
-    padding: clamp(104px, 11vw, 128px) 0 clamp(40px, 5vw, 56px);
-    background: var(--slate-900);
-    color: var(--ink-200);
+    padding: clamp(104px, 11vw, 128px) 0 var(--section-y);
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
     overflow: hidden;
   }
 
@@ -72,83 +93,133 @@ const { eyebrow, titre, lede, faits, lienHref, lienLabel } = Astro.props;
 
   .hrn-offre-hero__content {
     position: relative;
+    display: grid;
+    gap: clamp(var(--space-8), 5vw, var(--space-12));
   }
 
   .hrn-offre-hero :global(.hrn-eyebrow) {
     color: var(--amber-300);
   }
 
+  .hrn-offre-hero__intro {
+    display: grid;
+    gap: var(--space-5);
+    max-width: 52rem;
+  }
+
   .hrn-offre-hero h1 {
     font-family: var(--font-display);
-    font-weight: 800;
-    font-size: clamp(2.2rem, 5vw, 3.6rem);
-    line-height: 1.06;
-    letter-spacing: -0.02em;
-    color: var(--text-inverse);
-    max-width: 18ch;
-    margin: 14px 0 0;
+    font-weight: var(--weight-extrabold);
+    font-size: clamp(var(--text-3xl), 7vw, var(--text-6xl));
+    line-height: var(--leading-none);
+    letter-spacing: var(--tracking-tighter);
+    color: #fff;
+    margin: 0;
     text-wrap: balance;
   }
 
   .hrn-offre-hero__lede {
-    margin-top: 18px !important;
-    max-width: 62ch;
-    font-size: 17px;
-    line-height: 1.6;
-    color: var(--ink-300);
+    margin: 0 !important;
+    font: var(--type-body-lg);
+    color: var(--ink-200);
+    max-width: 40rem;
     text-wrap: pretty;
   }
 
-  /* minmax(min(…, 100%), 1fr) et non minmax(210px, 1fr) : sur un écran de
+  /* minmax(min(…, 100%), 1fr) et non minmax(220px, 1fr) : sur un écran de
      320px, une piste fixe plus large que le conteneur déborde et pousse toute
-     la page en défilement horizontal (piège n°1 du projet). */
+     la page en défilement horizontal (piège n°1 du projet). Le fichier de
+     design pose déjà la bonne forme, elle est reprise telle quelle. */
   .hrn-offre-facts {
     list-style: none;
-    margin: 34px 0 0;
-    padding: 24px 0 0;
+    margin: 0;
+    padding: var(--space-6) 0 0;
     border-top: 1px solid var(--border-inverse);
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
-    gap: 22px;
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+    gap: var(--space-6) var(--space-8);
   }
 
   .hrn-offre-facts li {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+    display: grid;
+    gap: var(--space-1);
     min-width: 0;
   }
 
-  .hrn-offre-facts__key {
-    font-family: var(--font-mono);
-    font-weight: 600;
-    font-size: 15px;
-    letter-spacing: -0.01em;
-    color: var(--text-inverse);
+  .hrn-offre-facts strong {
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    font-size: var(--text-lg);
+    line-height: var(--leading-snug);
+    color: #fff;
+    text-wrap: balance;
   }
 
-  .hrn-offre-facts__val {
-    font-size: 13.5px;
-    line-height: 1.45;
+  .hrn-offre-facts span {
+    font: var(--type-small);
     color: var(--ink-300);
     text-wrap: pretty;
   }
 
   .hrn-offre-hero__actions {
-    margin-top: 32px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 22px;
+    gap: var(--space-4) var(--space-6);
   }
 
   .hrn-offre-hero__link {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    font-size: 15px;
+    gap: var(--space-2);
+    font-weight: var(--weight-semibold);
+    color: var(--text-inverse);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease-standard),
+                transform var(--dur-fast) var(--ease-standard);
+  }
+
+  .hrn-offre-hero__link:hover,
+  .hrn-offre-hero__link:focus-visible {
     color: var(--amber-300);
+    transform: translateX(2px);
+  }
+
+  /* Apparition à l'arrivée sur la page, en cascade sur les trois blocs, comme
+     dans le design. Pas d'IntersectionObserver ici : le hero est au-dessus de
+     la ligne de flottaison, il est déjà à l'écran. N'anime que transform et
+     opacity, conformément à la convention du projet. */
+  @keyframes hrn-offre-rise {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .hrn-offre-hero__intro,
+  .hrn-offre-facts,
+  .hrn-offre-hero__actions {
+    animation: hrn-offre-rise var(--dur-slow) var(--ease-out) both;
+  }
+
+  .hrn-offre-facts {
+    animation-delay: 80ms;
+  }
+
+  .hrn-offre-hero__actions {
+    animation-delay: 160ms;
+  }
+
+  /* Sans cette coupure, le contenu du hero arriverait en glissant chez les
+     personnes qui ont demandé l'inverse au système. */
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-offre-hero__intro,
+    .hrn-offre-facts,
+    .hrn-offre-hero__actions {
+      animation: none;
+    }
+
+    .hrn-offre-hero__link {
+      transition: none;
+    }
   }
 
   @media (max-width: 640px) {

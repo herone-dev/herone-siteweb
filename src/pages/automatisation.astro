@@ -145,10 +145,10 @@ const deroule = [
     titre="Vos logiciels se parlent. Plus aucune ressaisie."
     lede="Nous relions les outils que vous utilisez déjà pour que l'information circule seule, d'un logiciel à l'autre. Rien à remplacer, rien à réapprendre, et un périmètre écrit avec son prix ferme avant que nous démarrions."
     faits={[
-      { cle: `À partir de ${PRIX_MISE_EN_PLACE}`, valeur: `Puis ${PRIX_SUIVI} de suivi mensuel` },
-      { cle: 'Livré en 1 à 4 semaines', valeur: 'Périmètre écrit et prix ferme avant de démarrer' },
-      { cle: 'Sans changer vos logiciels', valeur: 'Nous connectons ceux que vous avez déjà' },
-      { cle: 'Chez vous', valeur: 'Dans un rayon de 45 minutes autour des Herbiers' },
+      { cle: 'Sans changer vos logiciels', valeur: 'Nous connectons ceux que vous avez déjà.' },
+      { cle: 'Livré en 1 à 4 semaines', valeur: 'Périmètre écrit et prix ferme avant de démarrer.' },
+      { cle: 'Chez vous', valeur: 'Dans un rayon de 45 minutes autour des Herbiers.' },
+      { cle: `À partir de ${PRIX_MISE_EN_PLACE}`, valeur: `Puis ${PRIX_SUIVI} de suivi mensuel.` },
     ]}
     lienHref="#tarif"
     lienLabel="Voir le tarif"
@@ -226,8 +226,8 @@ const deroule = [
   <OffreTarif
     titre="Affiché, comme tout le reste"
     regles={[
-      { prix: PRIX_MISE_EN_PLACE, detail: 'à partir de, pour la mise en place du système' },
-      { prix: PRIX_SUIVI, detail: 'par mois, pour la surveillance et la maintenance' },
+      { label: 'Mise en place', prix: PRIX_MISE_EN_PLACE, detail: "À partir de. Conception, installation et formation de l'équipe. Le montant dépend du nombre de flux et des logiciels à relier." },
+      { label: 'Maintenance, par mois', prix: PRIX_SUIVI, detail: 'Surveillance, correctifs, et ajustements quand vos outils évoluent.' },
     ]}
     inclus="Le périmètre et le prix sont écrits avant que nous démarrions, et le prix est ferme. En fonction de la complexité, du nombre d'outils à relier et de la taille de l'entreprise, un projet peut monter à plusieurs milliers d'euros : c'est justement ce que l'échange de trente minutes permet de savoir, sans engagement."
   />

@@ -1,8 +1,16 @@
 ---
-// Bloc de tarif, commun aux deux pages d'offre. Fond jade, montants en
-// accent, et une rangée d'exemples chiffrés quand la grille n'est pas une
-// simple ligne (c'est le cas de la formation, où le prix dépend du nombre de
-// personnes : montrer trois cas évite au visiteur de faire le calcul).
+// Bloc de tarif, commun aux deux pages d'offre.
+//
+// Porté du handoff Claude Design « Blocs Offres Herone » (bloc 1c).
+// Ce que le design change par rapport à la version précédente :
+//  - chaque carte de prix porte un petit label au-dessus du montant
+//    (« Mise en place », « Maintenance, par mois ») : on sait ce qu'on lit
+//    avant de lire le chiffre ;
+//  - le montant grossit franchement (jusqu'à --text-5xl) ;
+//  - les exemples chiffrés passent des pastilles à une liste de définitions
+//    réglée, avec chiffres tabulaires : les montants s'alignent en colonne et
+//    se comparent d'un coup d'œil ;
+//  - la phrase « ce qui est compris » et le bouton se posent côte à côte.
 //
 // Les montants ne portent PAS de white-space: nowrap. Ils tiennent d'un seul
 // tenant par leurs espaces insécables, ce qui suffit et ne fait pas déborder
@@ -12,11 +20,11 @@ import Button from '../Button.astro';
 interface Props {
   eyebrow?: string;
   titre: string;
-  /** Une carte par règle de facturation. */
-  regles: { prix: string; detail: string }[];
-  /** Exemples chiffrés, facultatifs. */
+  /** Une carte par règle de facturation. `label` coiffe le montant. */
+  regles: { label: string; prix: string; detail: string }[];
+  /** Exemples chiffrés, facultatifs. Rendus en liste réglée, montants alignés. */
   exemples?: { qui: string; prix: string }[];
-  /** Ce que le prix comprend, sous les cartes. */
+  /** Ce que le prix comprend, posé à gauche du bouton. */
   inclus?: string;
   id?: string;
 }
@@ -25,35 +33,36 @@ const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif' } = 
 ---
 
 <section class="hrn-offre-tarif" id={id}>
-  <div class="hrn-section-inner">
-    <div class="hrn-eyebrow">{eyebrow}</div>
-    <h2>{titre}</h2>
+  <div class="hrn-section-inner hrn-offre-tarif__inner">
+    <div class="hrn-offre-tarif__head">
+      <div class="hrn-eyebrow">{eyebrow}</div>
+      <h2>{titre}</h2>
+    </div>
 
     <div class="hrn-offre-tarif__grid">
       {regles.map((r) => (
         <div class="hrn-offre-tarif__regle">
-          <p class="hrn-offre-tarif__prix">{r.prix}</p>
-          <p class="hrn-offre-tarif__detail">{r.detail}</p>
+          <span class="hrn-offre-tarif__label">{r.label}</span>
+          <strong class="hrn-offre-tarif__prix">{r.prix}</strong>
+          <p>{r.detail}</p>
         </div>
       ))}
     </div>
 
     {exemples && exemples.length > 0 && (
-      <ul class="hrn-offre-tarif__exemples" role="list">
+      <dl class="hrn-offre-tarif__exemples">
         {exemples.map((ex) => (
-          <li>
-            <span class="hrn-offre-tarif__qui">{ex.qui}</span>
-            <span class="hrn-offre-tarif__montant">{ex.prix}</span>
-          </li>
+          <div>
+            <dt>{ex.qui}</dt>
+            <dd>{ex.prix}</dd>
+          </div>
         ))}
-      </ul>
+      </dl>
     )}
 
-    {inclus && <p class="hrn-offre-tarif__inclus">{inclus}</p>}
-
-    <div class="hrn-offre-tarif__actions">
+    <div class="hrn-offre-tarif__pied">
+      {inclus && <p class="hrn-offre-tarif__inclus">{inclus}</p>}
       <Button variant="accent" size="lg" href="/#reserver">Réserver 30 minutes</Button>
-      <span class="hrn-offre-tarif__gratuit">Trente minutes d'échange, gratuit et sans engagement.</span>
     </div>
   </div>
 </section>
@@ -61,107 +70,148 @@ const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif' } = 
 <style>
   .hrn-offre-tarif {
     padding: var(--section-y) 0;
-    background: var(--slate-900);
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
     scroll-margin-top: 68px;
+  }
+
+  .hrn-offre-tarif__inner {
+    display: grid;
+    gap: clamp(var(--space-8), 5vw, var(--space-12));
   }
 
   .hrn-offre-tarif :global(.hrn-eyebrow) {
     color: var(--amber-300);
   }
 
-  .hrn-offre-tarif h2 {
-    color: var(--text-inverse);
+  .hrn-offre-tarif__head {
+    display: grid;
+    gap: var(--space-4);
+    max-width: 40rem;
   }
 
+  .hrn-offre-tarif__head h2 {
+    margin: 0;
+    font: var(--type-h2);
+    letter-spacing: var(--tracking-tight);
+    color: #fff;
+    max-width: none;
+    text-wrap: balance;
+  }
+
+  /* minmax(min(…, 100%), 1fr) : une piste fixe plus large que le conteneur
+     pousse toute la page en défilement horizontal sur un écran de 320px
+     (piège n°1 du projet). */
   .hrn-offre-tarif__grid {
-    margin-top: 34px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    gap: var(--space-4);
   }
 
   .hrn-offre-tarif__regle {
     min-width: 0;
-    padding: 24px;
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    padding: var(--space-8) var(--space-6);
     border: 1px solid var(--border-inverse);
-    border-radius: var(--radius-xl);
-    background: rgba(255, 255, 255, 0.04);
+    border-radius: var(--radius-lg);
+    transition: transform var(--dur) var(--ease-standard);
+  }
+
+  .hrn-offre-tarif__regle:hover {
+    transform: translateY(-2px);
+  }
+
+  .hrn-offre-tarif__label {
+    font: var(--type-eyebrow);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-300);
   }
 
   .hrn-offre-tarif__prix {
-    margin: 0;
-    font-family: var(--font-mono);
-    font-weight: 600;
-    font-size: clamp(1.7rem, 3vw, 2.2rem);
-    letter-spacing: -0.015em;
-    color: var(--amber-400);
+    font-family: var(--font-display);
+    font-weight: var(--weight-extrabold);
+    font-size: clamp(var(--text-3xl), 6vw, var(--text-5xl));
+    line-height: var(--leading-none);
+    letter-spacing: var(--tracking-tighter);
+    color: var(--accent);
   }
 
-  .hrn-offre-tarif__detail {
-    margin-top: 8px !important;
-    font-size: 14.5px;
-    line-height: 1.5;
-    color: var(--ink-300);
+  .hrn-offre-tarif__regle p {
+    margin: 0 !important;
+    font: var(--type-body);
+    color: var(--ink-200);
     text-wrap: pretty;
   }
 
+  /* Liste de définitions réglée : libellé à gauche, montant à droite, tous
+     alignés. font-variant-numeric: tabular-nums donne la même chasse à tous
+     les chiffres, sans quoi les montants ne se compareraient pas en colonne. */
   .hrn-offre-tarif__exemples {
-    list-style: none;
-    margin: 24px 0 0;
-    padding: 0;
+    margin: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
-    gap: 2px;
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    gap: 0 var(--space-8);
+    border-top: 1px solid var(--border-inverse);
   }
 
-  .hrn-offre-tarif__exemples li {
+  .hrn-offre-tarif__exemples > div {
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
     justify-content: space-between;
-    gap: 6px 14px;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-4);
     min-width: 0;
-    padding: 13px 16px;
-    border-radius: var(--radius-lg);
-    background: rgba(255, 255, 255, 0.04);
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid var(--border-inverse);
   }
 
-  .hrn-offre-tarif__qui {
-    font-size: 14.5px;
-    color: var(--ink-300);
+  .hrn-offre-tarif__exemples dt {
+    font: var(--type-small);
+    color: var(--ink-200);
+    min-width: 0;
   }
 
-  .hrn-offre-tarif__montant {
+  .hrn-offre-tarif__exemples dd {
+    margin: 0;
     font-family: var(--font-mono);
-    font-weight: 600;
-    font-size: 15px;
-    color: var(--text-inverse);
+    font-weight: var(--weight-medium);
+    font-size: var(--text-sm);
+    color: #fff;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
   }
 
-  .hrn-offre-tarif__inclus {
-    margin-top: 26px !important;
-    max-width: 70ch;
-    font-size: 15px;
-    line-height: 1.6;
-    color: var(--ink-300);
-    text-wrap: pretty;
-  }
-
-  .hrn-offre-tarif__actions {
-    margin-top: 28px;
+  .hrn-offre-tarif__pied {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 18px;
+    justify-content: space-between;
+    gap: var(--space-5) var(--space-8);
   }
 
-  .hrn-offre-tarif__gratuit {
-    font-size: 14.5px;
-    color: var(--ink-300);
+  .hrn-offre-tarif__inclus {
+    margin: 0 !important;
+    font: var(--type-body);
+    color: var(--ink-200);
+    max-width: 36rem;
+    text-wrap: pretty;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-offre-tarif__regle {
+      transition: none;
+    }
+
+    .hrn-offre-tarif__regle:hover {
+      transform: none;
+    }
   }
 
   @media (max-width: 640px) {
-    .hrn-offre-tarif__actions {
+    .hrn-offre-tarif__pied {
       align-items: stretch;
       flex-direction: column;
     }

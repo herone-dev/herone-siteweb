@@ -1,6 +1,12 @@
 ---
 // Déroulé en étapes, commun aux deux pages d'offre.
 //
+// Porté du handoff Claude Design « Blocs Offres Herone » (bloc 1b).
+// Changement principal apporté par le design : la mise en page passe sur DEUX
+// colonnes. L'accroche reste calée à gauche pendant que les étapes défilent à
+// droite, au lieu d'un titre posé au-dessus d'une longue liste. En étroit, la
+// grille se replie d'elle-même en une colonne.
+//
 // Sur /formation, `meta` porte la durée du bloc (« 30 min »). Sur
 // /automatisation, elle porte le moment (« avant de démarrer »). Elle peut
 // aussi rester vide : la ligne se referme toute seule.
@@ -24,20 +30,24 @@ const { eyebrow, titre, lede, etapes, fond = 'surface', id } = Astro.props;
 ---
 
 <section class:list={['hrn-offre-etapes', `hrn-offre-etapes--${fond}`]} id={id}>
-  <div class="hrn-section-inner">
-    <div class="hrn-eyebrow">{eyebrow}</div>
-    <h2>{titre}</h2>
-    {lede && <p class="hrn-lede">{lede}</p>}
+  <div class="hrn-section-inner hrn-offre-etapes__grid">
+    <div class="hrn-offre-etapes__intro">
+      <div class="hrn-eyebrow">{eyebrow}</div>
+      <h2>{titre}</h2>
+      {lede && <p>{lede}</p>}
+    </div>
 
     <ol class="hrn-offre-etapes__list" role="list">
       {etapes.map((etape) => (
         <li class="hrn-offre-etape">
-          <div class="hrn-offre-etape__head">
-            <span class="hrn-offre-etape__num">{etape.num}</span>
-            <h3>{etape.titre}</h3>
-            {etape.meta && <span class="hrn-offre-etape__meta">{etape.meta}</span>}
+          <span class="hrn-offre-etape__num">{etape.num}</span>
+          <div class="hrn-offre-etape__corps">
+            <div class="hrn-offre-etape__head">
+              <h3>{etape.titre}</h3>
+              {etape.meta && <span class="hrn-offre-etape__meta">{etape.meta}</span>}
+            </div>
+            <p>{etape.texte}</p>
           </div>
-          <p>{etape.texte}</p>
         </li>
       ))}
     </ol>
@@ -51,70 +61,104 @@ const { eyebrow, titre, lede, etapes, fond = 'surface', id } = Astro.props;
   }
 
   .hrn-offre-etapes--paper {
-    background: var(--paper);
+    background: var(--bg-page);
   }
 
   .hrn-offre-etapes--surface {
-    background: var(--surface);
+    background: var(--bg-surface);
   }
 
-  .hrn-offre-etapes .hrn-lede {
-    margin-top: 16px !important;
+  /* minmax(min(…, 100%), 1fr) : une piste fixe plus large que le conteneur
+     pousse toute la page en défilement horizontal sur un écran de 320px
+     (piège n°1 du projet). */
+  .hrn-offre-etapes__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+    gap: clamp(var(--space-8), 5vw, var(--space-16));
+  }
+
+  .hrn-offre-etapes__intro {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+    min-width: 0;
+  }
+
+  .hrn-offre-etapes__intro h2 {
+    margin: 0;
+    font: var(--type-h2);
+    letter-spacing: var(--tracking-tight);
+    color: var(--text-strong);
+    max-width: none;
+    text-wrap: balance;
+  }
+
+  .hrn-offre-etapes__intro p {
+    margin: 0 !important;
+    font: var(--type-body);
+    color: var(--text-secondary);
+    max-width: 32rem;
+    text-wrap: pretty;
   }
 
   .hrn-offre-etapes__list {
     list-style: none;
-    margin: 40px 0 0;
+    margin: 0;
     padding: 0;
+    min-width: 0;
     display: grid;
-    gap: 0;
-  }
-
-  .hrn-offre-etape {
-    padding: 22px 0;
     border-top: 1px solid var(--border);
   }
 
-  .hrn-offre-etape:last-child {
+  .hrn-offre-etape {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: var(--space-4);
+    padding: var(--space-6) 0;
     border-bottom: 1px solid var(--border);
+  }
+
+  .hrn-offre-etape__num {
+    font: var(--type-eyebrow);
+    letter-spacing: var(--tracking-label);
+    color: var(--brand);
+    padding-top: var(--space-1);
+  }
+
+  .hrn-offre-etape__corps {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
   }
 
   .hrn-offre-etape__head {
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-between;
     align-items: baseline;
-    gap: 8px 14px;
-  }
-
-  .hrn-offre-etape__num {
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    letter-spacing: var(--tracking-label);
-    color: var(--amber-600);
+    gap: var(--space-1) var(--space-4);
   }
 
   .hrn-offre-etape__head h3 {
-    flex: 1 1 auto;
-    min-width: 0;
     margin: 0;
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: clamp(1.15rem, 1.8vw, 1.4rem);
-    letter-spacing: -0.015em;
+    font: var(--type-h4);
+    letter-spacing: var(--tracking-tight);
     color: var(--text-strong);
+    min-width: 0;
   }
 
+  /* text-transform: none, volontairement : la méta porte une durée ou un
+     moment, pas un label. Les capitales la rendraient illisible. */
   .hrn-offre-etape__meta {
-    font-family: var(--font-mono);
-    font-size: 13.5px;
-    color: var(--ink-500);
+    font: var(--type-eyebrow);
+    letter-spacing: var(--tracking-wide);
+    text-transform: none;
+    color: var(--text-muted);
   }
 
   .hrn-offre-etape p {
-    margin-top: 10px !important;
-    max-width: 82ch;
-    font-size: 15.5px;
-    line-height: 1.62;
+    margin: 0 !important;
+    font: var(--type-body);
     color: var(--text-secondary);
     text-wrap: pretty;
   }
