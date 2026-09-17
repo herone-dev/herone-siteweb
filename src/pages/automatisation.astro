@@ -38,8 +38,7 @@ import ProofSection from '../components/home/ProofSection.astro';
 const F = String.fromCodePoint(0x202f);
 const EUR = String.fromCodePoint(0x20ac);
 
-const PRIX_MISE_EN_PLACE = `1${F}000${F}${EUR}${F}HT`;
-const PRIX_SUIVI = `100 à 150${F}${EUR}${F}HT`;
+const PRIX_MISE_EN_PLACE = `2${F}000${F}${EUR}${F}HT`;
 const PRIX_FORMATION = `1${F}500${F}${EUR}${F}HT`;
 
 // Les six tâches visées, reprises mot pour mot du carrousel « Le constat » de
@@ -129,7 +128,7 @@ const deroule = [
   {
     num: '05',
     titre: 'Le suivi mensuel',
-    meta: PRIX_SUIVI,
+    meta: 'une fois en service',
     texte: `Surveillance du système, correctifs en cas de dysfonctionnement, améliorations quand vos outils évoluent, et notre présence dans les meilleurs délais dès qu'un besoin surgit. Vos équipes gardent toujours la possibilité de reprendre la main.`,
   },
 ];
@@ -148,7 +147,7 @@ const deroule = [
       { cle: 'Sans changer vos logiciels', valeur: 'Nous connectons ceux que vous avez déjà.' },
       { cle: 'Livré en 1 à 4 semaines', valeur: 'Périmètre écrit et prix ferme avant de démarrer.' },
       { cle: 'Chez vous', valeur: 'Dans un rayon de 45 minutes autour des Herbiers.' },
-      { cle: `À partir de ${PRIX_MISE_EN_PLACE}`, valeur: `Puis ${PRIX_SUIVI} de suivi mensuel.` },
+      { cle: `À partir de ${PRIX_MISE_EN_PLACE}`, valeur: 'Un suivi mensuel prend ensuite le relais, chiffré avec vous.' },
     ]}
     lienHref="#tarif"
     lienLabel="Voir le tarif"
@@ -227,9 +226,8 @@ const deroule = [
     titre="Affiché, comme tout le reste"
     regles={[
       { label: 'Mise en place', prix: PRIX_MISE_EN_PLACE, detail: "À partir de. Conception, installation et formation de l'équipe. Le montant dépend du nombre de flux et des logiciels à relier." },
-      { label: 'Maintenance, par mois', prix: PRIX_SUIVI, detail: 'Surveillance, correctifs, et ajustements quand vos outils évoluent.' },
     ]}
-    inclus="Le périmètre et le prix sont écrits avant que nous démarrions, et le prix est ferme. En fonction de la complexité, du nombre d'outils à relier et de la taille de l'entreprise, un projet peut monter à plusieurs milliers d'euros : c'est justement ce que l'échange de trente minutes permet de savoir, sans engagement."
+    inclus="Le périmètre et le prix sont écrits avant que nous démarrions, et le prix est ferme. Un suivi mensuel prend ensuite le relais, pour la surveillance et les correctifs : nous le chiffrons avec vous au rendez-vous, il dépend de ce que le système demande. En fonction de la complexité, du nombre d'outils à relier et de la taille de l'entreprise, un projet peut monter à plusieurs milliers d'euros : c'est justement ce que l'échange de trente minutes permet de savoir, sans engagement."
   />
 
   <OffreFaq

@@ -39,7 +39,7 @@ const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif' } = 
       <h2>{titre}</h2>
     </div>
 
-    <div class="hrn-offre-tarif__grid">
+    <div class:list={['hrn-offre-tarif__grid', regles.length === 1 && 'hrn-offre-tarif__grid--seule']}>
       {regles.map((r) => (
         <div class="hrn-offre-tarif__regle">
           <span class="hrn-offre-tarif__label">{r.label}</span>
@@ -106,6 +106,13 @@ const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif' } = 
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
     gap: var(--space-4);
+  }
+
+  /* Une seule règle de facturation : sans plafond, la carte s'étirerait sur
+     toute la largeur du conteneur et le montant flotterait au milieu d'un
+     bandeau vide. */
+  .hrn-offre-tarif__grid--seule {
+    max-width: 34rem;
   }
 
   .hrn-offre-tarif__regle {

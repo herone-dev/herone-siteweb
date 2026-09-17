@@ -16,8 +16,8 @@ const { theme = 'light' } = Astro.props;
 
     <nav class="hrn-header__nav-desktop">
       <a href="/formation" class="hrn-sweep">Formation IA</a>
-      <a href="/automatisation" class="hrn-sweep">Automatisation</a>
-      <a href="/#temoignage" class="hrn-sweep">Témoignage</a>
+      <a href="/automatisation" class="hrn-sweep">Automatisation IA</a>
+      <a href="/#temoignage" class="hrn-sweep">Témoignages</a>
       <a href="/#fondateurs" class="hrn-sweep">À propos</a>
       <a href="tel:+33663710598" class="hrn-header__phone hrn-sweep">06 63 71 05 98</a>
       <Button variant="accent" size="md" href="/#reserver">Réserver 30 minutes</Button>
@@ -41,8 +41,8 @@ const { theme = 'light' } = Astro.props;
   </div>
   <nav class="hrn-mobile-menu__nav">
     <a href="/formation" class="hrn-sweep hrn-mobile-menu__item" style="--i:1">Formation IA</a>
-    <a href="/automatisation" class="hrn-sweep hrn-mobile-menu__item" style="--i:2">Automatisation</a>
-    <a href="/#temoignage" class="hrn-sweep hrn-mobile-menu__item" style="--i:3">Témoignage</a>
+    <a href="/automatisation" class="hrn-sweep hrn-mobile-menu__item" style="--i:2">Automatisation IA</a>
+    <a href="/#temoignage" class="hrn-sweep hrn-mobile-menu__item" style="--i:3">Témoignages</a>
     <a href="/#fondateurs" class="hrn-sweep hrn-mobile-menu__item" style="--i:4">À propos</a>
   </nav>
   <div class="hrn-mobile-menu__bottom hrn-mobile-menu__item" style="--i:5">
@@ -113,8 +113,9 @@ const { theme = 'light' } = Astro.props;
     color: color-mix(in srgb, #fff 78%, transparent) !important;
   }
 
-  /* 4 éléments + téléphone + bouton : le gap est resserré au point de bascule
-     (820px) pour éviter tout débordement, puis rendu à 28px sur les écrans larges. */
+  /* 4 entrées + téléphone + bouton. La barre n'apparaît qu'à 1024px (voir la
+     media query plus bas) : en dessous, elle n'a pas la place et c'est le menu
+     au burger qui prend le relais. */
   .hrn-header__nav-desktop {
     display: none;
     align-items: center;
@@ -166,13 +167,32 @@ const { theme = 'light' } = Astro.props;
     color: #fff;
   }
 
-  @media (min-width: 820px) {
-    .hrn-header__nav-desktop { display: flex; }
-    .hrn-header__nav-mobile { display: none; }
+  /* Le menu bureau n'apparaît qu'à 1080px, et non plus à 820px. Mesuré : la
+     barre complète fait 782px ; avec le logo (109px) et le rembourrage
+     (2 x 48px), il faut 1080px de fenêtre pour qu'il reste 93px entre le logo
+     et la première entrée. À 820px, il n'en restait que 24, et « Automatisation
+     IA » comme « Témoignages » ont encore allongé la barre depuis.
+     Toute la plage tablette bascule donc sur le menu au burger, qui contient
+     déjà les mêmes entrées, le téléphone compris. */
+  @media (min-width: 1080px) {
+    .hrn-header__nav-desktop {
+      display: flex;
+    }
+
+    .hrn-header__nav-mobile {
+      display: none;
+    }
   }
 
-  @media (min-width: 1024px) {
-    .hrn-header__nav-desktop { gap: 28px; }
+  /* L'écartement de 28px n'est rendu qu'au-delà de 1200px. Mesuré : à 1024px,
+     la barre au complet fait 795px avec cet écartement, et il ne reste alors
+     que 24px entre elle et le logo. Resserré à 22px, elle tombe à 765px et
+     l'espace remonte à 54px. « Automatisation IA » et « Témoignages » ont
+     allongé la barre, c'est ce qui a rendu ce palier nécessaire. */
+  @media (min-width: 1200px) {
+    .hrn-header__nav-desktop {
+      gap: 28px;
+    }
   }
 
   /* Ouverture du menu, en deux temps : le panneau se fond, puis ses blocs
@@ -289,7 +309,7 @@ const { theme = 'light' } = Astro.props;
     --sweep-from: var(--text-primary);
   }
 
-  @media (min-width: 820px) {
+  @media (min-width: 1080px) {
     .hrn-mobile-menu { display: none !important; }
   }
 </style>

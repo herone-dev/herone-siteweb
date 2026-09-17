@@ -180,7 +180,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         {
           "@type": "Service",
           "@id": "https://herone.fr/#automatisation",
-          "name": "Automatisation sur mesure",
+          "name": "Automatisation IA",
           "serviceType": "Automatisation de processus et integration de logiciels",
           "url": "https://herone.fr/automatisation",
           "description": "Connexion des logiciels deja en place pour supprimer les ressaisies, avec un suivi mensuel.",
@@ -188,10 +188,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           "areaServed": { "@id": "https://herone.fr/#organization" },
           "offers": {
             "@type": "Offer",
-            "price": "1000",
+            "price": "2000",
             "priceCurrency": "EUR",
             "valueAddedTaxIncluded": false,
-            "description": "A partir de 1000 EUR HT, puis 100 a 150 EUR HT par mois.",
+            "description": "A partir de 2000 EUR HT. Le suivi mensuel est chiffre lors du rendez-vous.",
             "url": "https://herone.fr/automatisation"
           }
         }
@@ -258,6 +258,24 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
       document.addEventListener('astro:page-load', initAncres);
       document.addEventListener('astro:before-swap', teardownAncres);
+
+      // Retour en haut à chaque changement de page.
+      //
+      // Mesuré, pas supposé : depuis /formation défilée à 757px, un clic sur
+      // « Automatisation IA » dans le menu atterrissait à 416px. Le routeur
+      // client remet bien le défilement à zéro, mais il le fait AVANT
+      // d'échanger le document ; la page suivante étant plus longue, le
+      // navigateur restaure ensuite une position intermédiaire.
+      //
+      // astro:after-swap se déclenche une fois le nouveau document en place :
+      // c'est le seul moment où remettre le défilement à zéro tient.
+      //
+      // L'ancre est respectée : si l'adresse en porte une, on ne touche à
+      // rien, c'est le gestionnaire ci-dessus ou le navigateur qui décide.
+      document.addEventListener('astro:after-swap', () => {
+        if (location.hash) return;
+        window.scrollTo({ left: 0, top: 0, behavior: 'instant' });
+      });
     </script>
   </body>
 </html>

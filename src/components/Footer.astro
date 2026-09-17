@@ -1,11 +1,14 @@
 ---
-// L'adresse renvoie vers la fiche du lieu sur Google Maps. L'URL est construite
-// ici plutôt qu'en dur dans l'attribut : le `&` d'un lien écrit dans le markup
-// devrait être échappé, et l'encodage des accents est fait proprement.
+// L'adresse renvoie vers LA FICHE Hérone sur Google Maps, et non plus vers une
+// simple recherche d'adresse : c'est le lien fourni par l'utilisateur, celui
+// qui ouvre l'établissement avec ses avis et ses horaires.
+// L'URL est posée dans une constante plutôt qu'en dur dans l'attribut : elle
+// contient des `&`, qui devraient être échappés dans du markup.
 const ADRESSE = '37 rue Édouard Branly, Les Herbiers 85500';
 const ADRESSE_MAPS =
-  'https://www.google.com/maps/search/?api=1&query=' +
-  encodeURIComponent('37 rue Edouard Branly, 85500 Les Herbiers');
+  'https://www.google.com/maps/place/H%C3%A9rone/@46.8583076,-1.0387592,17z/' +
+  'data=!3m1!4b1!4m6!3m5!1s0x480661339d6958db:0xc2ce55afb78a1bee!8m2!' +
+  '3d46.858304!4d-1.0361843!16s%2Fg%2F11zbl1zvql';
 ---
 
 <footer class="hrn-footer">
@@ -22,7 +25,7 @@ const ADRESSE_MAPS =
         <a href="/formation" class="hrn-sweep">Formation IA</a>
         <a href="/automatisation" class="hrn-sweep">Automatisation IA</a>
         <a href="/#offres" class="hrn-sweep">Offres et prix</a>
-        <a href="/#temoignage" class="hrn-sweep">Témoignage</a>
+        <a href="/#temoignage" class="hrn-sweep">Témoignages</a>
         <a href="/#fondateurs" class="hrn-sweep">À propos</a>
         <a href="/#reserver" class="hrn-sweep">Réserver un appel</a>
       </div>
