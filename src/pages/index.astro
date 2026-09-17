@@ -3,7 +3,11 @@ import Layout from '../layouts/Layout.astro';
 import Hero from '../components/home/Hero.astro';
 import PresentationVideo from '../components/home/PresentationVideo.astro';
 import ConstatCarousel from '../components/home/ConstatCarousel.astro';
-import OffersSection from '../components/home/OffersSection.astro';
+// L'éventail de cartes a été remplacé par « les deux portes » (handoff Claude
+// Design, bloc 1f). OffersSection.astro reste intact sur le disque : une ligne
+// à réimporter ici suffit à le remettre, avec son compteur à rouleaux, son
+// balayage tactile et son étape de comparaison.
+import PortesSection from '../components/home/PortesSection.astro';
 import ProofSection from '../components/home/ProofSection.astro';
 import ReviewsSection from '../components/home/ReviewsSection.astro';
 import LogosMarquee from '../components/home/LogosMarquee.astro';
@@ -11,17 +15,62 @@ import ConvictionSection from '../components/home/ConvictionSection.astro';
 import FoundersSection from '../components/home/FoundersSection.astro';
 import FaqAccordion from '../components/home/FaqAccordion.astro';
 import BookingSection from '../components/home/BookingSection.astro';
+
+// Espaces insécables construits par leur point de code, jamais posés en clair
+// dans le fichier (piège n°7 du projet) : la fine U+202F sépare les milliers,
+// précède l'euro et précède « HT ».
+const F = String.fromCodePoint(0x202f);
+const EUR = String.fromCodePoint(0x20ac);
+
+// Les deux portes. Contenu repris des cartes d'offres précédentes, qui étaient
+// validées : seule la mise en page change.
+const portes = [
+  {
+    num: '01',
+    titre: 'Formation IA en entreprise',
+    prix: `à partir de 1${F}500${F}${EUR}${F}HT`,
+    accroche: 'Nous formons votre équipe sur ses vrais dossiers, chez vous, en une journée.',
+    points: [
+      'Une journée complète, animée à deux',
+      'Préparée en amont sur vos dossiers',
+      'Six livrables emportés par chaque participant',
+    ],
+    pageHref: '/formation',
+    pageLabel: 'Voir la journée en détail',
+    ctaLabel: 'Réserver 30 minutes',
+  },
+  {
+    num: '02',
+    titre: 'Automatisation IA',
+    prix: `à partir de 2${F}000${F}${EUR}${F}HT`,
+    accroche: 'Vos logiciels se parlent. Plus aucune ressaisie.',
+    points: [
+      'Périmètre écrit, prix ferme',
+      'Livré en 1 à 4 semaines',
+      'Suivi mensuel inclus',
+    ],
+    pageHref: '/automatisation',
+    pageLabel: 'Voir le déroulé en détail',
+    ctaLabel: 'Réserver 30 minutes',
+  },
+];
 ---
 
 <Layout
-  title="Hérone | Agence IA & Automatisation - Formation IA en Vendée"
-  description="Basés aux Herbiers, nous automatisons les tâches répétitives des TPE et PME de Vendée. Ateliers IA et automatisation. Prix affichés, à partir de 500 €."
+  title="Hérone | Formation IA en entreprise et automatisation, Vendée"
+  description="Nous formons vos équipes à l'IA en une journée, chez vous, et nous automatisons vos tâches répétitives. TPE et PME de Vendée. Prix affichés, à partir de 1 500 € HT."
   headerTheme="dark"
 >
   <Hero />
   <PresentationVideo />
   <ConstatCarousel />
-  <OffersSection />
+  <PortesSection
+    titre="Former votre équipe, ou automatiser une tâche."
+    lede="Cliquez sur l'offre qui vous parle : vous y trouverez le déroulé complet, ce que vous obtenez, et le tarif affiché."
+    portes={portes}
+    garanties={['Tous nos prix sont affichés', 'Toutes nos prestations restent abordables']}
+    garde="Des tarifs volontairement accessibles : nous voulons nous faire connaître vite dans la région."
+  />
   <ProofSection />
   <ReviewsSection />
   <LogosMarquee />

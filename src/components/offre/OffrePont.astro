@@ -1,0 +1,119 @@
+---
+// Pont vers l'autre offre, en bas de chaque page d'offre.
+//
+// Porté du handoff Claude Design « Blocs Offres Herone » (bloc 1e).
+//
+// Raison d'être : un visiteur arrivé par une recherche « formation IA » ne
+// sait pas que nous automatisons aussi, et l'inverse est tout aussi vrai. Ce
+// bloc est le seul endroit où les deux pages se tiennent par la main, et il
+// est volontairement le dernier : on ne propose l'autre porte qu'une fois la
+// première expliquée en entier.
+//
+// Le filet est en tête du contenu et non de la section : le bloc se lit comme
+// un post-scriptum de la page, pas comme une nouvelle section.
+
+interface Props {
+  titre: string;
+  texte: string;
+  liens: { href: string; label: string }[];
+}
+
+const { titre, texte, liens } = Astro.props;
+---
+
+<section class="hrn-offre-pont">
+  <div class="hrn-section-inner hrn-offre-pont__inner">
+    <div class="hrn-offre-pont__texte">
+      <h2 set:html={titre} />
+      <p>{texte}</p>
+    </div>
+    <div class="hrn-offre-pont__actions">
+      {liens.map((l) => (
+        <a href={l.href} class="hrn-offre-pont__link">
+          {l.label}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .hrn-offre-pont {
+    padding: 0;
+    background: var(--bg-page);
+  }
+
+  /* minmax(min(…, 100%), 1fr) : une piste fixe plus large que le conteneur
+     pousse toute la page en défilement horizontal sur un écran de 320px
+     (piège n°1 du projet). */
+  .hrn-offre-pont__inner {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+    gap: clamp(var(--space-6), 5vw, var(--space-16));
+    align-items: start;
+    padding-top: clamp(var(--space-10), 8vw, var(--space-20));
+    padding-bottom: clamp(var(--space-10), 8vw, var(--space-20));
+    border-top: 1px solid var(--border);
+  }
+
+  .hrn-offre-pont__texte {
+    display: grid;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  .hrn-offre-pont h2 {
+    margin: 0;
+    font: var(--type-h3);
+    letter-spacing: var(--tracking-tight);
+    color: var(--text-strong);
+    max-width: none;
+    text-wrap: balance;
+  }
+
+  .hrn-offre-pont p {
+    margin: 0 !important;
+    font: var(--type-body);
+    color: var(--text-secondary);
+    max-width: 34rem;
+    text-wrap: pretty;
+  }
+
+  .hrn-offre-pont__actions {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    min-width: 0;
+  }
+
+  .hrn-offre-pont__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    justify-self: start;
+    font-weight: var(--weight-semibold);
+    font-size: var(--text-md);
+    color: var(--link);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease-standard),
+                transform var(--dur-fast) var(--ease-standard);
+  }
+
+  .hrn-offre-pont__link:hover,
+  .hrn-offre-pont__link:focus-visible {
+    color: var(--link-hover);
+    transform: translateX(2px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-offre-pont__link {
+      transition: none;
+    }
+
+    .hrn-offre-pont__link:hover,
+    .hrn-offre-pont__link:focus-visible {
+      transform: none;
+    }
+  }
+</style>

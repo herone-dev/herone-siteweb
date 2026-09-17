@@ -1,0 +1,11 @@
+{
+  "_comment": "Avis écrits sur la formation IA. Tant que la liste 'avis' est vide, la section ne s'affiche pas du tout sur /formation : c'est voulu, il n'y a rien à réparer. Pour ajouter un avis, copiez le modèle ci-dessous dans la liste. Champs : nom (obligatoire), entreprise (obligatoire), fonction (facultatif), commune (facultatif), texte (obligatoire, la citation, sans guillemets). Les avis VIDÉO ne se mettent pas ici : donnez-nous l'identifiant YouTube, ils passent par le bloc des témoignages filmés.",
+  "_modele": {
+    "nom": "Prénom Nom",
+    "fonction": "Gérant",
+    "entreprise": "Nom de l'entreprise",
+    "commune": "Les Herbiers",
+    "texte": "Ce que la personne a dit, tel qu'elle l'a dit."
+  },
+  "avis": []
+}

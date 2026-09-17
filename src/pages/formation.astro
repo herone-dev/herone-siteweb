@@ -1,0 +1,376 @@
+---
+// Page « Formation IA en entreprise ». Sous-page d'offre, jumelle de
+// /automatisation : même hero, même déroulé en étapes, même bloc de tarif,
+// même pont vers l'autre offre. Ne restent propres à cette page que le parti
+// pris pédagogique et les six livrables.
+//
+// Contenu repris du curriculum interne (Formation IA Claude, version 2 du
+// 8 septembre 2026) : durées, cadre des quatre D et six livrables viennent
+// tous de ce document. Rien n'y est inventé. Le curriculum étant en cours de
+// révision, les chiffres susceptibles de bouger sont regroupés ci-dessous
+// (DUREE_*, tableau `deroule`) : une nouvelle version du programme ne demande
+// de toucher qu'à cet endroit.
+//
+// Aucun JavaScript sur cette page : pas de carrousel, pas d'apparition au
+// défilement. C'est une page de lecture, elle doit être instantanée.
+import Layout from '../layouts/Layout.astro';
+import OffreHero from '../components/offre/OffreHero.astro';
+import OffreEtapes from '../components/offre/OffreEtapes.astro';
+import OffreTarif from '../components/offre/OffreTarif.astro';
+import OffreAvis from '../components/offre/OffreAvis.astro';
+import OffreFaq from '../components/offre/OffreFaq.astro';
+import OffrePont from '../components/offre/OffrePont.astro';
+import avisFormation from '../data/avis-formation.json';
+
+// Espaces insécables construits par leur point de code, jamais posés en clair
+// dans le fichier : le shell et certains éditeurs reconvertissent les espaces
+// invisibles en espaces ordinaires (piège n°7 du projet), et le prix perdrait
+// alors sa typographie sans que rien ne le signale.
+//   F  U+202F, espace FINE insécable : séparateur de milliers, avant l'euro,
+//      et avant « HT ». Mesurée à 8,7px dans IBM Plex Mono à 30px, contre
+//      17,7px pour l'insécable ordinaire : avec cette dernière, « HT » se
+//      détachait visiblement du montant.
+//   I  U+00A0, espace insécable : durées seulement (« 7 h 15 », « 30 min »).
+const F = String.fromCodePoint(0x202f);
+const I = String.fromCodePoint(0x00a0);
+const EUR = String.fromCodePoint(0x20ac);
+
+const PRIX_JOUR = `1${F}500${F}${EUR}${F}HT`;
+const PRIX_PERSONNE = `500${F}${EUR}${F}HT`;
+const DUREE_NETTE = `7${I}h${I}15`;
+const DUREE_ATELIER = `4${I}h${I}15`;
+const DUREE_TOTALE = `8${I}h${I}45`;
+
+// Les trois règles qui commandent le découpage de la journée.
+const principes = [
+  {
+    titre: "La main d'abord",
+    texte: `Chacun exécute sa tâche à la main dans la première demi-heure, chronomètre en marche, avant d'avoir vu l'outil. Ce résultat et ce temps sont l'étalon de la journée. Le soir, la même tâche est refaite avec l'IA et les deux se comparent. Sans cette mesure de départ, la comparaison finale n'existe pas.`,
+  },
+  {
+    titre: 'La méthode avant le paramétrage',
+    texte: `Les projets, les compétences et les connecteurs sont la partie la plus lourde de la journée. Ils n'arrivent qu'après, une fois que chacun a trié ses tâches et écrit un prompt qui tient. Configurer avant d'avoir un usage produit une visite guidée du produit, pas une compétence.`,
+  },
+  {
+    titre: 'Un livrable par section',
+    texte: `Chaque bloc se termine par une chose écrite que le participant emporte. Ce qui n'est pas écrit ne survit pas à la semaine suivante.`,
+  },
+];
+
+// Le déroulé, tel qu'il est minuté dans le curriculum. Durées du contenu net,
+// pauses exclues.
+const deroule = [
+  {
+    num: '01',
+    titre: 'Ouverture',
+    meta: `30${I}min`,
+    texte: `Chacun choisit la tâche qu'il refait le plus souvent, celle qui lui pèse le plus, et l'exécute à la main pendant quinze minutes chrono. Le résultat est conservé : c'est l'étalon auquel la fin de journée sera comparée.`,
+  },
+  {
+    num: '02',
+    titre: "Fondamentaux de l'IA",
+    meta: `30${I}min`,
+    texte: `Comment elle fonctionne, en quoi elle diffère des logiciels habituels, ce qu'elle fait bien et où elle casse. Les quatre limites sont posées ici, une fois pour toutes, et un axe affiché au mur sert de repère toute la journée.`,
+  },
+  {
+    num: '03',
+    titre: "Prise en main de l'outil",
+    meta: `35${I}min`,
+    texte: `Chacun sur son poste. L'interface, le premier message envoyé, les différentes portes d'entrée selon les métiers présents. Les comptes sont créés et les accès distribués avant la session : la journée commence sur du travail, pas sur de l'installation.`,
+  },
+  {
+    num: '04',
+    titre: 'Les quatre D',
+    meta: `3${I}h`,
+    texte: `Déléguer, décrire, discerner, être diligent. Le cœur de la journée : trier ses tâches réelles entre ce qu'on garde et ce qu'on confie, écrire un prompt qui tient en quatre passes successives, repérer ce qui doit être vérifié, puis décider ce qui entre dans l'outil et ce qui n'y entre jamais. La présence du dirigeant est nécessaire sur ce dernier point : c'est lui qui tranche.`,
+  },
+  {
+    num: '05',
+    titre: 'Mise en pratique',
+    meta: `2${I}h${I}05`,
+    texte: `Tout le paramétrage est ici, et nulle part ailleurs : les projets et leur base de connaissances, les livrables retravaillés en direct, les connecteurs branchés sur vos propres outils, et le point de bascule de la journée, la transformation de son prompt en compétence réutilisable. Puis les tâches qui peuvent être automatisées, classées par gain de temps.`,
+  },
+  {
+    num: '06',
+    titre: 'Clôture et évaluation',
+    meta: `35${I}min`,
+    texte: `La tâche du matin, refaite avec l'IA, même chronomètre. Les deux résultats sont posés côte à côte. Puis un quiz noté de quinze questions, corrigé en salle, question par question : c'est le dernier moment d'apprentissage de la journée, et il sert d'évaluation des acquis.`,
+  },
+];
+
+const livrables = [
+  'La fiche fil rouge, avec la mesure avant et après',
+  'Le continuum de capacités, commun à la salle',
+  'La carte de délégation, en quatre colonnes',
+  'Le prompt écrit et testé sur sa propre tâche',
+  'La règle de vérification personnelle, en trois lignes',
+  "La charte d'usage de l'entreprise, signée par le dirigeant",
+];
+
+// Trois exemples de facturation, calculés depuis la grille : plancher à
+// 1 500 € HT jusqu'à trois personnes, puis 500 € HT par personne.
+const exemples = [
+  { qui: '3 personnes', prix: `1${F}500${F}${EUR}${F}HT` },
+  { qui: '5 personnes', prix: `2${F}500${F}${EUR}${F}HT` },
+  { qui: '10 personnes', prix: `5${F}000${F}${EUR}${F}HT` },
+  { qui: '15 personnes, en 2 journées', prix: `7${F}500${F}${EUR}${F}HT` },
+];
+
+// Questions propres à la formation. Le financement arrive en premier : c'est
+// la première question d'un dirigeant devant une formation, et la réponse est
+// aujourd'hui « pas encore ». Autant qu'elle se lise avant le rendez-vous.
+const questions = [
+  {
+    q: 'La formation peut-elle être financée ?',
+    r: "Pas aujourd'hui. Notre certification Qualiopi est en cours : tant qu'elle n'est pas obtenue, la journée ne peut pas être prise en charge par un OPCO. Nous préférons le dire ici plutôt qu'en fin de rendez-vous. La journée se facture donc comme une prestation ordinaire.",
+  },
+  {
+    q: 'Combien de personnes peut-on former en même temps ?',
+    r: "Dix au maximum par session. Chacun travaille sur son propre poste et sur ses vrais dossiers, et c'est ce qui fixe la limite : au-delà, nous ne pouvons plus passer derrière tout le monde. Quinze personnes à former, ce sont donc deux journées, par exemple sept puis huit.",
+  },
+  {
+    q: 'Que faut-il préparer avant la journée ?',
+    r: "Les comptes et les accès, créés et distribués avant la session, pour que la journée commence sur du travail et pas sur de l'installation. Nous vous demandons aussi vos documents de référence et la liste de vos logiciels : c'est avec cela que nous préparons les exemples. La présence du dirigeant est nécessaire sur le passage consacré à la charte d'usage, c'est lui qui tranche ce qui entre dans l'outil et ce qui n'y entre jamais.",
+  },
+  {
+    q: 'Faut-il des connaissances techniques ?',
+    r: "Aucune. La journée s'adresse à des professionnels en entreprise, quel que soit leur poste. Chacun part de la tâche qu'il refait le plus souvent, et repart avec sa procédure écrite.",
+  },
+];
+---
+
+<Layout
+  title="Formation IA en entreprise, en Vendée | Hérone"
+  description={`Une journée de formation à l'IA dans vos locaux, animée à deux, sur vos vrais dossiers et sans prérequis technique. Six livrables emportés. À partir de ${PRIX_JOUR} la journée. Les Herbiers, Vendée.`}
+  headerTheme="dark"
+>
+  <OffreHero
+    eyebrow="Formation IA"
+    titre="Une journée pour rendre votre équipe autonome avec l'IA"
+    lede="Nous venons dans vos locaux, à deux, et nous travaillons sur vos vrais dossiers. Pas de cas d'école, aucun prérequis technique. Le soir, chacun repart avec sa méthode écrite et sa première tâche à automatiser identifiée."
+    faits={[
+      { cle: 'Une journée', valeur: `${DUREE_NETTE} net, environ ${DUREE_TOTALE} avec les pauses.` },
+      { cle: 'Animée à deux', valeur: 'Deux formateurs, dix participants au maximum.' },
+      { cle: 'Chez vous', valeur: 'Dans un rayon de 45 minutes autour des Herbiers.' },
+      { cle: `À partir de ${PRIX_JOUR}`, valeur: "La journée, jusqu'à 3 personnes." },
+    ]}
+    lienHref="#tarif"
+    lienLabel="Voir le tarif"
+  />
+
+  <section class="hrn-fmt-principes">
+    <div class="hrn-section-inner">
+      <div class="hrn-eyebrow">Notre parti pris</div>
+      <h2>Trois règles commandent cette journée</h2>
+      <p class="hrn-lede">
+        Une formation à l'IA qui se contente de faire visiter l'outil ne change rien au lundi
+        suivant. Celle-ci est construite à l'envers.
+      </p>
+
+      <div class="hrn-fmt-principes__grid">
+        {principes.map((p, i) => (
+          <article class="hrn-fmt-principe">
+            <span class="hrn-fmt-principe__num">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{p.titre}</h3>
+            <p>{p.texte}</p>
+          </article>
+        ))}
+      </div>
+
+      <p class="hrn-fmt-note">
+        La journée s'adresse à des professionnels en entreprise, sans prérequis technique. Elle est
+        construite autour de Claude, l'assistant d'Anthropic, et s'appuie sur le cadre AI Fluency
+        publié par Anthropic, cité comme tel en salle.
+      </p>
+    </div>
+  </section>
+
+  <OffreEtapes
+    eyebrow="Le déroulé"
+    titre="Ce qui se passe, heure par heure"
+    lede={`${DUREE_NETTE} de contenu net, dont ${DUREE_ATELIER} d'atelier sur vos propres dossiers. Plus de la moitié de la journée se passe donc les mains sur le clavier.`}
+    etapes={deroule}
+    fond="surface"
+    id="deroule"
+  />
+
+  <section class="hrn-fmt-livrables">
+    <div class="hrn-section-inner">
+      <div class="hrn-fmt-livrables__grid">
+        <div class="hrn-fmt-livrables__intro">
+          <div class="hrn-eyebrow">Ce que vous gardez</div>
+          <h2>Six choses écrites, emportées le soir</h2>
+          <p class="hrn-lede">
+            Une journée de formation s'oublie. Une procédure écrite, non. Chaque participant repart
+            avec ces six documents, produits par lui, sur son poste, pendant la journée.
+          </p>
+          <p class="hrn-fmt-note hrn-fmt-note--tight">
+            L'entreprise, elle, repart avec deux listes de plus : les compétences restant à rédiger,
+            avec un responsable et une date pour chacune, et les tâches à automatiser, classées par
+            gain de temps.
+          </p>
+        </div>
+
+        <ol class="hrn-fmt-livrables__list" role="list">
+          {livrables.map((item, i) => (
+            <li>
+              <span class="hrn-fmt-livrables__num">{String(i + 1).padStart(2, '0')}</span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <OffreAvis
+    eyebrow="Ils y étaient"
+    titre="Ce qu'en disent les équipes formées"
+    avis={avisFormation.avis}
+    fond="surface"
+  />
+
+  <OffreTarif
+    titre="Affiché, comme tout le reste"
+    regles={[
+      { label: "Jusqu'à 3 personnes", prix: PRIX_JOUR, detail: 'la journée, préparation comprise.' },
+      { label: 'Dès 4 personnes', prix: PRIX_PERSONNE, detail: 'par personne et par jour.' },
+    ]}
+    exemples={exemples}
+    inclus="La préparation est comprise : avant de venir, nous travaillons sur vos dossiers et sur vos métiers, pour que les exemples de la journée soient les vôtres. Dix participants au maximum par session, au-delà nous revenons sur une seconde journée."
+  />
+
+  <OffreFaq
+    titre="Ce que les dirigeants nous demandent avant de réserver"
+    questions={questions}
+    fond="surface"
+  />
+
+  <OffrePont
+    titre="Et ce que la journée aura identifié&#8239;?"
+    texte={`Nous le construisons. Les tâches repérées comme automatisables deviennent des systèmes qui relient vos logiciels existants, à partir de 2${F}000${F}${EUR}${F}HT, avec un suivi mensuel. Vous décidez après la formation, pas avant.`}
+    liens={[
+      { href: '/automatisation', label: "Voir l'offre Automatisation IA" },
+      { href: '/#offres', label: 'Comparer les deux offres et leurs prix' },
+    ]}
+  />
+</Layout>
+
+<style>
+  /* ------------------------------------------------------- Parti pris */
+  .hrn-fmt-principes {
+    padding: var(--section-y) 0;
+    background: var(--paper);
+  }
+
+  .hrn-fmt-principes .hrn-lede {
+    margin-top: 16px !important;
+  }
+
+  /* minmax(min(…, 100%), 1fr) et non minmax(280px, 1fr) : sur un écran de
+     320px, une piste fixe plus large que le conteneur déborde et pousse toute
+     la page en défilement horizontal (piège n°1 du projet). */
+  .hrn-fmt-principes__grid {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    gap: 28px;
+  }
+
+  .hrn-fmt-principe {
+    min-width: 0;
+    padding-top: 18px;
+    border-top: 2px solid var(--amber-500);
+  }
+
+  .hrn-fmt-principe__num {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-400);
+  }
+
+  .hrn-fmt-principe h3 {
+    margin: 8px 0 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.15rem, 1.7vw, 1.35rem);
+    letter-spacing: -0.015em;
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  .hrn-fmt-principe p {
+    margin-top: 10px !important;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  .hrn-fmt-note {
+    margin-top: 34px !important;
+    max-width: 78ch;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    text-wrap: pretty;
+  }
+
+  .hrn-fmt-note--tight {
+    margin-top: 22px !important;
+  }
+
+  /* -------------------------------------------------------- Livrables */
+  .hrn-fmt-livrables {
+    padding: var(--section-y) 0;
+    background: var(--paper);
+  }
+
+  .hrn-fmt-livrables__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+    gap: clamp(28px, 4vw, 56px);
+    align-items: start;
+  }
+
+  .hrn-fmt-livrables__intro {
+    min-width: 0;
+  }
+
+  .hrn-fmt-livrables__intro .hrn-lede {
+    margin-top: 16px !important;
+  }
+
+  .hrn-fmt-livrables__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+  }
+
+  .hrn-fmt-livrables__list li {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    font-size: 15.5px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    text-wrap: pretty;
+  }
+
+  .hrn-fmt-livrables__num {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    color: var(--amber-600);
+  }
+</style>

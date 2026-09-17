@@ -1,15 +1,28 @@
-# Hérone - Automatisation IA & Systèmes pour TPE et PME
+# Hérone - Formation IA & Automatisation pour TPE et PME
 
-> Hérone conçoit, intègre et forme aux systèmes d'automatisation et d'intelligence artificielle sur mesure pour les TPE et PME de Vendée et du Choletais.
+> Hérone forme les équipes des TPE et PME de Vendée et du Choletais à l'intelligence artificielle, et automatise leurs tâches répétitives en connectant les logiciels déjà en place.
 
 ## À propos d'Hérone
 
-Fondée par Martin Talon et Nolan Genty, Hérone est une entreprise spécialisée dans le diagnostic et l'installation de systèmes automatisés intelligents. Basée aux Herbiers (85500), Hérone intervient directement au sein des entreprises pour libérer les dirigeants et leurs équipes des tâches manuelles répétitives, chronophages et à faible valeur ajoutée.
+Fondée par Martin Talon et Nolan Genty, Hérone est une entreprise spécialisée dans la formation à l'intelligence artificielle en entreprise et dans l'installation de systèmes automatisés. Basée aux Herbiers (85500), Hérone intervient directement au sein des entreprises pour libérer les dirigeants et leurs équipes des tâches manuelles répétitives, chronophages et à faible valeur ajoutée.
 
 Notre philosophie repose sur trois piliers :
 1. **Sans changer vos logiciels** : Nous ne vous imposons aucun nouvel outil complexe. Nous connectons et automatisons les logiciels que vous utilisez déjà au quotidien (CRM, ERP, boîtes mails, comptabilité, Excel, Google Sheets, etc.).
 2. **Autonomie garantie** : Nous formons vos équipes sur place jusqu'à ce que les processus tournent parfaitement sans aucune intervention externe.
 3. **Proximité & Réactivité** : Implantés aux Herbiers, nous intervenons physiquement dans un rayon de 45 minutes (Vendée et Choletais).
+
+---
+
+## Notre offre de formation IA en entreprise
+
+Formation IA en entreprise : une journée complète animée par deux formateurs, dans les locaux du client, sans prérequis technique.
+
+- **Format** : une journée, 7 h 15 de contenu net, dont 4 h 15 d'atelier sur les dossiers réels des participants.
+- **Préparation** : la journée est préparée en amont sur les dossiers et les métiers de l'entreprise.
+- **Programme** : fondamentaux de l'IA, prise en main de l'outil, méthode en quatre temps (déléguer, décrire, discerner, être diligent), puis paramétrage (projets, connecteurs, compétences réutilisables, tâches planifiées).
+- **Mesure** : chaque participant chronomètre sa tâche à la main le matin, la refait avec l'IA le soir, et compare. La journée se termine par un quiz noté de 15 questions, corrigé en salle.
+- **Livrables** : six documents écrits emportés par chaque participant, dont la charte d'usage de l'entreprise, signée par le dirigeant dans la journée.
+- **Page dédiée** : https://herone.fr/formation
 
 ---
 
@@ -26,19 +39,21 @@ Hérone élimine la pénibilité des processus manuels dans les domaines suivant
 
 ---
 
-## Notre Méthodologie en 3 étapes
+## Notre Méthodologie en 4 étapes
 
 1. **Échange Découverte (30 minutes - Gratuit & Sans engagement)** : Analyse de votre quotidien opérationnel et identification des tâches prioritaires à supprimer.
-2. **Conception & Intégration sur mesure** : Déploiement technique des workflows d'automatisation et des briques d'IA adaptées à vos règles métiers.
-3. **Formation & Accompagnement sur site** : Prise en main par vos collaborateurs et ajustements jusqu'à validation complète de l'autonomie de l'équipe.
+2. **Formation IA en entreprise (1 journée)** : Montée en compétence des équipes sur leurs propres dossiers, et identification des tâches qui méritent d'être automatisées.
+3. **Conception & Intégration** : Déploiement technique des automatisations et des briques d'IA adaptées à vos règles métiers, sur n8n, Make ou Zapier selon vos outils.
+4. **Accompagnement sur site** : Prise en main par vos collaborateurs et ajustements jusqu'à validation complète de l'autonomie de l'équipe.
 
 ---
 
 ## Tarification & Transparence
 
-Hérone pratique une politique de prix transparente et affichée dès le départ :
-- **Budget moyen d'un système** : À partir de 600 € selon la complexité des flux et le nombre d'outils interconnectés.
-- Pas de frais cachés ni d'abonnements captifs.
+Hérone pratique une politique de prix transparente et affichée dès le départ. Tous les montants s'entendent hors taxes.
+- **Formation IA en entreprise** : 1 500 € HT la journée jusqu'à 3 personnes à former, puis 500 € HT par personne et par jour au-delà. Cinq personnes à former représentent donc 2 500 € HT.
+- **Automatisation IA** : à partir de 2 000 € HT. Un suivi mensuel prend ensuite le relais, chiffré lors du rendez-vous selon ce que le système demande.
+- Pas de frais cachés ni d'abonnements captifs. En fonction de la complexité, de l'ambition de l'entreprise et de sa taille, un projet peut monter à plusieurs milliers d'euros.
 
 ---
 
@@ -52,8 +67,9 @@ Nous intervenons sur place dans les communes et secteurs suivants :
 
 ## Liens principaux du site
 
-- [Page d'accueil](https://herone.fr/) : Diagnostic global, vidéo de présentation, témoignages clients et calendrier de réservation.
-- [Catalogue des Systèmes](https://herone.fr/systemes) : Détail complet des cas d'usage par métier et des automatisations installables.
+- [Page d'accueil](https://herone.fr/) : Présentation, offres et prix, témoignages clients et calendrier de réservation.
+- [Formation IA en entreprise](https://herone.fr/formation) : Le déroulé complet de la journée, les six livrables et le tarif affiché.
+- [Automatisation IA](https://herone.fr/automatisation) : Le déroulé complet d'un projet en cinq étapes, les systèmes installés et le tarif affiché.
 - [Blog & Ressources](https://herone.fr/blog) : Articles méthodologiques, guides d'automatisation et retours d'expérience TPE/PME.
 - [Réserver un rendez-vous](https://herone.fr/#reserver) : Accès direct au calendrier pour réserver un échange découverte de 30 minutes.
 - [Mentions Légales](https://herone.fr/mentions-legales) : Éditeur et hébergeur du site.

@@ -1,0 +1,418 @@
+---
+// Accueil, « les deux portes ». Porté du handoff Claude Design « Blocs Offres
+// Herone » (bloc 1f), dont l'étiquette dit explicitement qu'il REMPLACE le
+// carrousel en éventail.
+//
+// Pourquoi ce remplacement : un éventail cache une carte sur deux. C'était
+// acceptable quand les offres n'avaient pas de page à elles, et que la carte
+// était le seul endroit où lire le détail. Maintenant que chaque offre a sa
+// page, l'accueil n'a plus à raconter l'offre, il a à envoyer au bon endroit :
+// deux cartes toujours visibles en entier, avec leur prix et leurs deux liens,
+// font mieux le travail qu'une mécanique qui demande un geste pour révéler la
+// moitié du catalogue.
+//
+// OffersSection.astro n'est PAS supprimé. Il reste intact sur le disque, comme
+// MethodSection : une ligne à réimporter dans index.astro suffit à remettre
+// l'éventail, avec son compteur à rouleaux, son balayage tactile et son étape
+// de comparaison. Aucun de ces réglages n'a été perdu.
+//
+// Aucun JavaScript ici : deux cartes statiques, rien à initialiser, rien à
+// nettoyer au changement de page.
+//
+// Écart assumé au design : les `cqi` du fichier de design sont traduits en
+// `vw`. Ils y mesurent la carte d'aperçu, qui n'existe pas sur le site.
+import Button from '../Button.astro';
+
+interface Porte {
+  num: string;
+  titre: string;
+  prix: string;
+  accroche: string;
+  points: string[];
+  pageHref: string;
+  pageLabel: string;
+  ctaLabel: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  titre: string;
+  /** Phrase d'invitation sous le titre. C'est elle qui dit au visiteur que les
+      cartes se cliquent : sans elle, rien ne le signale avant le survol. */
+  lede?: string;
+  portes: Porte[];
+  /** Phrase de garantie sous les cartes, reprise de la section d'offres précédente. */
+  garanties?: string[];
+  garde?: string;
+}
+
+const {
+  eyebrow = 'Deux façons de travailler ensemble',
+  titre,
+  lede,
+  portes,
+  garanties,
+  garde,
+} = Astro.props;
+---
+
+<section id="offres" class="hrn-portes">
+  <div class="hrn-section-inner hrn-portes__inner">
+    <div class="hrn-portes__head">
+      <div class="hrn-eyebrow">{eyebrow}</div>
+      <h2>{titre}</h2>
+      {lede && <p class="hrn-portes__lede">{lede}</p>}
+    </div>
+
+    <div class="hrn-portes__grid">
+      {portes.map((p) => (
+        <article class="hrn-porte">
+          <div class="hrn-porte__top">
+            <span class="hrn-porte__num">{p.num}</span>
+            <span class="hrn-porte__prix">{p.prix}</span>
+          </div>
+
+          <div class="hrn-porte__titre">
+            <h3>{p.titre}</h3>
+            <p>{p.accroche}</p>
+          </div>
+
+          <ul class="hrn-porte__points" role="list">
+            {p.points.map((pt) => (
+              <li><span class="hrn-porte__puce" aria-hidden="true"></span><span>{pt}</span></li>
+            ))}
+          </ul>
+
+          <div class="hrn-porte__actions">
+            <a href={p.pageHref} class="hrn-porte__link hrn-porte__link--page">
+              {p.pageLabel}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+            </a>
+            <a href="/#reserver" class="hrn-porte__link hrn-porte__link--accent">
+              {p.ctaLabel}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+            </a>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <div class="hrn-portes__pied">
+      <div class="hrn-portes__closing">
+        <p class="hrn-portes__closing-title">Vous ne savez pas quelle offre vous correspond&#8239;?</p>
+        <p class="hrn-portes__closing-sub">Trente minutes d'échange, gratuit et sans engagement.</p>
+      </div>
+      <Button variant="accent" size="lg" href="/#reserver">Réserver 30 minutes</Button>
+    </div>
+
+    {(garanties || garde) && (
+      <div class="hrn-portes__garanties">
+        {garanties && (
+          <ul role="list">
+            {garanties.map((g) => <li>{g}</li>)}
+          </ul>
+        )}
+        {garde && <p>{garde}</p>}
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .hrn-portes {
+    padding: var(--section-y) 0;
+    background: var(--bg-surface);
+    scroll-margin-top: 68px;
+  }
+
+  .hrn-portes__inner {
+    display: grid;
+    gap: clamp(var(--space-8), 5vw, var(--space-12));
+  }
+
+  .hrn-portes__head {
+    display: grid;
+    gap: var(--space-4);
+    max-width: 40rem;
+  }
+
+  .hrn-portes__lede {
+    margin: 0 !important;
+    font: var(--type-body-lg);
+    color: var(--text-secondary);
+    max-width: 46rem;
+    text-wrap: pretty;
+  }
+
+  .hrn-portes__head h2 {
+    margin: 0;
+    font: var(--type-h2);
+    letter-spacing: var(--tracking-tight);
+    color: var(--text-strong);
+    max-width: none;
+    text-wrap: balance;
+  }
+
+  /* Les deux cartes doivent rester CÔTE À CÔTE le plus bas possible : c'est
+     tout l'intérêt du bloc, on compare les deux offres d'un seul regard. Avec
+     la largeur minimale de 320px du fichier de design, elles s'empilaient dès
+     735px de fenêtre, donc sur toutes les tablettes en portrait. Le plancher
+     descend à 236px, ce qui les tient côte à côte jusqu'à 540px, et le
+     rembourrage de carte se resserre en même temps pour que le texte garde sa
+     place. En dessous elles s'empilent : deux cartes de 120px ne se lisent pas.
+
+     minmax(min(…, 100%), 1fr) et non minmax(236px, 1fr) : une piste fixe plus
+     large que le conteneur pousse toute la page en défilement horizontal sur
+     un écran de 320px (piège n°1 du projet). */
+  .hrn-portes__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(236px, 100%), 1fr));
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 1024px) {
+    .hrn-portes__grid {
+      gap: var(--space-5);
+    }
+  }
+
+  /* La carte entière est cliquable et mène à la page de l'offre. Le lien
+     « Voir … en détail » s'étire par un pseudo-élément qui couvre la carte :
+     il n'y a donc toujours qu'UN seul lien dans l'arbre d'accessibilité, pas
+     un doublon englobant, et le clavier continue de tabuler sur deux liens et
+     non sur trois. Contrepartie assumée : on ne peut plus sélectionner le
+     texte de la carte à la souris. C'est le prix de la zone cliquable, et la
+     carte est faite pour être cliquée, pas recopiée. */
+  .hrn-porte {
+    position: relative;
+    cursor: pointer;
+    min-width: 0;
+    display: grid;
+    gap: var(--space-5);
+    align-content: start;
+    padding: clamp(var(--space-4), 3.2vw, var(--space-10));
+    background: var(--bg-page);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    transition: transform var(--dur) var(--ease-standard),
+                box-shadow var(--dur) var(--ease-standard);
+  }
+
+  .hrn-porte:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .hrn-porte__top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-4);
+  }
+
+  .hrn-porte__num {
+    font: var(--type-eyebrow);
+    letter-spacing: var(--tracking-label);
+    color: var(--brand);
+  }
+
+  /* Le prix est en chiffres tabulaires : les deux cartes sont côte à côte, les
+     montants doivent s'aligner. Pas de white-space: nowrap, il tient d'un seul
+     tenant par ses espaces insécables (piège n°1). */
+  .hrn-porte__prix {
+    font-family: var(--font-mono);
+    font-weight: var(--weight-medium);
+    font-size: var(--text-sm);
+    color: var(--text-strong);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  .hrn-porte__titre {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .hrn-porte__titre h3 {
+    margin: 0;
+    font: var(--type-h3);
+    letter-spacing: var(--tracking-tight);
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  .hrn-porte__titre p {
+    margin: 0 !important;
+    font: var(--type-body);
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  .hrn-porte__points {
+    list-style: none;
+    margin: 0;
+    padding: var(--space-5) 0 0;
+    border-top: 1px solid var(--border);
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .hrn-porte__points li {
+    display: grid;
+    grid-template-columns: var(--space-4) minmax(0, 1fr);
+    gap: var(--space-2);
+    font: var(--type-body);
+    color: var(--text-primary);
+    text-wrap: pretty;
+  }
+
+  .hrn-porte__puce {
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: var(--brand);
+    margin-top: 0.6em;
+  }
+
+  .hrn-porte__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-6);
+    padding-top: var(--space-2);
+  }
+
+  .hrn-porte__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: var(--weight-semibold);
+    color: var(--link);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease-standard),
+                transform var(--dur-fast) var(--ease-standard);
+  }
+
+  .hrn-porte__link:hover,
+  .hrn-porte__link:focus-visible {
+    color: var(--link-hover);
+    transform: translateX(2px);
+  }
+
+  .hrn-porte__link--page::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  /* Le second lien doit repasser AU-DESSUS de la zone étirée, sinon il serait
+     recouvert par elle et le clic partirait vers la page de l'offre. */
+  .hrn-porte__link--accent {
+    position: relative;
+    z-index: 1;
+    color: var(--accent-hover);
+  }
+
+  .hrn-porte__link--accent:hover,
+  .hrn-porte__link--accent:focus-visible {
+    color: var(--amber-700);
+  }
+
+  /* Pied repris de la section d'offres précédente : la phrase de réassurance
+     et le bouton étaient validés, ils n'avaient pas de raison de disparaître
+     avec l'éventail. */
+  .hrn-portes__pied {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5) var(--space-8);
+    padding-top: var(--space-2);
+  }
+
+  .hrn-portes__closing-title {
+    margin: 0 !important;
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    font-size: clamp(var(--text-lg), 2.4vw, var(--text-xl));
+    letter-spacing: var(--tracking-tight);
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  .hrn-portes__closing-sub {
+    margin: var(--space-1) 0 0 !important;
+    font: var(--type-body);
+    color: var(--text-secondary);
+  }
+
+  .hrn-portes__garanties {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-8);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--border);
+  }
+
+  .hrn-portes__garanties ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-6);
+  }
+
+  .hrn-portes__garanties li {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    font: var(--type-eyebrow);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .hrn-portes__garanties li::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: var(--radius-full);
+    background: var(--accent);
+    flex: none;
+  }
+
+  .hrn-portes__garanties p {
+    margin: 0 !important;
+    font: var(--type-small);
+    color: var(--text-muted);
+    max-width: 34rem;
+    text-wrap: pretty;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-porte,
+    .hrn-porte__link {
+      transition: none;
+    }
+
+    .hrn-porte:hover {
+      transform: none;
+    }
+
+    .hrn-porte__link:hover,
+    .hrn-porte__link:focus-visible {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .hrn-portes__pied {
+      align-items: stretch;
+      flex-direction: column;
+    }
+  }
+</style>

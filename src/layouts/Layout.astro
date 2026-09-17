@@ -104,8 +104,13 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           "hasPart": [
             {
               "@type": "WebPage",
-              "name": "Systèmes",
-              "url": "https://herone.fr/systemes"
+              "name": "Formation IA en entreprise",
+              "url": "https://herone.fr/formation"
+            },
+            {
+              "@type": "WebPage",
+              "name": "Automatisation IA",
+              "url": "https://herone.fr/automatisation"
             },
             {
               "@type": "WebPage",
@@ -127,25 +132,68 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
             {
               "@type": "SiteNavigationElement",
               "position": 1,
-              "name": "Systèmes",
-              "description": "Découvrez nos systèmes automatisés pour les TPE et PME.",
-              "url": "https://herone.fr/systemes"
+              "name": "Formation IA",
+              "description": "Une journée de formation à l'intelligence artificielle, dans votre entreprise.",
+              "url": "https://herone.fr/formation"
             },
             {
               "@type": "SiteNavigationElement",
               "position": 2,
+              "name": "Automatisation IA",
+              "description": "Nous relions les logiciels que vous utilisez déjà pour supprimer les ressaisies.",
+              "url": "https://herone.fr/automatisation"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 3,
               "name": "Blog",
               "description": "Conseils, guides et retours d'expérience sur l'automatisation et l'IA.",
               "url": "https://herone.fr/blog"
             },
             {
               "@type": "SiteNavigationElement",
-              "position": 3,
+              "position": 4,
               "name": "Réserver un appel",
               "description": "Réservez un échange découverte gratuit de 30 minutes avec notre équipe.",
               "url": "https://herone.fr/#reserver"
             }
           ]
+        },
+        {
+          "@type": "Service",
+          "@id": "https://herone.fr/#formation",
+          "name": "Formation IA en entreprise",
+          "serviceType": "Formation a l'intelligence artificielle en entreprise",
+          "url": "https://herone.fr/formation",
+          "description": "Une journee de formation a l'intelligence artificielle, animee a deux dans les locaux de l'entreprise, sans prerequis technique.",
+          "provider": { "@id": "https://herone.fr/#organization" },
+          "areaServed": { "@id": "https://herone.fr/#organization" },
+          "offers": {
+            "@type": "Offer",
+            "price": "1500",
+            "priceCurrency": "EUR",
+            "valueAddedTaxIncluded": false,
+            "description": "La journee, jusqu'a 3 personnes. Puis 500 EUR HT par personne.",
+            "url": "https://herone.fr/formation"
+          }
+        },
+        {
+          "@type": "Service",
+          "@id": "https://herone.fr/#automatisation",
+          "name": "Automatisation IA",
+          "serviceType": "Automatisation de processus et integration de logiciels",
+          "url": "https://herone.fr/automatisation",
+          "description": "Connexion des logiciels deja en place pour supprimer les ressaisies, avec un suivi mensuel.",
+          "provider": { "@id": "https://herone.fr/#organization" },
+          "areaServed": { "@id": "https://herone.fr/#organization" },
+          "offers": {
+            "@type": "Offer",
+            "price": "2000",
+            "priceCurrency": "EUR",
+            "valueAddedTaxIncluded": false,
+            "description": "A partir de 2000 EUR HT. Le suivi mensuel est chiffre lors du rendez-vous.",
+            "url": "https://herone.fr/automatisation"
+          }
         }
       ]
     })} />
@@ -210,6 +258,60 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
       document.addEventListener('astro:page-load', initAncres);
       document.addEventListener('astro:before-swap', teardownAncres);
+
+      // Retour en haut à chaque changement de page.
+      //
+      // Mesuré, pas supposé : depuis /formation défilée à 757px, un clic sur
+      // « Automatisation IA » dans le menu atterrissait à 416px. Le routeur
+      // client remet bien le défilement à zéro, mais il le fait AVANT
+      // d'échanger le document ; la page suivante étant plus longue, le
+      // navigateur restaure ensuite une position intermédiaire.
+      //
+      // astro:after-swap se déclenche une fois le nouveau document en place :
+      // c'est le seul moment où remettre le défilement à zéro tient.
+      //
+      // L'ancre est respectée : si l'adresse en porte une, on ne touche à
+      // rien, c'est le gestionnaire ci-dessus ou le navigateur qui décide.
+      // Retour en haut à chaque changement de page. Deux gestes distincts,
+      // parce qu'ils ne s'appliquent pas aux mêmes moments.
+
+      // 1. Le document lui-même. Le routeur client remet bien le défilement à
+      //    zéro, mais AVANT d'échanger le document : la page suivante étant
+      //    plus longue, le navigateur restaure ensuite une position
+      //    intermédiaire. after-swap est le seul moment où la remise à zéro
+      //    tient.
+      function remonterDocument() {
+        if (location.hash) return;
+        window.scrollTo({ left: 0, top: 0, behavior: 'instant' });
+      }
+
+      // 2. Le CADRE parent, quand la page est affichée dans un cadre. C'est la
+      //    situation de l'aperçu artefact : selon la visionneuse, c'est le
+      //    cadre qui tient la position, et remettre le document à zéro ne se
+      //    voit alors pas du tout.
+      //
+      //    Un document ne peut pas piloter le défilement de son parent, c'est
+      //    une protection du navigateur. Il peut en revanche lui DEMANDER de
+      //    mettre un élément en vue : cette demande traverse la frontière du
+      //    cadre. Vérifié dans les deux géométries possibles, cadre de hauteur
+      //    fixe et cadre de la hauteur du contenu.
+      function remonterCadre() {
+        if (location.hash) return;
+        if (window.self === window.top) return;
+        document.documentElement.scrollIntoView({ block: 'start', behavior: 'instant' });
+      }
+
+      document.addEventListener('astro:after-swap', () => {
+        remonterDocument();
+        remonterCadre();
+      });
+
+      // page-load couvre le cadre quand la navigation a été un chargement
+      // complet et non un échange piloté par le routeur. On n'y remet
+      // volontairement PAS le document à zéro : cela écraserait la position
+      // que le navigateur restaure quand on recharge une page en cours de
+      // lecture, ce qui serait une régression pour un vrai visiteur.
+      document.addEventListener('astro:page-load', remonterCadre);
     </script>
   </body>
 </html>
