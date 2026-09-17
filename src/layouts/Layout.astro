@@ -272,10 +272,46 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       //
       // L'ancre est respectée : si l'adresse en porte une, on ne touche à
       // rien, c'est le gestionnaire ci-dessus ou le navigateur qui décide.
-      document.addEventListener('astro:after-swap', () => {
+      // Retour en haut à chaque changement de page. Deux gestes distincts,
+      // parce qu'ils ne s'appliquent pas aux mêmes moments.
+
+      // 1. Le document lui-même. Le routeur client remet bien le défilement à
+      //    zéro, mais AVANT d'échanger le document : la page suivante étant
+      //    plus longue, le navigateur restaure ensuite une position
+      //    intermédiaire. after-swap est le seul moment où la remise à zéro
+      //    tient.
+      function remonterDocument() {
         if (location.hash) return;
         window.scrollTo({ left: 0, top: 0, behavior: 'instant' });
+      }
+
+      // 2. Le CADRE parent, quand la page est affichée dans un cadre. C'est la
+      //    situation de l'aperçu artefact : selon la visionneuse, c'est le
+      //    cadre qui tient la position, et remettre le document à zéro ne se
+      //    voit alors pas du tout.
+      //
+      //    Un document ne peut pas piloter le défilement de son parent, c'est
+      //    une protection du navigateur. Il peut en revanche lui DEMANDER de
+      //    mettre un élément en vue : cette demande traverse la frontière du
+      //    cadre. Vérifié dans les deux géométries possibles, cadre de hauteur
+      //    fixe et cadre de la hauteur du contenu.
+      function remonterCadre() {
+        if (location.hash) return;
+        if (window.self === window.top) return;
+        document.documentElement.scrollIntoView({ block: 'start', behavior: 'instant' });
+      }
+
+      document.addEventListener('astro:after-swap', () => {
+        remonterDocument();
+        remonterCadre();
       });
+
+      // page-load couvre le cadre quand la navigation a été un chargement
+      // complet et non un échange piloté par le routeur. On n'y remet
+      // volontairement PAS le document à zéro : cela écraserait la position
+      // que le navigateur restaure quand on recharge une page en cours de
+      // lecture, ce qui serait une régression pour un vrai visiteur.
+      document.addEventListener('astro:page-load', remonterCadre);
     </script>
   </body>
 </html>
