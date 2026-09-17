@@ -140,13 +140,27 @@ const {
     text-wrap: balance;
   }
 
-  /* minmax(min(…, 100%), 1fr) : une piste fixe plus large que le conteneur
-     pousse toute la page en défilement horizontal sur un écran de 320px
-     (piège n°1 du projet). Le fichier de design pose déjà la bonne forme. */
+  /* Les deux cartes doivent rester CÔTE À CÔTE le plus bas possible : c'est
+     tout l'intérêt du bloc, on compare les deux offres d'un seul regard. Avec
+     la largeur minimale de 320px du fichier de design, elles s'empilaient dès
+     735px de fenêtre, donc sur toutes les tablettes en portrait. Le plancher
+     descend à 236px, ce qui les tient côte à côte jusqu'à 540px, et le
+     rembourrage de carte se resserre en même temps pour que le texte garde sa
+     place. En dessous elles s'empilent : deux cartes de 120px ne se lisent pas.
+
+     minmax(min(…, 100%), 1fr) et non minmax(236px, 1fr) : une piste fixe plus
+     large que le conteneur pousse toute la page en défilement horizontal sur
+     un écran de 320px (piège n°1 du projet). */
   .hrn-portes__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
-    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(min(236px, 100%), 1fr));
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 1024px) {
+    .hrn-portes__grid {
+      gap: var(--space-5);
+    }
   }
 
   .hrn-porte {
@@ -154,7 +168,7 @@ const {
     display: grid;
     gap: var(--space-5);
     align-content: start;
-    padding: clamp(var(--space-6), 4vw, var(--space-10));
+    padding: clamp(var(--space-4), 3.2vw, var(--space-10));
     background: var(--bg-page);
     border: 1px solid var(--border);
     border-radius: var(--radius-xl);
