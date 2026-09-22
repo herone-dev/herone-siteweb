@@ -13,6 +13,12 @@ const blog = defineCollection({
     category: z.enum(['Automatisation', 'Devis', 'CRM', 'BTP']),
     readingTime: z.number(),
     systemTitle: z.string(),
+    // Encart « En bref » en tête d'article : quatre phrases au maximum,
+    // numérotées par le gabarit. Absent, rien ne s'affiche.
+    summary: z.array(z.string()).max(4).optional(),
+    // Motif de couverture. Renseigné, il l'emporte sur l'association
+    // slug vers motif de src/data/blog-covers.ts.
+    cover: z.string().optional(),
   }),
 });
 

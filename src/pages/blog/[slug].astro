@@ -1,9 +1,12 @@
 ---
 import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
 import Layout from '../../layouts/Layout.astro';
-import Button from '../../components/Button.astro';
 import ArticleCard from '../../components/blog/ArticleCard.astro';
 import TableOfContents from '../../components/blog/TableOfContents.astro';
+import BlogCover from '../../components/blog/BlogCover.astro';
+import { motifDe } from '../../data/blog-covers';
+import { auteurDe } from '../../data/authors';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -13,320 +16,1127 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content, headings } = await render(post);
 
-const allPosts = await getCollection('blog');
-const sameCategory = allPosts.filter((p) => p.id !== post.id && p.data.category === post.data.category);
-const others = allPosts.filter((p) => p.id !== post.id && p.data.category !== post.data.category);
-const related = [...sameCategory, ...others]
+// Articles liés : même catégorie d'abord, puis les plus récents.
+const tous = await getCollection('blog');
+const memeCategorie = tous.filter((p) => p.id !== post.id && p.data.category === post.data.category);
+const autres = tous.filter((p) => p.id !== post.id && p.data.category !== post.data.category);
+const lies = [...memeCategorie, ...autres]
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
   .slice(0, 3);
 
-const CATEGORY_COLOR: Record<string, string> = {
-  Automatisation: 'var(--amber-500)',
-  Devis: 'var(--slate-400)',
-  CRM: 'var(--slate-500)',
-  BTP: 'var(--slate-700)',
-};
+const parties = headings.filter((h) => h.depth === 2);
+const auteur = auteurDe(post.data.author);
 
-const dateLabel = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }).format(post.data.pubDate);
+// Caractères invisibles posés à l'exécution, jamais écrits en clair.
+const INSEC = String.fromCodePoint(0x00a0);
+const POINT = ` ${String.fromCodePoint(0x00b7)} `;
+
+const LIBELLE_LECTURE = `${post.data.readingTime} min de lecture${POINT}`;
+const TITRE_BANDEAU = `Ce sujet vous concerne${INSEC}?`;
+const LIBELLE_SOMMAIRE = `Sommaire${POINT}${parties.length} partie${parties.length > 1 ? 's' : ''}`;
+const ROLE_AUTEUR = auteur.marque === false ? auteur.role : `${auteur.role}${POINT}Hérone`;
+
+const dateLisible = new Intl.DateTimeFormat('fr-FR', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+}).format(post.data.pubDate);
+const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
 ---
 
-<Layout title={`${post.data.title} · Blog Hérone`} description={post.data.description}>
-  <div class="hrn-section-inner hrn-article-top">
-    <a href="/blog" class="hrn-article-back">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
-      Tous les articles
-    </a>
-
-    <div class="hrn-article-meta">
-      <span class="hrn-article-dot" style={`background:${CATEGORY_COLOR[post.data.category] ?? 'var(--slate-500)'}`}></span>
-      <span>{post.data.category}</span>
-      <span>· {post.data.readingTime} min · {dateLabel}</span>
+<Layout
+  title={`${post.data.title} · Blog Hérone`}
+  description={post.data.description}
+  headerTheme="dark"
+>
+  <div class="hrn-blog">
+    {/* Progression de lecture, mobile seulement : sur desktop le sommaire
+        collant joue déjà ce rôle. */}
+    <div class="hrn-progression" aria-hidden="true">
+      <span class="hrn-progression__barre" id="progression"></span>
     </div>
 
-    <h1>{post.data.title}</h1>
-    <p class="hrn-article-lede">{post.data.description}</p>
+    <header class="hrn-section-inner hrn-article-tete">
+      <div class="hrn-article-tete__ligne">
+        <nav aria-label="Fil d'Ariane">
+          <ol class="hrn-fil">
+            <li><a href="/blog">Blog</a></li>
+            <li aria-hidden="true">/</li>
+            <li>{post.data.category}</li>
+          </ol>
+        </nav>
 
-    <div class="hrn-article-toc-mobile">
-      <TableOfContents headings={headings} />
+        <p class="hrn-article-tete__meta">
+          {LIBELLE_LECTURE}<time datetime={dateMachine}>{dateLisible}</time>
+        </p>
+      </div>
+
+      <h1>{post.data.title}</h1>
+      <p class="hrn-article-tete__chapeau">{post.data.description}</p>
+    </header>
+
+    <div class="hrn-article-bandeau">
+      <BlogCover motif={motifDe(post.id, post.data.cover)} variant="wide" />
     </div>
-  </div>
 
-  <div class="hrn-section-inner hrn-article-layout">
-    <article class="hrn-prose">
-      <Content />
+    {parties.length > 0 && (
+      <details class="hrn-article-sommaire-mobile">
+        <summary>
+          {LIBELLE_SOMMAIRE}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </summary>
+        <TableOfContents headings={headings} avecTitre={false} />
+      </details>
+    )}
 
-      <div class="hrn-article-end">
-        <strong>Un cas qui vous parle ?</strong>
-        <p>Parlons-en trente minutes.</p>
-        <Button variant="accent" size="lg" href="/#reserver">Réserver 30 minutes</Button>
-      </div>
-    </article>
+    <div class="hrn-section-inner hrn-article-corps">
+      <aside class="hrn-article-cote" aria-label="Sommaire et rendez-vous">
+        <TableOfContents headings={headings} />
 
-    <aside class="hrn-article-aside">
-      <TableOfContents headings={headings} />
-      <div class="hrn-article-aside__card">
-        <strong>Récupérez des heures.</strong>
-        <p>Trente minutes pour voir ce qu'on peut automatiser chez vous.</p>
-        <Button variant="accent" size="md" block href="/#reserver">Réserver 30 minutes</Button>
-      </div>
-    </aside>
-  </div>
-
-  <section class="hrn-related">
-    <div class="hrn-section-inner">
-      <div class="hrn-eyebrow">À lire ensuite</div>
-      <h2>Sur le même sujet.</h2>
-
-      <div class="hrn-related__grid">
-        {related.map((p) => (
-          <ArticleCard
-            slug={p.id}
-            title={p.data.title}
-            description={p.data.description}
-            category={p.data.category}
-            pubDate={p.data.pubDate}
-            readingTime={p.data.readingTime}
-          />
-        ))}
-
-        <div class="hrn-related__system">
-          <span>Le système</span>
-          <strong>{post.data.systemTitle}</strong>
-          <a href="/systemes">
-            Découvrir le système
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+        <div class="hrn-article-cote__carte">
+          <p>Trente minutes pour repérer ce qu'on peut automatiser chez vous.</p>
+          <a href="/#reserver">
+            Réserver 30 minutes
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+              <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
           </a>
         </div>
-      </div>
+      </aside>
+
+      <article class="hrn-prose">
+        {post.data.summary && post.data.summary.length > 0 && (
+          <aside class="hrn-enbref" aria-label="En bref">
+            <p class="hrn-enbref__libelle">En bref</p>
+            <ol class="hrn-enbref__liste">
+              {post.data.summary.map((phrase) => (
+                <li>{phrase}</li>
+              ))}
+            </ol>
+          </aside>
+        )}
+
+        <Content />
+
+      </article>
+
+      <aside class="hrn-auteur" aria-label="Auteur">
+        <div class="hrn-auteur__portrait">
+          {auteur.photo ? (
+            <Image src={auteur.photo} alt="" width={144} height={144} />
+          ) : (
+            <svg viewBox="0 0 400 200" aria-hidden="true" focusable="false">
+              <path d="M0 200A200 200 0 0 1 400 200Z" fill="var(--blog-accent)" />
+              <rect x="0" y="112" width="400" height="8" fill="var(--blog-surface-2)" />
+              <rect x="0" y="140" width="400" height="12" fill="var(--blog-surface-2)" />
+              <rect x="0" y="170" width="400" height="16" fill="var(--blog-surface-2)" />
+            </svg>
+          )}
+        </div>
+
+        <div class="hrn-auteur__texte">
+          <p class="hrn-auteur__nom">{auteur.nom}</p>
+          <p class="hrn-auteur__role">{ROLE_AUTEUR}</p>
+          <p class="hrn-auteur__phrase">{auteur.phrase}</p>
+        </div>
+      </aside>
     </div>
-  </section>
+
+    <section class="hrn-article-final" aria-label="Réserver un appel">
+      <div class="hrn-article-final__soleil" aria-hidden="true">
+        <svg viewBox="0 0 400 200" aria-hidden="true" focusable="false">
+          <path d="M0 200A200 200 0 0 1 400 200Z" fill="var(--blog-accent-deep)" />
+          <rect x="0" y="112" width="400" height="8" fill="var(--blog-accent)" />
+          <rect x="0" y="140" width="400" height="12" fill="var(--blog-accent)" />
+          <rect x="0" y="170" width="400" height="16" fill="var(--blog-accent)" />
+        </svg>
+      </div>
+
+      <div class="hrn-section-inner hrn-article-final__inner">
+        <h2>{TITRE_BANDEAU}</h2>
+        <div class="hrn-article-final__droite">
+          <p>
+            Nous regardons votre situation ensemble et nous vous disons, sans engagement,
+            ce qui s'automatise chez vous et dans quel ordre.
+          </p>
+          <div class="hrn-article-final__actions">
+            <a class="hrn-article-final__bouton" href="/#reserver">
+              Réserver 30 minutes en visio
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+                <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </a>
+            <a class="hrn-article-final__tel" href="tel:+33663710598">ou 06 63 71 05 98</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="hrn-article-lies" aria-labelledby="ensuite">
+      <div class="hrn-section-inner">
+        <div class="hrn-article-lies__tete">
+          <h2 id="ensuite">À lire ensuite</h2>
+          <a href="/blog">
+            Tous les articles
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+              <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+        </div>
+
+        <div class="hrn-article-lies__grille">
+          {lies.map((p) => (
+            <ArticleCard
+              slug={p.id}
+              title={p.data.title}
+              description={p.data.description}
+              category={p.data.category}
+              pubDate={p.data.pubDate}
+              readingTime={p.data.readingTime}
+              cover={p.data.cover}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  </div>
 </Layout>
 
 <style>
-  .hrn-article-top {
-    padding-top: 108px;
+  .hrn-blog {
+    background: var(--blog-bg);
+    color: var(--blog-text);
+    font-family: var(--font-display);
   }
 
-  .hrn-article-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-secondary);
+  /* ============ Progression de lecture ============ */
+
+  .hrn-progression {
+    display: none;
+    position: fixed;
+    top: 68px;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    height: 4px;
+    background: var(--blog-surface-2);
   }
 
-  .hrn-article-meta {
-    margin-top: 24px;
+  .hrn-progression__barre {
+    display: block;
+    width: 0;
+    height: 4px;
+    background: var(--blog-accent);
+  }
+
+  /* ============ En-tête ============ */
+
+  .hrn-article-tete {
+    /* 68px de header fixe, puis les 64px de la maquette. */
+    padding-top: calc(68px + 64px);
+    padding-bottom: 56px;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 24px;
+    row-gap: 28px;
+  }
+
+  .hrn-article-tete__ligne {
+    grid-column: span 12;
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .hrn-fil {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     font-family: var(--font-mono);
-    font-size: 12.5px;
-    letter-spacing: 0.02em;
+    font-size: 13px;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--text-muted);
+    color: var(--blog-text-2);
   }
 
-  .hrn-article-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+  .hrn-fil a {
+    display: inline-flex;
+    align-items: center;
+    /* La maquette pose 32px ; le cahier des charges impose 44px de cible
+       minimale à tout lien, et c'est lui qui fait foi sur ce point. La taille
+       du texte ne change pas, et la marge négative annule le remplissage
+       horizontal : le mot reste aligné sur le titre. */
+    min-height: 44px;
+    padding: 0 5px;
+    margin: 0 -5px;
+    color: var(--blog-accent-soft);
   }
 
-  .hrn-article-top h1 {
-    margin-top: 12px !important;
+  .hrn-fil a:hover {
+    color: var(--blog-text);
+  }
+
+  .hrn-article-tete__meta {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--blog-text-2);
+  }
+
+  .hrn-article-tete h1 {
+    grid-column: span 11;
     font-family: var(--font-display);
+    /* Borne basse à 42px, la valeur de la maquette mobile, et non les 38px
+       du cahier des charges, qui donne une fourchette de 38 à 42. */
+    font-size: clamp(42px, 7.5vw, 96px);
     font-weight: 800;
-    font-size: clamp(2rem, 4.5vw, 3.2rem);
-    letter-spacing: -0.02em;
-    color: var(--text-strong);
-    max-width: 22ch;
+    line-height: 0.94;
+    letter-spacing: -0.05em;
+    color: var(--blog-text);
+    text-wrap: balance;
   }
 
-  .hrn-article-lede {
-    margin-top: 16px !important;
-    max-width: 65ch;
-    font-size: 18px;
-    line-height: 1.6;
-    color: var(--text-secondary);
+  .hrn-article-tete__chapeau {
+    grid-column: span 8;
+    font-size: 24px;
+    line-height: 1.45;
+    color: var(--blog-text-2);
+    text-wrap: pretty;
   }
 
-  .hrn-article-toc-mobile {
-    margin-top: 28px;
-    padding: 18px 20px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
+  /* ============ Bandeau de couverture ============ */
+
+  .hrn-article-bandeau {
+    display: flex;
+    height: 360px;
   }
 
-  .hrn-article-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 48px;
-    /* Pas de raccourci `padding` : il écraserait les marges latérales de
-       .hrn-section-inner, que cet élément porte aussi, et le texte de
-       l'article se collerait aux bords sur mobile. */
-    padding-top: 40px;
-    padding-bottom: clamp(56px, 8vw, 96px);
-  }
+  /* ============ Sommaire mobile ============ */
 
-  @media (min-width: 960px) {
-    .hrn-article-layout {
-      grid-template-columns: minmax(0, 1fr) 280px;
-    }
-
-    .hrn-article-toc-mobile {
-      display: none;
-    }
-  }
-
-  .hrn-article-aside {
+  .hrn-article-sommaire-mobile {
     display: none;
+    margin: 28px clamp(20px, 5vw, 48px) 0;
+    padding: 0 18px;
+    border: 1px solid var(--blog-line);
+    border-radius: 18px;
+    background: var(--blog-surface);
   }
 
-  @media (min-width: 960px) {
-    .hrn-article-aside {
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-      position: sticky;
-      top: 96px;
-      align-self: start;
-    }
+  .hrn-article-sommaire-mobile summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 56px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--blog-text);
   }
 
-  .hrn-article-aside__card {
+  .hrn-article-sommaire-mobile[open] summary svg {
+    transform: rotate(180deg);
+  }
+
+  .hrn-article-sommaire-mobile summary svg {
+    flex-shrink: 0;
+    transition: transform var(--dur) var(--ease-standard);
+  }
+
+  .hrn-article-sommaire-mobile :global(.hrn-toc) {
+    padding-bottom: 12px;
+  }
+
+  .hrn-article-sommaire-mobile :global(.hrn-toc__lien) {
+    font-size: 15px;
+  }
+
+  /* ============ Corps en deux colonnes ============ */
+
+  .hrn-article-corps {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 24px;
+    align-items: start;
+    /* Jamais le raccourci `padding` ici : cet élément porte aussi
+       .hrn-section-inner, dont il écraserait les marges latérales. */
+    padding-top: 88px;
+    padding-bottom: 104px;
+  }
+
+  .hrn-article-cote {
+    grid-column: 1 / span 3;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    position: sticky;
+    top: 96px;
+    align-self: start;
+  }
+
+  .hrn-article-cote__carte {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
     padding: 22px;
-    border-radius: var(--radius-lg);
-    background: var(--slate-900);
-    color: var(--ink-200);
+    border: 1px solid var(--blog-line);
+    border-radius: 20px;
+    background: var(--blog-surface);
   }
 
-  .hrn-article-aside__card strong {
-    display: block;
-    font-family: var(--font-display);
-    font-size: var(--text-lg);
-    color: var(--text-inverse);
+  .hrn-article-cote__carte p {
+    font-size: 16px;
+    line-height: 1.45;
   }
 
-  .hrn-article-aside__card p {
-    margin: 8px 0 16px !important;
-    font-size: 14px;
-    color: var(--ink-300);
+  .hrn-article-cote__carte a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 44px;
+    padding: 0 22px;
+    border-radius: 999px;
+    background: var(--blog-accent);
+    color: var(--blog-on-accent);
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background var(--dur) var(--ease-standard);
   }
+
+  .hrn-article-cote__carte a:hover {
+    background: var(--blog-accent-hover);
+    color: var(--blog-on-accent);
+  }
+
+  /* ============ Prose ============ */
 
   .hrn-prose {
-    max-width: var(--container-prose);
-    font-size: 17px;
-    line-height: 1.7;
-    color: var(--text-primary);
+    grid-column: 5 / span 7;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    /* Les sections numérotées sont comptées par CSS : le Markdown ne produit
+       aucun numéro, et les h2 gardent leur id pour les ancres du sommaire. */
+    counter-reset: section;
   }
 
-  .hrn-prose :global(h2) {
-    margin-top: 44px;
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: var(--text-2xl);
-    color: var(--text-strong);
-    scroll-margin-top: 90px;
-  }
-
-  .hrn-prose :global(h3) {
-    margin-top: 28px;
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: var(--text-lg);
-    color: var(--text-strong);
+  .hrn-prose :global(> p:first-of-type) {
+    font-size: 25px;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    text-wrap: pretty;
   }
 
   .hrn-prose :global(p) {
-    margin-top: 16px;
+    font-size: 19px;
+    line-height: 1.7;
+    color: var(--blog-text);
+    text-wrap: pretty;
   }
 
-  .hrn-prose :global(ul) {
+  .hrn-prose :global(h2) {
+    counter-increment: section;
+    margin-top: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: none;
+    font-family: var(--font-display);
+    font-size: 46px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--blog-text);
+    scroll-margin-top: 96px;
+  }
+
+  .hrn-prose :global(h2::before) {
+    content: counter(section, decimal-leading-zero);
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--blog-accent);
+  }
+
+  .hrn-prose :global(h3) {
     margin-top: 16px;
-    padding-left: 20px;
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: var(--blog-text);
+  }
+
+  .hrn-prose :global(a) {
+    color: var(--blog-text);
+    text-decoration: underline;
+    text-decoration-color: var(--blog-accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+
+  .hrn-prose :global(a:hover) {
+    color: var(--blog-accent-soft);
+  }
+
+  .hrn-prose :global(strong) {
+    font-weight: 700;
+    color: inherit;
+  }
+
+  /* Listes numérotées à la main : le numéro remplace la puce, comme dans la
+     maquette. Le compteur est propre à chaque liste. */
+  .hrn-prose :global(ul),
+  .hrn-prose :global(ol) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    font-size: 19px;
+    line-height: 1.6;
+    counter-reset: puce;
   }
 
   .hrn-prose :global(li) {
-    margin-top: 8px;
+    counter-increment: puce;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    column-gap: 12px;
+    align-items: baseline;
+  }
+
+  .hrn-prose :global(li::before) {
+    content: counter(puce, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--blog-accent);
   }
 
   .hrn-prose :global(blockquote) {
-    margin: 28px 0;
-    padding: 4px 0 4px 20px;
-    border-left: 3px solid var(--accent);
+    margin: 16px 0;
+    padding: 32px 0;
+    border-top: 1px solid var(--blog-line);
+    border-bottom: 1px solid var(--blog-line);
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 1.15rem;
-    color: var(--text-strong);
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+    color: var(--blog-accent);
+    text-wrap: balance;
   }
 
-  .hrn-article-end {
-    margin-top: 48px;
-    padding: 32px;
-    border-radius: var(--radius-xl);
-    background: var(--slate-900);
-    color: var(--ink-200);
+  .hrn-prose :global(blockquote p) {
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    letter-spacing: inherit;
+    color: inherit;
   }
 
-  .hrn-article-end strong {
-    display: block;
-    font-family: var(--font-display);
-    font-size: var(--text-xl);
-    color: var(--text-inverse);
+  /* Guillemets français ajoutés par CSS : ils n'ont pas à vivre dans le
+     Markdown, et ils restent hors du texte lu par les lecteurs d'écran. */
+  .hrn-prose :global(blockquote p::before) {
+    content: '\00ab\00a0';
+    color: var(--blog-accent-soft);
   }
 
-  .hrn-article-end p {
-    margin: 8px 0 20px !important;
-    color: var(--ink-300);
+  .hrn-prose :global(blockquote p::after) {
+    content: '\00a0\00bb';
+    color: var(--blog-accent-soft);
   }
 
-  .hrn-related {
-    padding: 0 0 clamp(56px, 8vw, 96px);
-    background: var(--paper);
-  }
+  /* ============ Encart « En bref » ============ */
 
-  .hrn-related__grid {
-    margin-top: 32px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 20px;
-  }
-
-  .hrn-related__system {
+  .hrn-enbref {
     display: flex;
     flex-direction: column;
-    padding: 24px;
-    border-radius: var(--radius-lg);
-    background: var(--ink-950);
-    color: var(--ink-200);
+    gap: 14px;
+    padding: 24px 28px;
+    border: 1px solid var(--blog-line);
+    border-left: 4px solid var(--blog-accent);
+    border-radius: 20px;
+    background: var(--blog-surface);
   }
 
-  .hrn-related__system span {
+  /* Ces trois règles sont préfixées par .hrn-prose : sans cela, les règles
+     génériques de la prose, plus spécifiques parce qu'elles nomment une
+     balise, écrasent la taille, l'interligne et la couleur de l'encart, qui
+     en est un enfant. */
+  .hrn-prose .hrn-enbref__libelle {
     font-family: var(--font-mono);
-    font-size: var(--text-2xs);
-    letter-spacing: var(--tracking-label);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--ink-400);
+    color: var(--blog-accent-soft);
   }
 
-  .hrn-related__system strong {
-    margin-top: 10px;
-    font-family: var(--font-display);
-    font-size: var(--text-lg);
-    color: var(--text-inverse);
+  .hrn-prose .hrn-enbref__liste {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 17px;
+    line-height: 1.5;
+    counter-reset: bref;
   }
 
-  .hrn-related__system a {
-    margin-top: auto;
-    padding-top: 16px;
-    display: inline-flex;
+  .hrn-prose .hrn-enbref__liste li {
+    counter-increment: bref;
+    display: grid;
+    grid-template-columns: 26px minmax(0, 1fr);
+    column-gap: 12px;
+    align-items: baseline;
+  }
+
+  .hrn-prose .hrn-enbref__liste li::before {
+    content: counter(bref, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--blog-accent);
+  }
+
+  /* ============ Encart rendez-vous inséré dans la prose ============ */
+
+  .hrn-prose :global(.hrn-article-cta) {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 32px 36px;
+    border-radius: 22px;
+    background: var(--blog-accent);
+    color: var(--blog-on-accent);
+  }
+
+  .hrn-prose :global(.hrn-article-cta__titre) {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--blog-on-accent);
+  }
+
+  .hrn-prose :global(.hrn-article-cta__phrase) {
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--blog-on-accent);
+  }
+
+  .hrn-prose :global(.hrn-article-cta__lien) {
+    align-self: flex-start;
+    display: flex;
     align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 48px;
+    padding: 0 22px;
+    border-radius: 999px;
+    background: var(--blog-bg);
+    color: var(--blog-text);
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background var(--dur) var(--ease-standard);
+  }
+
+  .hrn-prose :global(.hrn-article-cta__lien:hover) {
+    background: var(--blog-surface-2);
+    color: var(--blog-text);
+  }
+
+  /* ============ Bloc auteur ============ */
+
+  .hrn-auteur {
+    grid-column: 5 / span 7;
+    margin-top: 36px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 18px;
+    padding: 26px 30px;
+    border: 1px solid var(--blog-line);
+    border-radius: 22px;
+    background: var(--blog-surface);
+  }
+
+  .hrn-auteur__portrait {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--blog-surface-2);
+  }
+
+  .hrn-auteur__portrait :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hrn-auteur__portrait svg {
+    width: 100%;
+  }
+
+  .hrn-auteur__texte {
+    display: flex;
+    flex-direction: column;
     gap: 6px;
-    font-size: 14px;
+  }
+
+  .hrn-auteur__nom {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .hrn-auteur__role {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--blog-accent-soft);
+  }
+
+  .hrn-auteur__phrase {
+    margin-top: 4px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--blog-text-2);
+  }
+
+  /* ============ Bandeau final ============ */
+
+  .hrn-article-final {
+    position: relative;
+    overflow: hidden;
+    min-height: 440px;
+    padding-top: 88px;
+    padding-bottom: 88px;
+    background: var(--blog-accent);
+    color: var(--blog-on-accent);
+  }
+
+  .hrn-article-final__soleil {
+    position: absolute;
+    right: 56px;
+    bottom: 0;
+    display: flex;
+    width: 420px;
+  }
+
+  .hrn-article-final__soleil svg {
+    width: 100%;
+    height: auto;
+  }
+
+  .hrn-article-final__inner {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 24px;
+    align-content: start;
+  }
+
+  .hrn-article-final h2 {
+    grid-column: span 6;
+    margin: 0;
+    max-width: none;
+    font-family: var(--font-display);
+    font-size: clamp(46px, 7vw, 88px);
+    font-weight: 800;
+    line-height: 0.92;
+    letter-spacing: -0.05em;
+    color: var(--blog-on-accent);
+  }
+
+  /* Cinq douzièmes comme la maquette. Le conteneur du site étant plus étroit
+     que son cadre (1104px contre 1168px), le lien téléphone passe sous le
+     bouton au lieu de rester à sa droite : c'est voulu, sur six douzièmes il
+     venait se poser sur le demi-soleil braise et devenait illisible. */
+  .hrn-article-final__droite {
+    grid-column: span 5;
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .hrn-article-final__droite p {
+    font-size: 24px;
     font-weight: 600;
-    color: var(--amber-400);
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    text-wrap: pretty;
+  }
+
+  .hrn-article-final__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 22px;
+  }
+
+  .hrn-article-final__bouton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 52px;
+    padding: 0 22px;
+    border-radius: 999px;
+    background: var(--blog-bg);
+    color: var(--blog-text);
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background var(--dur) var(--ease-standard);
+  }
+
+  .hrn-article-final__bouton:hover {
+    background: var(--blog-surface-2);
+    color: var(--blog-text);
+  }
+
+  .hrn-article-final__tel {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--blog-on-accent);
+  }
+
+  .hrn-article-final__tel:hover {
+    color: var(--blog-on-accent);
+  }
+
+  /* ============ À lire ensuite ============ */
+
+  .hrn-article-lies {
+    padding-top: 96px;
+    padding-bottom: 120px;
+  }
+
+  .hrn-article-lies__tete {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 36px;
+  }
+
+  .hrn-article-lies__tete h2 {
+    margin: 0;
+    max-width: none;
+    font-family: var(--font-display);
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    color: var(--blog-text);
+  }
+
+  .hrn-article-lies__tete a {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--blog-accent-soft);
+  }
+
+  .hrn-article-lies__tete a:hover {
+    color: var(--blog-text);
+  }
+
+  .hrn-article-lies__grille {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    /* Les couvertures sont un peu plus basses qu'en page liste. */
+    --hauteur-couverture: 200px;
+  }
+
+  /* ============ Réactivité ============ */
+
+  @media (max-width: 1199px) {
+    .hrn-article-final {
+      min-height: 0;
+      padding-top: 48px;
+      padding-bottom: 170px;
+    }
+
+    .hrn-article-final__inner {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Le soleil passe au centre, sous le contenu, qui prend toute la largeur. */
+    .hrn-article-final__soleil {
+      right: 50%;
+      width: 320px;
+      transform: translateX(50%);
+    }
+
+    .hrn-article-final__droite {
+      padding-top: 0;
+    }
+
+    .hrn-article-final__actions {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+    }
+  }
+
+  @media (max-width: 959px) {
+    .hrn-article-final__bouton {
+      width: 100%;
+    }
+
+    .hrn-article-final__actions {
+      align-items: stretch;
+    }
+
+    .hrn-article-final__tel {
+      justify-content: center;
+    }
+
+    .hrn-progression {
+      display: block;
+    }
+
+    .hrn-article-tete {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding-top: calc(68px + 28px);
+      padding-bottom: 32px;
+    }
+
+    .hrn-article-tete__ligne {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .hrn-article-tete__meta {
+      font-size: 12px;
+    }
+
+    .hrn-article-tete h1 {
+      line-height: 0.96;
+      letter-spacing: -0.045em;
+    }
+
+    .hrn-article-tete__chapeau {
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .hrn-article-bandeau {
+      height: 200px;
+    }
+
+    .hrn-article-sommaire-mobile {
+      display: block;
+    }
+
+    .hrn-article-corps {
+      display: block;
+      padding-top: 36px;
+      padding-bottom: 64px;
+    }
+
+    .hrn-article-cote {
+      display: none;
+    }
+
+    .hrn-prose {
+      gap: 20px;
+      font-size: 17px;
+    }
+
+    .hrn-prose :global(> p:first-of-type) {
+      font-size: 21px;
+    }
+
+    .hrn-prose :global(p) {
+      font-size: 17px;
+    }
+
+    .hrn-prose :global(h2) {
+      margin-top: 28px;
+      font-size: 34px;
+    }
+
+    .hrn-prose :global(h3) {
+      font-size: 24px;
+    }
+
+    .hrn-prose :global(ul),
+    .hrn-prose :global(ol) {
+      font-size: 17px;
+    }
+
+    .hrn-prose :global(blockquote) {
+      margin: 8px 0;
+      padding: 24px 0;
+      font-size: 27px;
+    }
+
+    .hrn-prose :global(.hrn-article-cta) {
+      padding: 24px;
+    }
+
+    .hrn-prose :global(.hrn-article-cta__lien) {
+      align-self: stretch;
+    }
+
+    .hrn-auteur {
+      flex-direction: column;
+      align-items: flex-start;
+      margin-top: 28px;
+      padding: 22px;
+    }
+
+    .hrn-article-lies {
+      padding-top: 56px;
+      padding-bottom: 72px;
+    }
+
+    .hrn-article-lies__tete {
+      margin-bottom: 8px;
+    }
+
+    .hrn-article-lies__tete h2 {
+      font-size: 40px;
+    }
+
+    .hrn-article-lies__tete a {
+      display: none;
+    }
+
+    .hrn-article-lies__grille {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+  }
+
+  /* La maquette mobile resserre « À lire ensuite » par rapport à la liste :
+     vignette plus petite, lignes plus courtes, titre de section plus discret.
+     Le composant reste celui de la liste, comme le demande le cahier des
+     charges, seuls ses réglages changent dans cette section. */
+  @media (max-width: 759px) {
+    .hrn-article-lies {
+      padding-top: 52px;
+      padding-bottom: 24px;
+    }
+
+    .hrn-article-lies__tete h2 {
+      font-size: 38px;
+    }
+
+    .hrn-article-lies__grille {
+      --hauteur-couverture: 80px;
+    }
+
+    .hrn-article-lies__grille :global(.hrn-card__lien) {
+      grid-template-columns: 80px minmax(0, 1fr);
+      column-gap: 14px;
+      padding: 18px 0;
+    }
+
+    .hrn-article-lies__grille :global(.hrn-card__couverture) {
+      width: 80px;
+      height: 80px;
+      border-radius: 14px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-article-sommaire-mobile summary svg {
+      transition: none;
+    }
   }
 </style>
+
+<script>
+  // Barre de progression de lecture, mobile seulement. Elle mesure la
+  // position du lecteur dans la prose : 0 % en haut de l'article, 100 % à la
+  // fin du texte, et non sur la hauteur totale de la page, qui inclut le
+  // bandeau final et les articles liés.
+  let ac: AbortController | undefined;
+
+  function demonterProgression() {
+    ac?.abort();
+    ac = undefined;
+  }
+
+  function initProgression() {
+    demonterProgression();
+    ac = new AbortController();
+
+    const barre = document.querySelector<HTMLElement>('#progression');
+    const prose = document.querySelector<HTMLElement>('.hrn-prose');
+    if (!barre || !prose) return;
+
+    const mesurer = () => {
+      const haut = prose.offsetTop;
+      const course = prose.offsetHeight - window.innerHeight * 0.5;
+      const avance = window.scrollY - haut;
+      const part = course > 0 ? Math.min(1, Math.max(0, avance / course)) : 0;
+      barre.style.width = `${part * 100}%`;
+    };
+
+    mesurer();
+    window.addEventListener('scroll', mesurer, { passive: true, signal: ac.signal });
+
+    // Sur mobile, l'apparition de la barre d'adresse émet un resize alors que
+    // seule la HAUTEUR change : on ne remesure que sur un vrai changement de
+    // largeur, sinon la barre saute à chaque défilement.
+    let derniereLargeur = window.innerWidth;
+    window.addEventListener(
+      'resize',
+      () => {
+        if (window.innerWidth === derniereLargeur) return;
+        derniereLargeur = window.innerWidth;
+        mesurer();
+      },
+      { signal: ac.signal },
+    );
+  }
+
+  document.addEventListener('astro:page-load', initProgression);
+  document.addEventListener('astro:before-swap', demonterProgression);
+</script>
