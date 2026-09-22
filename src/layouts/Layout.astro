@@ -312,6 +312,39 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       // que le navigateur restaure quand on recharge une page en cours de
       // lecture, ce qui serait une régression pour un vrai visiteur.
       document.addEventListener('astro:page-load', remonterCadre);
+
+      // 3. Rattrapage, UNIQUEMENT quand la page est affichée dans un cadre.
+      //    Signalé de nouveau le 22 septembre 2026 dans l'aperçu : un clic sur
+      //    une offre de l'accueil n'arrivait pas en haut de la page d'offre,
+      //    alors que le vrai site et un cadre de test arrivaient à 0px.
+      //    Le geste n°2 part au tout début du chargement ; une visionneuse qui
+      //    redimensionne son cadre ou restaure sa propre position APRÈS ce
+      //    moment l'annule. On le rejoue donc une fois la page chargée, puis
+      //    deux fois encore peu après, sauf si le visiteur a déjà commencé à
+      //    défiler : on ne lui reprend jamais la main.
+      //    Seulement après une navigation fraîche (pas un rechargement ni un
+      //    retour arrière), et jamais hors cadre : le vrai site n'est pas
+      //    concerné par ce bloc.
+      if (window.self !== window.top) {
+        const nav = performance.getEntriesByType('navigation')[0];
+        if (!nav || nav.type === 'navigate') {
+          let laMain = false;
+          const prendre = () => { laMain = true; };
+          for (const t of ['wheel', 'touchstart', 'keydown', 'pointerdown']) {
+            window.addEventListener(t, prendre, { once: true, passive: true });
+          }
+          const rattraper = () => {
+            if (laMain || location.hash) return;
+            window.scrollTo({ left: 0, top: 0, behavior: 'instant' });
+            remonterCadre();
+          };
+          window.addEventListener('load', () => {
+            rattraper();
+            setTimeout(rattraper, 250);
+            setTimeout(rattraper, 800);
+          }, { once: true });
+        }
+      }
     </script>
   </body>
 </html>
