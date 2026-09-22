@@ -268,7 +268,10 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
   .hrn-fil a {
     display: inline-flex;
     align-items: center;
-    min-height: 32px;
+    /* La maquette pose 32px ; le cahier des charges impose 44px de cible
+       minimale à tout lien, et c'est lui qui fait foi sur ce point. La taille
+       du texte ne change pas. */
+    min-height: 44px;
     color: var(--blog-accent-soft);
   }
 
