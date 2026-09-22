@@ -92,7 +92,7 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     )}
 
     <div class="hrn-section-inner hrn-article-corps">
-      <aside class="hrn-article-cote">
+      <aside class="hrn-article-cote" aria-label="Sommaire et rendez-vous">
         <TableOfContents headings={headings} />
 
         <div class="hrn-article-cote__carte">
@@ -270,8 +270,11 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     align-items: center;
     /* La maquette pose 32px ; le cahier des charges impose 44px de cible
        minimale à tout lien, et c'est lui qui fait foi sur ce point. La taille
-       du texte ne change pas. */
+       du texte ne change pas, et la marge négative annule le remplissage
+       horizontal : le mot reste aligné sur le titre. */
     min-height: 44px;
+    padding: 0 5px;
+    margin: 0 -5px;
     color: var(--blog-accent-soft);
   }
 

@@ -72,7 +72,10 @@ const numero = (i: number) => String(i + 1).padStart(2, '0');
     grid-template-columns: 34px minmax(0, 1fr);
     column-gap: 10px;
     align-items: baseline;
-    padding: 10px 0;
+    /* La maquette pose 10px, ce qui donne une cible de 41,8px. La section 9 du
+       cahier des charges demande 44px : deux pixels de plus par entrée
+       suffisent, et le sommaire respire un peu mieux. */
+    padding: 12px 0;
     border-top: 1px solid var(--blog-line);
     color: var(--blog-text-2);
     font-size: 16px;
