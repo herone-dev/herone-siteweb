@@ -155,34 +155,6 @@ section h2 {
   margin: 0;
 }
 
-/* Encart CTA sombre inséré au milieu des articles de blog (contenu Markdown brut) */
-.hrn-article-cta {
-  margin: 32px 0;
-  padding: 28px;
-  border-radius: var(--radius-xl);
-  background: var(--slate-900);
-  color: var(--ink-200);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-.hrn-article-cta strong {
-  display: block;
-  font-family: var(--font-display);
-  font-size: var(--text-lg);
-  color: var(--text-inverse);
-}
-
-.hrn-article-cta span {
-  display: block;
-  margin-top: 4px;
-  font-size: 14px;
-  color: var(--ink-300);
-}
-
 /* Marquee (section « Logiciels ») — deux rangées défilant en sens opposés */
 @keyframes hrn-marq-left {
   from { transform: translateX(0); }

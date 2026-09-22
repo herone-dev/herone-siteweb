@@ -20,14 +20,6 @@ Le compte rendu manuel coûte cher, non pas en logiciel, mais en temps humain et
 
 > Le rendez-vous se termine, le compte rendu part. Personne n'a ouvert un traitement de texte.
 
-<div class="hrn-article-cta">
-  <div>
-    <strong>On regarde votre cas en trente minutes.</strong>
-    <span>Sans jargon, sans engagement. On repère ce qui peut être automatisé chez vous.</span>
-  </div>
-  <a href="/#reserver" class="hrn-btn hrn-btn--accent hrn-btn--lg"><span>Réserver 30 minutes</span></a>
-</div>
-
 ## Comment le système fonctionne
 
 Le rendez-vous est enregistré, avec l'outil de votre choix. Une première IA le transcrit au mot près, une seconde en extrait l'essentiel : décisions, montants, prochaines étapes. Le tout est mis en forme dans un modèle propre, à votre image.

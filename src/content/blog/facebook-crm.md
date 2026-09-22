@@ -20,14 +20,6 @@ Sans automatisation, un lead entrant passe par trop d'étapes manuelles :
 
 > Le formulaire est rempli, l'équipe est déjà alertée. Le lead n'a pas eu le temps de refroidir.
 
-<div class="hrn-article-cta">
-  <div>
-    <strong>On regarde votre cas en trente minutes.</strong>
-    <span>Sans jargon, sans engagement. On repère ce qui peut être automatisé chez vous.</span>
-  </div>
-  <a href="/#reserver" class="hrn-btn hrn-btn--accent hrn-btn--lg"><span>Réserver 30 minutes</span></a>
-</div>
-
 ## Comment le système fonctionne
 
 Dès qu'un lead arrive, le système l'envoie au tableur, le crée dans le CRM et prévient la bonne personne par e-mail ou message. Pas d'IA ici, juste de l'automatisation fiable, branchée sur vos outils.

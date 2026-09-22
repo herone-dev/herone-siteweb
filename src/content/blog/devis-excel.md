@@ -20,14 +20,6 @@ Recalculer un devis à la main, c'est du temps et un risque d'erreur à chaque c
 
 > Vous changez une quantité, le devis se recalcule. Vous validez, il part.
 
-<div class="hrn-article-cta">
-  <div>
-    <strong>On regarde votre cas en trente minutes.</strong>
-    <span>Sans jargon, sans engagement. On repère ce qui peut être automatisé chez vous.</span>
-  </div>
-  <a href="/#reserver" class="hrn-btn hrn-btn--accent hrn-btn--lg"><span>Réserver 30 minutes</span></a>
-</div>
-
 ## Comment le système fonctionne
 
 Le système reprend votre catalogue de prix et vos règles de calcul. À partir des éléments du chantier renseignés dans votre outil habituel, le devis à jour est produit, cohérent, prêt à envoyer, avec la marge protégée.

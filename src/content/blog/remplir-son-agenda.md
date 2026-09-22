@@ -18,14 +18,6 @@ Les allers-retours pour caler un rendez-vous, c'est un quart d'heure par client,
 
 > Le client choisit son créneau. Plus d'aller-retour sur l'agenda.
 
-<div class="hrn-article-cta">
-  <div>
-    <strong>On regarde votre cas en trente minutes.</strong>
-    <span>Sans jargon, sans engagement. On repère ce qui peut être automatisé chez vous.</span>
-  </div>
-  <a href="/#reserver" class="hrn-btn hrn-btn--accent hrn-btn--lg"><span>Réserver 30 minutes</span></a>
-</div>
-
 ## Comment le système fonctionne
 
 Le système se branche sur votre agenda et expose vos créneaux disponibles. Le client choisit l'heure qui lui va, le rendez-vous s'ajoute, les deux parties reçoivent la confirmation. Plus tard, un rappel part automatiquement pour réduire les absences.

@@ -20,14 +20,6 @@ La relance manuelle est la première tâche qu'on repousse, avec des conséquenc
 
 > La relance part au bon moment. Vous validez quand ça compte, le reste roule.
 
-<div class="hrn-article-cta">
-  <div>
-    <strong>On regarde votre cas en trente minutes.</strong>
-    <span>Sans jargon, sans engagement. On repère ce qui peut être automatisé chez vous.</span>
-  </div>
-  <a href="/#reserver" class="hrn-btn hrn-btn--accent hrn-btn--lg"><span>Réserver 30 minutes</span></a>
-</div>
-
 ## Comment le système fonctionne
 
 Le système suit vos devis et factures et déclenche la relance au moment prévu. Pour les cas sensibles, il vous propose le message : vous validez avant l'envoi, vous gardez la main.

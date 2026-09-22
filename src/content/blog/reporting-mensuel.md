@@ -20,14 +20,6 @@ Le reporting reconstitué à la main pose trois problèmes récurrents :
 
 > Le premier du mois, le rapport est déjà là. Vous le lisez au lieu de le fabriquer.
 
-<div class="hrn-article-cta">
-  <div>
-    <strong>On regarde votre cas en trente minutes.</strong>
-    <span>Sans jargon, sans engagement. On repère ce qui peut être automatisé chez vous.</span>
-  </div>
-  <a href="/#reserver" class="hrn-btn hrn-btn--accent hrn-btn--lg"><span>Réserver 30 minutes</span></a>
-</div>
-
 ## Comment le système fonctionne
 
 On branche le système sur vos sources : ventes, compta, outils métier. À date fixe, il assemble le rapport dans un format lisible et constant, toujours calculé de la même façon.
