@@ -29,6 +29,7 @@ import OffreEtapes from '../components/offre/OffreEtapes.astro';
 import OffreTarif from '../components/offre/OffreTarif.astro';
 import OffreFaq from '../components/offre/OffreFaq.astro';
 import OffrePont from '../components/offre/OffrePont.astro';
+import ConstatCarousel from '../components/home/ConstatCarousel.astro';
 import SystemsGrid from '../components/home/SystemsGrid.astro';
 import ProofSection from '../components/home/ProofSection.astro';
 
@@ -152,6 +153,12 @@ const deroule = [
     lienHref="#tarif"
     lienLabel="Voir le tarif"
   />
+
+  {/* « Le constat » ouvre la page depuis le 22 septembre 2026 : les six tâches
+      faites à la main viennent avant celles que nous visons. La section était
+      sur la page d'accueil. Elle est posée sur fond surface pour tenir
+      l'alternance : le hero est sombre, la section suivante est sur papier. */}
+  <ConstatCarousel fond="surface" />
 
   <section class="hrn-auto-taches">
     <div class="hrn-section-inner">

@@ -99,9 +99,16 @@ const tasks = [
     body: 'Des heures à ranger, transférer et classer ce qui arrive dans la boîte.',
   },
 ];
+interface Props {
+  /** Fond de la section, pour tenir l'alternance de la page qui l'accueille. */
+  fond?: 'paper' | 'surface';
+}
+
+const { fond = 'paper' } = Astro.props;
+
 ---
 
-<section id="constat" class="hrn-constat">
+<section id="constat" class:list={['hrn-constat', `hrn-constat--${fond}`]}>
   <div class="hrn-section-inner">
     <div class="hrn-eyebrow">Le constat</div>
     <h2>Ces tâches, quelqu'un les fait à la main chez vous</h2>
@@ -173,6 +180,22 @@ const tasks = [
     padding: var(--section-y) 0;
     background: var(--paper);
     scroll-margin-top: 68px;
+  }
+
+  .hrn-constat--surface {
+    background: var(--surface);
+  }
+
+  /* Sur fond surface, la barre de puces et les flèches prendraient exactement
+     la couleur de la section et s'y fondraient : elles passent sur le fond
+     papier. Même parade que SystemsGrid pour ses cartes. */
+  .hrn-constat--surface .hrn-constat__dots,
+  .hrn-constat--surface .hrn-constat__arrow {
+    background: var(--paper);
+  }
+
+  .hrn-constat--surface .hrn-constat__arrow:hover:not(:disabled) {
+    background: var(--surface-2);
   }
 
   .hrn-constat :global(.hrn-eyebrow) {
