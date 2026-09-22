@@ -1,4 +1,14 @@
 ---
+/* Sommaire d'un article.
+ *
+ * Ne retient que les titres de niveau 2, numérotés 01, 02, 03 comme dans la
+ * prose. La section en cours de lecture est repérée par un IntersectionObserver
+ * posé sur les titres eux mêmes, pas sur la position de défilement : c'est ce
+ * qui permet de rester juste quand une section est plus courte que l'écran.
+ *
+ * Le composant est posé deux fois par page (la colonne de gauche en desktop,
+ * le dépliant en mobile). Le script les met toutes les deux à jour.
+ */
 interface Heading {
   depth: number;
   slug: string;
@@ -7,20 +17,27 @@ interface Heading {
 
 interface Props {
   headings: Heading[];
+  avecTitre?: boolean;
 }
 
-const { headings } = Astro.props;
+const { headings, avecTitre = true } = Astro.props;
 const items = headings.filter((h) => h.depth === 2);
+const numero = (i: number) => String(i + 1).padStart(2, '0');
 ---
 
 {items.length > 0 && (
-  <nav class="hrn-toc" aria-label="Sur cette page">
-    <span class="hrn-toc__label">Sur cette page</span>
-    <ul>
-      {items.map((h) => (
-        <li><a href={`#${h.slug}`}>{h.text}</a></li>
+  <nav class="hrn-toc" aria-labelledby={avecTitre ? 'sommaire' : undefined} aria-label={avecTitre ? undefined : 'Sommaire'}>
+    {avecTitre && <h2 class="hrn-toc__titre" id="sommaire">Sommaire</h2>}
+    <ol class="hrn-toc__liste">
+      {items.map((h, i) => (
+        <li>
+          <a class="hrn-toc__lien" href={`#${h.slug}`} data-toc={h.slug}>
+            <span class="hrn-toc__numero">{numero(i)}</span>
+            <span>{h.text}</span>
+          </a>
+        </li>
       ))}
-    </ul>
+    </ol>
   </nav>
 )}
 
@@ -28,32 +45,108 @@ const items = headings.filter((h) => h.depth === 2);
   .hrn-toc {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
   }
 
-  .hrn-toc__label {
+  .hrn-toc__titre {
+    margin: 0;
+    max-width: none;
     font-family: var(--font-mono);
-    font-size: var(--text-2xs);
-    letter-spacing: var(--tracking-label);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--text-muted);
+    color: var(--blog-text-2);
   }
 
-  .hrn-toc ul {
-    list-style: none;
+  .hrn-toc__liste {
     margin: 0;
     padding: 0;
+    list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 8px;
   }
 
-  .hrn-toc a {
-    font-size: 14px;
-    color: var(--text-secondary);
+  .hrn-toc__lien {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    column-gap: 10px;
+    align-items: baseline;
+    padding: 10px 0;
+    border-top: 1px solid var(--blog-line);
+    color: var(--blog-text-2);
+    font-size: 16px;
+    line-height: 1.3;
+    text-decoration: none;
+    transition: color var(--dur) var(--ease-standard);
   }
 
-  .hrn-toc a:hover {
-    color: var(--slate-600);
+  .hrn-toc__numero {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--blog-text-2);
+    transition: color var(--dur) var(--ease-standard);
+  }
+
+  .hrn-toc__lien:hover,
+  .hrn-toc__lien:focus-visible {
+    color: var(--blog-text);
+  }
+
+  /* Section en cours de lecture. */
+  .hrn-toc__lien[aria-current='true'] {
+    color: var(--blog-text);
+    font-weight: 700;
+  }
+
+  .hrn-toc__lien[aria-current='true'] .hrn-toc__numero {
+    color: var(--blog-accent);
   }
 </style>
+
+<script>
+  let io: IntersectionObserver | undefined;
+
+  function demonterSommaire() {
+    io?.disconnect();
+    io = undefined;
+  }
+
+  function initSommaire() {
+    demonterSommaire();
+
+    const liens = [...document.querySelectorAll<HTMLAnchorElement>('.hrn-toc__lien')];
+    if (liens.length === 0) return;
+
+    const titres = [...document.querySelectorAll<HTMLElement>('.hrn-prose h2')];
+    if (titres.length === 0) return;
+
+    const marquer = (slug: string) => {
+      for (const lien of liens) {
+        if (lien.dataset.toc === slug) lien.setAttribute('aria-current', 'true');
+        else lien.removeAttribute('aria-current');
+      }
+    };
+
+    // Le premier titre est actif d'entrée : sinon le sommaire reste éteint
+    // tant que le lecteur n'a pas dépassé le chapeau.
+    if (titres[0]?.id) marquer(titres[0].id);
+
+    io = new IntersectionObserver(
+      (entrees) => {
+        const visibles = entrees
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visibles[0]?.target instanceof HTMLElement) {
+          marquer(visibles[0].target.id);
+        }
+      },
+      { rootMargin: '-40% 0px -55% 0px' },
+    );
+
+    titres.forEach((t) => io?.observe(t));
+  }
+
+  document.addEventListener('astro:page-load', initSommaire);
+  document.addEventListener('astro:before-swap', demonterSommaire);
+</script>
