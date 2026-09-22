@@ -260,4 +260,11 @@
 
   /* La palette propre au blog (--blog-*, prune et orange) a été retirée le
      22 septembre 2026 : le blog reprend les couleurs du site. */
+
+  /* ============ Voile du hero (22 septembre 2026) ============
+     Demande de l'utilisateur : un voile plus léger sur la vidéo, et bleuté
+     plutôt que vert-jaune. Ces deux jetons ne servent qu'au hero de l'accueil.
+     Supprimés par erreur avec la palette du blog, remis le 22 septembre 2026. */
+  --hero-voile: #0A1526;           /* bleu nuit, remplace --ink-950 dans les dégradés du hero */
+  --hero-teinte: #2F5D8C;          /* bleu acier, couche de teinte en lumière douce */
 }
