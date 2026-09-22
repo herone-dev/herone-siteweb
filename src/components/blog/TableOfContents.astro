@@ -106,10 +106,13 @@ const numero = (i: number) => String(i + 1).padStart(2, '0');
 
 <script>
   let io: IntersectionObserver | undefined;
+  let ac: AbortController | undefined;
 
   function demonterSommaire() {
     io?.disconnect();
     io = undefined;
+    ac?.abort();
+    ac = undefined;
   }
 
   function initSommaire() {
@@ -128,23 +131,43 @@ const numero = (i: number) => String(i + 1).padStart(2, '0');
       }
     };
 
-    // Le premier titre est actif d'entrée : sinon le sommaire reste éteint
-    // tant que le lecteur n'a pas dépassé le chapeau.
-    if (titres[0]?.id) marquer(titres[0].id);
+    // Le titre courant est le DERNIER dont le haut est passé au dessus de la
+    // ligne de référence, à 40% de la hauteur de fenêtre. L'observateur ne
+    // sert qu'à savoir quand recalculer : se contenter des titres qui
+    // coupent la bande laisserait le sommaire figé sur la section précédente
+    // dès qu'un titre a traversé la bande sans que le suivant y soit entré.
+    const choisir = () => {
+      const ligne = window.innerHeight * 0.4;
+      let courant = titres[0];
+      for (const titre of titres) {
+        if (titre.getBoundingClientRect().top <= ligne) courant = titre;
+      }
+      if (courant?.id) marquer(courant.id);
+    };
 
-    io = new IntersectionObserver(
-      (entrees) => {
-        const visibles = entrees
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visibles[0]?.target instanceof HTMLElement) {
-          marquer(visibles[0].target.id);
-        }
-      },
-      { rootMargin: '-40% 0px -55% 0px' },
-    );
+    choisir();
 
+    io = new IntersectionObserver(choisir, { rootMargin: '-40% 0px -55% 0px' });
     titres.forEach((t) => io?.observe(t));
+
+    // L'observateur ne se déclenche qu'au passage d'un titre dans la bande.
+    // Un saut direct, tel un clic sur une entrée du sommaire, peut n'en
+    // traverser aucune : le défilement sert alors de second déclencheur.
+    // Le calcul est borné au nombre de titres et passe par une image
+    // d'animation, il ne coûte rien au défilement.
+    ac = new AbortController();
+    let attente = 0;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (attente) return;
+        attente = requestAnimationFrame(() => {
+          attente = 0;
+          choisir();
+        });
+      },
+      { passive: true, signal: ac.signal },
+    );
   }
 
   document.addEventListener('astro:page-load', initSommaire);
