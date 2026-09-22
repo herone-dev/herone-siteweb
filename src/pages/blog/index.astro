@@ -735,16 +735,6 @@ const dateLisible = (d: Date) =>
       line-height: 0.92;
       letter-spacing: -0.045em;
     }
-  }
-
-  /* Sous 360px, « concrètement. » ne tient pas sur une ligne à 50px : le mot
-     mesure environ 6,4 fois la taille de police et la gouttière laisse
-     (100vw - 40px). Le titre suit donc la largeur disponible plutôt que d'être
-     rogné par l'overflow du hero. À revoir si ce mot change. */
-  @media (max-width: 359px) {
-    .hrn-blog-hero h1 {
-      font-size: calc((100vw - 40px) / 6.4);
-    }
 
     .hrn-blog-hero__chapeau {
       font-size: 18px;
@@ -822,6 +812,16 @@ const dateLisible = (d: Date) =>
 
     .hrn-blog-vide {
       margin: 24px 0;
+    }
+  }
+
+  /* Sous 360px, « concrètement. » ne tient pas sur une ligne à 50px : le mot
+     mesure environ 6,4 fois la taille de police et la gouttière laisse
+     (100vw - 40px). Le titre suit donc la largeur disponible plutôt que d'être
+     rogné par l'overflow du hero. À revoir si ce mot change. */
+  @media (max-width: 359px) {
+    .hrn-blog-hero h1 {
+      font-size: calc((100vw - 40px) / 6.4);
     }
   }
 
