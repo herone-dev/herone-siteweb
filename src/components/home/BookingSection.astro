@@ -4,11 +4,15 @@
 // injecté que lorsque la section approche de l'écran) pour préserver la vitesse
 // et ne solliciter le tiers qu'au moment utile. Fallback <noscript> : lien direct.
 const CALENDLY_URL = 'https://calendly.com/herone/echange-decouverte-de-30-minutes';
-// Paramètres de thème pour fondre le widget dans la section sombre.
-const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=132a24&text_color=f1eee1&primary_color=13a89e`;
+// Paramètres de thème pour fondre le widget dans la section : mêmes valeurs
+// que --paper (fond), --bleu-texte-fort (texte) et --accent (turquoise).
+// Calendly ne lit pas les variables CSS, d'où les valeurs en clair : à
+// changer ici en même temps que dans tokens.css. Fond vert (132a24) jusqu'au
+// 22 septembre 2026.
+const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=101c29&text_color=f8f4e8&primary_color=13a89e`;
 ---
 
-<section id="reserver" class="hrn-booking">
+<section id="reserver" class="hrn-booking hrn-zone-bleue">
   <div class="hrn-section-inner">
     <div class="hrn-booking__header">
       <div class="hrn-booking__eyebrow">
@@ -40,10 +44,13 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
 </section>
 
 <style>
+  /* Fond bleu nuit depuis le 22 septembre 2026 (vert --slate-900 auparavant),
+     à la demande de l'utilisateur : la section rejoint les autres zones
+     bleues, et ses textes en prennent les couleurs via .hrn-zone-bleue. */
   .hrn-booking {
     padding: clamp(32px, 4vh, 52px) 0;
-    background: var(--slate-900);
-    color: var(--ink-200);
+    background: var(--paper);
+    color: var(--text-secondary);
     scroll-margin-top: 68px;
   }
 
@@ -85,10 +92,10 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
   }
 
   .hrn-booking h2 {
-    color: var(--text-inverse);
+    color: var(--text-strong);
     font-size: clamp(1.75rem, 3.2vw, 2.5rem);
     line-height: 1.08;
-    letter-spacing: -0.025em;
+    letter-spacing: var(--tracking-titre);
     margin: 0;
     text-wrap: balance;
   }
@@ -97,7 +104,7 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
     margin: 0;
     font-size: clamp(0.95rem, 1.2vw, 1.125rem);
     line-height: 1.5;
-    color: var(--ink-200);
+    color: var(--text-secondary);
     text-wrap: pretty;
   }
 
@@ -143,7 +150,7 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
     font-family: var(--font-mono);
     font-size: 12px;
     letter-spacing: 0.02em;
-    color: var(--ink-300);
+    color: var(--text-muted);
   }
 
   .hrn-booking :global(.hrn-booking__note a) {
