@@ -18,7 +18,7 @@ Recalculer un devis à la main, c'est du temps et un risque d'erreur à chaque c
 - Une formule oubliée qui fausse la marge sans qu'on le voie.
 - Des versions qui se multiplient : on ne sait plus laquelle est la bonne.
 
-> Vous changez une quantité, le devis se recalcule. Vous validez, il part.
+> Vous changez une quantité, le devis se recalcule. Vous validez, il part
 
 ## Comment le système fonctionne
 

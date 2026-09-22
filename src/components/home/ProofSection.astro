@@ -61,7 +61,7 @@ const testimonials = [
     youtubeId: 'v4twsQsrw4E',
     poster: posterRapin,
     avatar: avatarRapin,
-    quote: "« Le rendez-vous est enregistré, la fiche client arrive remplie en PDF, prête à envoyer. On choisit qui s'en occupe, le mail part. On ne ressaisit plus rien. »",
+    quote: "« Le rendez-vous est enregistré, la fiche client arrive remplie en PDF, prête à envoyer. On choisit qui s'en occupe, le mail part. On ne ressaisit plus rien »",
     name: 'Tommy et Audrey Rapin',
     org: 'Agence Allianz des Herbiers · 9 personnes',
   },
@@ -70,14 +70,14 @@ const testimonials = [
     youtubeId: 'gGe3-iVTSZI',
     poster: posterGauthier,
     avatar: avatarGauthier,
-    quote: "« Les stats publicitaires sont récupérées, l'IA génère le rapport complet. Le client reçoit son PDF par mail, automatiquement, chaque début de mois. »",
+    quote: "« Les stats publicitaires sont récupérées, l'IA génère le rapport complet. Le client reçoit son PDF par mail, automatiquement, chaque début de mois »",
     name: 'Lilian Gauthier',
     org: 'Agence Lixogo · La Rochelle · 7 personnes',
   },
 ];
 ---
 
-<section id="temoignage" class:list={['hrn-proof', `hrn-proof--${fond}`]}>
+<section id="temoignage" class:list={['hrn-proof', `hrn-proof--${fond}`, fond === 'paper' && 'hrn-zone-bleue']}>
   <div class="hrn-proof__inner">
     <div class="hrn-eyebrow">{eyebrow}</div>
     <h2>{titre}</h2>
@@ -145,7 +145,7 @@ const testimonials = [
   }
 
   .hrn-proof :global(.hrn-eyebrow) {
-    color: var(--slate-500);
+    color: var(--label);
   }
 
   .hrn-proof :global(h2) {
@@ -240,10 +240,10 @@ const testimonials = [
   .hrn-proof__content blockquote {
     margin: 0;
     font-family: var(--font-display);
-    font-weight: 600;
+    font-weight: var(--weight-titre);
     font-size: clamp(1.05rem, 1.8vw, 1.75rem);
     line-height: 1.24;
-    letter-spacing: -0.02em;
+    letter-spacing: var(--tracking-titre);
     color: #fff;
     text-wrap: pretty;
   }

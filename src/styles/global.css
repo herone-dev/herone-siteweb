@@ -57,6 +57,48 @@ details > summary::-webkit-details-marker {
   display: none;
 }
 
+/* ============ Zones bleues et zones crème (22 septembre 2026) ============
+   --paper est devenu un bleu nuit. Tout élément dont le fond est --paper porte
+   .hrn-zone-bleue : ses textes, filets, liens et surtitres passent en clair.
+   Les alias sont redéfinis sur place, donc tout ce qui est à l'intérieur suit
+   sans qu'aucun composant ait à connaître la couleur de son fond.
+
+   `color` est reposé explicitement : un texte hérite de la couleur CALCULÉE de
+   son parent, pas de la variable. Sans cette ligne, un paragraphe sans règle
+   propre garderait l'encre sombre du <body>.
+
+   .hrn-zone-creme fait l'inverse, pour un élément crème posé DANS une zone
+   bleue (une carte, une pastille) : il retrouve les valeurs de tokens.css. */
+.hrn-zone-bleue {
+  --text-strong: var(--bleu-texte-fort);
+  --text-primary: var(--bleu-texte);
+  --text-secondary: var(--bleu-texte-2);
+  --text-muted: var(--bleu-texte-discret);
+  --border: var(--bleu-bordure);
+  --border-strong: var(--bleu-bordure-forte);
+  --divider: var(--bleu-bordure);
+  --link: var(--slate-200);
+  --link-hover: var(--amber-300);
+  --label: var(--slate-200);
+  --accent-texte: var(--amber-300);
+  color: var(--text-primary);
+}
+
+.hrn-zone-creme {
+  --text-strong: var(--ink-950);
+  --text-primary: var(--ink-900);
+  --text-secondary: var(--ink-500);
+  --text-muted: var(--ink-400);
+  --border: var(--creme-bordure);
+  --border-strong: var(--ink-300);
+  --divider: var(--ink-100);
+  --link: var(--slate-600);
+  --link-hover: var(--amber-600);
+  --label: var(--slate-600);
+  --accent-texte: var(--amber-600);
+  color: var(--text-primary);
+}
+
 /* Utilitaires partagés entre les sections de la home et les pages */
 .hrn-section-inner {
   max-width: var(--container-max);
@@ -70,16 +112,16 @@ details > summary::-webkit-details-marker {
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--slate-600);
+  color: var(--label);
 }
 
 .hrn-section-inner h2,
 section h2 {
   font-family: var(--font-display);
-  font-weight: 800;
+  font-weight: var(--weight-titre);
   font-size: clamp(1.9rem, 4vw, 3rem);
   line-height: 1.08;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--tracking-titre);
   color: var(--text-strong);
   margin: 14px 0 0;
   max-width: 20ch;

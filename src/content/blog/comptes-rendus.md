@@ -18,7 +18,7 @@ Le compte rendu manuel coûte cher, non pas en logiciel, mais en temps humain et
 - Des décisions ou des chiffres oubliés parce qu'on écrit et on écoute en même temps.
 - Des comptes rendus envoyés avec deux jours de retard, quand ils le sont.
 
-> Le rendez-vous se termine, le compte rendu part. Personne n'a ouvert un traitement de texte.
+> Le rendez-vous se termine, le compte rendu part. Personne n'a ouvert un traitement de texte
 
 ## Comment le système fonctionne
 

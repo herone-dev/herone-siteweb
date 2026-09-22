@@ -72,12 +72,12 @@ const googleReviewsUrl = clean(data.googleReviewsUrl);
 ---
 
 {reviews.length > 0 && (
-  <section id="avis" class="hrn-reviews">
+  <section id="avis" class="hrn-reviews hrn-zone-bleue">
     <div class="hrn-section-inner">
       <div class="hrn-eyebrow">Avis clients</div>
       <h2>Ce que disent nos clients</h2>
 
-      <div class="hrn-reviews__grid" id="reviews-grid" style={`--hrn-reviews-max: ${gridMaxWidth}`}>
+      <div class="hrn-reviews__grid hrn-zone-creme" id="reviews-grid" style={`--hrn-reviews-max: ${gridMaxWidth}`}>
         {reviews.map((avis, index) => {
           const nom = clean(avis.nom);
           const photoFile = clean(avis.photo);
@@ -138,7 +138,7 @@ const googleReviewsUrl = clean(data.googleReviewsUrl);
   }
 
   .hrn-reviews :global(.hrn-eyebrow) {
-    color: var(--slate-600);
+    color: var(--label);
   }
 
   .hrn-reviews__grid {
@@ -230,12 +230,12 @@ const googleReviewsUrl = clean(data.googleReviewsUrl);
     gap: 7px;
     font-size: 14px;
     font-weight: 600;
-    color: var(--slate-600);
+    color: var(--label);
     transition: color var(--dur) var(--ease-standard);
   }
 
   .hrn-reviews__video:hover {
-    color: var(--amber-600);
+    color: var(--accent-texte);
   }
 
   .hrn-reviews__google {
@@ -244,7 +244,7 @@ const googleReviewsUrl = clean(data.googleReviewsUrl);
     gap: 8px;
     margin-top: 32px;
     font-weight: 600;
-    color: var(--slate-600);
+    color: var(--label);
   }
 
   .hrn-reviews__video:focus-visible,

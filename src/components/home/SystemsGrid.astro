@@ -14,7 +14,7 @@ interface Props {
 const { showHead = true, fond = 'paper' } = Astro.props;
 ---
 
-<section id="systemes" class:list={['hrn-systems', `hrn-systems--${fond}`, !showHead && 'hrn-systems--bare']}>
+<section id="systemes" class:list={['hrn-systems', `hrn-systems--${fond}`, !showHead && 'hrn-systems--bare', fond === 'paper' && 'hrn-zone-bleue']}>
   <div class="hrn-section-inner">
     {showHead && (
       <div class="hrn-systems__head">
@@ -29,7 +29,7 @@ const { showHead = true, fond = 'paper' } = Astro.props;
       </div>
     )}
 
-    <div class="hrn-systems__grid">
+    <div class:list={['hrn-systems__grid', fond === 'paper' ? 'hrn-zone-creme' : 'hrn-zone-bleue']}>
       <a href="/blog/comptes-rendus" class="hrn-systems__card">
         <div class="hrn-systems__thumb hrn-systems__thumb--icon">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M9 13h6"></path><path d="M9 17h4"></path></svg>
@@ -101,7 +101,7 @@ const { showHead = true, fond = 'paper' } = Astro.props;
     align-items: center;
     gap: 8px;
     font-weight: 600;
-    color: var(--slate-600);
+    color: var(--label);
     white-space: nowrap;
   }
 
@@ -178,9 +178,9 @@ const { showHead = true, fond = 'paper' } = Astro.props;
 
   .hrn-systems__body h3 {
     font-family: var(--font-display);
-    font-weight: 700;
+    font-weight: var(--weight-titre);
     font-size: var(--text-xl);
-    letter-spacing: -0.01em;
+    letter-spacing: var(--tracking-titre);
     color: var(--text-strong);
   }
 
@@ -198,6 +198,6 @@ const { showHead = true, fond = 'paper' } = Astro.props;
     gap: 6px;
     font-size: 14px;
     font-weight: 600;
-    color: var(--slate-600);
+    color: var(--label);
   }
 </style>

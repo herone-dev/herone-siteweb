@@ -18,7 +18,7 @@ const items = [
 <section class="hrn-conviction">
   <div class="hrn-section-inner">
     <div class="hrn-eyebrow">Notre conviction</div>
-    <h2>L'IA ne sert à rien si personne ne s'en sert.</h2>
+    <h2>L'IA ne sert à rien si personne ne s'en sert</h2>
 
     <div class="hrn-conviction__grid" id="conviction-grid">
       {items.map((item, i) => (
@@ -56,9 +56,9 @@ const items = [
 
   .hrn-conviction__item h3 {
     font-family: var(--font-display);
-    font-weight: 700;
+    font-weight: var(--weight-titre);
     font-size: clamp(1.15rem, 1.7vw, 1.4rem);
-    letter-spacing: -0.01em;
+    letter-spacing: var(--tracking-titre);
     color: var(--text-strong);
   }
 

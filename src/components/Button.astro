@@ -56,10 +56,16 @@ const Tag = href ? 'a' : 'button';
 
   .hrn-btn--block { width: 100%; }
 
+  /* Turquoise depuis le 22 septembre 2026 : le texte passe en bleu nuit, le
+     blanc n'y était pas assez lisible. La couleur réellement peinte est celle
+     de -webkit-text-fill-color, qu'aucune règle de lien ne touche : le
+     !important d'origine n'est donc plus nécessaire. Forme de pilule, pour
+     les seuls boutons turquoise. */
   .hrn-btn--accent {
     background: var(--accent);
-    color: #fff !important;
-    -webkit-text-fill-color: #fff;
+    color: var(--text-on-accent);
+    -webkit-text-fill-color: var(--text-on-accent);
+    border-radius: var(--radius-full);
   }
   .hrn-btn--accent:hover { background: var(--accent-hover); }
 
@@ -70,10 +76,11 @@ const Tag = href ? 'a' : 'button';
   }
   .hrn-btn--primary:hover { background: var(--brand-hover); }
 
+  /* Sur --paper, devenu bleu nuit : texte et filet clairs, survol éclairci. */
   .hrn-btn--secondary {
     background: var(--paper);
-    color: var(--text-strong);
-    border: 1px solid var(--border-strong);
+    color: var(--bleu-texte-fort);
+    border: 1px solid var(--bleu-bordure-forte);
   }
-  .hrn-btn--secondary:hover { background: var(--surface-2); }
+  .hrn-btn--secondary:hover { background: color-mix(in srgb, var(--paper) 86%, var(--bleu-texte-fort)); }
 </style>

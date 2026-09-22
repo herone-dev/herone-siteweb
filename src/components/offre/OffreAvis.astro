@@ -33,12 +33,12 @@ const { eyebrow = 'Ils y étaient', titre, avis, fond = 'surface' } = Astro.prop
 ---
 
 {avis.length > 0 && (
-  <section class:list={['hrn-offre-avis', `hrn-offre-avis--${fond}`]}>
+  <section class:list={['hrn-offre-avis', `hrn-offre-avis--${fond}`, fond === 'paper' && 'hrn-zone-bleue']}>
     <div class="hrn-section-inner">
       <div class="hrn-eyebrow">{eyebrow}</div>
       <h2>{titre}</h2>
 
-      <ul class="hrn-offre-avis__list" role="list">
+      <ul class:list={['hrn-offre-avis__list', fond === 'paper' ? 'hrn-zone-creme' : 'hrn-zone-bleue']} role="list">
         {avis.map((a) => (
           <li class="hrn-offre-avis__card">
             <blockquote>{a.texte}</blockquote>
