@@ -1,0 +1,515 @@
+---
+// Accueil, « les deux portes » en écran partagé. Inspiré de la page d'accueil
+// de Leed Agency (leedagencyv3.lovable.app), fournie en captures par
+// l'utilisateur le 22 septembre 2026 : l'écran coupé en deux moitiés, une par
+// métier, et la moitié survolée qui s'élargit pendant que l'autre s'efface.
+//
+// Ce que la référence fait, et ce qui en est repris :
+//   1. la moitié survolée passe à 58 % de la largeur, l'autre à 42 %. La
+//      proportion est la même des deux côtés (demande explicite) ;
+//   2. l'image de fond de la moitié survolée grossit légèrement ;
+//   3. la moitié d'en face s'assombrit et son titre s'estompe ;
+//   4. les titres ne bougent pas : c'est la séparation qui glisse sous eux.
+//
+// Écarts assumés :
+//   - PAS DE PHOTO. Le site n'en a aucune des deux formateurs au travail, et on
+//     n'en invente pas. À la place de la photo, chaque moitié porte son numéro
+//     d'offre dessiné en très grand, en simple contour, sur le motif de points
+//     du hero. C'est lui qui grossit au survol. Le jour où des photos arrivent,
+//     elles prennent la place de `.hrn-duo__motif`, rien d'autre ne change.
+//   - PAS DE PRIX. Décision de l'utilisateur : la section sert à envoyer vers
+//     les pages d'offre, pas à raconter l'offre. Titre, promesse, un lien.
+//
+// L'animation ne touche QUE `transform` et `opacity` (convention du repo). La
+// référence anime la largeur des colonnes, ce qui recalcule la mise en page à
+// chaque image. Ici, chaque moitié est une « fenêtre » de la largeur de la
+// scène, décalée par translateX, dont le contenu est décalé en sens inverse du
+// même montant : la fenêtre glisse, le contenu reste immobile à l'écran. Les
+// deux mouvements partagent la même durée et la même courbe, et sont tous deux
+// proportionnels à --p : ils restent donc exactement synchronisés, sans que le
+// texte ne tremble.
+//
+// Aucun JavaScript : l'état vient de :has(:hover) et :has(:focus-visible).
+// Rien à initialiser au changement de page, rien à nettoyer.
+//
+// Sur téléphone (sous 760px) : les deux moitiés s'empilent, Formation au-dessus,
+// Automatisation au-dessous, sans animation. Sur un écran tactile large
+// (tablette), elles restent côte à côte à 50 / 50 : le survol n'y existe pas.
+
+interface Porte {
+  num: string;
+  titre: string;
+  promesse: string;
+  href: string;
+  lien: string;
+}
+
+interface Props {
+  titre?: string;
+  /** Phrase d'invitation. Sur téléphone, sans survol, c'est elle qui dit que
+      les deux panneaux se cliquent. */
+  lede?: string;
+  portes: [Porte, Porte];
+}
+
+const { titre = 'Deux façons de travailler ensemble', lede, portes } = Astro.props;
+const [a, b] = portes;
+---
+
+<section id="offres" class="hrn-duo" aria-labelledby="hrn-duo-titre">
+  <div class="hrn-duo__tete">
+    <h2 id="hrn-duo-titre" class="hrn-duo__titre">{titre}</h2>
+    {lede && <p class="hrn-duo__lede">{lede}</p>}
+  </div>
+
+  <div class="hrn-duo__scene">
+    {[a, b].map((p, i) => (
+      <article class={`hrn-duo__porte hrn-duo__porte--${i === 0 ? 'a' : 'b'}`}>
+        <div class="hrn-duo__plan">
+          <div class="hrn-duo__fond" aria-hidden="true">
+            <span class="hrn-duo__motif">{p.num}</span>
+          </div>
+          <div class="hrn-duo__voile" aria-hidden="true"></div>
+
+          <div class="hrn-duo__contenu">
+            <span class="hrn-duo__num">{p.num}</span>
+            <h3 class="hrn-duo__nom">{p.titre}</h3>
+            <p class="hrn-duo__promesse">{p.promesse}</p>
+            <a href={p.href} class="hrn-duo__lien">
+              {p.lien}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+            </a>
+          </div>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .hrn-duo {
+    position: relative;
+    background: var(--ink-950);
+    color: var(--text-inverse);
+    scroll-margin-top: 68px;
+  }
+
+  /* ============ En-tête ============
+     Posé AU-DESSUS des deux moitiés, sans intercepter la souris : le survol
+     doit continuer d'atteindre la moitié qui est dessous. */
+  .hrn-duo__tete {
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-8);
+    padding: calc(var(--section-y-sm) * 0.75) clamp(20px, 4vw, 56px) 0;
+    pointer-events: none;
+  }
+
+  .hrn-duo__titre {
+    margin: 0;
+    font: var(--type-eyebrow);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-200);
+    max-width: 36%;
+  }
+
+  .hrn-duo__lede {
+    margin: 0 !important;
+    max-width: min(34ch, 36%);
+    font: var(--type-small);
+    color: var(--ink-300);
+    text-align: right;
+    text-wrap: pretty;
+  }
+
+  /* ============ Scène ============
+     --p : la position de la séparation, en pourcentage de la largeur.
+     50 au repos, 50 + écart quand la moitié gauche est survolée, 50 moins le
+     même écart pour la droite. */
+  .hrn-duo__scene {
+    --p: 50;
+    --ecart: 8;
+    --duree: var(--dur-slower);
+    --courbe: var(--ease-out);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    height: clamp(560px, 92vh, 880px);
+  }
+
+  @supports (height: 100svh) {
+    .hrn-duo__scene {
+      height: clamp(560px, 92svh, 880px);
+    }
+  }
+
+  /* La fenêtre fait toute la largeur de la scène. Décalée de (p - 100) %, sa
+     boîte couvre exactement [0 ; p %] : c'est aussi sa zone de survol, le
+     reste est rogné par la scène. */
+  .hrn-duo__porte {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    transition: transform var(--duree) var(--courbe);
+  }
+
+  .hrn-duo__porte--a {
+    z-index: 1;
+    transform: translateX(calc((var(--p) - 100) * 1%));
+  }
+
+  .hrn-duo__porte--b {
+    z-index: 2;
+    transform: translateX(calc(var(--p) * 1%));
+  }
+
+  /* Le plan compense le décalage de sa fenêtre : il reste immobile à l'écran,
+     aligné sur la scène. */
+  .hrn-duo__plan {
+    position: absolute;
+    inset: 0;
+    transition: transform var(--duree) var(--courbe);
+  }
+
+  .hrn-duo__porte--a .hrn-duo__plan {
+    transform: translateX(calc((100 - var(--p)) * 1%));
+    background: var(--slate-900);
+  }
+
+  .hrn-duo__porte--b .hrn-duo__plan {
+    transform: translateX(calc(var(--p) * -1%));
+    background: var(--ink-950);
+  }
+
+  /* La séparation : un filet sur le bord gauche de la seconde fenêtre. Il
+     suit donc la fenêtre sans calcul supplémentaire. */
+  .hrn-duo__porte--b::before {
+    content: '';
+    position: absolute;
+    z-index: 4;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 1px;
+    background: var(--border-inverse);
+  }
+
+  @media (hover: hover) and (min-width: 760px) {
+    .hrn-duo__scene:has(.hrn-duo__porte--a:hover) {
+      --p: calc(50 + var(--ecart));
+    }
+
+    .hrn-duo__scene:has(.hrn-duo__porte--b:hover) {
+      --p: calc(50 - var(--ecart));
+    }
+  }
+
+  /* Le clavier obtient le même effet que la souris. */
+  @media (min-width: 760px) {
+    .hrn-duo__scene:has(.hrn-duo__porte--a :focus-visible) {
+      --p: calc(50 + var(--ecart));
+    }
+
+    .hrn-duo__scene:has(.hrn-duo__porte--b :focus-visible) {
+      --p: calc(50 - var(--ecart));
+    }
+  }
+
+  /* ============ Fond (à la place de la photo) ============ */
+  .hrn-duo__fond {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background-image: radial-gradient(color-mix(in srgb, #fff 7%, transparent) 1px, transparent 1px);
+    background-size: 26px 26px;
+    background-position: -13px -13px;
+  }
+
+  .hrn-duo__porte--a .hrn-duo__fond::before,
+  .hrn-duo__porte--b .hrn-duo__fond::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .hrn-duo__porte--a .hrn-duo__fond::before {
+    background: radial-gradient(ellipse 60% 55% at 26% 38%, color-mix(in srgb, var(--slate-600) 55%, transparent), transparent 70%);
+  }
+
+  .hrn-duo__porte--b .hrn-duo__fond::before {
+    background: radial-gradient(ellipse 60% 55% at 74% 38%, color-mix(in srgb, var(--amber-600) 16%, transparent), transparent 70%);
+  }
+
+  /* Le numéro d'offre en très grand, en contour. Centré sur la moitié qu'il
+     occupe au repos : quand sa fenêtre se resserre, il se fait rogner, comme
+     une photo recadrée. */
+  .hrn-duo__motif {
+    position: absolute;
+    top: 42%;
+    font-family: var(--font-display);
+    font-weight: var(--weight-extrabold);
+    font-size: clamp(14rem, 34vw, 32rem);
+    line-height: 1;
+    letter-spacing: -0.06em;
+    color: transparent;
+    -webkit-text-stroke: 1.5px color-mix(in srgb, var(--ink-50) 13%, transparent);
+    transform: translate(-50%, -50%) scale(1);
+    transition: transform calc(var(--duree) * 1.6) var(--courbe);
+    user-select: none;
+  }
+
+  .hrn-duo__porte--a .hrn-duo__motif {
+    left: 25%;
+  }
+
+  .hrn-duo__porte--b .hrn-duo__motif {
+    left: 75%;
+  }
+
+  @media (hover: hover) {
+    .hrn-duo__porte:hover .hrn-duo__motif {
+      transform: translate(-50%, -50%) scale(1.08);
+    }
+  }
+
+  .hrn-duo__porte:has(:focus-visible) .hrn-duo__motif {
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+
+  /* Dégradé de lisibilité en bas + voile de la moitié non choisie. */
+  .hrn-duo__plan::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, color-mix(in srgb, var(--ink-950) 82%, transparent) 0%, transparent 55%);
+    pointer-events: none;
+  }
+
+  .hrn-duo__voile {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    background: color-mix(in srgb, var(--ink-950) 58%, transparent);
+    opacity: 0;
+    transition: opacity var(--duree) var(--courbe);
+  }
+
+  /* ============ Contenu ============
+     Sa largeur est bornée à la plus petite moitié possible (50 - écart), moins
+     les marges : ainsi rien n'est jamais rogné quand sa moitié se resserre. */
+  /* Le contenu n'est PAS positionné : c'est un élément de grille du plan.
+     Ainsi le lien étiré (::after, inset: 0) se cale sur le plan, donc sur
+     toute la moitié, et non sur le seul bloc de texte. */
+  .hrn-duo__plan {
+    display: grid;
+    align-items: end;
+  }
+
+  .hrn-duo__contenu {
+    --marge: clamp(20px, 4vw, 56px);
+    z-index: 2;
+    width: calc((50 - var(--ecart)) * 1% - 2 * var(--marge));
+    margin: 0 var(--marge) clamp(var(--space-10), 7vh, 88px);
+    display: grid;
+    justify-items: start;
+    gap: var(--space-4);
+  }
+
+  .hrn-duo__porte--a .hrn-duo__contenu {
+    justify-self: start;
+  }
+
+  .hrn-duo__porte--b .hrn-duo__contenu {
+    justify-self: end;
+    justify-items: end;
+    text-align: right;
+  }
+
+  .hrn-duo__num {
+    font: var(--type-eyebrow);
+    letter-spacing: var(--tracking-label);
+    color: var(--amber-300);
+  }
+
+  /* Le titre porte toute la section : très grand, comme la référence. La
+     taille est calée pour que « Automatisation » tienne sur une ligne dans la
+     plus petite moitié, de 760 à 1920px. */
+  .hrn-duo__nom {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: var(--weight-extrabold);
+    font-size: clamp(2rem, 4.5vw, 5.25rem);
+    line-height: 0.98;
+    letter-spacing: var(--tracking-tighter);
+    color: var(--text-inverse);
+    text-wrap: balance;
+  }
+
+  .hrn-duo__promesse {
+    margin: 0 !important;
+    max-width: 30ch;
+    font: var(--type-body-lg);
+    color: var(--ink-200);
+    text-wrap: pretty;
+  }
+
+  .hrn-duo__nom,
+  .hrn-duo__promesse {
+    transition: opacity var(--duree) var(--courbe);
+  }
+
+  .hrn-duo__lien {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 44px;
+    margin-top: var(--space-2);
+    font-family: var(--font-mono);
+    font-weight: var(--weight-medium);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-inverse);
+    text-decoration: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--ink-50) 45%, transparent);
+  }
+
+  .hrn-duo__lien svg {
+    transition: transform var(--dur-fast) var(--ease-standard);
+  }
+
+  .hrn-duo__porte:hover .hrn-duo__lien svg,
+  .hrn-duo__lien:focus-visible svg {
+    transform: translateX(3px);
+  }
+
+  .hrn-duo__lien:focus-visible {
+    outline: 2px solid var(--amber-300);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+  /* Toute la moitié se clique : le lien s'étire sur sa fenêtre. Un seul lien
+     par offre dans l'arbre d'accessibilité, comme les cartes précédentes. */
+  .hrn-duo__lien::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+  }
+
+  .hrn-duo__porte {
+    cursor: pointer;
+  }
+
+  /* La moitié non choisie s'efface. */
+  @media (hover: hover) and (min-width: 760px) {
+    .hrn-duo__scene:has(.hrn-duo__porte--a:hover) .hrn-duo__porte--b .hrn-duo__voile,
+    .hrn-duo__scene:has(.hrn-duo__porte--b:hover) .hrn-duo__porte--a .hrn-duo__voile {
+      opacity: 1;
+    }
+
+    .hrn-duo__scene:has(.hrn-duo__porte--a:hover) .hrn-duo__porte--b :is(.hrn-duo__nom, .hrn-duo__promesse),
+    .hrn-duo__scene:has(.hrn-duo__porte--b:hover) .hrn-duo__porte--a :is(.hrn-duo__nom, .hrn-duo__promesse) {
+      opacity: 0.4;
+    }
+  }
+
+  @media (min-width: 760px) {
+    .hrn-duo__scene:has(.hrn-duo__porte--a :focus-visible) .hrn-duo__porte--b .hrn-duo__voile,
+    .hrn-duo__scene:has(.hrn-duo__porte--b :focus-visible) .hrn-duo__porte--a .hrn-duo__voile {
+      opacity: 1;
+    }
+
+    .hrn-duo__scene:has(.hrn-duo__porte--a :focus-visible) .hrn-duo__porte--b :is(.hrn-duo__nom, .hrn-duo__promesse),
+    .hrn-duo__scene:has(.hrn-duo__porte--b :focus-visible) .hrn-duo__porte--a :is(.hrn-duo__nom, .hrn-duo__promesse) {
+      opacity: 0.4;
+    }
+  }
+
+  /* ============ Téléphone : les deux moitiés s'empilent ============ */
+  @media (max-width: 759px) {
+    .hrn-duo__tete {
+      position: static;
+      display: grid;
+      gap: var(--space-3);
+      padding: var(--section-y-sm) clamp(20px, 5vw, 48px) var(--space-8);
+    }
+
+    .hrn-duo__titre,
+    .hrn-duo__lede {
+      max-width: none;
+      text-align: left;
+    }
+
+    .hrn-duo__scene {
+      height: auto;
+      display: grid;
+    }
+
+    .hrn-duo__porte,
+    .hrn-duo__plan {
+      position: relative;
+      inset: auto;
+      transform: none !important;
+      transition: none;
+    }
+
+    .hrn-duo__porte {
+      min-height: clamp(380px, 64svh, 540px);
+      display: grid;
+    }
+
+    .hrn-duo__porte--b::before {
+      top: 0;
+      bottom: auto;
+      width: 100%;
+      height: 1px;
+    }
+
+    .hrn-duo__porte--a .hrn-duo__motif,
+    .hrn-duo__porte--b .hrn-duo__motif {
+      left: 50%;
+      font-size: clamp(12rem, 70vw, 20rem);
+    }
+
+    .hrn-duo__contenu,
+    .hrn-duo__porte--b .hrn-duo__contenu {
+      width: auto;
+      margin: 0;
+      padding: var(--space-12) clamp(20px, 5vw, 48px) var(--space-10);
+      justify-self: stretch;
+      justify-items: start;
+      text-align: left;
+    }
+
+    .hrn-duo__nom {
+      font-size: clamp(2.25rem, 11vw, 3.5rem);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-duo__porte,
+    .hrn-duo__plan,
+    .hrn-duo__motif,
+    .hrn-duo__voile,
+    .hrn-duo__nom,
+    .hrn-duo__promesse,
+    .hrn-duo__lien svg {
+      transition: none;
+    }
+
+    .hrn-duo__porte:hover .hrn-duo__motif,
+    .hrn-duo__porte:has(:focus-visible) .hrn-duo__motif {
+      transform: translate(-50%, -50%);
+    }
+  }
+</style>
