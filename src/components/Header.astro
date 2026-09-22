@@ -10,7 +10,7 @@ interface Props {
 const { theme = 'light' } = Astro.props;
 ---
 
-<header id="hrn-header" class={`hrn-header hrn-header--${theme}`}>
+<header id="hrn-header" class={`hrn-header hrn-header--${theme} hrn-zone-bleue`}>
   <div class="hrn-header__inner">
     <a href="/" class="hrn-header__logo">HÉRONE</a>
 
@@ -32,7 +32,7 @@ const { theme = 'light' } = Astro.props;
   </div>
 </header>
 
-<div id="hrn-mobile-menu" class="hrn-mobile-menu" hidden>
+<div id="hrn-mobile-menu" class="hrn-mobile-menu hrn-zone-bleue" hidden>
   <div class="hrn-mobile-menu__top hrn-mobile-menu__item" style="--i:0">
     <span class="hrn-header__logo">HÉRONE</span>
     <button type="button" id="hrn-menu-close" aria-label="Fermer le menu" class="hrn-mobile-menu__close">
@@ -86,14 +86,22 @@ const { theme = 'light' } = Astro.props;
     gap: 24px;
   }
 
+  /* Logo agrandi le 22 septembre 2026 : 36px (26px auparavant), 30px sous
+     640px. La hauteur de l'en-tête reste 68px. */
   .hrn-header__logo {
     font-family: var(--font-display);
     font-weight: 800;
-    font-size: 26px;
+    font-size: 36px;
     letter-spacing: 0.01em;
     line-height: 1;
     color: var(--text-strong);
     text-decoration: none;
+  }
+
+  @media (max-width: 639px) {
+    .hrn-header__logo {
+      font-size: 30px;
+    }
   }
 
   .hrn-header--dark:not(.is-scrolled) .hrn-header__logo,

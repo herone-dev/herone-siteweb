@@ -20,13 +20,13 @@ const { fond = 'surface' } = Astro.props;
 
 ---
 
-<section id="logiciels" class:list={['hrn-logos', `hrn-logos--${fond}`]}>
+<section id="logiciels" class:list={['hrn-logos', `hrn-logos--${fond}`, fond === 'paper' && 'hrn-zone-bleue']}>
   <div class="hrn-section-inner">
     <div class="hrn-eyebrow">Logiciels</div>
     <h2>Les logiciels que nous automatisons</h2>
     <p class="hrn-lede">Nous connectons les outils que vous utilisez déjà.</p>
 
-    <div class="hrn-logos__rows">
+    <div class:list={['hrn-logos__rows', fond === 'paper' ? 'hrn-zone-creme' : 'hrn-zone-bleue']}>
       <div class="hrn-logos__row">
         <div class="hrn-logos__track hrn-logos__track--left">
           {[...row1, ...row1].map((name) => <span>{name}</span>)}
@@ -63,10 +63,10 @@ const { fond = 'surface' } = Astro.props;
 
   .hrn-logos h2 {
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: var(--weight-titre);
     font-size: clamp(1.9rem, 4vw, 3rem);
     line-height: 1.08;
-    letter-spacing: -0.02em;
+    letter-spacing: var(--tracking-titre);
     color: var(--text-strong);
     margin: 14px 0 0 !important;
     max-width: 20ch;

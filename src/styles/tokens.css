@@ -7,8 +7,12 @@
      Palette dérivée de la peinture de paysage source. Récit : montagnes de jade,
      brume crème, soleil rouge-orangé. Jade = marque ; soleil = accent (CTA). */
 
-  /* Surfaces (crème chaude, brume) */
-  --paper: #EFEADB;
+  /* Surfaces. Depuis le 22 septembre 2026, --paper n'est plus un crème mais un
+     bleu nuit (direction artistique validée sur maquette). --surface reste
+     crème : les sections alternent donc bleu et crème. Tout élément posé sur
+     --paper doit porter la classe .hrn-zone-bleue (global.css), qui passe ses
+     textes en clair. Ancienne valeur : #EFEADB. */
+  --paper: #101C29;
   --surface: #F8F4E8;
   --surface-2: #E7E1CE;
   --surface-3: #D9D2BA;
@@ -38,15 +42,17 @@
   --slate-800: #1B3633;
   --slate-900: #132A24;
 
-  /* Accent : soleil rouge-orangé */
-  --amber-50: #FCE8DD;
-  --amber-100: #F9CDB9;
-  --amber-200: #F4A485;
-  --amber-300: #F07C54;
-  --amber-400: #F0562A;
-  --amber-500: #EC3A08;
-  --amber-600: #C62E06;
-  --amber-700: #9C2507;
+  /* Accent : bleu turquoise depuis le 22 septembre 2026 (il était rouge-orangé,
+     de #FCE8DD à #9C2507). Les noms --amber-* sont gardés pour ne pas réécrire
+     tous les composants ; seules les valeurs changent. */
+  --amber-50: #E0F7F5;
+  --amber-100: #B8EEE9;
+  --amber-200: #86E0D8;
+  --amber-300: #4FD0C5;
+  --amber-400: #22BDB1;
+  --amber-500: #13A89E;
+  --amber-600: #0B7D76;
+  --amber-700: #095F5A;
 
   /* Sémantiques, sourdes (usage fonctionnel uniquement) */
   --success-50: #E4EEE1; --success-500: #4E7A4A; --success-600: #3D6439;
@@ -55,7 +61,11 @@
   --info-50: #DEE9E4; --info-500: #3E6B5A; --info-600: #305648;
 
   /* ============ Typographie ============ */
-  --font-display: 'Bricolage Grotesque', 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Manrope depuis le 22 septembre 2026 (Bricolage Grotesque auparavant).
+     Hanken Grotesk vient juste derrière : le sous-ensemble latin de Manrope ne
+     contient pas l'espace fine insécable U+202F des prix, qui est donc prise
+     chez Hanken, dont la largeur est déjà mesurée. */
+  --font-display: 'Manrope', 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-sans: 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
@@ -189,9 +199,11 @@
   --text-muted: var(--ink-400);
   --text-inverse: var(--ink-50);
   --text-on-brand: #F8F4E8;
-  --text-on-accent: #FFFFFF;
+  /* Bleu nuit sur le turquoise : le blanc n'y atteignait pas 3:1. */
+  --text-on-accent: #101C29;
 
-  --border: #D8D2BC;
+  --creme-bordure: #D8D2BC;
+  --border: var(--creme-bordure);
   --border-strong: var(--ink-300);
   --border-inverse: rgba(241, 238, 225, 0.16);
   --divider: var(--ink-100);
@@ -202,15 +214,42 @@
   --brand-soft: var(--slate-50);
   --brand-border: var(--slate-200);
   --accent: var(--amber-500);
-  --accent-hover: var(--amber-600);
+  --accent-hover: var(--amber-400);
   --accent-soft: var(--amber-50);
   --accent-border: var(--amber-200);
 
   --focus-ring: 0 0 0 3px rgba(62, 107, 90, 0.32);
-  --focus-ring-accent: 0 0 0 3px rgba(236, 58, 8, 0.34);
+  --focus-ring-accent: 0 0 0 3px rgba(19, 168, 158, 0.34);
 
   --link: var(--slate-600);
   --link-hover: var(--amber-600);
+
+  /* Couleur des surtitres et libellés verts. Jade foncé sur crème ; la classe
+     .hrn-zone-bleue la passe en jade clair, le jade foncé étant illisible sur
+     le bleu nuit. */
+  --label: var(--slate-600);
+
+  /* Texte en couleur d'accent (surtitre du constat, numéros de livrables).
+     Turquoise foncé sur crème ; turquoise clair dans une zone bleue. */
+  --accent-texte: var(--amber-600);
+
+  /* ============ Titres (22 septembre 2026) ============
+     Tous les titres, questions de FAQ, titres de cartes et citations des
+     témoignages : graisse 700, interlettrage -0.03em. Seul le grand titre du
+     hero de l'accueil fait exception (500). */
+  --weight-titre: var(--weight-bold);
+  --tracking-titre: -0.03em;
+
+  /* ============ Zones bleues (22 septembre 2026) ============
+     Textes et filets posés sur --paper. Valeurs validées sur maquette. Elles
+     ne s'emploient pas directement dans les composants : la classe
+     .hrn-zone-bleue (global.css) les reporte sur les alias --text-*. */
+  --bleu-texte-fort: #F8F4E8;
+  --bleu-texte: #EFEADB;
+  --bleu-texte-2: #B0B7BF;
+  --bleu-texte-discret: #8F99A3;
+  --bleu-bordure: #304052;
+  --bleu-bordure-forte: #546270;
 
   --success: var(--success-500);
   --warning: var(--warning-500);

@@ -143,7 +143,7 @@ const deroule = [
 >
   <OffreHero
     eyebrow="Automatisation IA"
-    titre="Vos logiciels se parlent. Plus aucune ressaisie."
+    titre="Vos logiciels se parlent. Plus aucune ressaisie"
     lede="Nous relions les outils que vous utilisez déjà pour que l'information circule seule, d'un logiciel à l'autre. Rien à remplacer, rien à réapprendre, et un périmètre écrit avec son prix ferme avant que nous démarrions."
     faits={[
       { cle: 'Sans changer vos logiciels', valeur: 'Nous connectons ceux que vous avez déjà.' },
@@ -161,7 +161,7 @@ const deroule = [
       l'alternance : le hero est sombre, la section suivante est sur papier. */}
   <ConstatCarousel fond="surface" />
 
-  <section class="hrn-auto-taches">
+  <section class="hrn-auto-taches hrn-zone-bleue">
     <div class="hrn-section-inner">
       <div class="hrn-eyebrow">Ce que nous visons</div>
       <h2>Les tâches que quelqu'un fait encore à la main</h2>
@@ -293,15 +293,15 @@ const deroule = [
     font-size: var(--text-xs);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    color: var(--ink-400);
+    color: var(--text-muted);
   }
 
   .hrn-auto-tache h3 {
     margin: 8px 0 0;
     font-family: var(--font-display);
-    font-weight: 700;
+    font-weight: var(--weight-titre);
     font-size: clamp(1.1rem, 1.6vw, 1.3rem);
-    letter-spacing: -0.015em;
+    letter-spacing: var(--tracking-titre);
     color: var(--text-strong);
     text-wrap: balance;
   }
@@ -357,6 +357,6 @@ const deroule = [
     margin-top: 18px;
     font-weight: 600;
     font-size: 15px;
-    color: var(--slate-600);
+    color: var(--label);
   }
 </style>

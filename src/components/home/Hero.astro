@@ -162,19 +162,15 @@ const NBSP = String.fromCodePoint(0x00a0);
     padding: clamp(56px, 8vw, 104px) clamp(20px, 5vw, 48px);
   }
 
-  /* Titre moins rond (22 septembre 2026, demande de l'utilisateur) : demi-gras
-     au lieu de 800, et taille optique « texte » au lieu de la taille optique
-     d'affichage que le navigateur choisit seul à cette taille. Bricolage
-     Grotesque arrondit et resserre ses lettres quand la taille optique monte ;
-     à 14, les formes sont plus droites et plus nettes. Plus de point final
-     non plus, à la demande de l'utilisateur. */
+  /* Seul titre du site à ne pas être en 700 : Manrope 500, plus fin, avec une
+     interligne de 1.06 (direction artistique du 22 septembre 2026). Plus de
+     point final, à la demande de l'utilisateur. */
   .hrn-hero__content h1 {
     font-family: var(--font-display);
-    font-weight: var(--weight-semibold);
-    font-variation-settings: 'opsz' 14;
+    font-weight: var(--weight-medium);
     font-size: clamp(2.4rem, 6vw, 4.75rem);
-    line-height: 1.02;
-    letter-spacing: -0.035em;
+    line-height: 1.06;
+    letter-spacing: var(--tracking-titre);
     color: var(--text-inverse);
     max-width: 18ch;
     text-wrap: balance;

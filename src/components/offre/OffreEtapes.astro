@@ -29,7 +29,7 @@ interface Props {
 const { eyebrow, titre, lede, etapes, fond = 'surface', id } = Astro.props;
 ---
 
-<section class:list={['hrn-offre-etapes', `hrn-offre-etapes--${fond}`]} id={id}>
+<section class:list={['hrn-offre-etapes', `hrn-offre-etapes--${fond}`, fond === 'paper' && 'hrn-zone-bleue']} id={id}>
   <div class="hrn-section-inner hrn-offre-etapes__grid">
     <div class="hrn-offre-etapes__intro">
       <div class="hrn-eyebrow">{eyebrow}</div>
@@ -87,10 +87,11 @@ const { eyebrow, titre, lede, etapes, fond = 'surface', id } = Astro.props;
   .hrn-offre-etapes__intro h2 {
     margin: 0;
     font: var(--type-h2);
-    letter-spacing: var(--tracking-tight);
+    letter-spacing: var(--tracking-titre);
     color: var(--text-strong);
     max-width: none;
     text-wrap: balance;
+    font-weight: var(--weight-titre);
   }
 
   .hrn-offre-etapes__intro p {
@@ -121,7 +122,7 @@ const { eyebrow, titre, lede, etapes, fond = 'surface', id } = Astro.props;
   .hrn-offre-etape__num {
     font: var(--type-eyebrow);
     letter-spacing: var(--tracking-label);
-    color: var(--brand);
+    color: var(--label);
     padding-top: var(--space-1);
   }
 
@@ -142,9 +143,10 @@ const { eyebrow, titre, lede, etapes, fond = 'surface', id } = Astro.props;
   .hrn-offre-etape__head h3 {
     margin: 0;
     font: var(--type-h4);
-    letter-spacing: var(--tracking-tight);
+    letter-spacing: var(--tracking-titre);
     color: var(--text-strong);
     min-width: 0;
+    font-weight: var(--weight-titre);
   }
 
   /* text-transform: none, volontairement : la méta porte une durée ou un

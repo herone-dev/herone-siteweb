@@ -158,7 +158,7 @@ const questions = [
     lienLabel="Voir le tarif"
   />
 
-  <section class="hrn-fmt-principes">
+  <section class="hrn-fmt-principes hrn-zone-bleue">
     <div class="hrn-section-inner">
       <div class="hrn-eyebrow">Notre parti pris</div>
       <h2>Trois règles commandent cette journée</h2>
@@ -194,7 +194,7 @@ const questions = [
     id="deroule"
   />
 
-  <section class="hrn-fmt-livrables">
+  <section class="hrn-fmt-livrables hrn-zone-bleue">
     <div class="hrn-section-inner">
       <div class="hrn-fmt-livrables__grid">
         <div class="hrn-fmt-livrables__intro">
@@ -211,7 +211,7 @@ const questions = [
           </p>
         </div>
 
-        <ol class="hrn-fmt-livrables__list" role="list">
+        <ol class="hrn-fmt-livrables__list hrn-zone-creme" role="list">
           {livrables.map((item, i) => (
             <li>
               <span class="hrn-fmt-livrables__num">{String(i + 1).padStart(2, '0')}</span>
@@ -287,15 +287,15 @@ const questions = [
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     letter-spacing: var(--tracking-label);
-    color: var(--ink-400);
+    color: var(--text-muted);
   }
 
   .hrn-fmt-principe h3 {
     margin: 8px 0 0;
     font-family: var(--font-display);
-    font-weight: 700;
+    font-weight: var(--weight-titre);
     font-size: clamp(1.15rem, 1.7vw, 1.35rem);
-    letter-spacing: -0.015em;
+    letter-spacing: var(--tracking-titre);
     color: var(--text-strong);
     text-wrap: balance;
   }
@@ -371,6 +371,6 @@ const questions = [
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     letter-spacing: var(--tracking-label);
-    color: var(--amber-600);
+    color: var(--accent-texte);
   }
 </style>

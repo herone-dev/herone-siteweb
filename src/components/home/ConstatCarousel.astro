@@ -108,7 +108,7 @@ const { fond = 'paper' } = Astro.props;
 
 ---
 
-<section id="constat" class:list={['hrn-constat', `hrn-constat--${fond}`]}>
+<section id="constat" class:list={['hrn-constat', `hrn-constat--${fond}`, fond === 'paper' && 'hrn-zone-bleue']}>
   <div class="hrn-section-inner">
     <div class="hrn-eyebrow">Le constat</div>
     <h2>Ces tâches, quelqu'un les fait à la main chez vous</h2>
@@ -148,7 +148,7 @@ const { fond = 'paper' } = Astro.props;
     </ul>
   </div>
 
-  <div class="hrn-section-inner hrn-constat__controls">
+  <div class:list={['hrn-section-inner', 'hrn-constat__controls', fond === 'paper' ? 'hrn-zone-creme' : 'hrn-zone-bleue']}>
     <div class="hrn-constat__dots" id="constat-dots">
       {tasks.map((task, i) => (
         <button
@@ -199,7 +199,7 @@ const { fond = 'paper' } = Astro.props;
   }
 
   .hrn-constat :global(.hrn-eyebrow) {
-    color: var(--amber-600);
+    color: var(--accent-texte);
   }
 
   /* Le titre est plus grand que celui des autres sections : c'est l'ouverture
@@ -347,10 +347,10 @@ const { fond = 'paper' } = Astro.props;
 
   .hrn-constat__overlay h3 {
     font-family: var(--font-display);
-    font-weight: 700;
+    font-weight: var(--weight-titre);
     font-size: clamp(1.25rem, 2.2vw, 2.1rem);
     line-height: 1.08;
-    letter-spacing: -0.025em;
+    letter-spacing: var(--tracking-titre);
     color: var(--text-inverse);
     margin: 0;
     max-width: 26ch;
@@ -438,10 +438,10 @@ const { fond = 'paper' } = Astro.props;
   .hrn-constat__summary {
     margin: 0;
     font-family: var(--font-display);
-    font-weight: 600;
+    font-weight: var(--weight-titre);
     font-size: clamp(1.2rem, 2.4vw, 2rem);
     line-height: 1.32;
-    letter-spacing: -0.02em;
+    letter-spacing: var(--tracking-titre);
     color: var(--text-strong);
     max-width: 52ch;
     text-wrap: pretty;
@@ -450,10 +450,10 @@ const { fond = 'paper' } = Astro.props;
   .hrn-constat__accent {
     margin: 18px 0 0;
     font-family: var(--font-display);
-    font-weight: 600;
+    font-weight: var(--weight-titre);
     font-size: clamp(1.1rem, 2vw, 1.7rem);
-    letter-spacing: -0.02em;
-    color: var(--amber-600);
+    letter-spacing: var(--tracking-titre);
+    color: var(--accent-texte);
   }
 
   /* ---------- Étroit ----------

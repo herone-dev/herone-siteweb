@@ -5,7 +5,7 @@ import founderMartin from '../../assets/images/founder-martin.webp';
 import officesHerbiers from '../../assets/images/offices-herbiers.webp';
 ---
 
-<section id="fondateurs" class="hrn-founders">
+<section id="fondateurs" class="hrn-founders hrn-zone-bleue">
   <div class="hrn-section-inner">
     <div class="hrn-founders__grid">
       <div class="hrn-founders__intro">
@@ -61,7 +61,7 @@ import officesHerbiers from '../../assets/images/offices-herbiers.webp';
   }
 
   .hrn-founders :global(.hrn-eyebrow) {
-    color: var(--slate-600);
+    color: var(--label);
   }
 
   .hrn-founders__grid {
@@ -75,10 +75,10 @@ import officesHerbiers from '../../assets/images/offices-herbiers.webp';
 
   .hrn-founders h2 {
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: var(--weight-titre);
     font-size: clamp(1.8rem, 3.6vw, 2.6rem);
     line-height: 1.1;
-    letter-spacing: -0.02em;
+    letter-spacing: var(--tracking-titre);
     color: var(--text-strong);
     margin: 14px 0 0 !important;
   }
@@ -97,7 +97,7 @@ import officesHerbiers from '../../assets/images/offices-herbiers.webp';
     gap: 8px;
     margin-top: 24px;
     font-weight: 600;
-    color: var(--slate-600);
+    color: var(--label);
   }
 
   .hrn-founders__portraits {

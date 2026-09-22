@@ -5,7 +5,7 @@
 // et ne solliciter le tiers qu'au moment utile. Fallback <noscript> : lien direct.
 const CALENDLY_URL = 'https://calendly.com/herone/echange-decouverte-de-30-minutes';
 // Paramètres de thème pour fondre le widget dans la section sombre.
-const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=132a24&text_color=f1eee1&primary_color=ec3a08`;
+const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=132a24&text_color=f1eee1&primary_color=13a89e`;
 ---
 
 <section id="reserver" class="hrn-booking">
@@ -20,7 +20,7 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
       </div>
 
       <div class="hrn-booking__header-main">
-        <h2>30 minutes pour voir ce qu'on peut vous retirer des mains.</h2>
+        <h2>30 minutes pour voir ce qu'on peut vous retirer des mains</h2>
         <p class="hrn-booking__lede">
           Vous décrivez votre quotidien, nous repérons les tâches à supprimer. Trente minutes d'échange, gratuit et sans engagement.
         </p>
@@ -132,7 +132,12 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
     overflow: hidden !important;
   }
 
-  .hrn-booking__note {
+  /* :global() : le lien de repli (« Ouvrir le calendrier de réservation »)
+     est posé par le script quand Calendly ne charge pas. Créé en JavaScript,
+     il ne porte pas l'attribut de portée d'Astro : sans :global(), ces règles
+     ne l'atteignaient jamais et il restait en jade foncé, illisible sur le
+     vert sombre (piège n°4 bis). Corrigé le 22 septembre 2026. */
+  .hrn-booking :global(.hrn-booking__note) {
     margin: 12px 0 0;
     text-align: center;
     font-family: var(--font-mono);
@@ -141,7 +146,7 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
     color: var(--ink-300);
   }
 
-  .hrn-booking__note a {
+  .hrn-booking :global(.hrn-booking__note a) {
     color: var(--amber-300);
   }
 </style>
