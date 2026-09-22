@@ -16,3 +16,6 @@ node_modules/
 
 # generated preview (single-file artifact export)
 scripts/preview.html
+
+# generated preview (navigable multi-page export)
+apercu/

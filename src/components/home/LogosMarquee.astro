@@ -11,9 +11,16 @@ const row2 = [
   'Notion', 'Airtable', 'Trello', 'Asana', 'monday', 'ClickUp', 'Slack', 'Typeform', 'Tally',
   'Google Forms', 'Dropbox', 'OneDrive', 'Zendesk', 'Crisp', 'Apify', 'Mistral', 'ChatGPT', 'Claude',
 ];
+interface Props {
+  /** Fond de la section, pour tenir l'alternance de la page qui l'accueille. */
+  fond?: 'paper' | 'surface';
+}
+
+const { fond = 'surface' } = Astro.props;
+
 ---
 
-<section id="logiciels" class="hrn-logos">
+<section id="logiciels" class:list={['hrn-logos', `hrn-logos--${fond}`]}>
   <div class="hrn-section-inner">
     <div class="hrn-eyebrow">Logiciels</div>
     <h2>Les logiciels que nous automatisons</h2>
@@ -40,6 +47,17 @@ const row2 = [
   .hrn-logos {
     padding: var(--section-y) 0;
     scroll-margin-top: 68px;
+    background: var(--surface);
+  }
+
+  .hrn-logos--paper {
+    background: var(--paper);
+  }
+
+  /* Les pastilles sont posées sur le fond papier : quand la section le prend
+     à son tour, elles passent sur surface pour ne pas s'y fondre. Même parade
+     que SystemsGrid pour ses cartes. */
+  .hrn-logos--paper .hrn-logos__track span {
     background: var(--surface);
   }
 

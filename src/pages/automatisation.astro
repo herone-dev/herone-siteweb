@@ -29,6 +29,8 @@ import OffreEtapes from '../components/offre/OffreEtapes.astro';
 import OffreTarif from '../components/offre/OffreTarif.astro';
 import OffreFaq from '../components/offre/OffreFaq.astro';
 import OffrePont from '../components/offre/OffrePont.astro';
+import ConstatCarousel from '../components/home/ConstatCarousel.astro';
+import LogosMarquee from '../components/home/LogosMarquee.astro';
 import SystemsGrid from '../components/home/SystemsGrid.astro';
 import ProofSection from '../components/home/ProofSection.astro';
 
@@ -153,6 +155,12 @@ const deroule = [
     lienLabel="Voir le tarif"
   />
 
+  {/* « Le constat » ouvre la page depuis le 22 septembre 2026 : les six tâches
+      faites à la main viennent avant celles que nous visons. La section était
+      sur la page d'accueil. Elle est posée sur fond surface pour tenir
+      l'alternance : le hero est sombre, la section suivante est sur papier. */}
+  <ConstatCarousel fond="surface" />
+
   <section class="hrn-auto-taches">
     <div class="hrn-section-inner">
       <div class="hrn-eyebrow">Ce que nous visons</div>
@@ -211,7 +219,7 @@ const deroule = [
             Nous construisons autour de l'existant : CRM, tableur, messagerie, comptabilité,
             logiciel métier. Le système les relie plutôt que de les remplacer.
           </p>
-          <a href="/#logiciels" class="hrn-auto-outils__link">
+          <a href="#logiciels" class="hrn-auto-outils__link">
             Voir les logiciels que nous connectons
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
           </a>
@@ -220,7 +228,12 @@ const deroule = [
     </div>
   </section>
 
-  <ProofSection eyebrow="La preuve" titre="Deux systèmes, filmés chez nos clients" />
+  {/* La liste des logiciels vient de la page d'accueil, et se pose ici juste
+      après « Ce que nous connectons », qui y renvoyait déjà par un lien. Fond
+      papier, entre deux sections sur surface. */}
+  <LogosMarquee fond="paper" />
+
+  <ProofSection fond="surface" eyebrow="La preuve" titre="Deux systèmes, filmés chez nos clients" />
 
   <OffreTarif
     titre="Affiché, comme tout le reste"

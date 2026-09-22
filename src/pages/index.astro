@@ -2,7 +2,6 @@
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/home/Hero.astro';
 import PresentationVideo from '../components/home/PresentationVideo.astro';
-import ConstatCarousel from '../components/home/ConstatCarousel.astro';
 // L'éventail de cartes a été remplacé par « les deux portes » (handoff Claude
 // Design, bloc 1f). OffersSection.astro reste intact sur le disque : une ligne
 // à réimporter ici suffit à le remettre, avec son compteur à rouleaux, son
@@ -10,7 +9,6 @@ import ConstatCarousel from '../components/home/ConstatCarousel.astro';
 import PortesSection from '../components/home/PortesSection.astro';
 import ProofSection from '../components/home/ProofSection.astro';
 import ReviewsSection from '../components/home/ReviewsSection.astro';
-import LogosMarquee from '../components/home/LogosMarquee.astro';
 import ConvictionSection from '../components/home/ConvictionSection.astro';
 import FoundersSection from '../components/home/FoundersSection.astro';
 import FaqAccordion from '../components/home/FaqAccordion.astro';
@@ -63,7 +61,6 @@ const portes = [
 >
   <Hero />
   <PresentationVideo />
-  <ConstatCarousel />
   <PortesSection
     titre="Former votre équipe, ou automatiser une tâche."
     lede="Cliquez sur l'offre qui vous parle : vous y trouverez le déroulé complet, ce que vous obtenez, et le tarif affiché."
@@ -73,7 +70,6 @@ const portes = [
   />
   <ProofSection />
   <ReviewsSection />
-  <LogosMarquee />
   <ConvictionSection />
   <FoundersSection />
   <FaqAccordion />
