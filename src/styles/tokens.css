@@ -237,4 +237,10 @@
   --blog-accent-deep: #823B26;     /* braise, soleil dessiné sur les bandeaux orange */
   --blog-on-accent: #1C1321;       /* texte posé sur l'orange, 6,4:1 */
   --blog-accent-hover: #FF8A55;    /* orange éclairci de 15%, survol des boutons */
+
+  /* ============ Voile du hero (22 septembre 2026) ============
+     Demande de l'utilisateur : un voile plus léger sur la vidéo, et bleuté
+     plutôt que vert-jaune. Ces deux jetons ne servent qu'au hero de l'accueil. */
+  --hero-voile: #0A1526;           /* bleu nuit, remplace --ink-950 dans les dégradés du hero */
+  --hero-teinte: #2F5D8C;          /* bleu acier, couche de teinte en lumière douce */
 }

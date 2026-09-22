@@ -30,6 +30,7 @@ import heroPoster from '../../assets/images/posters/hero-poster.jpg';
       <source data-src="/videos/hero-vp9.webm" type='video/webm; codecs="vp9"' />
       <source data-src="/videos/hero-h264.mp4" type="video/mp4" />
     </video>
+    <div class="hrn-hero__teinte"></div>
     <div class="hrn-hero__dots"></div>
     <div class="hrn-hero__gradient-v"></div>
     <div class="hrn-hero__gradient-h"></div>
@@ -110,14 +111,29 @@ import heroPoster from '../../assets/images/posters/hero-poster.jpg';
     background-position: -13px -13px;
   }
 
+  /* Teinte bleutée (22 septembre 2026). En lumière douce, elle déplace la
+     couleur de la vidéo vers le bleu sans l'assombrir : c'est elle qui retire
+     la dominante vert-jaune de l'image, là où un simple voile bleu ne ferait
+     que la griser. */
+  .hrn-hero__teinte {
+    position: absolute;
+    inset: 0;
+    background: var(--hero-teinte);
+    mix-blend-mode: soft-light;
+    opacity: 0.55;
+  }
+
+  /* Voiles allégés et passés au bleu nuit le 22 septembre 2026 : ils étaient
+     en --ink-950, un vert très sombre, à 23 / 30 / 89 % et 33 / 8 %. Le bas
+     reste le plus dense, c'est lui qui porte la lisibilité des trois repères. */
   .hrn-hero__gradient-v {
     position: absolute;
     inset: 0;
     background: linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ink-950) 23%, transparent) 0%,
-      color-mix(in srgb, var(--ink-950) 30%, transparent) 52%,
-      color-mix(in srgb, var(--ink-950) 89%, transparent) 100%
+      color-mix(in srgb, var(--hero-voile) 12%, transparent) 0%,
+      color-mix(in srgb, var(--hero-voile) 18%, transparent) 52%,
+      color-mix(in srgb, var(--hero-voile) 78%, transparent) 100%
     );
   }
 
@@ -126,8 +142,8 @@ import heroPoster from '../../assets/images/posters/hero-poster.jpg';
     inset: 0;
     background: linear-gradient(
       96deg,
-      color-mix(in srgb, var(--ink-950) 33%, transparent) 0%,
-      color-mix(in srgb, var(--ink-950) 8%, transparent) 52%,
+      color-mix(in srgb, var(--hero-voile) 24%, transparent) 0%,
+      color-mix(in srgb, var(--hero-voile) 5%, transparent) 52%,
       transparent 78%
     );
   }
