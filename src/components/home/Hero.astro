@@ -1,6 +1,11 @@
 ---
 import { Picture } from 'astro:assets';
 import heroPoster from '../../assets/images/posters/hero-poster.jpg';
+
+// Espace insécable construite par son point de code (piège n°7 du projet).
+// Elle lie « le reste » : sans point final, un « reste » seul sur la dernière
+// ligne du téléphone faisait perdre la fin de la phrase.
+const NBSP = String.fromCodePoint(0x00a0);
 ---
 
 <section class="hrn-hero" id="top">
@@ -37,7 +42,7 @@ import heroPoster from '../../assets/images/posters/hero-poster.jpg';
   </div>
 
   <div class="hrn-hero__content">
-    <h1>Formez vos équipes à l'IA.<br />Automatisez le reste.</h1>
+    <h1>Formez vos équipes à l'IA<br />{`Automatisez le${NBSP}reste`}</h1>
     <p class="hrn-hero__subtitle">Hérone forme les TPE et PME de Vendée à l'intelligence artificielle, et automatise les tâches qui peuvent l'être.</p>
 
     <div class="hrn-hero__stats">
@@ -157,12 +162,19 @@ import heroPoster from '../../assets/images/posters/hero-poster.jpg';
     padding: clamp(56px, 8vw, 104px) clamp(20px, 5vw, 48px);
   }
 
+  /* Titre moins rond (22 septembre 2026, demande de l'utilisateur) : demi-gras
+     au lieu de 800, et taille optique « texte » au lieu de la taille optique
+     d'affichage que le navigateur choisit seul à cette taille. Bricolage
+     Grotesque arrondit et resserre ses lettres quand la taille optique monte ;
+     à 14, les formes sont plus droites et plus nettes. Plus de point final
+     non plus, à la demande de l'utilisateur. */
   .hrn-hero__content h1 {
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: var(--weight-semibold);
+    font-variation-settings: 'opsz' 14;
     font-size: clamp(2.4rem, 6vw, 4.75rem);
     line-height: 1.02;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.035em;
     color: var(--text-inverse);
     max-width: 18ch;
     text-wrap: balance;
