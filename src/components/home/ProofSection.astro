@@ -45,13 +45,15 @@ import avatarGauthier from '../../assets/images/proof-gauthier.webp';
 // chiffré (« 0 saisie », « 1 rapport »), ainsi que les flèches et les puces
 // du carrousel. Les deux avis sont désormais visibles en même temps.
 interface Props {
+  /** Fond de la section, pour tenir l'alternance de la page qui l'accueille. */
+  fond?: 'paper' | 'surface';
   eyebrow?: string;
   titre?: string;
 }
 
 // La section vit aussi sur /automatisation, où elle sert de preuve à l'offre
 // et non d'avis général : son en-tête doit pouvoir changer de contexte.
-const { eyebrow = 'Témoignages', titre = "Ils l'utilisent tous les jours" } = Astro.props;
+const { eyebrow = 'Témoignages', titre = "Ils l'utilisent tous les jours", fond = 'paper' } = Astro.props;
 
 const testimonials = [
   {
@@ -75,7 +77,7 @@ const testimonials = [
 ];
 ---
 
-<section id="temoignage" class="hrn-proof">
+<section id="temoignage" class:list={['hrn-proof', `hrn-proof--${fond}`]}>
   <div class="hrn-proof__inner">
     <div class="hrn-eyebrow">{eyebrow}</div>
     <h2>{titre}</h2>
@@ -127,6 +129,10 @@ const testimonials = [
     background: var(--paper);
     color: var(--text-secondary);
     scroll-margin-top: 68px;
+  }
+
+  .hrn-proof--surface {
+    background: var(--surface);
   }
 
   /* Le design ouvre le conteneur : --container-wide au lieu de --container-max,
