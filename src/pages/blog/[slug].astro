@@ -120,27 +120,28 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
 
         <Content />
 
-        <aside class="hrn-auteur" aria-label="Auteur">
-          <div class="hrn-auteur__portrait">
-            {auteur.photo ? (
-              <Image src={auteur.photo} alt="" width={144} height={144} />
-            ) : (
-              <svg viewBox="0 0 400 200" aria-hidden="true" focusable="false">
-                <path d="M0 200A200 200 0 0 1 400 200Z" fill="var(--blog-accent)" />
-                <rect x="0" y="112" width="400" height="8" fill="var(--blog-surface-2)" />
-                <rect x="0" y="140" width="400" height="12" fill="var(--blog-surface-2)" />
-                <rect x="0" y="170" width="400" height="16" fill="var(--blog-surface-2)" />
-              </svg>
-            )}
-          </div>
-
-          <div class="hrn-auteur__texte">
-            <p class="hrn-auteur__nom">{auteur.nom}</p>
-            <p class="hrn-auteur__role">{ROLE_AUTEUR}</p>
-            <p class="hrn-auteur__phrase">{auteur.phrase}</p>
-          </div>
-        </aside>
       </article>
+
+      <aside class="hrn-auteur" aria-label="Auteur">
+        <div class="hrn-auteur__portrait">
+          {auteur.photo ? (
+            <Image src={auteur.photo} alt="" width={144} height={144} />
+          ) : (
+            <svg viewBox="0 0 400 200" aria-hidden="true" focusable="false">
+              <path d="M0 200A200 200 0 0 1 400 200Z" fill="var(--blog-accent)" />
+              <rect x="0" y="112" width="400" height="8" fill="var(--blog-surface-2)" />
+              <rect x="0" y="140" width="400" height="12" fill="var(--blog-surface-2)" />
+              <rect x="0" y="170" width="400" height="16" fill="var(--blog-surface-2)" />
+            </svg>
+          )}
+        </div>
+
+        <div class="hrn-auteur__texte">
+          <p class="hrn-auteur__nom">{auteur.nom}</p>
+          <p class="hrn-auteur__role">{ROLE_AUTEUR}</p>
+          <p class="hrn-auteur__phrase">{auteur.phrase}</p>
+        </div>
+      </aside>
     </div>
 
     <section class="hrn-article-final" aria-label="Réserver un appel">
@@ -287,7 +288,9 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
   .hrn-article-tete h1 {
     grid-column: span 11;
     font-family: var(--font-display);
-    font-size: clamp(38px, 7.5vw, 96px);
+    /* Borne basse à 42px, la valeur de la maquette mobile, et non les 38px
+       du cahier des charges, qui donne une fourchette de 38 à 42. */
+    font-size: clamp(42px, 7.5vw, 96px);
     font-weight: 800;
     line-height: 0.94;
     letter-spacing: -0.05em;
@@ -345,6 +348,10 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
 
   .hrn-article-sommaire-mobile :global(.hrn-toc) {
     padding-bottom: 12px;
+  }
+
+  .hrn-article-sommaire-mobile :global(.hrn-toc__lien) {
+    font-size: 15px;
   }
 
   /* ============ Corps en deux colonnes ============ */
@@ -651,7 +658,8 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
   /* ============ Bloc auteur ============ */
 
   .hrn-auteur {
-    margin-top: 14px;
+    grid-column: 5 / span 7;
+    margin-top: 36px;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -749,7 +757,7 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     margin: 0;
     max-width: none;
     font-family: var(--font-display);
-    font-size: clamp(44px, 7vw, 88px);
+    font-size: clamp(46px, 7vw, 88px);
     font-weight: 800;
     line-height: 0.92;
     letter-spacing: -0.05em;
@@ -873,8 +881,8 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
   @media (max-width: 1199px) {
     .hrn-article-final {
       min-height: 0;
-      padding-top: 56px;
-      padding-bottom: 260px;
+      padding-top: 48px;
+      padding-bottom: 170px;
     }
 
     .hrn-article-final__inner {
@@ -886,7 +894,7 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     /* Le soleil passe au centre, sous le contenu, qui prend toute la largeur. */
     .hrn-article-final__soleil {
       right: 50%;
-      width: 300px;
+      width: 320px;
       transform: translateX(50%);
     }
 
@@ -929,7 +937,7 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     .hrn-article-tete__ligne {
       flex-direction: column;
       align-items: flex-start;
-      gap: 8px;
+      gap: 16px;
     }
 
     .hrn-article-tete__meta {
@@ -965,6 +973,7 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     }
 
     .hrn-prose {
+      gap: 20px;
       font-size: 17px;
     }
 
@@ -977,6 +986,7 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     }
 
     .hrn-prose :global(h2) {
+      margin-top: 28px;
       font-size: 34px;
     }
 
@@ -990,11 +1000,13 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     }
 
     .hrn-prose :global(blockquote) {
+      margin: 8px 0;
+      padding: 24px 0;
       font-size: 27px;
     }
 
     .hrn-prose :global(.hrn-article-cta) {
-      padding: 26px 24px;
+      padding: 24px;
     }
 
     .hrn-prose :global(.hrn-article-cta__lien) {
@@ -1004,6 +1016,7 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     .hrn-auteur {
       flex-direction: column;
       align-items: flex-start;
+      margin-top: 28px;
       padding: 22px 24px;
     }
 

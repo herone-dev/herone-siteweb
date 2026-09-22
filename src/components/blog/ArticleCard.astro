@@ -95,6 +95,11 @@ const POINT = ` ${String.fromCodePoint(0x00b7)} `;
     flex-grow: 1;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
+    /* Les cartes d'une même rangée sont étirées à la hauteur de la plus haute.
+       Sans align-content, ce surplus se répartirait entre les rangées de la
+       grille et décalerait les titres de deux cartes voisines. Il se loge
+       sous la description, comme dans la maquette. */
+    align-content: start;
     gap: 14px 12px;
     padding: 24px 26px 28px;
   }
