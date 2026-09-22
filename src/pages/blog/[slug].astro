@@ -4,9 +4,16 @@ import { Image } from 'astro:assets';
 import Layout from '../../layouts/Layout.astro';
 import ArticleCard from '../../components/blog/ArticleCard.astro';
 import TableOfContents from '../../components/blog/TableOfContents.astro';
-import BlogCover from '../../components/blog/BlogCover.astro';
-import { motifDe } from '../../data/blog-covers';
+import Button from '../../components/Button.astro';
 import { auteurDe } from '../../data/authors';
+
+/* Page article, refonte du 22 septembre 2026.
+ *
+ * Structure conservée : fil d'Ariane, sommaire collant à gauche, prose à
+ * sections numérotées, encart rendez-vous posé par le plugin, bloc auteur,
+ * bandeau final, articles liés. Design : fond bleu nuit, blocs crème,
+ * turquoise, Manrope. La grande bannière illustrée sous l'en-tête est retirée.
+ */
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -47,40 +54,45 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
 <Layout
   title={`${post.data.title} · Blog Hérone`}
   description={post.data.description}
-  headerTheme="dark"
+  headerTheme="light"
 >
-  <div class="hrn-blog">
+  <div class="hrn-blog hrn-zone-bleue">
     {/* Progression de lecture, mobile seulement : sur desktop le sommaire
         collant joue déjà ce rôle. */}
     <div class="hrn-progression" aria-hidden="true">
       <span class="hrn-progression__barre" id="progression"></span>
     </div>
 
-    <header class="hrn-section-inner hrn-article-tete">
-      <div class="hrn-article-tete__ligne">
-        <nav aria-label="Fil d'Ariane">
-          <ol class="hrn-fil">
-            <li><a href="/blog">Blog</a></li>
-            <li aria-hidden="true">/</li>
-            <li>{post.data.category}</li>
-          </ol>
-        </nav>
+    <header class="hrn-article-tete">
+      <div class="hrn-section-inner">
+        <div class="hrn-article-tete__ligne">
+          <nav aria-label="Fil d'Ariane">
+            <ol class="hrn-fil">
+              <li>
+                <a href="/blog">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+                    <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  Blog
+                </a>
+              </li>
+              <li aria-hidden="true">/</li>
+              <li>{post.data.category}</li>
+            </ol>
+          </nav>
 
-        <p class="hrn-article-tete__meta">
-          {LIBELLE_LECTURE}<time datetime={dateMachine}>{dateLisible}</time>
-        </p>
+          <p class="hrn-article-tete__meta">
+            {LIBELLE_LECTURE}<time datetime={dateMachine}>{dateLisible}</time>
+          </p>
+        </div>
+
+        <h1>{post.data.title}</h1>
+        <p class="hrn-article-tete__chapeau">{post.data.description}</p>
       </div>
-
-      <h1>{post.data.title}</h1>
-      <p class="hrn-article-tete__chapeau">{post.data.description}</p>
     </header>
 
-    <div class="hrn-article-bandeau">
-      <BlogCover motif={motifDe(post.id, post.data.cover)} variant="wide" />
-    </div>
-
     {parties.length > 0 && (
-      <details class="hrn-article-sommaire-mobile">
+      <details class="hrn-article-sommaire-mobile hrn-zone-creme">
         <summary>
           {LIBELLE_SOMMAIRE}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
@@ -93,22 +105,22 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
 
     <div class="hrn-section-inner hrn-article-corps">
       <aside class="hrn-article-cote" aria-label="Sommaire et rendez-vous">
-        <TableOfContents headings={headings} />
+        {parties.length > 0 && (
+          <div class="hrn-article-cote__sommaire">
+            <TableOfContents headings={headings} titre={LIBELLE_SOMMAIRE} />
+          </div>
+        )}
 
-        <div class="hrn-article-cote__carte">
-          <p>Trente minutes pour repérer ce qu'on peut automatiser chez vous.</p>
-          <a href="/#reserver">
-            Réserver 30 minutes
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-              <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </a>
+        <div class="hrn-article-cote__carte hrn-zone-creme">
+          <p class="hrn-article-cote__titre">Récupérez des heures</p>
+          <p class="hrn-article-cote__phrase">Trente minutes pour voir ce qu'on peut automatiser chez vous.</p>
+          <Button variant="accent" size="md" href="/#reserver" block>Réserver 30 minutes</Button>
         </div>
       </aside>
 
       <article class="hrn-prose">
         {post.data.summary && post.data.summary.length > 0 && (
-          <aside class="hrn-enbref" aria-label="En bref">
+          <aside class="hrn-enbref hrn-zone-creme" aria-label="En bref">
             <p class="hrn-enbref__libelle">En bref</p>
             <ol class="hrn-enbref__liste">
               {post.data.summary.map((phrase) => (
@@ -119,20 +131,14 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
         )}
 
         <Content />
-
       </article>
 
-      <aside class="hrn-auteur" aria-label="Auteur">
-        <div class="hrn-auteur__portrait">
+      <aside class="hrn-auteur hrn-zone-creme" aria-label="Auteur">
+        <div class="hrn-auteur__rond">
           {auteur.photo ? (
-            <Image src={auteur.photo} alt="" width={144} height={144} />
+            <Image src={auteur.photo} alt="" width={112} height={112} />
           ) : (
-            <svg viewBox="0 0 400 200" aria-hidden="true" focusable="false">
-              <path d="M0 200A200 200 0 0 1 400 200Z" fill="var(--blog-accent)" />
-              <rect x="0" y="112" width="400" height="8" fill="var(--blog-surface-2)" />
-              <rect x="0" y="140" width="400" height="12" fill="var(--blog-surface-2)" />
-              <rect x="0" y="170" width="400" height="16" fill="var(--blog-surface-2)" />
-            </svg>
+            <span aria-hidden="true">H</span>
           )}
         </div>
 
@@ -144,30 +150,16 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
       </aside>
     </div>
 
-    <section class="hrn-article-final" aria-label="Réserver un appel">
-      <div class="hrn-article-final__soleil" aria-hidden="true">
-        <svg viewBox="0 0 400 200" aria-hidden="true" focusable="false">
-          <path d="M0 200A200 200 0 0 1 400 200Z" fill="var(--blog-accent-deep)" />
-          <rect x="0" y="112" width="400" height="8" fill="var(--blog-accent)" />
-          <rect x="0" y="140" width="400" height="12" fill="var(--blog-accent)" />
-          <rect x="0" y="170" width="400" height="16" fill="var(--blog-accent)" />
-        </svg>
-      </div>
-
+    <section class="hrn-article-final hrn-zone-creme" aria-labelledby="bandeau-titre">
       <div class="hrn-section-inner hrn-article-final__inner">
-        <h2>{TITRE_BANDEAU}</h2>
+        <h2 id="bandeau-titre">{TITRE_BANDEAU}</h2>
         <div class="hrn-article-final__droite">
           <p>
             Nous regardons votre situation ensemble et nous vous disons, sans engagement,
             ce qui s'automatise chez vous et dans quel ordre.
           </p>
           <div class="hrn-article-final__actions">
-            <a class="hrn-article-final__bouton" href="/#reserver">
-              Réserver 30 minutes en visio
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-                <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </a>
+            <Button variant="accent" size="lg" href="/#reserver" class="hrn-article-final__bouton">Réserver 30 minutes en visio</Button>
             <a class="hrn-article-final__tel" href="tel:+33663710598">ou 06 63 71 05 98</a>
           </div>
         </div>
@@ -177,11 +169,14 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     <section class="hrn-article-lies" aria-labelledby="ensuite">
       <div class="hrn-section-inner">
         <div class="hrn-article-lies__tete">
-          <h2 id="ensuite">À lire ensuite</h2>
+          <div>
+            <p class="hrn-article-lies__libelle">À lire ensuite</p>
+            <h2 id="ensuite">Sur le même sujet</h2>
+          </div>
           <a href="/blog">
             Tous les articles
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-              <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+              <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </a>
         </div>
@@ -195,7 +190,7 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
               category={p.data.category}
               pubDate={p.data.pubDate}
               readingTime={p.data.readingTime}
-              cover={p.data.cover}
+              compact
             />
           ))}
         </div>
@@ -205,10 +200,12 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
 </Layout>
 
 <style>
+  /* Fond bleu nuit, encres claires (.hrn-zone-bleue), texte courant en
+     Hanken Grotesk : l'ancienne version mettait toute la page en police de
+     titre. */
   .hrn-blog {
-    background: var(--blog-bg);
-    color: var(--blog-text);
-    font-family: var(--font-display);
+    background: var(--paper);
+    font-family: var(--font-sans);
   }
 
   /* ============ Progression de lecture ============ */
@@ -220,35 +217,31 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     left: 0;
     right: 0;
     z-index: 5;
-    height: 4px;
-    background: var(--blog-surface-2);
+    height: 3px;
+    background: var(--border);
   }
 
   .hrn-progression__barre {
     display: block;
     width: 0;
-    height: 4px;
-    background: var(--blog-accent);
+    height: 3px;
+    background: var(--amber-300);
   }
 
   /* ============ En-tête ============ */
 
   .hrn-article-tete {
-    /* 68px de header fixe, puis les 64px de la maquette. */
-    padding-top: calc(68px + 64px);
-    padding-bottom: 56px;
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: 24px;
-    row-gap: 28px;
+    padding-top: calc(68px + clamp(28px, 4vw, 48px));
+    padding-bottom: clamp(32px, 4vw, 52px);
+    border-bottom: 1px solid var(--border);
   }
 
   .hrn-article-tete__ligne {
-    grid-column: span 12;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    column-gap: 16px;
   }
 
   .hrn-fil {
@@ -259,64 +252,56 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     align-items: center;
     gap: 10px;
     font-family: var(--font-mono);
-    font-size: 13px;
-    letter-spacing: 0.08em;
+    font-size: 11px;
+    letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    color: var(--blog-text-2);
+    color: var(--text-muted);
   }
 
+  /* 44px de cible : la hauteur est gagnée par le remplissage, la marge
+     négative garde le mot aligné sur le titre. */
   .hrn-fil a {
     display: inline-flex;
     align-items: center;
-    /* La maquette pose 32px ; le cahier des charges impose 44px de cible
-       minimale à tout lien, et c'est lui qui fait foi sur ce point. La taille
-       du texte ne change pas, et la marge négative annule le remplissage
-       horizontal : le mot reste aligné sur le titre. */
+    gap: 4px;
     min-height: 44px;
     padding: 0 5px;
     margin: 0 -5px;
-    color: var(--blog-accent-soft);
+    color: var(--amber-300);
   }
 
   .hrn-fil a:hover {
-    color: var(--blog-text);
+    color: var(--text-strong);
   }
 
   .hrn-article-tete__meta {
-    flex-shrink: 0;
     font-family: var(--font-mono);
-    font-size: 13px;
-    letter-spacing: 0.06em;
+    font-size: 11px;
+    letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    color: var(--blog-text-2);
+    color: var(--text-muted);
   }
 
+  /* Grand titre de page : 500 à -0.04em, comme le titre de l'accueil du blog. */
   .hrn-article-tete h1 {
-    grid-column: span 11;
+    margin-top: 14px;
+    max-width: 16em;
     font-family: var(--font-display);
-    /* Borne basse à 42px, la valeur de la maquette mobile, et non les 38px
-       du cahier des charges, qui donne une fourchette de 38 à 42. */
-    font-size: clamp(42px, 7.5vw, 96px);
-    font-weight: 800;
-    line-height: 0.94;
-    letter-spacing: -0.05em;
-    color: var(--blog-text);
-    text-wrap: balance;
-  }
-
-  .hrn-article-tete__chapeau {
-    grid-column: span 8;
-    font-size: 24px;
-    line-height: 1.45;
-    color: var(--blog-text-2);
+    font-size: clamp(38px, 5.4vw, 64px);
+    font-weight: var(--weight-medium);
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    color: var(--text-strong);
     text-wrap: pretty;
   }
 
-  /* ============ Bandeau de couverture ============ */
-
-  .hrn-article-bandeau {
-    display: flex;
-    height: 360px;
+  .hrn-article-tete__chapeau {
+    margin-top: 20px !important;
+    max-width: 40em;
+    font-size: clamp(18px, 1.7vw, 21px);
+    line-height: 1.5;
+    color: var(--text-secondary);
+    text-wrap: pretty;
   }
 
   /* ============ Sommaire mobile ============ */
@@ -324,10 +309,10 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
   .hrn-article-sommaire-mobile {
     display: none;
     margin: 28px clamp(20px, 5vw, 48px) 0;
-    padding: 0 18px;
-    border: 1px solid var(--blog-line);
-    border-radius: 18px;
-    background: var(--blog-surface);
+    padding: 0 16px;
+    border: 1px solid var(--creme-bordure);
+    border-radius: var(--radius-xl);
+    background: var(--surface);
   }
 
   .hrn-article-sommaire-mobile summary {
@@ -335,16 +320,12 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    min-height: 56px;
+    min-height: 52px;
     font-family: var(--font-mono);
-    font-size: 13px;
-    letter-spacing: 0.08em;
+    font-size: 11px;
+    letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    color: var(--blog-text);
-  }
-
-  .hrn-article-sommaire-mobile[open] summary svg {
-    transform: rotate(180deg);
+    color: var(--text-secondary);
   }
 
   .hrn-article-sommaire-mobile summary svg {
@@ -352,113 +333,105 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     transition: transform var(--dur) var(--ease-standard);
   }
 
+  .hrn-article-sommaire-mobile[open] summary svg {
+    transform: rotate(180deg);
+  }
+
   .hrn-article-sommaire-mobile :global(.hrn-toc) {
     padding-bottom: 12px;
   }
 
-  .hrn-article-sommaire-mobile :global(.hrn-toc__lien) {
-    font-size: 15px;
-  }
-
-  /* ============ Corps en deux colonnes ============ */
-
+  /* ============ Corps en deux colonnes ============
+     Jamais le raccourci `padding` ici : cet élément porte aussi
+     .hrn-section-inner, dont il écraserait les marges latérales (piège n°2). */
   .hrn-article-corps {
     display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: 24px;
+    grid-template-columns: 280px minmax(0, 720px);
+    column-gap: clamp(40px, 5vw, 72px);
     align-items: start;
-    /* Jamais le raccourci `padding` ici : cet élément porte aussi
-       .hrn-section-inner, dont il écraserait les marges latérales. */
-    padding-top: 88px;
-    padding-bottom: 104px;
+    padding-top: clamp(40px, 5vw, 56px);
+    padding-bottom: clamp(64px, 8vw, 96px);
   }
 
   .hrn-article-cote {
-    grid-column: 1 / span 3;
+    grid-row: 1 / span 2;
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 16px;
     position: sticky;
     top: 96px;
-    align-self: start;
+  }
+
+  .hrn-article-cote__sommaire {
+    padding: 18px 16px 12px;
+    border: 1px solid var(--creme-bordure);
+    border-radius: var(--radius-xl);
+    background: var(--surface);
   }
 
   .hrn-article-cote__carte {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    padding: 22px;
-    border: 1px solid var(--blog-line);
-    border-radius: 20px;
-    background: var(--blog-surface);
+    gap: 8px;
+    padding: 20px;
+    border-radius: var(--radius-xl);
+    background: var(--surface);
   }
 
-  .hrn-article-cote__carte p {
-    font-size: 16px;
-    line-height: 1.45;
+  .hrn-article-cote__titre {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: var(--weight-titre);
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
   }
 
-  .hrn-article-cote__carte a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    height: 44px;
-    padding: 0 22px;
-    border-radius: 999px;
-    background: var(--blog-accent);
-    color: var(--blog-on-accent);
-    font-size: 15px;
-    font-weight: 700;
-    white-space: nowrap;
-    transition: background var(--dur) var(--ease-standard);
-  }
-
-  .hrn-article-cote__carte a:hover {
-    background: var(--blog-accent-hover);
-    color: var(--blog-on-accent);
+  .hrn-article-cote__phrase {
+    margin-bottom: 8px !important;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-secondary);
   }
 
   /* ============ Prose ============ */
 
   .hrn-prose {
-    grid-column: 5 / span 7;
+    grid-column: 2;
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 20px;
     /* Les sections numérotées sont comptées par CSS : le Markdown ne produit
        aucun numéro, et les h2 gardent leur id pour les ancres du sommaire. */
     counter-reset: section;
   }
 
-  .hrn-prose :global(> p:first-of-type) {
-    font-size: 25px;
-    font-weight: 500;
-    line-height: 1.4;
-    letter-spacing: -0.01em;
+  .hrn-prose :global(p) {
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--ink-100);
     text-wrap: pretty;
   }
 
-  .hrn-prose :global(p) {
-    font-size: 19px;
-    line-height: 1.7;
-    color: var(--blog-text);
-    text-wrap: pretty;
+  /* Premier paragraphe : chapeau de lecture, plus grand et plus clair. */
+  .hrn-prose :global(> p:first-of-type) {
+    font-size: 21px;
+    line-height: 1.55;
+    color: var(--text-strong);
   }
 
   .hrn-prose :global(h2) {
     counter-increment: section;
-    margin-top: 36px;
+    margin: 28px 0 0;
     display: flex;
     flex-direction: column;
     gap: 10px;
     max-width: none;
     font-family: var(--font-display);
-    font-size: 46px;
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.04em;
-    color: var(--blog-text);
+    font-size: clamp(26px, 2.6vw, 32px);
+    font-weight: var(--weight-titre);
+    line-height: 1.15;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
     scroll-margin-top: 96px;
   }
 
@@ -466,41 +439,41 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     content: counter(section, decimal-leading-zero);
     display: block;
     font-family: var(--font-mono);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
-    letter-spacing: 0.08em;
-    color: var(--blog-accent);
+    letter-spacing: var(--tracking-label);
+    color: var(--amber-300);
   }
 
   .hrn-prose :global(h3) {
-    margin-top: 16px;
+    margin-top: 8px;
     font-family: var(--font-display);
-    font-size: 30px;
-    font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -0.03em;
-    color: var(--blog-text);
+    font-size: 21px;
+    font-weight: var(--weight-titre);
+    line-height: 1.25;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
   }
 
   .hrn-prose :global(a) {
-    color: var(--blog-text);
+    color: var(--text-strong);
     text-decoration: underline;
-    text-decoration-color: var(--blog-accent);
+    text-decoration-color: var(--amber-300);
     text-decoration-thickness: 2px;
     text-underline-offset: 4px;
   }
 
   .hrn-prose :global(a:hover) {
-    color: var(--blog-accent-soft);
+    color: var(--amber-300);
   }
 
   .hrn-prose :global(strong) {
     font-weight: 700;
-    color: inherit;
+    color: var(--text-strong);
   }
 
-  /* Listes numérotées à la main : le numéro remplace la puce, comme dans la
-     maquette. Le compteur est propre à chaque liste. */
+  /* Puces rondes turquoise. Les listes numérotées gardent leur numéro, en
+     mono turquoise. */
   .hrn-prose :global(ul),
   .hrn-prose :global(ol) {
     margin: 0;
@@ -508,289 +481,248 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    font-size: 19px;
+    gap: 10px;
+    font-size: 18px;
     line-height: 1.6;
+    color: var(--ink-100);
     counter-reset: puce;
   }
 
   .hrn-prose :global(li) {
+    position: relative;
+    padding-left: 24px;
+  }
+
+  .hrn-prose :global(ul > li::before) {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 0.62em;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--amber-300);
+  }
+
+  .hrn-prose :global(ol > li) {
     counter-increment: puce;
-    display: grid;
-    grid-template-columns: 34px minmax(0, 1fr);
-    column-gap: 12px;
-    align-items: baseline;
+    padding-left: 34px;
   }
 
-  .hrn-prose :global(li::before) {
+  .hrn-prose :global(ol > li::before) {
     content: counter(puce, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 0.2em;
     font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--blog-accent);
+    font-size: 12px;
+    color: var(--amber-300);
   }
 
+  /* Citation : trait turquoise, Manrope 700, crème, sans guillemets ajoutés
+     ni point final. */
   .hrn-prose :global(blockquote) {
-    margin: 16px 0;
-    padding: 32px 0;
-    border-top: 1px solid var(--blog-line);
-    border-bottom: 1px solid var(--blog-line);
-    font-family: var(--font-display);
-    font-size: 38px;
-    font-weight: 700;
-    line-height: 1.12;
-    letter-spacing: -0.03em;
-    color: var(--blog-accent);
-    text-wrap: balance;
+    margin: 12px 0;
+    padding: 4px 0 4px 22px;
+    border-left: 3px solid var(--accent);
   }
 
   .hrn-prose :global(blockquote p) {
-    font-size: inherit;
-    font-weight: inherit;
-    line-height: inherit;
-    letter-spacing: inherit;
-    color: inherit;
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2.3vw, 28px);
+    font-weight: var(--weight-titre);
+    line-height: 1.25;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
+    text-wrap: balance;
   }
 
-  /* Guillemets français ajoutés par CSS : ils n'ont pas à vivre dans le
-     Markdown, et ils restent hors du texte lu par les lecteurs d'écran. */
-  .hrn-prose :global(blockquote p::before) {
-    content: '\00ab\00a0';
-    color: var(--blog-accent-soft);
-  }
-
-  .hrn-prose :global(blockquote p::after) {
-    content: '\00a0\00bb';
-    color: var(--blog-accent-soft);
-  }
-
-  /* ============ Encart « En bref » ============ */
+  /* ============ Encart « En bref » (aucun article ne l'utilise encore) ============ */
 
   .hrn-enbref {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    padding: 24px 28px;
-    border: 1px solid var(--blog-line);
-    border-left: 4px solid var(--blog-accent);
-    border-radius: 20px;
-    background: var(--blog-surface);
+    gap: 12px;
+    padding: 22px 26px;
+    border-radius: var(--radius-2xl);
+    background: var(--surface);
   }
 
-  /* Ces trois règles sont préfixées par .hrn-prose : sans cela, les règles
-     génériques de la prose, plus spécifiques parce qu'elles nomment une
-     balise, écrasent la taille, l'interligne et la couleur de l'encart, qui
-     en est un enfant. */
+  /* Préfixées par .hrn-prose : sans cela, les règles génériques de la prose,
+     plus spécifiques, écraseraient celles de l'encart (piège n°4 quater). */
   .hrn-prose .hrn-enbref__libelle {
     font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
+    font-size: 11px;
+    letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    color: var(--blog-accent-soft);
+    color: var(--accent-texte);
   }
 
   .hrn-prose .hrn-enbref__liste {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    font-size: 17px;
+    font-size: 16px;
     line-height: 1.5;
-    counter-reset: bref;
-  }
-
-  .hrn-prose .hrn-enbref__liste li {
-    counter-increment: bref;
-    display: grid;
-    grid-template-columns: 26px minmax(0, 1fr);
-    column-gap: 12px;
-    align-items: baseline;
+    color: var(--text-primary);
   }
 
   .hrn-prose .hrn-enbref__liste li::before {
-    content: counter(bref, decimal-leading-zero);
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--blog-accent);
+    color: var(--accent-texte);
   }
 
-  /* ============ Encart rendez-vous inséré dans la prose ============ */
-
+  /* ============ Encart rendez-vous inséré dans la prose ============
+     Posé par src/plugins/rehype-encart-rdv.mjs. Il n'a pas de balise
+     Astro, d'où :global(). Couleurs du crème reprises à la main : la classe
+     .hrn-zone-creme n'est pas posée par le plugin. */
   .hrn-prose :global(.hrn-article-cta) {
+    margin: 12px 0;
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    padding: 32px 36px;
-    border-radius: 22px;
-    background: var(--blog-accent);
-    color: var(--blog-on-accent);
+    align-items: flex-start;
+    gap: 8px;
+    padding: clamp(22px, 3vw, 30px) clamp(22px, 3vw, 32px);
+    border-radius: var(--radius-2xl);
+    background: var(--surface);
   }
 
   .hrn-prose :global(.hrn-article-cta__titre) {
-    font-size: 22px;
-    font-weight: 800;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    color: var(--blog-on-accent);
+    font-family: var(--font-display);
+    font-size: 21px;
+    font-weight: var(--weight-titre);
+    line-height: 1.2;
+    letter-spacing: var(--tracking-titre);
+    color: var(--ink-950);
   }
 
   .hrn-prose :global(.hrn-article-cta__phrase) {
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.55;
-    color: var(--blog-on-accent);
+    color: var(--ink-500);
   }
 
   .hrn-prose :global(.hrn-article-cta__lien) {
-    align-self: flex-start;
-    display: flex;
+    margin-top: 10px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    height: 48px;
-    padding: 0 22px;
-    border-radius: 999px;
-    background: var(--blog-bg);
-    color: var(--blog-text);
-    font-size: 16px;
-    font-weight: 700;
+    gap: 8px;
+    height: 46px;
+    padding: 0 24px;
+    border-radius: var(--radius-full);
+    background: var(--accent);
+    color: var(--text-on-accent);
+    font-size: 15px;
+    font-weight: 600;
     white-space: nowrap;
     text-decoration: none;
     transition: background var(--dur) var(--ease-standard);
   }
 
   .hrn-prose :global(.hrn-article-cta__lien:hover) {
-    background: var(--blog-surface-2);
-    color: var(--blog-text);
+    background: var(--accent-hover);
+    color: var(--text-on-accent);
   }
 
   /* ============ Bloc auteur ============ */
 
   .hrn-auteur {
-    grid-column: 5 / span 7;
-    margin-top: 36px;
+    grid-column: 2;
+    margin-top: 40px;
     display: flex;
-    flex-direction: row;
     align-items: center;
-    gap: 18px;
-    padding: 26px 30px;
-    border: 1px solid var(--blog-line);
-    border-radius: 22px;
-    background: var(--blog-surface);
+    gap: 16px;
+    padding: 20px 24px;
+    border-radius: var(--radius-xl);
+    background: var(--surface);
   }
 
-  .hrn-auteur__portrait {
+  /* Rond bleu nuit, initiale turquoise quand l'auteur n'a pas de photo. */
+  .hrn-auteur__rond {
     flex-shrink: 0;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    width: 72px;
-    height: 72px;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
     overflow: hidden;
     border-radius: 50%;
-    background: var(--blog-surface-2);
+    background: var(--paper);
+    color: var(--amber-300);
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: var(--weight-titre);
   }
 
-  .hrn-auteur__portrait :global(img) {
+  .hrn-auteur__rond :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  .hrn-auteur__portrait svg {
-    width: 100%;
-  }
-
   .hrn-auteur__texte {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 3px;
   }
 
   .hrn-auteur__nom {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: var(--weight-titre);
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
   }
 
   .hrn-auteur__role {
     font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.06em;
+    font-size: 11px;
+    letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    color: var(--blog-accent-soft);
+    color: var(--text-secondary);
   }
 
   .hrn-auteur__phrase {
-    margin-top: 4px;
-    font-size: 15px;
+    margin-top: 4px !important;
+    font-size: 14px;
     line-height: 1.5;
-    color: var(--blog-text-2);
+    color: var(--text-secondary);
   }
 
-  /* ============ Bandeau final ============ */
+  /* ============ Bandeau final crème ============ */
 
   .hrn-article-final {
-    position: relative;
-    overflow: hidden;
-    min-height: 440px;
-    padding-top: 88px;
-    padding-bottom: 88px;
-    background: var(--blog-accent);
-    color: var(--blog-on-accent);
-  }
-
-  .hrn-article-final__soleil {
-    position: absolute;
-    right: 56px;
-    bottom: 0;
-    display: flex;
-    width: 420px;
-  }
-
-  .hrn-article-final__soleil svg {
-    width: 100%;
-    height: auto;
+    padding-top: clamp(40px, 5vw, 64px);
+    padding-bottom: clamp(40px, 5vw, 64px);
+    background: var(--surface);
   }
 
   .hrn-article-final__inner {
-    position: relative;
     display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: 24px;
-    align-content: start;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    column-gap: 48px;
+    row-gap: 20px;
+    align-items: center;
   }
 
   .hrn-article-final h2 {
-    grid-column: span 6;
     margin: 0;
     max-width: none;
     font-family: var(--font-display);
-    font-size: clamp(46px, 7vw, 88px);
-    font-weight: 800;
-    line-height: 0.92;
-    letter-spacing: -0.05em;
-    color: var(--blog-on-accent);
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: var(--weight-titre);
+    line-height: 1.05;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
+    text-wrap: balance;
   }
 
-  /* Cinq douzièmes comme la maquette. Le conteneur du site étant plus étroit
-     que son cadre (1104px contre 1168px), le lien téléphone passe sous le
-     bouton au lieu de rester à sa droite : c'est voulu, sur six douzièmes il
-     venait se poser sur le demi-soleil braise et devenait illisible. */
   .hrn-article-final__droite {
-    grid-column: span 5;
-    padding-top: 12px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 18px;
   }
 
   .hrn-article-final__droite p {
-    font-size: 24px;
-    font-weight: 600;
-    line-height: 1.25;
-    letter-spacing: -0.02em;
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--text-secondary);
     text-wrap: pretty;
   }
 
@@ -798,48 +730,27 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 22px;
-  }
-
-  .hrn-article-final__bouton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    height: 52px;
-    padding: 0 22px;
-    border-radius: 999px;
-    background: var(--blog-bg);
-    color: var(--blog-text);
-    font-size: 16px;
-    font-weight: 700;
-    white-space: nowrap;
-    transition: background var(--dur) var(--ease-standard);
-  }
-
-  .hrn-article-final__bouton:hover {
-    background: var(--blog-surface-2);
-    color: var(--blog-text);
+    gap: 8px 20px;
   }
 
   .hrn-article-final__tel {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     min-height: 44px;
     font-family: var(--font-mono);
-    font-size: 14px;
-    color: var(--blog-on-accent);
+    font-size: 13px;
+    color: var(--text-secondary);
   }
 
   .hrn-article-final__tel:hover {
-    color: var(--blog-on-accent);
+    color: var(--accent-texte);
   }
 
   /* ============ À lire ensuite ============ */
 
   .hrn-article-lies {
-    padding-top: 96px;
-    padding-bottom: 120px;
+    padding-top: clamp(48px, 6vw, 72px);
+    padding-bottom: clamp(56px, 7vw, 88px);
   }
 
   .hrn-article-lies__tete {
@@ -847,240 +758,119 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     align-items: flex-end;
     justify-content: space-between;
     gap: 24px;
-    margin-bottom: 36px;
+    margin-bottom: 24px;
+  }
+
+  .hrn-article-lies__libelle {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--amber-300);
   }
 
   .hrn-article-lies__tete h2 {
-    margin: 0;
+    margin: 10px 0 0;
     max-width: none;
     font-family: var(--font-display);
-    font-size: 64px;
-    font-weight: 800;
-    line-height: 0.95;
-    letter-spacing: -0.045em;
-    color: var(--blog-text);
+    font-size: clamp(28px, 3.2vw, 40px);
+    font-weight: var(--weight-titre);
+    line-height: 1.05;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
   }
 
   .hrn-article-lies__tete a {
     flex-shrink: 0;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
     min-height: 44px;
     font-family: var(--font-mono);
-    font-size: 13px;
-    letter-spacing: 0.08em;
+    font-size: 11px;
+    letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    color: var(--blog-accent-soft);
+    color: var(--amber-300);
   }
 
   .hrn-article-lies__tete a:hover {
-    color: var(--blog-text);
+    color: var(--text-strong);
   }
 
   .hrn-article-lies__grille {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 24px;
-    /* Les couvertures sont un peu plus basses qu'en page liste. */
-    --hauteur-couverture: 200px;
+    gap: 20px;
   }
 
   /* ============ Réactivité ============ */
 
-  @media (max-width: 1199px) {
-    .hrn-article-final {
-      min-height: 0;
-      padding-top: 48px;
-      padding-bottom: 170px;
-    }
-
-    .hrn-article-final__inner {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    /* Le soleil passe au centre, sous le contenu, qui prend toute la largeur. */
-    .hrn-article-final__soleil {
-      right: 50%;
-      width: 320px;
-      transform: translateX(50%);
-    }
-
-    .hrn-article-final__droite {
-      padding-top: 0;
-    }
-
-    .hrn-article-final__actions {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 14px;
-    }
-  }
-
   @media (max-width: 959px) {
-    .hrn-article-final__bouton {
-      width: 100%;
-    }
-
-    .hrn-article-final__actions {
-      align-items: stretch;
-    }
-
-    .hrn-article-final__tel {
-      justify-content: center;
-    }
-
     .hrn-progression {
       display: block;
     }
 
-    .hrn-article-tete {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      padding-top: calc(68px + 28px);
-      padding-bottom: 32px;
-    }
-
-    .hrn-article-tete__ligne {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 16px;
-    }
-
-    .hrn-article-tete__meta {
-      font-size: 12px;
-    }
-
-    .hrn-article-tete h1 {
-      line-height: 0.96;
-      letter-spacing: -0.045em;
-    }
-
-    .hrn-article-tete__chapeau {
-      font-size: 18px;
-      line-height: 1.5;
-    }
-
-    .hrn-article-bandeau {
-      height: 200px;
-    }
-
+    /* Le sommaire passe au-dessus de l'article, en bloc repliable, et la
+       carte d'appel de la colonne de gauche disparaît. */
     .hrn-article-sommaire-mobile {
       display: block;
-    }
-
-    .hrn-article-corps {
-      display: block;
-      padding-top: 36px;
-      padding-bottom: 64px;
     }
 
     .hrn-article-cote {
       display: none;
     }
 
-    .hrn-prose {
-      gap: 20px;
-      font-size: 17px;
+    .hrn-article-corps {
+      display: block;
+      padding-top: 32px;
     }
 
-    .hrn-prose :global(> p:first-of-type) {
-      font-size: 21px;
-    }
-
-    .hrn-prose :global(p) {
-      font-size: 17px;
-    }
-
-    .hrn-prose :global(h2) {
-      margin-top: 28px;
-      font-size: 34px;
-    }
-
-    .hrn-prose :global(h3) {
-      font-size: 24px;
-    }
-
+    .hrn-prose :global(p),
     .hrn-prose :global(ul),
     .hrn-prose :global(ol) {
       font-size: 17px;
     }
 
-    .hrn-prose :global(blockquote) {
-      margin: 8px 0;
-      padding: 24px 0;
-      font-size: 27px;
+    .hrn-prose :global(> p:first-of-type) {
+      font-size: 19px;
     }
 
-    .hrn-prose :global(.hrn-article-cta) {
-      padding: 24px;
-    }
-
-    .hrn-prose :global(.hrn-article-cta__lien) {
-      align-self: stretch;
-    }
-
-    .hrn-auteur {
-      flex-direction: column;
-      align-items: flex-start;
-      margin-top: 28px;
-      padding: 22px;
-    }
-
-    .hrn-article-lies {
-      padding-top: 56px;
-      padding-bottom: 72px;
-    }
-
-    .hrn-article-lies__tete {
-      margin-bottom: 8px;
-    }
-
-    .hrn-article-lies__tete h2 {
-      font-size: 40px;
-    }
-
-    .hrn-article-lies__tete a {
-      display: none;
+    .hrn-article-final__inner {
+      grid-template-columns: minmax(0, 1fr);
     }
 
     .hrn-article-lies__grille {
       grid-template-columns: minmax(0, 1fr);
-      gap: 0;
+      gap: 14px;
     }
   }
 
-  /* La maquette mobile resserre « À lire ensuite » par rapport à la liste :
-     vignette plus petite, lignes plus courtes, titre de section plus discret.
-     Le composant reste celui de la liste, comme le demande le cahier des
-     charges, seuls ses réglages changent dans cette section. */
+  /* Les boutons prennent toute la largeur. */
   @media (max-width: 759px) {
-    .hrn-article-lies {
-      padding-top: 52px;
-      padding-bottom: 24px;
+    .hrn-prose :global(.hrn-article-cta__lien) {
+      align-self: stretch;
     }
 
-    .hrn-article-lies__tete h2 {
-      font-size: 38px;
+    .hrn-article-final__actions {
+      flex-direction: column;
+      align-items: stretch;
     }
 
-    .hrn-article-lies__grille {
-      --hauteur-couverture: 80px;
+    .hrn-article-final__actions :global(.hrn-article-final__bouton) {
+      width: 100%;
     }
 
-    .hrn-article-lies__grille :global(.hrn-card__lien) {
-      grid-template-columns: 80px minmax(0, 1fr);
-      column-gap: 14px;
-      padding: 18px 0;
+    .hrn-article-final__tel {
+      justify-content: center;
     }
 
-    .hrn-article-lies__grille :global(.hrn-card__couverture) {
-      width: 80px;
-      height: 80px;
-      border-radius: 14px;
+    .hrn-auteur {
+      align-items: flex-start;
+      padding: 18px;
+    }
+
+    .hrn-article-lies__tete a {
+      display: none;
     }
   }
 
@@ -1112,7 +902,7 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     if (!barre || !prose) return;
 
     const mesurer = () => {
-      const haut = prose.offsetTop;
+      const haut = prose.getBoundingClientRect().top + window.scrollY;
       const course = prose.offsetHeight - window.innerHeight * 0.5;
       const avance = window.scrollY - haut;
       const part = course > 0 ? Math.min(1, Math.max(0, avance / course)) : 0;
@@ -1124,7 +914,7 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
 
     // Sur mobile, l'apparition de la barre d'adresse émet un resize alors que
     // seule la HAUTEUR change : on ne remesure que sur un vrai changement de
-    // largeur, sinon la barre saute à chaque défilement.
+    // largeur, sinon la barre saute à chaque défilement (piège n°3).
     let derniereLargeur = window.innerWidth;
     window.addEventListener(
       'resize',

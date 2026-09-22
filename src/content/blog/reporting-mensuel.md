@@ -18,7 +18,7 @@ Le reporting reconstitué à la main pose trois problèmes récurrents :
 - Des écarts d'un mois à l'autre parce que la méthode change.
 - Un rapport prêt trop tard pour décider quoi que ce soit.
 
-> Le premier du mois, le rapport est déjà là. Vous le lisez au lieu de le fabriquer.
+> Le premier du mois, le rapport est déjà là. Vous le lisez au lieu de le fabriquer
 
 ## Comment le système fonctionne
 

@@ -18,7 +18,7 @@ Sans automatisation, un lead entrant passe par trop d'étapes manuelles :
 - Un lead sur deux se perd ou se traite avec des heures de retard.
 - Personne ne sait qui doit rappeler, ni quand.
 
-> Le formulaire est rempli, l'équipe est déjà alertée. Le lead n'a pas eu le temps de refroidir.
+> Le formulaire est rempli, l'équipe est déjà alertée. Le lead n'a pas eu le temps de refroidir
 
 ## Comment le système fonctionne
 

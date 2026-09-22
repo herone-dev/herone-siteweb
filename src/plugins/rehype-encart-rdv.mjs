@@ -16,7 +16,8 @@
 
 const LIEN_RDV = '/#reserver';
 
-const TITRE = 'On regarde votre cas en trente minutes.';
+// Sans point final : c'est un titre (règle du site depuis le 22 septembre 2026).
+const TITRE = 'On regarde votre cas en trente minutes';
 const PHRASE = "Sans jargon, sans engagement. On repère ce qui peut être automatisé chez vous.";
 const BOUTON = 'Réserver 30 minutes';
 
@@ -28,38 +29,11 @@ function element(tagName, properties, children = []) {
   return { type: 'element', tagName, properties, children };
 }
 
-/* Flèche du bouton, reprise telle quelle de la maquette. */
-function fleche() {
-  return element(
-    'svg',
-    {
-      width: 18,
-      height: 18,
-      viewBox: '0 0 24 24',
-      fill: 'none',
-      'aria-hidden': 'true',
-      focusable: 'false',
-    },
-    [
-      element('path', {
-        d: 'M4 12h15M13 6l6 6-6 6',
-        stroke: 'currentColor',
-        strokeWidth: 1.8,
-        strokeLinecap: 'round',
-        strokeLinejoin: 'round',
-      }),
-    ],
-  );
-}
-
 function encart() {
   return element('aside', { className: ['hrn-article-cta'], 'aria-label': 'Prendre rendez-vous' }, [
     element('p', { className: ['hrn-article-cta__titre'] }, [texte(TITRE)]),
     element('p', { className: ['hrn-article-cta__phrase'] }, [texte(PHRASE)]),
-    element('a', { className: ['hrn-article-cta__lien'], href: LIEN_RDV }, [
-      element('span', {}, [texte(BOUTON)]),
-      fleche(),
-    ]),
+    element('a', { className: ['hrn-article-cta__lien'], href: LIEN_RDV }, [texte(BOUTON)]),
   ]);
 }
 

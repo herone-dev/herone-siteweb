@@ -18,7 +18,7 @@ La relance manuelle est la première tâche qu'on repousse, avec des conséquenc
 - Des factures qui traînent faute de rappel.
 - Un suivi qui dépend de la mémoire de chacun.
 
-> La relance part au bon moment. Vous validez quand ça compte, le reste roule.
+> La relance part au bon moment. Vous validez quand ça compte, le reste roule
 
 ## Comment le système fonctionne
 

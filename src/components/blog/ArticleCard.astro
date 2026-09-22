@@ -1,17 +1,19 @@
 ---
-import BlogCover from './BlogCover.astro';
-import { motifDe } from '../../data/blog-covers';
+import { pointDe } from '../../data/blog-categories';
 
-/* Carte d'article du blog.
+/* Carte d'article du blog (refonte du 22 septembre 2026).
  *
- * Un seul balisage pour deux mises en page, commutées par media query :
- *   - au dessus de 760px, une carte verticale, couverture en haut ;
- *   - en dessous, une ligne : vignette carrée de 96px à gauche, texte à
- *     droite, séparateur en bas, et la description est masquée faute de place.
+ * Carte crème sobre, sans illustration : point de catégorie, catégorie,
+ * durée et date, titre, extrait, « Lire l'article ». La variante `compact`,
+ * utilisée par les articles liés en bas de page, ne garde que les
+ * métadonnées et le titre.
  *
- * Toute la carte est un lien, comme avant la refonte : un seul élément dans
- * l'arbre d'accessibilité, un seul arrêt au clavier. Le titre reste un vrai
- * <h3> à l'intérieur du lien, pour la navigation par titres.
+ * Toute la carte est un lien : un seul élément dans l'arbre d'accessibilité,
+ * un seul arrêt au clavier. Le titre reste un vrai <h3> à l'intérieur du lien,
+ * pour la navigation par titres.
+ *
+ * La carte porte .hrn-zone-creme : posée sur le fond bleu du blog, elle
+ * retrouve les encres sombres du site sans les redéclarer ici.
  */
 interface Props {
   slug: string;
@@ -20,10 +22,10 @@ interface Props {
   category: string;
   pubDate: Date;
   readingTime: number;
-  cover?: string;
+  compact?: boolean;
 }
 
-const { slug, title, description, category, pubDate, readingTime, cover } = Astro.props;
+const { slug, title, description, category, pubDate, readingTime, compact = false } = Astro.props;
 
 const dateLisible = new Intl.DateTimeFormat('fr-FR', {
   day: 'numeric',
@@ -32,50 +34,57 @@ const dateLisible = new Intl.DateTimeFormat('fr-FR', {
 }).format(pubDate);
 const dateMachine = pubDate.toISOString().slice(0, 10);
 
-// Point médian des libellés meta, posé à l'exécution : écrit en clair, il
-// survivrait mal aux outils d'édition (voir CLAUDE.md).
+// Point médian des libellés, posé à l'exécution : écrit en clair, il
+// survivrait mal aux outils d'édition (piège n°7 du projet).
 const POINT = ` ${String.fromCodePoint(0x00b7)} `;
 ---
 
-<article class="hrn-card">
+<article class:list={['hrn-card', 'hrn-zone-creme', compact && 'hrn-card--compact']}>
   <a class="hrn-card__lien" href={`/blog/${slug}`}>
-    <div class="hrn-card__couverture">
-      <BlogCover motif={motifDe(slug, cover)} variant="card" />
-    </div>
-
-    <div class="hrn-card__corps">
-      <p class="hrn-card__meta">{category}{POINT}{readingTime} min</p>
-      <time class="hrn-card__date" datetime={dateMachine}>{dateLisible}</time>
-      <h3 class="hrn-card__titre">{title}</h3>
-      <p class="hrn-card__desc">{description}</p>
-    </div>
+    <p class="hrn-card__meta">
+      <span class="hrn-card__point" style={`--point: ${pointDe(category)}`} aria-hidden="true"></span>
+      <span class="hrn-card__cat">{category}</span>
+      <span>{POINT}{readingTime} min{POINT}<time datetime={dateMachine}>{dateLisible}</time></span>
+    </p>
+    <h3 class="hrn-card__titre">{title}</h3>
+    {!compact && <p class="hrn-card__desc">{description}</p>}
+    {!compact && (
+      <span class="hrn-card__lire">
+        Lire l'article
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+          <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </span>
+    )}
   </a>
 </article>
 
 <style>
   .hrn-card {
-    background: var(--blog-surface);
-    border: 1px solid var(--blog-line);
-    border-radius: 24px;
-    overflow: hidden;
-    transition: transform var(--dur) var(--ease-out), border-color var(--dur) var(--ease-standard);
+    background: var(--surface);
+    border: 1px solid var(--creme-bordure);
+    border-radius: var(--radius-xl);
+    transition:
+      transform var(--dur) var(--ease-out),
+      border-color var(--dur) var(--ease-standard);
   }
 
   .hrn-card:hover {
-    transform: translateY(-3px);
-    border-color: var(--blog-text-2);
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
   }
 
   .hrn-card:focus-within {
-    border-color: var(--blog-accent-soft);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--blog-accent-soft) 50%, transparent);
+    box-shadow: 0 0 0 3px var(--amber-300);
   }
 
   .hrn-card__lien {
     display: flex;
     flex-direction: column;
+    gap: 10px;
     height: 100%;
-    color: var(--blog-text);
+    padding: 22px 24px 24px;
+    color: var(--text-strong);
     text-decoration: none;
   }
 
@@ -83,128 +92,117 @@ const POINT = ` ${String.fromCodePoint(0x00b7)} `;
     outline: none;
   }
 
-  .hrn-card__couverture {
-    display: flex;
-    flex: none;
-    /* Le parent peut resserrer la couverture : « À lire ensuite » la pose à
-       200px, la grille de la liste à 220px. */
-    height: var(--hauteur-couverture, 220px);
-  }
-
-  .hrn-card__corps {
-    flex-grow: 1;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    /* Les cartes d'une même rangée sont étirées à la hauteur de la plus haute.
-       Sans align-content, ce surplus se répartirait entre les rangées de la
-       grille et décalerait les titres de deux cartes voisines. Il se loge
-       sous la description, comme dans la maquette. */
-    align-content: start;
-    gap: 14px 12px;
-    padding: 24px 26px 28px;
-  }
-
-  .hrn-card__meta,
-  .hrn-card__date {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
+  /* Libellés en mono capitales. La date et la durée passent en encre
+     secondaire et non en gris clair : sur le crème, le gris clair des maquettes
+     (--ink-400) ne donne que 3,6:1, sous le seuil de 4,5:1 d'un texte de 11px. */
   .hrn-card__meta {
-    grid-area: 1 / 1;
-    color: var(--blog-accent-soft);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 7px;
+    row-gap: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--text-secondary);
   }
 
-  .hrn-card__date {
-    grid-area: 1 / 2;
-    justify-self: end;
-    color: var(--blog-text-2);
+  .hrn-card__point {
+    width: 7px;
+    height: 7px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--point);
   }
 
+  .hrn-card__cat {
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-600);
+  }
+
+  /* La règle « section h3 » n'existe pas, mais la carte peut être posée dans
+     une section : on fixe tout ici. */
   .hrn-card__titre {
-    grid-area: 2 / 1 / auto / 3;
+    margin: 0;
     font-family: var(--font-display);
-    font-size: 27px;
-    font-weight: 700;
-    line-height: 1.08;
-    letter-spacing: -0.025em;
-    text-wrap: balance;
-  }
-
-  .hrn-card__desc {
-    grid-area: 3 / 1 / auto / 3;
-    font-size: 16px;
-    line-height: 1.55;
-    color: var(--blog-text-2);
+    font-size: 22px;
+    font-weight: var(--weight-titre);
+    line-height: 1.18;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
     text-wrap: pretty;
   }
 
-  /* Sous 760px, la carte devient une ligne : vignette carrée, texte à droite,
-     séparateur en bas. Le fond et les angles de la carte disparaissent, la
-     liste se lit comme une liste. */
+  .hrn-card__desc {
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  /* Poussé en bas de carte : sur une rangée, les liens s'alignent même quand
+     les titres n'ont pas le même nombre de lignes. */
+  .hrn-card__lire {
+    margin-top: auto;
+    padding-top: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent-texte);
+  }
+
+  .hrn-card__lire svg {
+    transition: transform var(--dur-fast) var(--ease-standard);
+  }
+
+  .hrn-card:hover .hrn-card__lire svg {
+    transform: translateX(3px);
+  }
+
+  /* ---------- Variante compacte (articles liés) ---------- */
+  .hrn-card--compact .hrn-card__lien {
+    padding: 18px 20px 20px;
+  }
+
+  .hrn-card--compact .hrn-card__titre {
+    font-size: 18px;
+  }
+
   @media (max-width: 759px) {
-    .hrn-card {
-      background: none;
-      border: none;
-      border-bottom: 1px solid var(--blog-line);
-      border-radius: 0;
-      overflow: visible;
-    }
-
-    .hrn-card:hover {
-      transform: none;
-      border-color: var(--blog-line);
-    }
-
     .hrn-card__lien {
-      display: grid;
-      grid-template-columns: 96px minmax(0, 1fr);
-      column-gap: 16px;
-      align-items: start;
-      padding: 20px 0;
-    }
-
-    .hrn-card__couverture {
-      width: 96px;
-      height: 96px;
-      border-radius: 16px;
-      overflow: hidden;
-    }
-
-    .hrn-card__corps {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 8px;
-      padding: 0;
-    }
-
-    .hrn-card__meta {
-      font-size: 11px;
+      padding: 18px 18px 20px;
     }
 
     .hrn-card__titre {
-      grid-area: 2 / 1;
       font-size: 20px;
-      line-height: 1.12;
-      letter-spacing: -0.02em;
     }
 
-    .hrn-card__date {
-      grid-area: 3 / 1;
-      justify-self: start;
-      font-size: 11px;
-      font-weight: 400;
+    .hrn-card--compact .hrn-card__titre {
+      font-size: 17px;
     }
 
+    /* Trois lignes d'extrait au plus : la liste mobile reste lisible d'un
+       coup de pouce. Le texte complet reste dans le DOM. */
     .hrn-card__desc {
-      display: none;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hrn-card:hover {
+    .hrn-card,
+    .hrn-card__lire svg {
+      transition: none;
+    }
+
+    .hrn-card:hover,
+    .hrn-card:hover .hrn-card__lire svg {
       transform: none;
     }
   }

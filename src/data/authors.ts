@@ -15,7 +15,7 @@ export interface Auteur {
  *
  * La clé est la valeur du champ `author` du frontmatter. Un article dont
  * l'auteur n'est pas listé retombe sur la fiche « Hérone », qui n'a pas de
- * photo : le rond affiche alors le demi-soleil, motif de marque du blog.
+ * photo : le rond bleu nuit affiche alors l'initiale « H » en turquoise.
  *
  * Les rôles sont ceux déjà publiés sous les portraits de la page d'accueil
  * (section « Les visages d'Hérone »), pour ne pas faire coexister deux

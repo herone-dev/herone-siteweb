@@ -258,28 +258,6 @@
 
   --ring-hairline: inset 0 0 0 1px var(--border);
 
-  /* ============ Blog, palette propre à la section ============
-     Direction artistique « Plein soleil », retenue le 21 septembre 2026 pour le
-     blog seul : fond prune sombre, orange soleil. Le reste du site garde la
-     palette jade et crème ci-dessus, aucun jeton existant n'est touché.
-     Les contrastes mesurés figurent en regard de chaque valeur.
-     Règle : --blog-accent ne sert jamais à du texte de moins de 24px ; les
-     petits libellés en orange passent par --blog-accent-soft. */
-  --blog-bg: #1C1321;              /* fond de page */
-  --blog-surface: #2A212E;         /* cartes, encarts, sommaire mobile */
-  --blog-surface-2: #352D39;       /* couvertures neutres, barre de progression, filigrane */
-  --blog-line: #433B47;            /* bordures, séparateurs */
-  --blog-text: #F8EEE4;            /* texte courant et titres, 15,7:1 sur le fond */
-  --blog-text-2: #B6ACAA;          /* texte secondaire, 8,1:1 sur le fond, 7:1 sur surface */
-  --blog-accent: #FF6B2C;          /* orange soleil, 6,4:1 sur le fond */
-  --blog-accent-soft: #FFAE8B;     /* abricot, petits libellés, 8,6:1 sur surface */
-  --blog-accent-deep: #823B26;     /* braise, soleil dessiné sur les bandeaux orange */
-  --blog-on-accent: #1C1321;       /* texte posé sur l'orange, 6,4:1 */
-  --blog-accent-hover: #FF8A55;    /* orange éclairci de 15%, survol des boutons */
-
-  /* ============ Voile du hero (22 septembre 2026) ============
-     Demande de l'utilisateur : un voile plus léger sur la vidéo, et bleuté
-     plutôt que vert-jaune. Ces deux jetons ne servent qu'au hero de l'accueil. */
-  --hero-voile: #0A1526;           /* bleu nuit, remplace --ink-950 dans les dégradés du hero */
-  --hero-teinte: #2F5D8C;          /* bleu acier, couche de teinte en lumière douce */
+  /* La palette propre au blog (--blog-*, prune et orange) a été retirée le
+     22 septembre 2026 : le blog reprend les couleurs du site. */
 }
