@@ -573,7 +573,11 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     background: var(--blog-surface);
   }
 
-  .hrn-enbref__libelle {
+  /* Ces trois règles sont préfixées par .hrn-prose : sans cela, les règles
+     génériques de la prose, plus spécifiques parce qu'elles nomment une
+     balise, écrasent la taille, l'interligne et la couleur de l'encart, qui
+     en est un enfant. */
+  .hrn-prose .hrn-enbref__libelle {
     font-family: var(--font-mono);
     font-size: 12px;
     font-weight: 500;
@@ -582,7 +586,7 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     color: var(--blog-accent-soft);
   }
 
-  .hrn-enbref__liste {
+  .hrn-prose .hrn-enbref__liste {
     margin: 0;
     padding: 0;
     list-style: none;
@@ -594,7 +598,7 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     counter-reset: bref;
   }
 
-  .hrn-enbref__liste li {
+  .hrn-prose .hrn-enbref__liste li {
     counter-increment: bref;
     display: grid;
     grid-template-columns: 26px minmax(0, 1fr);
@@ -602,7 +606,7 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     align-items: baseline;
   }
 
-  .hrn-enbref__liste li::before {
+  .hrn-prose .hrn-enbref__liste li::before {
     content: counter(bref, decimal-leading-zero);
     font-family: var(--font-mono);
     font-size: 12px;
