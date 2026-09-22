@@ -147,7 +147,7 @@ const dateLisible = (d: Date) =>
           ))}
 
           <div class="hrn-blog-vide" id="blog-vide" hidden>
-            <p><strong>Aucun article pour ce thème.</strong></p>
+            <p><strong id="blog-vide-titre">Aucun article pour ce thème.</strong></p>
             <p>Choisissez un autre thème, ou revenez à tous les articles.</p>
             <button type="button" id="blog-reset">Voir tous les articles</button>
           </div>
@@ -855,31 +855,42 @@ const dateLisible = (d: Date) =>
     const items = [...document.querySelectorAll<HTMLElement>('.hrn-blog-grille__item')];
     const une = document.querySelector<HTMLElement>('[data-une]');
     const vide = document.querySelector<HTMLElement>('#blog-vide');
+    const titreVide = document.querySelector<HTMLElement>('#blog-vide-titre');
     const reprise = document.querySelector<HTMLButtonElement>('#blog-reset');
     if (filtres.length === 0 || !vide) return;
 
     let theme = 'Tout';
 
     const appliquer = () => {
-      let visibles = 0;
+      let dansLaGrille = 0;
 
       for (const item of items) {
         const garde = theme === 'Tout' || item.dataset.category === theme;
         item.hidden = !garde;
-        if (garde) visibles++;
+        if (garde) dansLaGrille++;
       }
 
       // L'article à la une suit le filtre lui aussi. Quand il disparaît,
       // aucun article ne prend sa place : la grille suffit.
+      let uneVisible = false;
       if (une) {
-        const gardeUne = theme === 'Tout' || une.dataset.category === theme;
+        uneVisible = theme === 'Tout' || une.dataset.category === theme;
         const section = une.closest('section');
-        if (section) section.hidden = !gardeUne;
-        if (gardeUne) visibles++;
+        if (section) section.hidden = !uneVisible;
       }
 
-      // La carte d'appel à l'action reste visible en toutes circonstances.
-      vide.hidden = visibles > 0;
+      // L'état vide se décide sur la seule grille. Le compter avec la une le
+      // rendrait inatteignable : une catégorie retient toujours au moins l'un
+      // des deux, et le visiteur se retrouverait devant un « Tous les
+      // articles » suivi de la seule carte orange, sans un mot d'explication.
+      vide.hidden = dansLaGrille > 0;
+      if (titreVide) {
+        titreVide.textContent = uneVisible
+          ? "Le seul article de ce thème est en haut de page."
+          : 'Aucun article pour ce thème.';
+      }
+
+      // La carte d'appel à l'action, elle, reste visible en toutes circonstances.
     };
 
     filtres.forEach((btn) => {

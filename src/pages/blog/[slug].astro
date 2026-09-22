@@ -1053,6 +1053,37 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
     }
   }
 
+  /* La maquette mobile resserre « À lire ensuite » par rapport à la liste :
+     vignette plus petite, lignes plus courtes, titre de section plus discret.
+     Le composant reste celui de la liste, comme le demande le cahier des
+     charges, seuls ses réglages changent dans cette section. */
+  @media (max-width: 759px) {
+    .hrn-article-lies {
+      padding-top: 52px;
+      padding-bottom: 24px;
+    }
+
+    .hrn-article-lies__tete h2 {
+      font-size: 38px;
+    }
+
+    .hrn-article-lies__grille {
+      --hauteur-couverture: 80px;
+    }
+
+    .hrn-article-lies__grille :global(.hrn-card__lien) {
+      grid-template-columns: 80px minmax(0, 1fr);
+      column-gap: 14px;
+      padding: 18px 0;
+    }
+
+    .hrn-article-lies__grille :global(.hrn-card__couverture) {
+      width: 80px;
+      height: 80px;
+      border-radius: 14px;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .hrn-article-sommaire-mobile summary svg {
       transition: none;
