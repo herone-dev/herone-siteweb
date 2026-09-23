@@ -1,6 +1,6 @@
 ---
 title: "Le reporting mensuel qui se construit tout seul"
-description: "Plutôt que de reconstituer le tableau chaque fin de mois, on branche les sources et le rapport s'assemble à date fixe."
+description: "Plutôt que de reconstituer le tableau chaque fin de mois, nous branchons les sources et le rapport s'assemble à date fixe."
 pubDate: 2026-07-08
 category: Automatisation
 readingTime: 4
@@ -22,7 +22,7 @@ Le reporting reconstitué à la main pose trois problèmes récurrents :
 
 ## Comment le système fonctionne
 
-On branche le système sur vos sources : ventes, compta, outils métier. À date fixe, il assemble le rapport dans un format lisible et constant, toujours calculé de la même façon.
+Nous branchons le système sur vos sources : ventes, compta, outils métier. À date fixe, il assemble le rapport dans un format lisible et constant, toujours calculé de la même façon.
 
 ### Ce que vos équipes voient
 

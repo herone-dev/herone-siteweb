@@ -17,8 +17,8 @@
 const LIEN_RDV = '/#reserver';
 
 // Sans point final : c'est un titre (règle du site depuis le 22 septembre 2026).
-const TITRE = 'On regarde votre cas en trente minutes';
-const PHRASE = "Sans jargon, sans engagement. On repère ce qui peut être automatisé chez vous.";
+const TITRE = 'Nous regardons votre cas en trente minutes';
+const PHRASE = "Sans jargon, sans engagement. Nous repérons ce qui peut être automatisé chez vous.";
 const BOUTON = 'Réserver 30 minutes';
 
 function texte(valeur) {

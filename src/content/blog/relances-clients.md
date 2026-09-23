@@ -8,13 +8,13 @@ systemTitle: "Connexion de vos outils"
 tags: ["crm", "relances", "facturation"]
 ---
 
-Les relances, c'est le chiffre d'affaires qui dort. On sait qu'il faut les faire, mais elles passent après le reste. Voici comment ne plus jamais oublier de relancer.
+Les relances, c'est le chiffre d'affaires qui dort. Vous savez qu'il faut les faire, mais elles passent après le reste. Voici comment ne plus jamais oublier de relancer.
 
 ## Le problème, concrètement
 
-La relance manuelle est la première tâche qu'on repousse, avec des conséquences directes :
+La relance manuelle est la première tâche repoussée, avec des conséquences directes :
 
-- Des devis sans réponse qu'on oublie de relancer.
+- Des devis sans réponse que personne ne pense à relancer.
 - Des factures qui traînent faute de rappel.
 - Un suivi qui dépend de la mémoire de chacun.
 

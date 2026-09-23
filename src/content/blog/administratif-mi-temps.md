@@ -26,7 +26,7 @@ Cette liste sert à deux choses. Elle sépare d'abord ce qui se répète à l'id
 
 ## La boîte mail, premier poste à reprendre
 
-Dans cette menuiserie, la boîte mail est le sujet le plus lourd, comme dans presque toutes les petites structures que nous accompagnons chez Hérone, parce que c'est le seul flux qui touche tous les métiers. Rien n'est classé, la boîte sature, et quand elle sature, on supprime en masse. Le chargé d'affaires, lui, crée un dossier par client dans sa messagerie et y range chaque échange. Il retrouve tout en quelques secondes. L'écart ne tient pas aux compétences, il tient au temps que ce rangement demande quand on reçoit tout le courrier de l'entreprise.
+Dans cette menuiserie, la boîte mail est le sujet le plus lourd, comme dans presque toutes les petites structures que nous accompagnons chez Hérone, parce que c'est le seul flux qui touche tous les métiers. Rien n'est classé, la boîte sature, et quand elle sature, les messages sont supprimés en masse. Le chargé d'affaires, lui, crée un dossier par client dans sa messagerie et y range chaque échange. Il retrouve tout en quelques secondes. L'écart ne tient pas aux compétences, il tient au temps que ce rangement demande à qui reçoit tout le courrier de l'entreprise.
 
 Un système de tri intelligent fait exactement ce que fait le chargé d'affaires, mais sur chaque mail entrant et sans que personne n'y touche. À chaque réception, une intelligence artificielle lit le message et ses pièces jointes, reconnaît de quoi il s'agit (confirmation de commande, devis fournisseur, demande d'un particulier, envoi de plans, publicité), identifie le client ou le chantier en le rapprochant des fiches existantes, puis range le mail et dépose les pièces jointes dans le dossier client, sous un nom lisible. Une confirmation destinée au chargé d'affaires lui est transférée directement. Une demande de particulier est signalée comme prioritaire.
 
@@ -58,7 +58,7 @@ Le mi-temps cohérent est donc un mi-temps du matin, centré sur l'accueil tél�
 
 ## Fiabilité, la question que tout dirigeant pose
 
-Lors de ce rendez-vous, la question est venue simplement. Est-ce que l'intelligence artificielle est fiable aujourd'hui. La réponse dépend de ce qu'on lui demande. Un système qui range un mail selon un expéditeur connu ou une référence de chantier dans l'objet fonctionne de façon déterministe, c'est-à-dire que la même entrée produit toujours la même sortie, et le taux d'erreur est proche de zéro. Un système qui doit juger si un message ambigu est urgent se trompe parfois, et c'est pour cela qu'il signale plutôt qu'il ne décide.
+Lors de ce rendez-vous, la question est venue simplement. Est-ce que l'intelligence artificielle est fiable aujourd'hui. La réponse dépend de ce que vous lui demandez. Un système qui range un mail selon un expéditeur connu ou une référence de chantier dans l'objet fonctionne de façon déterministe, c'est-à-dire que la même entrée produit toujours la même sortie, et le taux d'erreur est proche de zéro. Un système qui doit juger si un message ambigu est urgent se trompe parfois, et c'est pour cela qu'il signale plutôt qu'il ne décide.
 
 Notre métier chez Hérone consiste en grande partie à placer cette frontière au bon endroit. Tout ce qui est répétitif et sans ambiguïté est automatisé jusqu'au bout. Tout ce qui engage l'entreprise, un montant, une promesse à un client, un dépôt de dossier, passe par une validation humaine préparée pour ne prendre que quelques secondes.
 

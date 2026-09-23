@@ -8,13 +8,13 @@ systemTitle: "Connexion de vos outils"
 tags: ["crm", "leads", "facebook"]
 ---
 
-Un prospect remplit un formulaire, et puis... il attend. Le temps qu'on relève les leads à la main, la concurrence a déjà rappelé. Voici comment ne plus jamais laisser un lead refroidir.
+Un prospect remplit un formulaire, et puis... il attend. Le temps de relever les leads à la main, la concurrence a déjà rappelé. Voici comment ne plus jamais laisser un lead refroidir.
 
 ## Le problème, concrètement
 
 Sans automatisation, un lead entrant passe par trop d'étapes manuelles :
 
-- On exporte le formulaire, on le colle dans un tableur, on l'ajoute au CRM.
+- Le formulaire est exporté, collé dans un tableur, puis ajouté au CRM à la main.
 - Un lead sur deux se perd ou se traite avec des heures de retard.
 - Personne ne sait qui doit rappeler, ni quand.
 

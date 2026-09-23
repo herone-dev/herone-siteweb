@@ -15,8 +15,8 @@ Le devis dans Excel commence bien, puis chaque variante ajoute une ligne, un ong
 Recalculer un devis à la main, c'est du temps et un risque d'erreur à chaque changement de quantité ou de matériau :
 
 - Des heures passées à dupliquer et ajuster des feuilles de calcul.
-- Une formule oubliée qui fausse la marge sans qu'on le voie.
-- Des versions qui se multiplient : on ne sait plus laquelle est la bonne.
+- Une formule oubliée qui fausse la marge sans que personne ne le voie.
+- Des versions qui se multiplient : plus personne ne sait laquelle est la bonne.
 
 > Vous changez une quantité, le devis se recalcule. Vous validez, il part
 

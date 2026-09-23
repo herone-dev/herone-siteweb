@@ -15,7 +15,7 @@ Après chaque réunion, quelqu'un s'installe pour retaper ses notes, remettre en
 Le compte rendu manuel coûte cher, non pas en logiciel, mais en temps humain et en informations perdues. Les points concrets qui reviennent chez nos clients :
 
 - Une à deux heures de rédaction après chaque rendez-vous important.
-- Des décisions ou des chiffres oubliés parce qu'on écrit et on écoute en même temps.
+- Des décisions ou des chiffres oubliés parce qu'il faut écrire et écouter en même temps.
 - Des comptes rendus envoyés avec deux jours de retard, quand ils le sont.
 
 > Le rendez-vous se termine, le compte rendu part. Personne n'a ouvert un traitement de texte
