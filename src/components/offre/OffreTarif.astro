@@ -32,7 +32,7 @@ interface Props {
 const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif' } = Astro.props;
 ---
 
-<section class="hrn-offre-tarif" id={id}>
+<section class="hrn-offre-tarif hrn-zone-bleue" id={id}>
   <div class="hrn-section-inner hrn-offre-tarif__inner">
     <div class="hrn-offre-tarif__head">
       <div class="hrn-eyebrow">{eyebrow}</div>
@@ -135,7 +135,7 @@ const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif' } = 
     font: var(--type-eyebrow);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    color: var(--ink-300);
+    color: var(--text-secondary);
   }
 
   .hrn-offre-tarif__prix {
@@ -150,7 +150,7 @@ const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif' } = 
   .hrn-offre-tarif__regle p {
     margin: 0 !important;
     font: var(--type-body);
-    color: var(--ink-200);
+    color: var(--text-primary);
     text-wrap: pretty;
   }
 
@@ -178,7 +178,7 @@ const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif' } = 
 
   .hrn-offre-tarif__exemples dt {
     font: var(--type-small);
-    color: var(--ink-200);
+    color: var(--text-primary);
     min-width: 0;
   }
 
@@ -203,7 +203,7 @@ const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif' } = 
   .hrn-offre-tarif__inclus {
     margin: 0 !important;
     font: var(--type-body);
-    color: var(--ink-200);
+    color: var(--text-primary);
     max-width: 36rem;
     text-wrap: pretty;
   }

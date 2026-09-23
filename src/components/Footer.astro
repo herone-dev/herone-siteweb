@@ -11,7 +11,7 @@ const ADRESSE_MAPS =
   '3d46.858304!4d-1.0361843!16s%2Fg%2F11zbl1zvql';
 ---
 
-<footer class="hrn-footer">
+<footer class="hrn-footer hrn-zone-bleue">
   <div class="hrn-footer__inner">
     <div class="hrn-footer__grid">
       <div class="hrn-footer__brand">
@@ -54,8 +54,8 @@ const ADRESSE_MAPS =
 
 <style>
   .hrn-footer {
-    background: var(--ink-950);
-    color: var(--ink-300);
+    background: var(--nuit-profonde);
+    color: var(--text-secondary);
     padding: var(--section-y-sm) 0 32px;
   }
 
@@ -138,7 +138,7 @@ const ADRESSE_MAPS =
     margin: 0;
     font-size: 14px;
     line-height: 1.6;
-    color: var(--ink-300);
+    color: var(--text-secondary);
   }
 
   /* L'adresse est un lien : la zone cliquable s'arrête au texte, comme le
@@ -146,12 +146,12 @@ const ADRESSE_MAPS =
   .hrn-footer__address {
     align-self: flex-start;
     font-size: 14px;
-    color: var(--ink-300);
+    color: var(--text-secondary);
     text-decoration: none;
   }
 
   .hrn-footer__address.hrn-sweep {
-    --sweep-from: var(--ink-300);
+    --sweep-from: var(--text-secondary);
   }
 
   .hrn-footer__col {
@@ -165,18 +165,18 @@ const ADRESSE_MAPS =
     font-size: 11px;
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    color: var(--ink-400);
+    color: var(--text-muted);
     margin-bottom: 4px;
   }
 
   .hrn-footer__col a {
     font-size: 14px;
-    color: var(--ink-100);
+    color: var(--text-primary);
   }
 
   .hrn-footer__col a.hrn-sweep,
   .hrn-footer__logo.hrn-sweep {
-    --sweep-from: var(--ink-100);
+    --sweep-from: var(--text-primary);
   }
 
   .hrn-footer__logo.hrn-sweep {
@@ -198,7 +198,7 @@ const ADRESSE_MAPS =
     justify-content: space-between;
     gap: 12px;
     font-size: 13px;
-    color: var(--ink-400);
+    color: var(--text-muted);
   }
 
   .hrn-footer__signature {

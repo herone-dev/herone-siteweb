@@ -9,7 +9,7 @@
 
 html {
   scroll-behavior: smooth;
-  background: var(--slate-900);
+  background: var(--nuit-profonde);
 }
 
 [id] {
