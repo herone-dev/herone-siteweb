@@ -18,7 +18,7 @@ import OffreHero from '../components/offre/OffreHero.astro';
 import OffreEtapes from '../components/offre/OffreEtapes.astro';
 import OffreTarif from '../components/offre/OffreTarif.astro';
 import OffreAvis from '../components/offre/OffreAvis.astro';
-import OffreFaq from '../components/offre/OffreFaq.astro';
+import FaqAccordion from '../components/home/FaqAccordion.astro';
 import OffrePont from '../components/offre/OffrePont.astro';
 import avisFormation from '../data/avis-formation.json';
 
@@ -240,10 +240,11 @@ const questions = [
     inclus="La préparation est comprise : avant de venir, nous travaillons sur vos dossiers et sur vos métiers, pour que les exemples de la journée soient les vôtres. Dix participants au maximum par session, au-delà nous revenons sur une seconde journée."
   />
 
-  <OffreFaq
+  <FaqAccordion
+    id="questions"
+    eyebrow="Questions fréquentes"
     titre="Ce que les dirigeants nous demandent avant de réserver"
-    questions={questions}
-    fond="surface"
+    faqs={questions.map(({ q, r }) => ({ q, a: r }))}
   />
 
   <OffrePont

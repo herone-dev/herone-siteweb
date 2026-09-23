@@ -1,5 +1,14 @@
 ---
-const faqs = [
+// FAQ en accordéon : une seule question ouverte à la fois, ouverture et
+// fermeture animées, repli natif <details> sans JavaScript.
+//
+// Posée sur l'accueil (valeurs par défaut ci-dessous) et, depuis le
+// 23 septembre 2026, sur /formation et /automatisation avec leurs propres
+// questions, à la place de l'ancienne FAQ dépliée des pages d'offre
+// (OffreFaq), à la demande de l'utilisateur : même présentation partout.
+//
+// Le script cherche UNE section .hrn-faq par page : ne pas en poser deux.
+const FAQ_ACCUEIL = [
   {
     q: 'Mes données sont-elles en sécurité et confidentielles ?',
     a: "Oui. Nous privilégions un hébergement en Europe, et en France quand c'est possible. Vos données restent les vôtres : nous vous disons précisément où elles vont, qui y a accès, et rien n'est utilisé à d'autres fins.",
@@ -41,12 +50,27 @@ const faqs = [
     a: "Tous nos prix sont affichés plus haut, et ils s'entendent hors taxes. La formation IA en entreprise démarre à 1 500 € HT la journée jusqu'à trois personnes, puis 500 € HT par personne au-delà : cinq personnes à former, c'est 2 500 € HT. L'automatisation démarre à 2 000 € HT, et le suivi mensuel qui prend ensuite le relais se chiffre avec vous au rendez-vous. En fonction de la complexité, de l'ambition de l'entreprise et de sa taille, un projet peut monter à plusieurs milliers d'euros. Des tarifs volontairement accessibles : nous voulons nous faire connaître vite dans la région.",
   },
 ];
+
+interface Props {
+  faqs?: { q: string; a: string }[];
+  eyebrow?: string;
+  titre?: string;
+  /** Ancre de la section. `objections` sur l'accueil, visée par aucun lien externe. */
+  id?: string;
+}
+
+const {
+  faqs = FAQ_ACCUEIL,
+  eyebrow = 'Vos questions',
+  titre = 'Ce que les dirigeants nous demandent',
+  id = 'objections',
+} = Astro.props;
 ---
 
-<section id="objections" class="hrn-faq">
+<section id={id} class="hrn-faq">
   <div class="hrn-faq__inner">
-    <div class="hrn-eyebrow">Vos questions</div>
-    <h2>Ce que les dirigeants nous demandent</h2>
+    <div class="hrn-eyebrow">{eyebrow}</div>
+    <h2>{titre}</h2>
 
     <div class="hrn-faq__list">
       {faqs.map((item) => (
