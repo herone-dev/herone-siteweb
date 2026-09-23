@@ -15,7 +15,10 @@ import { pointDe } from '../../data/blog-categories';
  * blog n'est plus utilisée, ni les illustrations de BlogCover.
  */
 
-const posts = (await getCollection('blog')).sort(
+// Les brouillons (draft: true) sont retirés ici, une fois pour toutes : le
+// compteur du hero, les compteurs de la barre de filtres, l'article à la une
+// et la grille se calculent tous sur `posts`.
+const posts = (await getCollection('blog', ({ data }) => data.draft !== true)).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 

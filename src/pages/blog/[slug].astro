@@ -15,8 +15,13 @@ import { auteurDe } from '../../data/authors';
  * turquoise, Manrope. La grande bannière illustrée sous l'en-tête est retirée.
  */
 
+// Un article en brouillon n'a pas de page : son URL renvoie un 404, et il
+// redevient accessible en repassant `draft` à false. Le filtre est répété plus
+// bas pour les articles liés, sinon une carte pointerait vers ce 404.
+// Il n'est PAS sorti dans une constante partagée : getStaticPaths s'exécute
+// dans une portée isolée et ne voit rien du reste de ce frontmatter.
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
+  const posts = await getCollection('blog', ({ data }) => data.draft !== true);
   return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
 }
 
@@ -24,7 +29,7 @@ const { post } = Astro.props;
 const { Content, headings } = await render(post);
 
 // Articles liés : même catégorie d'abord, puis les plus récents.
-const tous = await getCollection('blog');
+const tous = await getCollection('blog', ({ data }) => data.draft !== true);
 const memeCategorie = tous.filter((p) => p.id !== post.id && p.data.category === post.data.category);
 const autres = tous.filter((p) => p.id !== post.id && p.data.category !== post.data.category);
 const lies = [...memeCategorie, ...autres]

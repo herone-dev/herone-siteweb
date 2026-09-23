@@ -1,0 +1,85 @@
+# Contrôle de conformité des articles de blog.
+#
+# Ne vérifie QUE les fichiers ajoutés ou modifiés par le commit ou la pull
+# request, jamais tout le dossier : les articles mis en ligne avant septembre
+# 2026 portent l'ancien gabarit (listes, citations, HTML) et échouent tous au
+# contrôle. Leur reprise est un chantier séparé, et elle ne doit pas bloquer la
+# publication des nouveaux articles.
+#
+# Ce contrôle ne bloque pas le déploiement : Netlify construit le site depuis
+# son propre hook. Il signale, il ne censure pas.
+
+name: Contrôle des articles
+
+on:
+  pull_request:
+    paths:
+      - 'src/content/blog/**'
+      - 'scripts/check-articles.mjs'
+  push:
+    paths:
+      - 'src/content/blog/**'
+      - 'scripts/check-articles.mjs'
+
+jobs:
+  controle:
+    name: Articles modifiés
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+        with:
+          # L'historique complet est nécessaire pour comparer avec la base de
+          # la pull request ou avec le commit précédent.
+          fetch-depth: 0
+
+      - name: Installer Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Lister les articles touchés
+        id: liste
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+            tete="${{ github.event.pull_request.head.sha }}"
+          else
+            base="${{ github.event.before }}"
+            tete="${{ github.sha }}"
+          fi
+
+          # Sur une branche nouvellement poussée, github.event.before vaut une
+          # suite de zéros : on se rabat alors sur le parent du commit.
+          if ! git rev-parse --verify --quiet "$base^{commit}" > /dev/null; then
+            base="$(git rev-parse "$tete^" 2>/dev/null || echo '')"
+          fi
+
+          if [ -z "$base" ]; then
+            fichiers="$(git show --name-only --pretty=format: "$tete" | grep -E '^src/content/blog/.*\.md$' || true)"
+          else
+            fichiers="$(git diff --name-only --diff-filter=ACMR "$base" "$tete" -- 'src/content/blog/*.md' || true)"
+          fi
+
+          echo "Articles à contrôler :"
+          echo "${fichiers:-aucun}"
+          {
+            echo 'fichiers<<FIN'
+            echo "$fichiers"
+            echo 'FIN'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Contrôler
+        # Passé par l'environnement et non interpolé dans le script : un nom de
+        # fichier ne doit jamais pouvoir se faire lire comme du shell.
+        env:
+          FICHIERS: ${{ steps.liste.outputs.fichiers }}
+        run: |
+          set -euo pipefail
+          fichiers="$(echo "$FICHIERS" | tr '\n' ' ')"
+          if [ -z "$(echo "$fichiers" | tr -d ' ')" ]; then
+            echo "Aucun article ajouté ou modifié, rien à contrôler."
+            exit 0
+          fi
+          node scripts/check-articles.mjs $fichiers

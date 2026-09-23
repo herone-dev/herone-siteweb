@@ -20,3 +20,33 @@
   to = "/blog"
   status = 301
   force = true
+
+# Le plan de site est désormais produit au build (@astrojs/sitemap) sous
+# /sitemap-index.xml. L'ancienne adresse, écrite à la main et déjà connue de
+# Google, est renvoyée dessus plutôt que de tomber en 404.
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/sitemap-index.xml"
+  status = 301
+  force = true
+
+# Interface d'édition du blog. Jamais indexée (en-tête en plus de la balise de
+# la page, qui ne couvre pas config.yml), jamais mise en cache, jamais affichée
+# dans un cadre d'un autre site. L'accès réel est contrôlé par GitHub : seul un
+# compte ayant les droits d'écriture sur herone-dev/herone-siteweb peut
+# enregistrer quoi que ce soit.
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "same-origin"
+
+[[headers]]
+  for = "/admin"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "same-origin"

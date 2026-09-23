@@ -1,0 +1,163 @@
+# Configuration de Sveltia CMS, l'interface d'édition servie sur /admin.
+#
+# Ce que fait cette interface : elle lit et écrit directement les fichiers
+# Markdown de src/content/blog dans le dépôt GitHub, sur la branche main.
+# Enregistrer depuis /admin produit donc un commit, et Netlify redéploie.
+# Il n'y a pas de base de données, pas de sauvegarde intermédiaire.
+#
+# Règle de conception : les champs décrits ici doivent refuser tout ce que le
+# schéma Astro (src/content.config.ts) refuserait. Un frontmatter écrit depuis
+# /admin ne doit jamais casser le build. Toute modification du schéma se
+# reporte ici, et inversement.
+#
+# Authentification : voir la section « CMS » de CLAUDE.md. Par défaut, c'est le
+# fournisseur OAuth GitHub installé sur le site Netlify qui authentifie
+# (aucun champ à ajouter ci-dessous). Pour passer par le service officiel
+# Sveltia sur Cloudflare Workers, ajouter sous `backend` :
+#   base_url: https://sveltia-cms-auth.<sous-domaine>.workers.dev
+
+backend:
+  name: github
+  repo: herone-dev/herone-siteweb
+  branch: main
+  commit_messages:
+    create: 'blog: ajout de {{slug}} depuis /admin'
+    update: 'blog: mise à jour de {{slug}} depuis /admin'
+    delete: 'blog: suppression de {{slug}} depuis /admin'
+    uploadMedia: 'blog: ajout du média {{path}}'
+    deleteMedia: 'blog: suppression du média {{path}}'
+
+# Chemins des médias. Le dossier est versionné comme le reste du site : une
+# image téléversée depuis /admin arrive dans public/images/blog et l'article
+# la référence par son chemin public.
+media_folder: public/images/blog
+public_folder: /images/blog
+
+locale: fr
+
+collections:
+  - name: blog
+    label: Articles du blog
+    label_singular: Article
+    folder: src/content/blog
+    create: true
+    # Le nom du fichier est le slug, et le slug est l'URL : /blog/<slug>.
+    # Le renommer casse l'adresse d'un article déjà en ligne.
+    slug: '{{slug}}'
+    extension: md
+    format: yaml-frontmatter
+    identifier_field: title
+    summary: '{{title}}'
+    sortable_fields: [pubDate, title, category]
+    view_filters:
+      - label: En ligne
+        field: draft
+        pattern: false
+      - label: Archivés
+        field: draft
+        pattern: true
+    fields:
+      - label: Titre
+        name: title
+        widget: string
+        required: true
+
+      - label: Description
+        name: description
+        widget: text
+        required: true
+        hint: >-
+          Le chapô affiché sous le titre et la méta-description de la page.
+          Pas de deux-points, c'est une règle de rédaction du blog.
+
+      - label: Date de publication
+        name: pubDate
+        widget: datetime
+        required: true
+        format: 'YYYY-MM-DD'
+        date_format: 'DD/MM/YYYY'
+        time_format: false
+        picker_utc: true
+        hint: Date de première mise en ligne. Elle règle le tri du blog.
+
+      - label: Date de mise à jour
+        name: updatedDate
+        widget: datetime
+        required: false
+        format: 'YYYY-MM-DD'
+        date_format: 'DD/MM/YYYY'
+        time_format: false
+        picker_utc: true
+        hint: À renseigner seulement quand un article déjà publié est repris.
+
+      - label: Catégorie
+        name: category
+        widget: string
+        required: true
+        hint: >-
+          Champ libre. Une catégorie inconnue se crée d'elle-même et apparaît
+          dans la barre de filtres du blog. Reprendre une orthographe existante
+          plutôt que d'en inventer une variante.
+
+      - label: Temps de lecture (minutes)
+        name: readingTime
+        widget: number
+        required: true
+        value_type: int
+        min: 1
+        max: 30
+        hint: Nombre de mots divisé par 200, arrondi.
+
+      - label: Titre du système associé
+        name: systemTitle
+        widget: string
+        required: true
+
+      - label: Archivé (hors ligne)
+        name: draft
+        widget: boolean
+        required: false
+        default: false
+        hint: >-
+          Activé, l'article disparaît du blog, du flux RSS et du plan de site,
+          et son adresse renvoie un 404. Le fichier reste dans le dépôt et
+          l'article revient en ligne en désactivant cet interrupteur.
+
+      - label: Mots-clés
+        name: tags
+        widget: list
+        required: false
+        default: []
+        field: { label: Mot-clé, name: tag, widget: string }
+
+      - label: En bref
+        name: summary
+        widget: list
+        required: false
+        max: 4
+        field: { label: Phrase, name: phrase, widget: string }
+        hint: Quatre phrases au maximum. Vide, l'encart ne s'affiche pas.
+
+      - label: Auteur
+        name: author
+        widget: string
+        required: false
+        default: Hérone
+        hint: >-
+          Doit correspondre à une fiche de src/data/authors.ts, sinon c'est la
+          fiche « Hérone » qui s'affiche.
+
+      - label: Image
+        name: image
+        widget: image
+        required: false
+        hint: Optionnelle, le blog dessine ses couvertures en SVG.
+
+      - label: Corps de l'article
+        name: body
+        widget: markdown
+        required: true
+        hint: >-
+          Markdown pur. Pas de HTML, pas de listes, pas de citations, pas de
+          tableaux, pas de blocs de code, pas d'emoji, pas de tiret cadratin.
+          L'encart rendez-vous est posé automatiquement au build.

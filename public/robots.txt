@@ -20,4 +20,6 @@ Allow: /
 User-agent: Applebot-Extended
 Allow: /
 
-Sitemap: https://herone.fr/sitemap.xml
+# Plan de site produit au build par @astrojs/sitemap. L'ancien /sitemap.xml,
+# écrit à la main, a été supprimé : netlify.toml le redirige vers ce fichier.
+Sitemap: https://herone.fr/sitemap-index.xml

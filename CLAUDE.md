@@ -1,79 +1,179 @@
-# CLAUDE.md — [Nom du site]
+# CLAUDE.md, site Hérone (herone.fr)
 
-> Contexte permanent lu par Claude Code à chaque session.
-> Remplace les [crochets], garde ce fichier concis (< 200 lignes) : ici on met
-> les décisions, les conventions et les PIÈGES — pas ce qui se déduit du code.
+> Contexte permanent lu à chaque session. On met ici les décisions, les
+> conventions et les PIÈGES, pas ce qui se déduit du code. Moins de 200 lignes.
 
-## Vue d'ensemble
+## Ce qu'est ce dépôt
 
-Site **vitrine + blog**, à forte ambition visuelle (vidéos, animations GSAP),
-mais qui doit rester **très rapide**. Le design d'origine vient de **Claude Design**
-(handoff). Les articles de blog sont publiés **automatiquement par Hermes Agent**.
+Site vitrine et blog d'Hérone (Les Herbiers, Vendée). Astro 5 en sortie
+statique, GSAP pour les animations, hébergé sur **Netlify**. Chaque push sur
+`main` déclenche un build et un déploiement. Il n'y a pas de déploiement
+manuel, et pas d'environnement de préproduction.
 
-Principe directeur : **découpler la vitesse ressentie du poids réel** — la page
-paraît instantanée, les médias lourds arrivent progressivement.
+Pages : accueil, `/automatisation`, `/formation`, `/blog`, `/blog/<slug>`,
+pages légales. `/admin` sert l'interface d'édition du blog.
 
-## Stack & pourquoi
+## Le blog, source et cycle de vie
 
-- **Astro** — contenu Markdown natif (blog) + zéro JS par défaut (îlots) = vitesse.
-- **GSAP** (+ ScrollTrigger, SplitText) — animations avancées. 100% gratuit, plugins inclus.
-- **GitHub → Netlify** — auto-deploy à chaque push sur `main`. Pas de deploy manuel.
-- Design system hérité de **Claude Design**.
+- Un article = un fichier `.md` dans `src/content/blog/`, nommé en kebab-case.
+  **Le nom du fichier est le slug, donc l'URL.** Le renommer casse l'adresse
+  d'un article déjà en ligne, et Google la garde en mémoire.
+- Les articles arrivent d'une **tâche programmée**, deux par jour, en commit
+  direct sur `main`. Personne ne les relit avant la mise en ligne.
+- Le corps de l'article vit aussi sur Google Drive et la fiche dans Airtable
+  (base « HÉRONE, Contenu blog »). Le commit GitHub vient en plus, pas à la
+  place. Le dépôt n'est pas la source de vérité éditoriale.
+- Retirer un article du site se fait en passant `draft: true`, **jamais** en
+  supprimant le fichier. Voir plus bas.
 
-## Workflow du projet
+### Frontmatter
 
-- Origine du code : **handoff Claude Design** (bundle = fichiers de design + README).
-- **Déploiement** : `git push` sur `main` → Vercel build & déploie tout seul.
-- **Blog** : Hermes rédige 1 article/jour → écrit le `.md` → commit + push (voir Blog).
+Le schéma fait foi, il est dans `src/content.config.ts`. Un champ hors schéma,
+ou un obligatoire manquant, **casse le build, donc tout le site**, pas
+seulement l'article fautif.
 
-## Commandes
+Obligatoires : `title`, `description`, `pubDate` (AAAA-MM-JJ), `category`,
+`readingTime` (entier), `systemTitle`.
+Facultatifs : `updatedDate`, `author` (défaut `Hérone`), `image`, `tags`,
+`draft` (défaut `false`), `summary` (4 phrases max). `cover` est encore
+toléré par le schéma mais n'est plus lu depuis la refonte du 22 septembre
+2026 : ne plus l'écrire.
 
-- `npm run dev` — serveur local + aperçu en direct
-- `npm run build` / `npm run preview`
+Pièges :
 
-## Conventions d'ANIMATION (spécifiques — à respecter)
+- `category` est un **champ libre** (`z.string()`). C'était une liste fermée de
+  quatre valeurs, et un article portant une cinquième catégorie cassait le
+  build. La barre de filtres de `/blog` déduit ses thèmes des articles
+  présents : une nouvelle catégorie apparaît sans toucher au code. En revanche
+  rien ne rattrape une faute de frappe, qui crée un thème de plus.
+- `author` doit correspondre à une clé de `src/data/authors.ts`, sinon c'est la
+  fiche « Hérone » qui s'affiche, sans erreur.
+- Le point de couleur d'une catégorie vient de `src/data/blog-categories.ts`.
+  Une catégorie absente de ce fichier s'affiche quand même, avec la couleur de
+  la marque : l'ajouter au fichier seulement si elle mérite sa propre couleur.
+- `readingTime` n'est pas calculé, il est écrit à la main. Le script de
+  contrôle vérifie qu'il vaut bien le nombre de mots divisé par 200, arrondi.
 
-- **N'animer QUE `transform` et `opacity`.** Jamais width/height/top/left/margin (reflow → saccades).
-- **GSAP uniquement en îlot** (`client:visible` / `client:idle`), **seulement sur les pages qui l'utilisent**. Jamais chargé site-wide.
-- **Cycle de vie `<ClientRouter />`** : ré-initialiser les animations sur `astro:page-load`, et nettoyer (`gsap.context()` / `ScrollTrigger.kill()`) avant le swap. Sinon : flashs et doubles déclenchements.
-- **Reveals simples** (fondu / translate, survols) : CSS + IntersectionObserver, PAS GSAP. Réserver GSAP au spectaculaire : timelines orchestrées, scroll `scrub`, SplitText, morphing.
-- **Toujours** respecter `prefers-reduced-motion`.
-- **Système de motion** : durées ≈150 ms (micro-interactions), ≈300–400 ms (entrées) ; easing signature `power3.out`. Sobriété > quantité.
-- Piège View Transitions : un élément animé dans un ancêtre `overflow: hidden` voit son instantané rogné → l'animation ne se déclenche pas (attention aux cartes arrondies).
+### Le champ `draft`, archivage et retour en ligne
 
-## Conventions VIDÉO
+`draft: true` retire l'article de la liste, du flux RSS, du plan de site, et
+sa page n'est plus construite (son URL renvoie un 404). Le fichier reste dans
+le dépôt, modifiable. `draft: false` le remet en ligne au build suivant.
 
-- **Hero** : une image **poster** s'affiche immédiatement et sert de **LCP** — jamais la vidéo. La vidéo apparaît en fondu une fois prête.
-- Attributs : `autoplay muted loop playsinline`, `preload="none"` (ou `metadata`).
-- **Lazy-load** toutes les vidéos (IntersectionObserver). Embeds YouTube/Vimeo via **façade** (aperçu image, vrai lecteur au clic).
-- **Toujours réserver l'espace** (`aspect-ratio`) pour éviter le CLS.
-- **Mobile** : servir le poster seul (pas d'autoplay vidéo).
-- Plusieurs vidéos → **streaming adaptatif** (Mux / Cloudflare Stream / Bunny), pas des `.mp4` auto-hébergés lourds.
+Le filtrage est appliqué à **chaque** lecture de la collection. Aujourd'hui il
+y en a trois, et toute nouvelle lecture doit le reprendre :
 
-## Budget PERFORMANCE (garde-fous)
+- `src/pages/blog/index.astro` (liste, compteurs, article à la une) ;
+- `src/pages/blog/[slug].astro`, deux fois : dans `getStaticPaths` et pour les
+  articles liés de « À lire ensuite » ;
+- `src/pages/rss.xml.js`.
 
-- **LCP** = poster hero optimisé & préchargé. **CLS** = dimensions réservées partout. **INP** = pas de JS lourd bloquant.
-- Images via le composant `<Image />` d'Astro, AVIF/WebP, lazy sous la ligne de flottaison.
-- Polices auto-hébergées, en subset, `font-display: swap`, préchargées.
+Piège : `getStaticPaths()` s'exécute **dans une portée isolée** et ne voit rien
+du reste du frontmatter du fichier `.astro`. Le prédicat de filtrage y est donc
+écrit en clair, il ne peut pas être sorti dans une constante locale.
 
-## Conventions BLOG
+## Règles de rédaction (elles ne se déduisent d'aucun fichier)
 
-- 1 article = 1 fichier `.md` dans `src/content/blog/`, nommé en `kebab-case`.
-- Frontmatter requis :
-  ```
-  title, description, pubDate, author, image (optionnel), tags[]
-  ```
-- Ton d'écriture : [À REMPLIR]. Longueur cible : [À REMPLIR].
-- Après ajout : vérifier que l'article apparaît dans la liste du blog, puis `commit` + `push`.
+- Jamais de tiret cadratin ni demi-cadratin. Virgule, point ou parenthèse.
+- Pas de deux-points dans le texte courant.
+- Pas d'emoji, pas de liste à puces ni numérotée, pas de citation, pas de
+  tableau, pas de bloc ni de code en ligne, **pas de HTML dans le corps**.
+- Markdown pur, uniquement des titres `##` et `###` et des paragraphes.
+- 1 200 à 1 500 mots, 1 500 étant un plafond strict.
+- La voix est « nous », jamais « on ».
+- Chaque « Hérone » du corps est un lien vers `https://herone.fr`.
+- Liens internes en `/blog/<slug>`, vers un article existant et en ligne.
+- L'encart rendez-vous est posé **automatiquement** au build par
+  `src/plugins/rehype-encart-rdv.mjs`. Ne jamais le recopier dans le Markdown.
 
-## Git & déploiement
+Les sept articles publiés avant septembre 2026 portent l'ancien gabarit
+(listes, citations, HTML de CTA en dur) et **enfreignent ces règles**. Leur
+reprise est un chantier à part. Ne pas les corriger au passage.
 
-- Branche de production : `main`. Un push = un déploiement.
-- Messages de commit courts : `blog: ...`, `feat: ...`, `fix: ...`.
-- **Interdit** : `git push --force` et `git reset --hard` sur `main`.
+## Script de contrôle
 
-## Cross-tool (Hermes Agent)
+`node scripts/check-articles.mjs <fichiers…>` vérifie un article contre les
+règles ci-dessus et contre le schéma. Sans argument il ne vérifie rien ;
+`--tous` passe le dossier entier (les anciens articles échoueront, c'est
+attendu).
 
-- Hermes lit `AGENTS.md` ; Claude Code lit `CLAUDE.md`.
-- Source unique de vérité : garder les conventions partagées dans un fichier et
-  l'importer dans l'autre. Ex. mettre en 1ʳᵉ ligne de ce fichier : `@AGENTS.md`.
+Il tourne en GitHub Action (`.github/workflows/controle-articles.yml`) sur les
+pull requests et sur les push touchant `src/content/blog/`, et **seulement sur
+les fichiers modifiés** par le commit ou la PR. Il signale, il ne bloque pas le
+déploiement Netlify, qui a son propre déclencheur.
+
+## CMS, l'édition depuis le navigateur
+
+`/admin` sert **Sveltia CMS** (fork maintenu de Decap CMS), chargé depuis le
+CDN par `public/admin/index.html`, configuré par `public/admin/config.yml`.
+
+Il écrit directement les fichiers Markdown du dépôt sur `main` : enregistrer
+depuis `/admin` produit un commit, et Netlify redéploie. Pas de base de
+données, pas de brouillon côté serveur, l'interrupteur « Archivé » est le champ
+`draft` du frontmatter.
+
+**Règle** : `public/admin/config.yml` et `src/content.config.ts` décrivent le
+même frontmatter. Toute évolution de l'un se reporte dans l'autre, et dans la
+liste des champs de `scripts/check-articles.mjs`. Un champ oublié dans la
+config du CMS est un champ que l'interface efface silencieusement à
+l'enregistrement.
+
+L'authentification GitHub demande une configuration hors dépôt (une OAuth App
+GitHub, déclarée soit dans Netlify, soit sur un service Cloudflare Workers).
+Elle n'est pas dans le code, et sans elle la page `/admin` s'affiche mais la
+connexion échoue.
+
+## SEO et diffusion
+
+- Plan de site produit au build par `@astrojs/sitemap`, servi sur
+  `/sitemap-index.xml`. L'ancien `public/sitemap.xml` écrit à la main a été
+  supprimé, `netlify.toml` redirige l'ancienne adresse.
+- Flux RSS sur `/rss.xml` (`src/pages/rss.xml.js`), articles en ligne
+  seulement.
+- `public/robots.txt` autorise explicitement les robots d'IA et annonce le plan
+  de site.
+- `/admin` n'est jamais indexée : balise `noindex` dans la page et en-tête
+  `X-Robots-Tag: noindex` posé par `netlify.toml`. Elle n'est volontairement
+  PAS bloquée dans `robots.txt` : un robot bloqué ne lit plus le `noindex`, et
+  Google peut alors indexer l'adresse nue. Ne pas « renforcer » en ajoutant un
+  `Disallow`.
+- `netlify.toml` porte les redirections 301. `/systemes` renvoie vers
+  `/automatisation` : ne jamais créer de lien interne vers `/systemes`, il
+  passerait par une redirection.
+
+## Animation et performance
+
+- N'animer que `transform` et `opacity`. Jamais width/height/top/left/margin.
+- GSAP uniquement en îlot (`client:visible` / `client:idle`), sur les seules
+  pages qui l'utilisent. Jamais chargé sur tout le site.
+- Avec `<ClientRouter />` : réinitialiser sur `astro:page-load`, nettoyer sur
+  `astro:before-swap` (`gsap.context()`, `ScrollTrigger.kill()`, `AbortController`).
+  Sinon flashs et doubles déclenchements.
+- Reveals simples : CSS et IntersectionObserver, pas GSAP.
+- Toujours respecter `prefers-reduced-motion`.
+- Vidéos : poster immédiat (c'est le LCP), `autoplay muted loop playsinline`,
+  `preload="none"`, espace réservé en `aspect-ratio`.
+- Images par le composant `<Image />` d'Astro.
+
+## Où se décide quoi
+
+- **Apparence du texte d'un article** : le bloc `<style>` en bas de
+  `src/pages/blog/[slug].astro`, règles `.hrn-prose` et ses `:global()`.
+- **Structure d'affichage d'un article** : le balisage en haut du même fichier.
+- **Liste du blog** : `src/pages/blog/index.astro` (dont le filtrage par thème,
+  en JavaScript dans le `<script>` de fin).
+- **Carte d'article** : `src/components/blog/ArticleCard.astro`.
+- **Couleurs, polices, durées** : `src/styles/tokens.css`.
+
+Les caractères invisibles (espace insécable, point médian) sont posés à
+l'exécution avec `String.fromCodePoint`, jamais écrits en clair : les outils
+d'édition les transforment en espaces ordinaires sans prévenir.
+
+## Git
+
+- Branche de production : `main`. Un push égale un déploiement.
+- Pour toute modification du code du site, passer par une branche et une pull
+  request. Les commits directs sur `main` sont réservés à la publication
+  d'articles par la tâche programmée.
+- Messages courts : `blog: ...`, `feat: ...`, `fix: ...`.
+- Interdit : `git push --force` et `git reset --hard` sur `main`.

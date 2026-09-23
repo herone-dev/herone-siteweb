@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Cette page ne doit jamais être indexée : elle n'a rien à faire dans
+         les résultats de recherche, et elle est déjà absente du plan de site
+         (qui ne liste que les pages produites par Astro). -->
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Édition du blog Hérone</title>
+  </head>
+  <body>
+    <!-- Sveltia CMS, chargé depuis le CDN. La version est volontairement non
+         figée : le CMS ne fait pas partie du site public, une régression
+         n'y empêche pas le blog de s'afficher, et figer la version obligerait à
+         suivre les mises à jour à la main. -->
+    <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
+  </body>
+</html>
