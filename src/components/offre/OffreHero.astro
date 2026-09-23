@@ -43,7 +43,7 @@ interface Props {
 const { eyebrow, titre, lede, faits, lienHref, lienLabel } = Astro.props;
 ---
 
-<section class="hrn-offre-hero">
+<section class="hrn-offre-hero hrn-zone-bleue">
   <div class="hrn-offre-hero__dots" aria-hidden="true"></div>
   <div class="hrn-section-inner hrn-offre-hero__content">
     <div class="hrn-offre-hero__intro">
@@ -121,7 +121,7 @@ const { eyebrow, titre, lede, faits, lienHref, lienLabel } = Astro.props;
   .hrn-offre-hero__lede {
     margin: 0 !important;
     font: var(--type-body-lg);
-    color: var(--ink-200);
+    color: var(--text-primary);
     max-width: 40rem;
     text-wrap: pretty;
   }
@@ -157,7 +157,7 @@ const { eyebrow, titre, lede, faits, lienHref, lienLabel } = Astro.props;
 
   .hrn-offre-facts span {
     font: var(--type-small);
-    color: var(--ink-300);
+    color: var(--text-secondary);
     text-wrap: pretty;
   }
 

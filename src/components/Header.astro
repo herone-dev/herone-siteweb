@@ -34,7 +34,7 @@ const { theme = 'light' } = Astro.props;
 
 <div id="hrn-mobile-menu" class="hrn-mobile-menu hrn-zone-bleue" hidden>
   <div class="hrn-mobile-menu__top hrn-mobile-menu__item" style="--i:0">
-    <span class="hrn-header__logo">HÉRONE</span>
+    <a href="/" class="hrn-header__logo hrn-mobile-menu__logo">HÉRONE</a>
     <button type="button" id="hrn-menu-close" aria-label="Fermer le menu" class="hrn-mobile-menu__close">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M18 6 6 18"></path><path d="M6 6l12 12"></path></svg>
     </button>
@@ -158,6 +158,8 @@ const { theme = 'light' } = Astro.props;
     gap: 10px;
   }
 
+  /* Rond depuis le 23 septembre 2026, dans la continuité de la pilule
+     « Réserver » posée à côté (--radius-sm auparavant). 44px : cible tactile. */
   .hrn-header__burger {
     width: 44px;
     height: 44px;
@@ -165,7 +167,7 @@ const { theme = 'light' } = Astro.props;
     place-items: center;
     background: transparent;
     border: 1px solid var(--border-strong);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     color: var(--text-strong);
     cursor: pointer;
   }
@@ -266,6 +268,15 @@ const { theme = 'light' } = Astro.props;
     display: flex;
     align-items: center;
     justify-content: space-between;
+  }
+
+  /* Le logo du menu ramène à l'accueil, comme celui de l'en-tête. Il déborde
+     la rangée de 28px pour offrir une cible de 44px ; le menu se referme au
+     clic, comme pour tous ses liens. */
+  .hrn-mobile-menu__logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
 
   .hrn-mobile-menu__close {

@@ -1,9 +1,9 @@
 ---
 import { Image } from 'astro:assets';
 import posterRapin from '../../assets/images/posters/temoignage-poster.jpg';
-import posterGauthier from '../../assets/images/posters/temoignage-lixogo-poster.jpg';
+import posterGautier from '../../assets/images/posters/temoignage-lixogo-poster.jpg';
 import avatarRapin from '../../assets/images/proof-rapin.webp';
-import avatarGauthier from '../../assets/images/proof-gauthier.webp';
+import avatarGautier from '../../assets/images/proof-gautier.webp';
 
 // Section « Témoignages » : les avis en cartes vidéo, deux de front.
 //
@@ -37,8 +37,7 @@ import avatarGauthier from '../../assets/images/proof-gauthier.webp';
 //  4. Les cartes sont en 5/4. À cette proportion, sur un petit écran, la
 //     citation débordait : la carte passe en 3/4 sous 560px. Au-delà, en
 //     colonne unique, elle est déjà assez large pour que le 5/4 suffise.
-//  5. Le padding vertical passe par --section-y, le rythme du projet, et
-//     color-mix() est remplacé par des rgba() équivalentes.
+//  5. Le padding vertical passe par --section-y, le rythme du projet.
 //
 // Ce que le design retire par rapport à la version précédente : le fil des
 // étapes (« Rendez-vous enregistré, Transcription, Attribution ») et l'encart
@@ -66,12 +65,12 @@ const testimonials = [
     org: 'Agence Allianz des Herbiers · 9 personnes',
   },
   {
-    id: 'gauthier',
+    id: 'gautier',
     youtubeId: 'gGe3-iVTSZI',
-    poster: posterGauthier,
-    avatar: avatarGauthier,
+    poster: posterGautier,
+    avatar: avatarGautier,
     quote: "« Les stats publicitaires sont récupérées, l'IA génère le rapport complet. Le client reçoit son PDF par mail, automatiquement, chaque début de mois »",
-    name: 'Lilian Gauthier',
+    name: 'Lilian Gautier',
     org: 'Agence Lixogo · La Rochelle · 7 personnes',
   },
 ];
@@ -186,15 +185,22 @@ const testimonials = [
     display: block;
   }
 
-  /* Voile dégradé : la citation doit rester lisible quelle que soit l'affiche. */
+  /* Voile dégradé : la citation doit rester lisible quelle que soit l'affiche.
+     Même bleu nuit que le voile du hero (--hero-voile). Il était vert très
+     foncé, à 88 / 52 / 12 % du bas vers le haut. Il reste sombre derrière les
+     textes et s'efface au-dessus, là où sont les visages. Un allègement
+     uniforme (70 / 35 / 0 %) a été mesuré : la ligne de l'agence tombait à
+     2,9:1 de contraste. Avec ces paliers, la ligne la plus faible est à
+     4,8:1, à 1440 comme à 390px. */
   .hrn-proof__veil {
     position: absolute;
     inset: 0;
     background: linear-gradient(
       to top,
-      rgba(15, 29, 20, 0.88) 0%,
-      rgba(15, 29, 20, 0.52) 46%,
-      rgba(15, 29, 20, 0.12) 100%
+      color-mix(in srgb, var(--hero-voile) 85%, transparent) 0%,
+      color-mix(in srgb, var(--hero-voile) 60%, transparent) 40%,
+      color-mix(in srgb, var(--hero-voile) 12%, transparent) 65%,
+      transparent 100%
     );
     pointer-events: none;
   }

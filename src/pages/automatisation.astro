@@ -27,7 +27,7 @@ import Layout from '../layouts/Layout.astro';
 import OffreHero from '../components/offre/OffreHero.astro';
 import OffreEtapes from '../components/offre/OffreEtapes.astro';
 import OffreTarif from '../components/offre/OffreTarif.astro';
-import OffreFaq from '../components/offre/OffreFaq.astro';
+import FaqAccordion from '../components/home/FaqAccordion.astro';
 import OffrePont from '../components/offre/OffrePont.astro';
 import ConstatCarousel from '../components/home/ConstatCarousel.astro';
 import LogosMarquee from '../components/home/LogosMarquee.astro';
@@ -243,10 +243,11 @@ const deroule = [
     inclus="Le périmètre et le prix sont écrits avant que nous démarrions, et le prix est ferme. Un suivi mensuel prend ensuite le relais, pour la surveillance et les correctifs : nous le chiffrons avec vous au rendez-vous, il dépend de ce que le système demande. En fonction de la complexité, du nombre d'outils à relier et de la taille de l'entreprise, un projet peut monter à plusieurs milliers d'euros : c'est justement ce que l'échange de trente minutes permet de savoir, sans engagement."
   />
 
-  <OffreFaq
+  <FaqAccordion
+    id="questions"
+    eyebrow="Questions fréquentes"
     titre="Ce que les dirigeants nous demandent avant de signer"
-    questions={questions}
-    fond="surface"
+    faqs={questions.map(({ q, r }) => ({ q, a: r }))}
   />
 
   <OffrePont

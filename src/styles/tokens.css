@@ -191,7 +191,9 @@
   --bg-surface: var(--surface);
   --bg-sunken: var(--surface-2);
   --bg-inset: var(--surface-3);
-  --bg-inverse: var(--slate-900);
+  /* Bleu nuit profond depuis le 23 septembre 2026 (vert --slate-900 auparavant) :
+     hero et tarifs des pages d'offre. */
+  --bg-inverse: var(--nuit-profonde);
 
   --text-strong: var(--ink-950);
   --text-primary: var(--ink-900);
@@ -250,6 +252,19 @@
   --bleu-texte-discret: #8F99A3;
   --bleu-bordure: #304052;
   --bleu-bordure-forte: #546270;
+
+  /* Bleu plus profond que --paper, pour les zones sombres qui touchent une
+  section bleue : pied de page, hero et tarifs des pages d'offre. Elles
+  étaient vertes (--ink-950, --slate-900), reste de l'ancienne identité.
+  Écart de luminosité avec --paper : 1,12 (le vert était à 1,14). */
+  --nuit-profonde: #070F1A;
+
+  /* Turquoise profond : la couleur d'accent assombrie, pour la moitié
+  « Formation IA » de la section des offres (23 septembre 2026, piste 2
+  choisie par l'utilisateur sur maquette). --turquoise-nuit fonce le bas de
+  cette moitié, sous les textes. */
+  --turquoise-profond: #073B3A;
+  --turquoise-nuit: #042726;
 
   --success: var(--success-500);
   --warning: var(--warning-500);
