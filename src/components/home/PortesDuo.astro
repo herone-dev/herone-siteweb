@@ -29,6 +29,12 @@
 // proportionnels à --p : ils restent donc exactement synchronisés, sans que le
 // texte ne tremble.
 //
+// Couleurs (23 septembre 2026, piste 2 retenue sur maquette parmi trois) :
+// Formation sur turquoise profond, Automatisation sur bleu nuit profond, la
+// section elle-même en bleu nuit profond. Elles remplacent les deux verts
+// de l'ancienne identité (--slate-900 et --ink-950). Les textes passent par
+// .hrn-zone-bleue et ses alias.
+//
 // Aucun JavaScript : l'état vient de :has(:hover) et :has(:focus-visible).
 // Rien à initialiser au changement de page, rien à nettoyer.
 //
@@ -56,7 +62,7 @@ const { titre = 'Deux façons de travailler ensemble', lede, portes } = Astro.pr
 const [a, b] = portes;
 ---
 
-<section id="offres" class="hrn-duo" aria-labelledby="hrn-duo-titre">
+<section id="offres" class="hrn-duo hrn-zone-bleue" aria-labelledby="hrn-duo-titre">
   <div class="hrn-duo__tete">
     <h2 id="hrn-duo-titre" class="hrn-duo__titre">{titre}</h2>
     {lede && <p class="hrn-duo__lede">{lede}</p>}
@@ -89,7 +95,7 @@ const [a, b] = portes;
 <style>
   .hrn-duo {
     position: relative;
-    background: var(--ink-950);
+    background: var(--nuit-profonde);
     color: var(--text-inverse);
     scroll-margin-top: 68px;
   }
@@ -117,7 +123,7 @@ const [a, b] = portes;
     font-size: var(--text-xs);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    color: var(--ink-200);
+    color: var(--text-primary);
     max-width: 36%;
   }
 
@@ -125,7 +131,7 @@ const [a, b] = portes;
     margin: 0 !important;
     max-width: min(34ch, 36%);
     font: var(--type-small);
-    color: var(--ink-300);
+    color: var(--text-secondary);
     text-align: right;
     text-wrap: pretty;
   }
@@ -181,12 +187,12 @@ const [a, b] = portes;
 
   .hrn-duo__porte--a .hrn-duo__plan {
     transform: translateX(calc((100 - var(--p)) * 1%));
-    background: var(--slate-900);
+    background: var(--turquoise-profond);
   }
 
   .hrn-duo__porte--b .hrn-duo__plan {
     transform: translateX(calc(var(--p) * -1%));
-    background: var(--ink-950);
+    background: var(--nuit-profonde);
   }
 
   /* La séparation : un filet sur le bord gauche de la seconde fenêtre. Il
@@ -241,11 +247,11 @@ const [a, b] = portes;
   }
 
   .hrn-duo__porte--a .hrn-duo__fond::before {
-    background: radial-gradient(ellipse 60% 55% at 26% 38%, color-mix(in srgb, var(--slate-600) 55%, transparent), transparent 70%);
+    background: radial-gradient(ellipse 60% 55% at 26% 38%, color-mix(in srgb, var(--amber-500) 38%, transparent), transparent 70%);
   }
 
   .hrn-duo__porte--b .hrn-duo__fond::before {
-    background: radial-gradient(ellipse 60% 55% at 74% 38%, color-mix(in srgb, var(--amber-600) 16%, transparent), transparent 70%);
+    background: radial-gradient(ellipse 60% 55% at 74% 38%, color-mix(in srgb, var(--amber-500) 16%, transparent), transparent 70%);
   }
 
   /* Le numéro d'offre en très grand, en contour. Centré sur la moitié qu'il
@@ -289,15 +295,19 @@ const [a, b] = portes;
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(0deg, color-mix(in srgb, var(--ink-950) 82%, transparent) 0%, transparent 55%);
+    background: linear-gradient(0deg, color-mix(in srgb, var(--nuit-profonde) 70%, transparent) 0%, transparent 55%);
     pointer-events: none;
+  }
+
+  .hrn-duo__porte--a .hrn-duo__plan::after {
+    background: linear-gradient(0deg, color-mix(in srgb, var(--turquoise-nuit) 70%, transparent) 0%, transparent 55%);
   }
 
   .hrn-duo__voile {
     position: absolute;
     z-index: 1;
     inset: 0;
-    background: color-mix(in srgb, var(--ink-950) 58%, transparent);
+    background: color-mix(in srgb, var(--nuit-profonde) 55%, transparent);
     opacity: 0;
     transition: opacity var(--duree) var(--courbe);
   }
@@ -339,6 +349,11 @@ const [a, b] = portes;
     color: var(--amber-300);
   }
 
+  /* Sur le turquoise profond, --amber-300 se confondait avec le fond. */
+  .hrn-duo__porte--a .hrn-duo__num {
+    color: var(--amber-200);
+  }
+
   /* Le titre porte toute la section : très grand, comme la référence. La
      taille est calée pour que « Automatisation » tienne sur une ligne dans la
      plus petite moitié, de 760 à 1920px. */
@@ -357,7 +372,7 @@ const [a, b] = portes;
     margin: 0 !important;
     max-width: 30ch;
     font: var(--type-body-lg);
-    color: var(--ink-200);
+    color: var(--text-primary);
     text-wrap: pretty;
   }
 

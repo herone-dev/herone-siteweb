@@ -259,6 +259,13 @@
   Écart de luminosité avec --paper : 1,12 (le vert était à 1,14). */
   --nuit-profonde: #070F1A;
 
+  /* Turquoise profond : la couleur d'accent assombrie, pour la moitié
+  « Formation IA » de la section des offres (23 septembre 2026, piste 2
+  choisie par l'utilisateur sur maquette). --turquoise-nuit fonce le bas de
+  cette moitié, sous les textes. */
+  --turquoise-profond: #073B3A;
+  --turquoise-nuit: #042726;
+
   --success: var(--success-500);
   --warning: var(--warning-500);
   --danger: var(--danger-500);
