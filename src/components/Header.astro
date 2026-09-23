@@ -158,6 +158,8 @@ const { theme = 'light' } = Astro.props;
     gap: 10px;
   }
 
+  /* Rond depuis le 23 septembre 2026, dans la continuité de la pilule
+     « Réserver » posée à côté (--radius-sm auparavant). 44px : cible tactile. */
   .hrn-header__burger {
     width: 44px;
     height: 44px;
@@ -165,7 +167,7 @@ const { theme = 'light' } = Astro.props;
     place-items: center;
     background: transparent;
     border: 1px solid var(--border-strong);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     color: var(--text-strong);
     cursor: pointer;
   }
