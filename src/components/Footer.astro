@@ -4,7 +4,7 @@
 // qui ouvre l'établissement avec ses avis et ses horaires.
 // L'URL est posée dans une constante plutôt qu'en dur dans l'attribut : elle
 // contient des `&`, qui devraient être échappés dans du markup.
-const ADRESSE = '37 rue Édouard Branly, Les Herbiers 85500';
+const ADRESSE = '37 rue Édouard Branly, Les Herbiers 85500, France';
 const ADRESSE_MAPS =
   'https://www.google.com/maps/place/H%C3%A9rone/@46.8583076,-1.0387592,17z/' +
   'data=!3m1!4b1!4m6!3m5!1s0x480661339d6958db:0xc2ce55afb78a1bee!8m2!' +
@@ -142,16 +142,18 @@ const ADRESSE_MAPS =
   }
 
   /* L'adresse est un lien : la zone cliquable s'arrête au texte, comme le
-     logo, et non sur toute la largeur de la colonne. */
+     logo, et non sur toute la largeur de la colonne. Même couleur que les
+     liens des colonnes (demande du 23 septembre 2026), un cran plus clair que
+     le texte de marque au-dessus. */
   .hrn-footer__address {
     align-self: flex-start;
     font-size: 14px;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     text-decoration: none;
   }
 
   .hrn-footer__address.hrn-sweep {
-    --sweep-from: var(--text-secondary);
+    --sweep-from: var(--text-primary);
   }
 
   .hrn-footer__col {
