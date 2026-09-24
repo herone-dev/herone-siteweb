@@ -24,6 +24,13 @@ import LegalLayout from '../layouts/LegalLayout.astro';
       Google.
     </li>
     <li>
+      <strong>Mesure d'audience :</strong> le site utilise Google Analytics 4 pour compter les visites,
+      les pages lues et les clics sur les boutons, afin de savoir quels contenus sont utiles. Tant que
+      vous n'avez pas accepté, et si vous refusez, aucun cookie de mesure n'est déposé : Google Analytics
+      ne reçoit que des signaux sans identifiant, qui ne permettent pas de vous reconnaître d'une page
+      à l'autre. Aucun cookie publicitaire n'est déposé, que vous acceptiez ou non.
+    </li>
+    <li>
       <strong>Cookies liés à la prise de rendez-vous :</strong> le module de réservation Calendly,
       intégré aux pages de contact, dépose ses propres cookies lors de son utilisation.
     </li>
@@ -33,6 +40,10 @@ import LegalLayout from '../layouts/LegalLayout.astro';
   <p>
     Lors de la première visite, un bandeau permet d'accepter ou de refuser le dépôt des cookies non
     essentiels.
+  </p>
+  <p>
+    Vous pouvez changer d'avis à tout moment :
+    <button type="button" class="hrn-cookies-modifier" onclick="window.hrnRouvrirCookies && window.hrnRouvrirCookies()">modifier mon choix</button>.
   </p>
   <p>
     Il reste possible de configurer son navigateur pour refuser le dépôt de cookies, au risque de limiter
@@ -45,3 +56,15 @@ import LegalLayout from '../layouts/LegalLayout.astro';
     laquelle le consentement est à nouveau demandé.
   </p>
 </LegalLayout>
+
+<style>
+  .hrn-cookies-modifier {
+    font: inherit;
+    color: var(--link);
+    background: none;
+    border: 0;
+    padding: 0;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+</style>

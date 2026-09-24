@@ -157,6 +157,14 @@ connexion échoue.
   `/automatisation` : ne jamais créer de lien interne vers `/systemes`, il
   passerait par une redirection.
 
+## Mesure d'audience et statistiques
+
+GA4 (`G-GT6JCYY2SF`) est chargé dans `Layout.astro` en mode de consentement v2 avancé : tout est refusé par défaut, `analytics_storage` passe à `granted` quand le visiteur accepte dans `CookieBanner.astro`. `send_page_view` est coupé ; `src/scripts/suivi.ts` envoie les pages vues à chaque `astro:page-load` (sinon les transitions Astro n'étaient pas comptées) et tous les événements du plan de marquage. La référence est `docs/plan-de-marquage.md` : un nom d'événement ne change jamais sans mettre à jour ce document, `suivi.ts` et la liste `EVENEMENTS` de `netlify/functions/stats.mjs`.
+
+Le suivi ne demande rien dans les composants : des écouteurs posés sur le document classent les clics (RDV, téléphone, e-mail, téléchargement, interne, sortant, ancre, bouton, clics répétés), les ouvertures de FAQ, les copies, les erreurs ; chaque page suit en plus ses vidéos, ses sections vues, le défilement, le temps actif et la performance (Core Web Vitals). La zone se déduit de la position dans la page, et une section se nomme par son `id`. `data-suivi="zone"` sur un élément force la zone. Un article porte `data-article-slug` et `data-article-categorie` sur `.hrn-blog`.
+
+`/admin/stats/` affiche Search Console et GA4, global et par article. Les données viennent de la fonction Netlify `netlify/functions/stats.mjs` (route `/api/stats`), qui lit Google avec un compte de service (variables `GOOGLE_SA_EMAIL`, `GOOGLE_SA_KEY`, `GA4_PROPERTY_ID`, facultative `GSC_SITE`) et n'accepte que le jeton GitHub d'un compte qui a le droit d'écriture sur le dépôt. `?action=installer` (bouton « Configurer Google Analytics ») crée dans GA4 les dimensions, métriques et événements clés du plan de marquage, règle la conservation et la mesure améliorée, et envoie le plan du site à la Search Console. Une nouvelle dimension du plan de marquage s'ajoute à la liste `DIMENSIONS` de la fonction. Aucun secret Google ne passe par le navigateur. La fonction n'a aucune dépendance.
+
 ## Animation et performance
 
 - N'animer que `transform` et `opacity`. Jamais width/height/top/left/margin.

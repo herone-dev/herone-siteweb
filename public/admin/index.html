@@ -21,5 +21,21 @@
          que chargé d'un CDN, pour que l'aperçu ne dépende de personne. -->
     <script src="/admin/marked.umd.js"></script>
     <script src="/admin/apercu.js"></script>
+    <!-- Accès à la page Statistiques (impressions Google, visites, clics par
+         article). Posé hors de Sveltia, qui n'offre pas d'entrée de menu
+         personnalisée : un simple lien flottant en bas à gauche. -->
+    <a href="/admin/stats/" id="hrn-lien-stats">Statistiques</a>
+    <style>
+      #hrn-lien-stats {
+        position: fixed; left: 16px; bottom: 16px; z-index: 9999;
+        display: inline-flex; align-items: center; gap: 6px;
+        background: #101C29; color: #F1EEE1; text-decoration: none;
+        font: 600 13px/1 system-ui, sans-serif; padding: 10px 14px;
+        border-radius: 999px; box-shadow: 0 4px 14px rgba(0,0,0,.25);
+      }
+      #hrn-lien-stats::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #4FD0C5; }
+      #hrn-lien-stats:hover { background: #0B7D76; }
+      #hrn-lien-stats:focus-visible { outline: 2px solid #4FD0C5; outline-offset: 2px; }
+    </style>
   </body>
 </html>

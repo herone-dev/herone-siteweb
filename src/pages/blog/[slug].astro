@@ -61,7 +61,7 @@ const dateMachine = post.data.pubDate.toISOString().slice(0, 10);
   description={post.data.description}
   headerTheme="light"
 >
-  <div class="hrn-blog hrn-zone-bleue">
+  <div class="hrn-blog hrn-zone-bleue" data-article-slug={post.id} data-article-categorie={post.data.category}>
     {/* Progression de lecture, mobile seulement : sur desktop le sommaire
         collant joue déjà ce rôle. */}
     <div class="hrn-progression" aria-hidden="true">

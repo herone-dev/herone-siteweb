@@ -19,15 +19,33 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 <!doctype html>
 <html lang="fr">
   <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GT6JCYY2SF"></script>
+    <!-- Mesure d'audience Google Analytics 4, en mode de consentement avancé
+         (Consent Mode v2). Avant tout choix, et après un refus, GA4 ne dépose
+         aucun cookie : il n'envoie que des signaux sans identifiant, à partir
+         desquels Google modélise les visites. Après « Accepter », les cookies
+         de mesure sont autorisés. Les cookies publicitaires restent refusés
+         dans tous les cas, le site ne fait pas de publicité.
+         send_page_view est coupé : avec les transitions de page d'Astro, GA4
+         ne voyait que la première page de chaque visite. Les pages vues et
+         tous les événements du plan de marquage sont envoyés par
+         src/scripts/suivi.ts. Détail dans docs/plan-de-marquage.md. -->
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      var hrnChoix = null;
+      try { hrnChoix = window.localStorage.getItem('hrn-cookie'); } catch (e) {}
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: hrnChoix === 'accepted' ? 'granted' : 'denied',
+        wait_for_update: 500
+      });
+      gtag('set', 'ads_data_redaction', true);
       gtag('js', new Date());
-
-      gtag('config', 'G-GT6JCYY2SF');
+      gtag('config', 'G-GT6JCYY2SF', { send_page_view: false });
     </script>
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-GT6JCYY2SF"></script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- Preconnect pour améliorer le LCP / TBT des ressources tierces -->
@@ -208,6 +226,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     </main>
     <Footer />
     <CookieBanner />
+
+    <script>
+      // Plan de marquage GA4 : pages vues, clics, défilement, lecture, rendez-vous.
+      import '../scripts/suivi.ts';
+    </script>
 
     <script>
       // Défilement des ancres de la même page, pris en charge à un seul
