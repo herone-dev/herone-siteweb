@@ -674,9 +674,16 @@ const journees = Math.ceil(defaut / maxSession);
     const textes = (n: number) => {
       const r = calculer(n);
       const enPlus = n - seuil;
+      // Avec la grille actuelle, la journée vaut exactement trois personnes à
+      // 500 € HT : au-delà du seuil, le total se lit donc simplement
+      // « n personnes × 500 € HT » (demande de l'utilisateur). Si la grille
+      // cessait d'être proportionnelle, le détail en deux temps reviendrait.
+      const proportionnel = prixJour === seuil * prixPersonne;
       const detailCalcul =
         enPlus > 0
-          ? `${euros(prixJour)} pour les ${seuil} premières personnes, puis ${enPlus}${F}×${F}${euros(prixPersonne)}.`
+          ? proportionnel
+            ? `${n} personnes${F}×${F}${euros(prixPersonne)}.`
+            : `${euros(prixJour)} pour les ${seuil} premières personnes, puis ${enPlus}${F}×${F}${euros(prixPersonne)}.`
           : `Le tarif de la journée couvre jusqu'à ${seuil} personnes.`;
       let detailNote = `Une journée chez vous, animée à deux, préparation comprise.`;
       if (r.sessions > 1) {
