@@ -97,14 +97,34 @@ function b64url(v) {
 const PORTEE_LECTURE = 'https://www.googleapis.com/auth/webmasters.readonly https://www.googleapis.com/auth/analytics.readonly';
 const PORTEE_REGLAGES = 'https://www.googleapis.com/auth/webmasters https://www.googleapis.com/auth/analytics.edit';
 
+/* La clé privée se colle dans Netlify de bien des façons : avec ou sans les
+ * guillemets, avec des « \n » écrits en toutes lettres, avec des espaces à la
+ * place des retours à la ligne, sans les lignes BEGIN et END, ou même le
+ * fichier JSON entier. Tout est ramené ici au format PEM que Node attend. */
+function clePrivee(brut) {
+  let v = String(brut).trim();
+  if (v.startsWith('{')) {
+    try { v = JSON.parse(v).private_key || v; } catch { /* pas du JSON complet */ }
+  }
+  v = v.replace(/^['"]|['"],?$/g, '').replace(/\\n/g, '\n');
+  const corps = v
+    .replace(/-----BEGIN [A-Z ]*PRIVATE KEY-----/, '')
+    .replace(/-----END [A-Z ]*PRIVATE KEY-----/, '')
+    .replace(/[^A-Za-z0-9+/=]/g, '');
+  if (corps.length < 1000) {
+    throw new Error(`La clé GOOGLE_SA_KEY semble incomplète (${corps.length} caractères utiles au lieu d'environ 1 600). Recollez tout le texte de "private_key", de -----BEGIN PRIVATE KEY----- à -----END PRIVATE KEY-----.`);
+  }
+  const lignes = corps.match(/.{1,64}/g).join('\n');
+  return `-----BEGIN PRIVATE KEY-----\n${lignes}\n-----END PRIVATE KEY-----\n`;
+}
+
 async function tokenGoogle(portee = PORTEE_LECTURE) {
   jetonGoogle = jetonGoogle || {};
   const connu = jetonGoogle[portee];
   if (connu && connu.expire > Date.now() + 60_000) return connu.valeur;
   const email = process.env.GOOGLE_SA_EMAIL;
-  let cle = process.env.GOOGLE_SA_KEY;
-  if (!email || !cle) throw new Error('Compte de service absent : GOOGLE_SA_EMAIL et GOOGLE_SA_KEY à renseigner dans Netlify.');
-  cle = cle.replace(/\\n/g, '\n').replace(/^"|"$/g, '');
+  if (!email || !process.env.GOOGLE_SA_KEY) throw new Error('Compte de service absent : GOOGLE_SA_EMAIL et GOOGLE_SA_KEY à renseigner dans Netlify.');
+  const cle = clePrivee(process.env.GOOGLE_SA_KEY);
   const maintenant = Math.floor(Date.now() / 1000);
   const entete = b64url({ alg: 'RS256', typ: 'JWT' });
   const charge = b64url({
@@ -114,7 +134,13 @@ async function tokenGoogle(portee = PORTEE_LECTURE) {
     iat: maintenant,
     exp: maintenant + 3600,
   });
-  const signature = createSign('RSA-SHA256').update(`${entete}.${charge}`).sign(cle, 'base64')
+  let signature;
+  try {
+    signature = createSign('RSA-SHA256').update(`${entete}.${charge}`).sign(cle, 'base64');
+  } catch {
+    throw new Error('La clé GOOGLE_SA_KEY est illisible. Recollez dans Netlify le texte de "private_key" du fichier JSON, en entier, puis relancez un déploiement.');
+  }
+  signature = signature
     .replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
   const r = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
