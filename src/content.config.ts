@@ -9,9 +9,11 @@ const blog = defineCollection({
     pubDate: z.coerce.date(),
     // Renseignée quand un article publié est repris. Elle ne remplace jamais
     // pubDate, qui reste la date de première mise en ligne et sert au tri.
-    updatedDate: z.coerce.date().optional(),
+    // L'interface /admin écrit une chaîne vide quand le champ est laissé vide :
+    // elle vaut « absent », sinon le build casse sur une date invalide.
+    updatedDate: z.preprocess((v) => (v === '' || v === null ? undefined : v), z.coerce.date().optional()),
     author: z.string().default('Hérone'),
-    image: z.string().optional(),
+    image: z.preprocess((v) => (v === '' || v === null ? undefined : v), z.string().optional()),
     tags: z.array(z.string()).default([]),
     // Catégorie libre, volontairement. Une liste fermée cassait le build
     // Netlify, donc tout le site, dès qu'un article arrivait avec une valeur

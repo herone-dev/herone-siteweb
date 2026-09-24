@@ -153,7 +153,8 @@ function controlerFrontmatter(champs, mots) {
 
   for (const cle of ['pubDate', 'updatedDate']) {
     const valeur = sansGuillemets(champs[cle]);
-    if (valeur === undefined) continue;
+    // Vide (updatedDate: '') vaut absent, comme dans le schéma Astro.
+    if (valeur === undefined || valeur === '' || (cle === 'updatedDate' && valeur === "''")) continue;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(valeur)) {
       erreurs.push(`frontmatter : « ${cle} » doit être au format AAAA-MM-JJ`);
     } else if (Number.isNaN(Date.parse(valeur))) {

@@ -30,6 +30,12 @@ backend:
 # Chemins des médias. Le dossier est versionné comme le reste du site : une
 # image téléversée depuis /admin arrive dans public/images/blog et l'article
 # la référence par son chemin public.
+# Un champ facultatif laissé vide n'est pas écrit dans le fichier. Sans ce
+# réglage, l'interface écrivait updatedDate: '' et le build du site échouait
+# (incident du 24 septembre 2026).
+output:
+  omit_empty_optional_fields: true
+
 media_folder: public/images/blog
 public_folder: /images/blog
 

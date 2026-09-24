@@ -13,9 +13,7 @@ tags:
   - chantier
   - administratif
   - vendée
-updatedDate: ''
 author: Hérone
-image: ''
 ---
 
 Les promesses de l'IA BTP parlent souvent de chantiers pilotés par des algorithmes et de maquettes numériques pensées pour les majors qui construisent des tours de bureaux. Pour une entreprise de dix ou vingt personnes, la réalité se situe ailleurs, dans le bureau plus que sur l'échafaudage, et c'est là que l'intelligence artificielle commence déjà à rendre des heures. Chez [Hérone](https://herone.fr), nous rencontrons ces entreprises chaque semaine, et leur question est toujours la même, concrètement, à quoi ça sert chez nous.
