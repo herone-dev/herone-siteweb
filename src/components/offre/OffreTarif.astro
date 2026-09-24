@@ -12,6 +12,15 @@
 //    se comparent d'un coup d'œil ;
 //  - la phrase « ce qui est compris » et le bouton se posent côte à côte.
 //
+// Maquettes du 24 septembre 2026 : deux variantes en plus de la version
+// sombre d'origine (`sombre`, par défaut, inchangée) :
+//  - `claire` (/formation) : fond crème, une carte blanche par règle et une
+//    carte « Exemples » sur la même ligne, puis « ce qui est compris » et le
+//    bouton côte à côte ;
+//  - `suivi` (/automatisation) : fond bleu nuit profond, la mise en place dans
+//    une carte crème, et à côté une carte sombre « Ensuite » (prop `suite`)
+//    qui porte le texte de `inclus` et le bouton.
+//
 // Les montants ne portent PAS de white-space: nowrap. Ils tiennent d'un seul
 // tenant par leurs espaces insécables, ce qui suffit et ne fait pas déborder
 // la carte en étroit (piège n°1, déjà vécu sur les cartes d'offres).
@@ -27,18 +36,83 @@ interface Props {
   /** Ce que le prix comprend, posé à gauche du bouton. */
   inclus?: string;
   id?: string;
+  variante?: 'sombre' | 'claire' | 'suivi';
+  /** Variante `suivi` : la carte sombre posée à côté du prix. Son texte est `inclus`. */
+  suite?: { label: string; titre: string };
 }
 
-const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif' } = Astro.props;
+const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif', variante = 'sombre', suite } = Astro.props;
 ---
 
-<section class="hrn-offre-tarif hrn-zone-bleue" id={id}>
+<section
+  class:list={[
+    'hrn-offre-tarif',
+    `hrn-offre-tarif--${variante}`,
+    variante === 'claire' ? 'hrn-zone-creme' : 'hrn-zone-bleue',
+  ]}
+  id={id}
+>
   <div class="hrn-section-inner hrn-offre-tarif__inner">
     <div class="hrn-offre-tarif__head">
       <div class="hrn-eyebrow">{eyebrow}</div>
       <h2>{titre}</h2>
     </div>
 
+    {variante === 'claire' && (
+      <div class="hrn-offre-tarif__cartes">
+        {regles.map((r) => (
+          <div class="hrn-offre-tarif__carte">
+            <span class="hrn-offre-tarif__etiquette">{r.label}</span>
+            <strong class="hrn-offre-tarif__montant">{r.prix}</strong>
+            <p class="hrn-offre-tarif__detail">{r.detail}</p>
+          </div>
+        ))}
+        {exemples && exemples.length > 0 && (
+          <div class="hrn-offre-tarif__carte hrn-offre-tarif__carte--exemples">
+            <span class="hrn-offre-tarif__etiquette">Exemples</span>
+            <dl class="hrn-offre-tarif__lignes">
+              {exemples.map((ex) => (
+                <div>
+                  <dt>{ex.qui}</dt>
+                  <dd>{ex.prix}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        )}
+      </div>
+    )}
+
+    {variante === 'suivi' && (
+      <div class="hrn-offre-tarif__cartes hrn-offre-tarif__cartes--suivi">
+        {regles.map((r) => (
+          <div class="hrn-offre-tarif__carte hrn-offre-tarif__carte--creme hrn-zone-creme">
+            <span class="hrn-offre-tarif__etiquette">{r.label}</span>
+            <strong class="hrn-offre-tarif__montant">{r.prix}</strong>
+            <p class="hrn-offre-tarif__detail">{r.detail}</p>
+          </div>
+        ))}
+        {suite && (
+          <div class="hrn-offre-tarif__suite">
+            <span class="hrn-offre-tarif__etiquette">{suite.label}</span>
+            <h3>{suite.titre}</h3>
+            {inclus && <p class="hrn-offre-tarif__detail">{inclus}</p>}
+            <div class="hrn-offre-tarif__suite-bouton">
+              <Button variant="accent" size="lg" href="/#reserver">Réserver 30 minutes</Button>
+            </div>
+          </div>
+        )}
+      </div>
+    )}
+
+    {variante === 'claire' && (
+      <div class="hrn-offre-tarif__pied">
+        {inclus && <p class="hrn-offre-tarif__inclus">{inclus}</p>}
+        <Button variant="accent" size="lg" href="/#reserver">Réserver 30 minutes</Button>
+      </div>
+    )}
+
+    {variante === 'sombre' && (<>
     <div class:list={['hrn-offre-tarif__grid', regles.length === 1 && 'hrn-offre-tarif__grid--seule']}>
       {regles.map((r) => (
         <div class="hrn-offre-tarif__regle">
@@ -64,6 +138,7 @@ const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif' } = 
       {inclus && <p class="hrn-offre-tarif__inclus">{inclus}</p>}
       <Button variant="accent" size="lg" href="/#reserver">Réserver 30 minutes</Button>
     </div>
+    </>)}
   </div>
 </section>
 
@@ -80,8 +155,15 @@ const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif' } = 
     gap: clamp(var(--space-8), 5vw, var(--space-12));
   }
 
+  /* --accent-texte vaut --amber-300 sur le bleu : la version sombre ne
+     change pas, la version claire prend le turquoise foncé du crème. */
   .hrn-offre-tarif :global(.hrn-eyebrow) {
-    color: var(--amber-300);
+    color: var(--accent-texte);
+  }
+
+  .hrn-offre-tarif--claire {
+    background: var(--surface);
+    color: var(--text-primary);
   }
 
   .hrn-offre-tarif__head {
@@ -206,6 +288,162 @@ const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif' } = 
     color: var(--text-primary);
     max-width: 36rem;
     text-wrap: pretty;
+  }
+
+  /* ============ Variantes « claire » et « suivi » ============ */
+
+  .hrn-offre-tarif--claire .hrn-offre-tarif__head h2 {
+    color: var(--text-strong);
+  }
+
+  /* Paliers explicites : trois cartes sur une ligne au large ; sur tablette,
+     les deux prix côte à côte et les exemples sur toute la largeur dessous
+     (un auto-fit les laissait seuls sur une demi-ligne) ; une colonne sur
+     téléphone. */
+  .hrn-offre-tarif__cartes {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    align-items: stretch;
+  }
+
+  @media (min-width: 560px) {
+    .hrn-offre-tarif__cartes {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .hrn-offre-tarif__carte--exemples {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* Au large, autant de colonnes égales que de cartes (deux prix et les
+     exemples sur /formation). */
+  @media (min-width: 960px) {
+    .hrn-offre-tarif--claire .hrn-offre-tarif__cartes {
+      grid-template-columns: none;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, 1fr);
+    }
+
+    .hrn-offre-tarif__carte--exemples {
+      grid-column: auto;
+    }
+  }
+
+  @media (min-width: 860px) {
+    .hrn-offre-tarif__cartes--suivi {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    }
+  }
+
+  .hrn-offre-tarif__carte {
+    min-width: 0;
+    padding: 32px;
+    background: var(--carte-claire);
+    border: 1px solid var(--carte-claire-bordure);
+    border-radius: var(--radius-xl);
+  }
+
+  .hrn-offre-tarif__carte--exemples {
+    padding: 24px 28px;
+  }
+
+  .hrn-offre-tarif__carte--creme {
+    background: var(--surface);
+    border-color: var(--creme-bordure);
+  }
+
+  .hrn-offre-tarif__etiquette {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .hrn-offre-tarif__montant {
+    display: block;
+    margin-top: 16px;
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: clamp(2.4rem, 3.7vw, 3.25rem);
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    color: var(--accent-texte);
+  }
+
+  .hrn-offre-tarif__detail {
+    margin-top: 10px;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  .hrn-offre-tarif__lignes {
+    margin: 6px 0 0;
+  }
+
+  .hrn-offre-tarif__lignes > div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4px 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--carte-claire-bordure);
+    font-size: 15px;
+  }
+
+  .hrn-offre-tarif__lignes dt {
+    min-width: 0;
+    color: var(--text-secondary);
+  }
+
+  .hrn-offre-tarif__lignes dd {
+    margin: 0;
+    font-weight: var(--weight-semibold);
+    color: var(--text-strong);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hrn-offre-tarif--claire .hrn-offre-tarif__inclus {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    max-width: 46rem;
+  }
+
+  .hrn-offre-tarif__suite {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 32px;
+    background: var(--nuit-carte);
+    border: 1px solid var(--nuit-carte-bordure);
+    border-radius: var(--radius-xl);
+  }
+
+  .hrn-offre-tarif__suite .hrn-offre-tarif__etiquette {
+    color: var(--text-muted);
+  }
+
+  .hrn-offre-tarif__suite h3 {
+    margin-top: 14px;
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: clamp(1.3rem, 1.8vw, 1.5rem);
+    line-height: 1.2;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  .hrn-offre-tarif__suite-bouton {
+    margin-top: auto;
+    padding-top: 28px;
   }
 
   @media (prefers-reduced-motion: reduce) {

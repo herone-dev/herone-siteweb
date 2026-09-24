@@ -1,7 +1,6 @@
 ---
 import { Image } from 'astro:assets';
-import founderNolan from '../../assets/images/founder-nolan.webp';
-import founderMartin from '../../assets/images/founder-martin.webp';
+import { FONDATEURS } from '../../data/fondateurs';
 import officesHerbiers from '../../assets/images/offices-herbiers.webp';
 ---
 
@@ -24,18 +23,14 @@ import officesHerbiers from '../../assets/images/offices-herbiers.webp';
       </div>
 
       <div class="hrn-founders__portraits">
-        <div class="hrn-founders__portrait">
-          <div class="hrn-founders__frame">
-            <Image src={founderNolan} alt="Nolan Genty" width={496} height={620} />
+        {FONDATEURS.map((f) => (
+          <div class="hrn-founders__portrait">
+            <div class="hrn-founders__frame">
+              <Image src={f.photo} alt={f.nom} width={496} height={620} />
+            </div>
+            <span class="hrn-founders__caption">{`${f.nom} · ${f.role}`}</span>
           </div>
-          <span class="hrn-founders__caption">Nolan Genty · Directeur Général</span>
-        </div>
-        <div class="hrn-founders__portrait">
-          <div class="hrn-founders__frame">
-            <Image src={founderMartin} alt="Martin Talon" width={496} height={620} />
-          </div>
-          <span class="hrn-founders__caption">Martin Talon · Directeur Technique</span>
-        </div>
+        ))}
       </div>
     </div>
 

@@ -1,0 +1,165 @@
+---
+// Petit schéma de flux : des pastilles empilées, reliées par des flèches
+// turquoise. Maquettes du 24 septembre 2026 (/automatisation).
+//
+// Deux usages, un seul dessin :
+//  - `carte` : la carte « Un système Hérone » à droite du hero, posée sur
+//    --nuit-carte, avec son titre en mono ;
+//  - `vignette` : le haut des trois cartes de SystemsGrid, sur --paper, à la
+//    place des anciennes vignettes hachurées.
+//
+// Une étape peut porter une rangée de pastilles côte à côte (les quatre
+// outils du hero), une pastille turquoise pleine (`ia`, ce que fait le
+// système) ou une pastille en pointillés (`pointille`, la validation humaine).
+//
+// HTML et CSS seulement, pas d'image : le texte reste net, traduisible, et se
+// lit dans l'ordre par un lecteur d'écran (liste ordonnée). Dans une carte qui
+// est déjà un lien, le schéma est masqué aux lecteurs d'écran (`decoratif`)
+// pour ne pas rallonger le nom du lien : le titre et le texte de la carte
+// disent déjà la même chose.
+interface Etape {
+  texte: string | string[];
+  style?: 'ia' | 'pointille';
+}
+
+interface Props {
+  etapes: Etape[];
+  titre?: string;
+  variante?: 'carte' | 'vignette';
+  decoratif?: boolean;
+}
+
+const { etapes, titre, variante = 'carte', decoratif = false } = Astro.props;
+---
+
+<div class:list={['hrn-schema', `hrn-schema--${variante}`, 'hrn-zone-bleue']} aria-hidden={decoratif ? 'true' : undefined}>
+  {titre && <p class="hrn-schema__titre">{titre}</p>}
+  <ol class="hrn-schema__flux" role="list" aria-label={titre}>
+    {etapes.map((etape, i) => (
+      <li class="hrn-schema__etape">
+        {i > 0 && (
+          <svg class="hrn-schema__fleche" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="m6 13 6 6 6-6"></path></svg>
+        )}
+        {Array.isArray(etape.texte) ? (
+          <ul class="hrn-schema__rangee" role="list">
+            {etape.texte.map((t) => <li class="hrn-schema__pastille">{t}</li>)}
+          </ul>
+        ) : (
+          <span class:list={['hrn-schema__pastille', etape.style && `hrn-schema__pastille--${etape.style}`]}>{etape.texte}</span>
+        )}
+      </li>
+    ))}
+  </ol>
+</div>
+
+<style>
+  .hrn-schema {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .hrn-schema--carte {
+    padding: clamp(24px, 2.6vw, 32px);
+    background: var(--nuit-carte);
+    border: 1px solid var(--nuit-carte-bordure);
+    border-radius: var(--radius-xl);
+  }
+
+  .hrn-schema--vignette {
+    justify-content: center;
+    padding: 20px;
+    background: var(--paper);
+  }
+
+  .hrn-schema__titre {
+    align-self: flex-start;
+    margin: 0 0 18px;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .hrn-schema__flux,
+  .hrn-schema__rangee {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .hrn-schema__flux {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .hrn-schema__etape {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+  }
+
+  .hrn-schema__fleche {
+    flex: none;
+    color: var(--amber-300);
+  }
+
+  .hrn-schema__rangee {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .hrn-schema__pastille {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    min-height: 34px;
+    padding: 6px 16px;
+    border: 1px solid var(--bleu-bordure);
+    border-radius: var(--radius-full);
+    font-family: var(--font-sans);
+    font-weight: var(--weight-semibold);
+    font-size: 13px;
+    line-height: 1.3;
+    color: var(--bleu-texte-fort);
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  /* Dans les vignettes, sur --paper, le filet --bleu-bordure disparaissait
+     presque : un cran plus clair, comme le rgba crème de la maquette. */
+  .hrn-schema--vignette .hrn-schema__pastille {
+    border-color: var(--bleu-bordure-forte);
+    font-size: 14px;
+  }
+
+  .hrn-schema__pastille--ia {
+    background: var(--amber-500);
+    border-color: var(--amber-500);
+    color: var(--paper);
+  }
+
+  .hrn-schema--vignette .hrn-schema__pastille--ia {
+    border-color: var(--amber-500);
+  }
+
+  .hrn-schema--carte .hrn-schema__pastille--ia {
+    min-height: 44px;
+    padding: 8px 22px;
+    font-size: 15px;
+  }
+
+  .hrn-schema__pastille--pointille {
+    border-style: dashed;
+  }
+</style>

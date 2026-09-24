@@ -7,6 +7,14 @@
 // questions, à la place de l'ancienne FAQ dépliée des pages d'offre
 // (OffreFaq), à la demande de l'utilisateur : même présentation partout.
 //
+// Maquettes du 24 septembre 2026, pour les pages d'offre : trois options,
+// sans effet sur l'accueil qui garde les valeurs par défaut.
+//  - `fond` : `surface` (crème, par défaut) ou `paper` (bleu, zone bleue) ;
+//  - `disposition` : `colonne` (par défaut, colonne étroite centrée) ou
+//    `cote` (le titre à gauche, l'accordéon à droite, des signes plus et
+//    moins turquoise à la place du chevron) ;
+//  - `ouverte` : l'index de la question ouverte au chargement.
+//
 // Le script cherche UNE section .hrn-faq par page : ne pas en poser deux.
 const FAQ_ACCUEIL = [
   {
@@ -57,6 +65,10 @@ interface Props {
   titre?: string;
   /** Ancre de la section. `objections` sur l'accueil, visée par aucun lien externe. */
   id?: string;
+  fond?: 'surface' | 'paper';
+  disposition?: 'colonne' | 'cote';
+  /** Index de la question ouverte au chargement. Aucune par défaut. */
+  ouverte?: number;
 }
 
 const {
@@ -64,20 +76,40 @@ const {
   eyebrow = 'Vos questions',
   titre = 'Ce que les dirigeants nous demandent',
   id = 'objections',
+  fond = 'surface',
+  disposition = 'colonne',
+  ouverte,
 } = Astro.props;
+const cote = disposition === 'cote';
 ---
 
-<section id={id} class="hrn-faq">
+<section
+  id={id}
+  class:list={['hrn-faq', fond === 'paper' && 'hrn-faq--paper hrn-zone-bleue', cote && 'hrn-faq--cote']}
+>
   <div class="hrn-faq__inner">
-    <div class="hrn-eyebrow">{eyebrow}</div>
-    <h2>{titre}</h2>
+    {cote ? (
+      <div class="hrn-faq__tete">
+        <div class="hrn-eyebrow">{eyebrow}</div>
+        <h2>{titre}</h2>
+      </div>
+    ) : (
+      <>
+        <div class="hrn-eyebrow">{eyebrow}</div>
+        <h2>{titre}</h2>
+      </>
+    )}
 
     <div class="hrn-faq__list">
-      {faqs.map((item) => (
-        <details name="faq" class="hrn-faq__item">
+      {faqs.map((item, i) => (
+        <details name="faq" class="hrn-faq__item" open={i === ouverte}>
           <summary>
             <span>{item.q}</span>
-            <svg class="hrn-faq__chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+            {cote ? (
+              <svg class="hrn-faq__signe" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path><path class="hrn-faq__signe-v" d="M12 5v14"></path></svg>
+            ) : (
+              <svg class="hrn-faq__chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+            )}
           </summary>
           <div class="hrn-faq__panel">
             <p>{item.a}</p>
@@ -158,6 +190,78 @@ const {
     line-height: 1.6;
     color: var(--text-secondary);
   }
+
+  /* ============ Options des pages d'offre ============ */
+
+  .hrn-faq--paper {
+    background: var(--paper);
+  }
+
+  .hrn-faq--cote .hrn-faq__inner {
+    max-width: var(--container-max);
+    display: grid;
+    gap: 32px 64px;
+  }
+
+  @media (min-width: 900px) {
+    .hrn-faq--cote .hrn-faq__inner {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+      align-items: start;
+    }
+  }
+
+  .hrn-faq--cote .hrn-faq__tete {
+    min-width: 0;
+  }
+
+  /* Colonne étroite : le titre descend d'un cran pour tenir en quatre lignes,
+     comme sur la maquette, au lieu de laisser un mot seul sur la cinquième. */
+  .hrn-faq--cote .hrn-faq__tete h2 {
+    font-size: clamp(1.9rem, 3vw, 2.625rem);
+  }
+
+  .hrn-faq--cote .hrn-eyebrow {
+    color: var(--accent-texte);
+  }
+
+  .hrn-faq--cote .hrn-faq__list {
+    margin-top: 0;
+    min-width: 0;
+  }
+
+  .hrn-faq--cote .hrn-faq__item summary {
+    font-size: 20px;
+  }
+
+  .hrn-faq--cote .hrn-faq__panel p {
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  /* Le signe plus devient moins : la barre verticale pivote d'un quart de
+     tour et se confond avec l'horizontale. Natif via [open], enrichi via
+     .is-open, comme le chevron. */
+  .hrn-faq__signe {
+    flex: none;
+    color: var(--accent-texte);
+  }
+
+  .hrn-faq__signe-v {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform var(--dur) var(--ease-standard);
+  }
+
+  .hrn-faq:not(.is-enhanced) .hrn-faq__item[open] .hrn-faq__signe-v,
+  .hrn-faq.is-enhanced .hrn-faq__item.is-open .hrn-faq__signe-v {
+    transform: rotate(90deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-faq__signe-v {
+      transition: none;
+    }
+  }
 </style>
 
 <script>
@@ -213,6 +317,9 @@ const {
       if (item.dataset.faqReady) continue;
       item.dataset.faqReady = '1';
       item.removeAttribute('name'); // l'exclusivité est désormais pilotée par le JS (anim simultanée)
+      // Une question ouverte d'office au chargement (prop `ouverte`) doit
+      // porter l'état enrichi, sinon son signe reste sur « plus ».
+      if (item.open) item.classList.add('is-open');
 
       const summary = item.querySelector('summary');
       const panel = item.querySelector<HTMLElement>('.hrn-faq__panel');

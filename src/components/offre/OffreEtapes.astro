@@ -1,11 +1,19 @@
 ---
 // Déroulé en étapes, commun aux deux pages d'offre.
 //
-// Porté du handoff Claude Design « Blocs Offres Herone » (bloc 1b).
-// Changement principal apporté par le design : la mise en page passe sur DEUX
-// colonnes. L'accroche reste calée à gauche pendant que les étapes défilent à
-// droite, au lieu d'un titre posé au-dessus d'une longue liste. En étroit, la
-// grille se replie d'elle-même en une colonne.
+// Porté du handoff Claude Design « Blocs Offres Herone » (bloc 1b), puis
+// complété d'après les maquettes du 24 septembre 2026. Trois variantes :
+//
+//  - `liste` (par défaut) : l'accroche calée à gauche, les étapes en liste
+//    réglée à droite. En étroit, la grille se replie en une colonne.
+//  - `cartes` (/formation) : le titre à gauche et le chapô à droite sur la
+//    même ligne, puis une barre de temps proportionnelle (un segment par
+//    étape, sa largeur suit `minutes`, les ateliers en turquoise), puis les
+//    étapes en cartes sur trois colonnes. La barre n'apparaît que si chaque
+//    étape porte ses `minutes`.
+//  - `frise` (/automatisation) : une frise horizontale, une colonne par étape,
+//    des pastilles rondes reliées par un filet, la première en turquoise
+//    plein. Sous 900px, la frise redevient verticale.
 //
 // Sur /formation, `meta` porte la durée du bloc (« 30 min »). Sur
 // /automatisation, elle porte le moment (« avant de démarrer »). Elle peut
@@ -16,42 +24,135 @@
 // Les durées restent d'un seul tenant par leurs espaces insécables, ce qui
 // suffit et ne bloque pas le repli du reste.
 
+interface Etape {
+  num: string;
+  titre: string;
+  meta?: string;
+  texte: string;
+  /** Durée en minutes, pour la barre de temps de la variante `cartes`. */
+  minutes?: number;
+  /** Segment en turquoise dans la barre de temps. */
+  atelier?: boolean;
+}
+
 interface Props {
   eyebrow: string;
   titre: string;
   lede?: string;
-  etapes: { num: string; titre: string; meta?: string; texte: string }[];
+  etapes: Etape[];
   /** Fond de la section, à choisir pour ne jamais répéter celui de la section précédente. */
   fond?: 'paper' | 'surface';
   id?: string;
+  variante?: 'liste' | 'cartes' | 'frise';
+  /** Légende sous la barre de temps : début, sens du turquoise, fin. */
+  legende?: { debut: string; milieu: string; fin: string };
 }
 
-const { eyebrow, titre, lede, etapes, fond = 'surface', id } = Astro.props;
+const { eyebrow, titre, lede, etapes, fond = 'surface', id, variante = 'liste', legende } = Astro.props;
+const barre = variante === 'cartes' && etapes.every((e) => typeof e.minutes === 'number' && e.minutes > 0);
 ---
 
-<section class:list={['hrn-offre-etapes', `hrn-offre-etapes--${fond}`, fond === 'paper' && 'hrn-zone-bleue']} id={id}>
-  <div class="hrn-section-inner hrn-offre-etapes__grid">
-    <div class="hrn-offre-etapes__intro">
-      <div class="hrn-eyebrow">{eyebrow}</div>
-      <h2>{titre}</h2>
-      {lede && <p>{lede}</p>}
-    </div>
+<section
+  class:list={[
+    'hrn-offre-etapes',
+    `hrn-offre-etapes--${fond}`,
+    `hrn-offre-etapes--${variante}`,
+    fond === 'paper' ? 'hrn-zone-bleue' : variante !== 'liste' && 'hrn-zone-creme',
+  ]}
+  id={id}
+>
+  {variante === 'liste' && (
+    <div class="hrn-section-inner hrn-offre-etapes__grid">
+      <div class="hrn-offre-etapes__intro">
+        <div class="hrn-eyebrow">{eyebrow}</div>
+        <h2>{titre}</h2>
+        {lede && <p>{lede}</p>}
+      </div>
 
-    <ol class="hrn-offre-etapes__list" role="list">
-      {etapes.map((etape) => (
-        <li class="hrn-offre-etape">
-          <span class="hrn-offre-etape__num">{etape.num}</span>
-          <div class="hrn-offre-etape__corps">
-            <div class="hrn-offre-etape__head">
-              <h3>{etape.titre}</h3>
-              {etape.meta && <span class="hrn-offre-etape__meta">{etape.meta}</span>}
+      <ol class="hrn-offre-etapes__list" role="list">
+        {etapes.map((etape) => (
+          <li class="hrn-offre-etape">
+            <span class="hrn-offre-etape__num">{etape.num}</span>
+            <div class="hrn-offre-etape__corps">
+              <div class="hrn-offre-etape__head">
+                <h3>{etape.titre}</h3>
+                {etape.meta && <span class="hrn-offre-etape__meta">{etape.meta}</span>}
+              </div>
+              <p>{etape.texte}</p>
             </div>
-            <p>{etape.texte}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  )}
+
+  {variante === 'cartes' && (
+    <div class="hrn-section-inner">
+      <div class="hrn-offre-etapes__tete">
+        <div class="hrn-offre-etapes__titre">
+          <div class="hrn-eyebrow">{eyebrow}</div>
+          <h2>{titre}</h2>
+        </div>
+        {lede && <p class="hrn-offre-etapes__lede">{lede}</p>}
+      </div>
+
+      {barre && (
+        <div class="hrn-offre-barre" aria-hidden="true">
+          <div class="hrn-offre-barre__segments">
+            {etapes.map((etape) => (
+              <span
+                class:list={['hrn-offre-barre__segment', etape.atelier && 'hrn-offre-barre__segment--atelier']}
+                style={`flex-grow: ${etape.minutes}`}
+              >{etape.num}</span>
+            ))}
           </div>
-        </li>
-      ))}
-    </ol>
-  </div>
+          {legende && (
+            <div class="hrn-offre-barre__legende">
+              <span>{legende.debut}</span>
+              <span class="hrn-offre-barre__legende-milieu">{legende.milieu}</span>
+              <span>{legende.fin}</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      <ol class="hrn-offre-cartes" role="list">
+        {etapes.map((etape) => (
+          <li class="hrn-offre-carte">
+            <div class="hrn-offre-carte__tete">
+              <span class="hrn-offre-carte__num">{etape.num}</span>
+              {etape.meta && <span class="hrn-offre-carte__meta">{etape.meta}</span>}
+            </div>
+            <h3>{etape.titre}</h3>
+            <p>{etape.texte}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  )}
+
+  {variante === 'frise' && (
+    <div class="hrn-section-inner">
+      <div class="hrn-offre-etapes__haut">
+        <div class="hrn-eyebrow">{eyebrow}</div>
+        <h2>{titre}</h2>
+        {lede && <p class="hrn-offre-etapes__lede">{lede}</p>}
+      </div>
+
+      <ol class="hrn-offre-frise" role="list" style={`--n: ${etapes.length}`}>
+        {etapes.map((etape, i) => (
+          <li class="hrn-offre-frise__etape">
+            <span class:list={['hrn-offre-frise__pastille', i === 0 && 'hrn-offre-frise__pastille--active']}>{etape.num}</span>
+            <div class="hrn-offre-frise__corps">
+              <h3>{etape.titre}</h3>
+              {etape.meta && <span class="hrn-offre-frise__meta">{etape.meta}</span>}
+              <p>{etape.texte}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  )}
 </section>
 
 <style>
@@ -67,6 +168,8 @@ const { eyebrow, titre, lede, etapes, fond = 'surface', id } = Astro.props;
   .hrn-offre-etapes--surface {
     background: var(--bg-surface);
   }
+
+  /* ============ Variante « liste » (par défaut) ============ */
 
   /* minmax(min(…, 100%), 1fr) : une piste fixe plus large que le conteneur
      pousse toute la page en défilement horizontal sur un écran de 320px
@@ -163,5 +266,281 @@ const { eyebrow, titre, lede, etapes, fond = 'surface', id } = Astro.props;
     font: var(--type-body);
     color: var(--text-secondary);
     text-wrap: pretty;
+  }
+
+  /* ============ Éléments communs aux variantes « cartes » et « frise » ============ */
+
+  .hrn-offre-etapes--cartes :global(.hrn-eyebrow),
+  .hrn-offre-etapes--frise :global(.hrn-eyebrow) {
+    color: var(--accent-texte);
+  }
+
+  .hrn-offre-etapes__lede {
+    margin: 0;
+    font-size: clamp(1.05rem, 1.4vw, 1.125rem);
+    line-height: 1.6;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  /* ============ Variante « cartes » ============ */
+
+  .hrn-offre-etapes__tete {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px 48px;
+  }
+
+  /* Le titre se replie dans sa colonne au lieu de réclamer toute la ligne :
+     c'est ce qui laisse le chapô se poser à droite, sur la même ligne. */
+  .hrn-offre-etapes__titre {
+    flex: 1 1 22rem;
+    min-width: 0;
+  }
+
+  .hrn-offre-etapes__tete .hrn-offre-etapes__lede {
+    flex: 0 1 30em;
+  }
+
+  /* La barre de temps : la largeur de chaque segment suit la durée de l'étape
+     (flex-grow posé par étape dans le balisage). Décorative pour les lecteurs
+     d'écran : les durées sont écrites dans les cartes. */
+  .hrn-offre-barre {
+    margin-top: 44px;
+  }
+
+  .hrn-offre-barre__segments {
+    display: flex;
+    gap: 6px;
+  }
+
+  .hrn-offre-barre__segment {
+    flex-basis: 0;
+    min-width: 0;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+  }
+
+  .hrn-offre-barre__segment--atelier {
+    background: var(--amber-500);
+    border-color: var(--amber-500);
+    color: var(--paper);
+  }
+
+  .hrn-offre-barre__legende {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px 16px;
+    margin-top: 10px;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .hrn-offre-barre__legende-milieu {
+    color: var(--accent-texte);
+  }
+
+  /* En étroit, la légende du milieu passe sous les deux bornes. */
+  @media (max-width: 700px) {
+    .hrn-offre-barre__segments {
+      gap: 3px;
+    }
+
+    .hrn-offre-barre__segment {
+      height: 36px;
+      font-size: 11px;
+    }
+
+    .hrn-offre-barre__legende-milieu {
+      order: 3;
+      flex-basis: 100%;
+    }
+  }
+
+  .hrn-offre-cartes {
+    list-style: none;
+    margin: 40px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    gap: 20px;
+  }
+
+  .hrn-offre-carte {
+    min-width: 0;
+    padding: 26px;
+    background: var(--nuit-carte);
+    border: 1px solid var(--nuit-carte-bordure);
+    border-radius: var(--radius-xl);
+  }
+
+  .hrn-offre-carte__tete {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .hrn-offre-carte__num {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent-texte);
+  }
+
+  .hrn-offre-carte__meta {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .hrn-offre-carte h3 {
+    margin: 14px 0 0;
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: clamp(1.2rem, 1.6vw, 1.375rem);
+    line-height: 1.2;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  .hrn-offre-carte p {
+    margin: 10px 0 0;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  /* ============ Variante « frise » ============ */
+
+  .hrn-offre-etapes__haut h2 {
+    max-width: 22ch;
+  }
+
+  .hrn-offre-etapes__haut .hrn-offre-etapes__lede {
+    margin-top: 18px;
+    max-width: 40em;
+  }
+
+  .hrn-offre-frise {
+    position: relative;
+    list-style: none;
+    margin: 52px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+    gap: 28px;
+  }
+
+  /* Le filet qui relie les pastilles, passé sous elles. */
+  .hrn-offre-frise::before {
+    content: '';
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    top: 23px;
+    height: 1.5px;
+    background: var(--border);
+  }
+
+  .hrn-offre-frise__etape {
+    position: relative;
+    min-width: 0;
+  }
+
+  .hrn-offre-frise__pastille {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--carte-claire);
+    border: 1.5px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--accent-texte);
+  }
+
+  .hrn-offre-frise__pastille--active {
+    background: var(--amber-500);
+    border-color: var(--amber-500);
+    color: var(--paper);
+  }
+
+  .hrn-offre-frise__corps h3 {
+    margin: 20px 0 0;
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: 20px;
+    line-height: 1.2;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  .hrn-offre-frise__meta {
+    display: block;
+    margin-top: 6px;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .hrn-offre-frise__corps p {
+    margin: 10px 0 0;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  /* Sous 900px, cinq colonnes ne laissent plus que quelques mots par ligne :
+     la frise redevient verticale, pastille à gauche, filet le long des
+     pastilles. */
+  @media (max-width: 899px) {
+    .hrn-offre-frise {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 32px;
+    }
+
+    .hrn-offre-frise::before {
+      left: 23px;
+      right: auto;
+      top: 24px;
+      bottom: 24px;
+      width: 1.5px;
+      height: auto;
+    }
+
+    .hrn-offre-frise__etape {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr);
+      gap: 20px;
+    }
+
+    .hrn-offre-frise__corps h3 {
+      margin-top: 12px;
+    }
   }
 </style>

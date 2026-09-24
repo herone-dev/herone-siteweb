@@ -9,19 +9,24 @@
 // est volontairement le dernier : on ne propose l'autre porte qu'une fois la
 // première expliquée en entier.
 //
-// Le filet est en tête du contenu et non de la section : le bloc se lit comme
-// un post-scriptum de la page, pas comme une nouvelle section.
+// Maquettes du 24 septembre 2026 : le texte à gauche, les deux liens empilés
+// à droite, le titre agrandi, les liens en turquoise. Le fond se choisit
+// (`fond`) pour alterner avec la FAQ qui précède : crème sur /formation, bleu
+// sur /automatisation. Le filet de tête a disparu avec l'alternance des
+// fonds, qui sépare déjà le bloc de la section précédente.
 
 interface Props {
   titre: string;
   texte: string;
   liens: { href: string; label: string }[];
+  /** Fond de la section, à choisir pour ne jamais répéter celui de la section précédente. */
+  fond?: 'paper' | 'surface';
 }
 
-const { titre, texte, liens } = Astro.props;
+const { titre, texte, liens, fond = 'paper' } = Astro.props;
 ---
 
-<section class="hrn-offre-pont hrn-zone-bleue">
+<section class:list={['hrn-offre-pont', `hrn-offre-pont--${fond}`, fond === 'paper' ? 'hrn-zone-bleue' : 'hrn-zone-creme']}>
   <div class="hrn-section-inner hrn-offre-pont__inner">
     <div class="hrn-offre-pont__texte">
       <h2 set:html={titre} />
@@ -44,46 +49,52 @@ const { titre, texte, liens } = Astro.props;
     background: var(--bg-page);
   }
 
-  /* minmax(min(…, 100%), 1fr) : une piste fixe plus large que le conteneur
-     pousse toute la page en défilement horizontal sur un écran de 320px
-     (piège n°1 du projet). */
+  .hrn-offre-pont--surface {
+    background: var(--surface);
+  }
+
+  /* Texte à gauche, liens à droite ; en étroit, les liens passent dessous. */
   .hrn-offre-pont__inner {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
-    gap: clamp(var(--space-6), 5vw, var(--space-16));
-    align-items: start;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 28px 64px;
     padding-top: clamp(var(--space-10), 8vw, var(--space-20));
     padding-bottom: clamp(var(--space-10), 8vw, var(--space-20));
-    border-top: 1px solid var(--border);
   }
 
   .hrn-offre-pont__texte {
     display: grid;
-    gap: var(--space-3);
+    gap: 16px;
+    flex: 1 1 32rem;
+    max-width: 40rem;
     min-width: 0;
   }
 
   .hrn-offre-pont h2 {
     margin: 0;
-    font: var(--type-h3);
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: clamp(1.6rem, 2.8vw, 2.375rem);
+    line-height: 1.12;
     letter-spacing: var(--tracking-titre);
     color: var(--text-strong);
     max-width: none;
     text-wrap: balance;
-    font-weight: var(--weight-titre);
   }
 
   .hrn-offre-pont p {
-    margin: 0 !important;
-    font: var(--type-body);
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.6;
     color: var(--text-secondary);
-    max-width: 34rem;
     text-wrap: pretty;
   }
 
   .hrn-offre-pont__actions {
     display: grid;
-    gap: var(--space-3);
+    gap: 16px;
     align-content: start;
     min-width: 0;
   }
@@ -94,8 +105,9 @@ const { titre, texte, liens } = Astro.props;
     gap: var(--space-2);
     justify-self: start;
     font-weight: var(--weight-semibold);
-    font-size: var(--text-md);
-    color: var(--link);
+    min-height: 44px;
+    font-size: var(--text-base);
+    color: var(--accent-texte);
     text-decoration: none;
     transition: color var(--dur-fast) var(--ease-standard),
                 transform var(--dur-fast) var(--ease-standard);
@@ -103,7 +115,7 @@ const { titre, texte, liens } = Astro.props;
 
   .hrn-offre-pont__link:hover,
   .hrn-offre-pont__link:focus-visible {
-    color: var(--link-hover);
+    color: var(--text-strong);
     transform: translateX(2px);
   }
 

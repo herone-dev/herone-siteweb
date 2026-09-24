@@ -2,54 +2,97 @@
 // Hero commun aux pages d'offre (/formation, /automatisation).
 //
 // Porté du handoff Claude Design « Blocs Offres Herone » (bloc 1a), projet
-// ef0bd883. La géométrie et le rythme viennent du design ; les écarts assumés
-// sont listés plus bas.
+// ef0bd883, puis remis en page d'après les maquettes du 24 septembre 2026 :
+// le texte et les boutons passent à gauche, un contenu s'affiche à droite
+// (grille d'environ 1,15fr / 1fr), et les quatre faits restent dessous, sur
+// toute la largeur.
+//
+// Le contenu de droite passe de deux façons, au choix :
+//  - la prop `image` pour une photo avec sa légende (/formation) ;
+//  - l'emplacement nommé `droite` pour n'importe quel bloc (/automatisation,
+//    la carte schéma « Un système Hérone »).
+// Sans l'un ni l'autre, le texte occupe seul la largeur.
 //
 // Les deux pages d'offre sont des jumelles volontaires : un visiteur qui passe
 // de l'une à l'autre doit reconnaître la structure et comparer sans effort.
-// C'est aussi ce qui fait qu'un handoff ne s'applique qu'à un seul endroit.
 //
-// Écarts assumés par rapport au fichier de design, et pourquoi :
+// Écarts assumés par rapport aux fichiers de design, et pourquoi :
 //
-//  1. Le design mesure ses espacements en `cqi` (unités de conteneur), parce
-//     que chaque bloc y est rendu dans une carte d'aperçu de largeur fixe.
-//     Sur le site réel il n'y a pas de conteneur : les `cqi` retomberaient
-//     silencieusement sur la fenêtre. Ils sont donc traduits en `vw`, ce qui
-//     est leur sens ici, et le calcul reste le même.
-//  2. Le padding vertical passe par --section-y au lieu du clamp du design.
-//     Dans ce projet, aucune section ne code son rythme en dur : --section-y
-//     est déjà un clamp, et c'est lui le réglage unique de toute la page.
-//     Le padding horizontal, lui, est repris tel quel par .hrn-section-inner,
-//     dont la formule est identique à celle du design.
-//  3. Le design pose `overflow-wrap:anywhere` globalement. Non repris : cela
+//  1. Le padding vertical passe par --section-y : dans ce projet, aucune
+//     section ne code son rythme en dur. Le padding haut laisse passer
+//     l'en-tête fixe de 68px.
+//  2. Le design pose `overflow-wrap:anywhere` globalement. Non repris : cela
 //     coupe les mots au milieu sur les titres. Les débordements sont traités
 //     à la source (minmax(min(...,100%),1fr), aucun libellé insécable).
-//  4. La trame de points du hero vient des pages intérieures existantes
+//  3. La trame de points du hero vient des pages intérieures existantes
 //     (/blog) et n'est pas dans le design. Conservée pour que les pages
 //     intérieures restent cohérentes entre elles.
+//  4. Le titre passe en Manrope 500 à -0.04em, comme dans la maquette et comme
+//     le hero de l'accueil : en 700, sur une demi-largeur, il tenait sur cinq
+//     lignes.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import Button from '../Button.astro';
 
 interface Props {
   eyebrow: string;
   titre: string;
   lede: string;
-  /** Rangée de faits sous le chapô. Le design en pose quatre, le prix en dernier. */
+  /** Rangée de faits sous la grille. Le design en pose quatre, le prix en dernier. */
   faits: { cle: string; valeur: string }[];
   /** Lien secondaire à côté du bouton, typiquement vers l'ancre du tarif. */
   lienHref?: string;
   lienLabel?: string;
+  /** Photo à droite du texte, coins arrondis, avec sa légende en mono. */
+  image?: { src: ImageMetadata; alt: string; legende?: string };
 }
 
-const { eyebrow, titre, lede, faits, lienHref, lienLabel } = Astro.props;
+const { eyebrow, titre, lede, faits, lienHref, lienLabel, image } = Astro.props;
+const aDroite = Boolean(image) || Astro.slots.has('droite');
 ---
 
 <section class="hrn-offre-hero hrn-zone-bleue">
   <div class="hrn-offre-hero__dots" aria-hidden="true"></div>
   <div class="hrn-section-inner hrn-offre-hero__content">
-    <div class="hrn-offre-hero__intro">
-      <div class="hrn-eyebrow">{eyebrow}</div>
-      <h1>{titre}</h1>
-      <p class="hrn-offre-hero__lede">{lede}</p>
+    <div class:list={['hrn-offre-hero__haut', aDroite && 'hrn-offre-hero__haut--droite']}>
+      <div class="hrn-offre-hero__texte">
+        <div class="hrn-offre-hero__intro">
+          <div class="hrn-eyebrow">{eyebrow}</div>
+          <h1>{titre}</h1>
+          <p class="hrn-offre-hero__lede">{lede}</p>
+        </div>
+
+        <div class="hrn-offre-hero__actions">
+          <Button variant="accent" size="lg" href="/#reserver">Réserver 30 minutes</Button>
+          {lienHref && lienLabel && (
+            <a href={lienHref} class="hrn-offre-hero__link">
+              {lienLabel}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+            </a>
+          )}
+        </div>
+      </div>
+
+      {aDroite && (
+        <div class="hrn-offre-hero__droite">
+          {image ? (
+            <figure class="hrn-offre-hero__figure">
+              <Image
+                src={image.src}
+                alt={image.alt}
+                widths={[480, 720, 1000]}
+                sizes="(max-width: 959px) 92vw, 520px"
+                quality={82}
+                loading="eager"
+                class="hrn-offre-hero__photo"
+              />
+              {image.legende && <figcaption>{image.legende}</figcaption>}
+            </figure>
+          ) : (
+            <slot name="droite" />
+          )}
+        </div>
+      )}
     </div>
 
     <ul class="hrn-offre-facts" role="list">
@@ -60,16 +103,6 @@ const { eyebrow, titre, lede, faits, lienHref, lienLabel } = Astro.props;
         </li>
       ))}
     </ul>
-
-    <div class="hrn-offre-hero__actions">
-      <Button variant="accent" size="lg" href="/#reserver">Réserver 30 minutes</Button>
-      {lienHref && lienLabel && (
-        <a href={lienHref} class="hrn-offre-hero__link">
-          {lienLabel}
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
-        </a>
-      )}
-    </div>
   </div>
 </section>
 
@@ -94,69 +127,132 @@ const { eyebrow, titre, lede, faits, lienHref, lienLabel } = Astro.props;
   .hrn-offre-hero__content {
     position: relative;
     display: grid;
-    gap: clamp(var(--space-8), 5vw, var(--space-12));
+    gap: clamp(40px, 4.5vw, 56px);
   }
 
   .hrn-offre-hero :global(.hrn-eyebrow) {
     color: var(--amber-300);
   }
 
+  /* Une colonne en étroit (le contenu de droite passe sous le texte), deux à
+     partir de 960px. */
+  .hrn-offre-hero__haut {
+    display: grid;
+    gap: clamp(32px, 4.5vw, 64px);
+    align-items: center;
+  }
+
+  @media (min-width: 960px) {
+    .hrn-offre-hero__haut--droite {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    }
+  }
+
+  .hrn-offre-hero__texte {
+    display: grid;
+    gap: 32px;
+    min-width: 0;
+  }
+
   .hrn-offre-hero__intro {
     display: grid;
-    gap: var(--space-5);
+    gap: 18px;
     max-width: 52rem;
   }
 
   .hrn-offre-hero h1 {
     font-family: var(--font-display);
-    font-weight: var(--weight-titre);
-    font-size: clamp(var(--text-3xl), 7vw, var(--text-6xl));
-    line-height: var(--leading-none);
-    letter-spacing: var(--tracking-titre);
+    font-weight: var(--weight-medium);
+    font-size: clamp(2.4rem, 4.45vw, 4rem);
+    line-height: 1.04;
+    letter-spacing: -0.04em;
     color: #fff;
     margin: 0;
     text-wrap: balance;
   }
 
   .hrn-offre-hero__lede {
-    margin: 0 !important;
-    font: var(--type-body-lg);
-    color: var(--text-primary);
+    margin: 0;
+    font-size: clamp(1.05rem, 1.35vw, 1.19rem);
+    line-height: 1.6;
+    color: var(--text-secondary);
     max-width: 40rem;
     text-wrap: pretty;
   }
 
-  /* minmax(min(…, 100%), 1fr) et non minmax(220px, 1fr) : sur un écran de
-     320px, une piste fixe plus large que le conteneur déborde et pousse toute
-     la page en défilement horizontal (piège n°1 du projet). Le fichier de
-     design pose déjà la bonne forme, elle est reprise telle quelle. */
+  .hrn-offre-hero__droite {
+    min-width: 0;
+  }
+
+  .hrn-offre-hero__figure {
+    margin: 0;
+  }
+
+  .hrn-offre-hero__photo,
+  .hrn-offre-hero__figure :global(img) {
+    display: block;
+    width: 100%;
+    height: clamp(240px, 30vw, 400px);
+    object-fit: cover;
+    border-radius: var(--radius-2xl);
+  }
+
+  .hrn-offre-hero__figure figcaption {
+    margin-top: 12px;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* Quatre faits, chacun sous son propre filet, comme dans la maquette.
+     Paliers explicites (4, puis 2, puis 1 colonne) plutôt qu'un auto-fit : à
+     1024px, l'auto-fit donnait trois colonnes et laissait le prix seul sur la
+     deuxième ligne. */
   .hrn-offre-facts {
     list-style: none;
     margin: 0;
-    padding: var(--space-6) 0 0;
-    border-top: 1px solid var(--border-inverse);
+    padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
-    gap: var(--space-6) var(--space-8);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  @media (min-width: 480px) {
+    .hrn-offre-facts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 900px) {
+    .hrn-offre-facts {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
   }
 
   .hrn-offre-facts li {
     display: grid;
-    gap: var(--space-1);
+    align-content: start;
+    gap: 6px;
     min-width: 0;
+    padding: 20px 24px 0 0;
+    border-top: 1px solid var(--border);
   }
 
   .hrn-offre-facts strong {
     font-family: var(--font-display);
-    font-weight: var(--weight-bold);
-    font-size: var(--text-lg);
+    font-weight: var(--weight-titre);
+    font-size: 19px;
     line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-titre);
     color: #fff;
     text-wrap: balance;
   }
 
   .hrn-offre-facts span {
-    font: var(--type-small);
+    font-size: 14px;
+    line-height: 1.5;
     color: var(--text-secondary);
     text-wrap: pretty;
   }
@@ -172,8 +268,9 @@ const { eyebrow, titre, lede, faits, lienHref, lienLabel } = Astro.props;
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
+    min-height: 44px;
     font-weight: var(--weight-semibold);
-    color: var(--text-inverse);
+    color: var(--amber-300);
     text-decoration: none;
     transition: color var(--dur-fast) var(--ease-standard),
                 transform var(--dur-fast) var(--ease-standard);
@@ -181,30 +278,35 @@ const { eyebrow, titre, lede, faits, lienHref, lienLabel } = Astro.props;
 
   .hrn-offre-hero__link:hover,
   .hrn-offre-hero__link:focus-visible {
-    color: var(--amber-300);
+    color: var(--amber-200);
     transform: translateX(2px);
   }
 
-  /* Apparition à l'arrivée sur la page, en cascade sur les trois blocs, comme
-     dans le design. Pas d'IntersectionObserver ici : le hero est au-dessus de
-     la ligne de flottaison, il est déjà à l'écran. N'anime que transform et
-     opacity, conformément à la convention du projet. */
+  /* Apparition à l'arrivée sur la page, en cascade, comme dans le design. Pas
+     d'IntersectionObserver ici : le hero est au-dessus de la ligne de
+     flottaison, il est déjà à l'écran. N'anime que transform et opacity,
+     conformément à la convention du projet. */
   @keyframes hrn-offre-rise {
     from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: none; }
   }
 
   .hrn-offre-hero__intro,
-  .hrn-offre-facts,
-  .hrn-offre-hero__actions {
+  .hrn-offre-hero__actions,
+  .hrn-offre-hero__droite,
+  .hrn-offre-facts {
     animation: hrn-offre-rise var(--dur-slow) var(--ease-out) both;
   }
 
-  .hrn-offre-facts {
+  .hrn-offre-hero__actions {
     animation-delay: 80ms;
   }
 
-  .hrn-offre-hero__actions {
+  .hrn-offre-hero__droite {
+    animation-delay: 120ms;
+  }
+
+  .hrn-offre-facts {
     animation-delay: 160ms;
   }
 
@@ -212,8 +314,9 @@ const { eyebrow, titre, lede, faits, lienHref, lienLabel } = Astro.props;
      personnes qui ont demandé l'inverse au système. */
   @media (prefers-reduced-motion: reduce) {
     .hrn-offre-hero__intro,
-    .hrn-offre-facts,
-    .hrn-offre-hero__actions {
+    .hrn-offre-hero__actions,
+    .hrn-offre-hero__droite,
+    .hrn-offre-facts {
       animation: none;
     }
 
@@ -226,6 +329,10 @@ const { eyebrow, titre, lede, faits, lienHref, lienLabel } = Astro.props;
     .hrn-offre-hero__actions {
       align-items: stretch;
       flex-direction: column;
+    }
+
+    .hrn-offre-hero__link {
+      justify-content: center;
     }
   }
 </style>
