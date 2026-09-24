@@ -32,6 +32,8 @@ Dans GA4, la mesure améliorée doit avoir « Changements de page basés sur l'h
 | `article_slug` | slug de l'article, ou `hors_article` | Relie chaque action à l'article où elle a lieu |
 | `article_categorie` | catégorie du frontmatter, ou `hors_article` | Comparer les catégories entre elles |
 
+`content_group` prend aussi la valeur `legal` pour les mentions légales, la confidentialité et les cookies.
+
 Les deux derniers sont lus sur `data-article-slug` et `data-article-categorie`, posés par `src/pages/blog/[slug].astro`.
 
 ## 4. Événements
@@ -52,6 +54,24 @@ Les deux derniers sont lus sur `data-article-slug` et `data-article-categorie`, 
 | `defilement` | Paliers de 25, 50, 75 et 100 %, une fois chacun par page. Sur un article, mesuré sur le texte de l'article, pas sur toute la page | `pourcentage` | |
 | `lecture_article` | Article lu à 75 % au moins **et** 30 secondes actives (onglet visible) | `secondes_actives` | |
 | `choix_cookies` | Clic sur « Accepter » ou « Refuser » | `choix` = `accepte` ou `refuse` | |
+| `rdv_agenda_affiche` | L'agenda Calendly intégré a fini de s'afficher | | |
+| `file_download` | Clic sur un lien avec l'attribut `download` ou vers un fichier (pdf, docx, xlsx, pptx, csv, zip, odt, ods, txt, ics, vcf, mp4, mp3). Nom recommandé par Google | `file_name`, `file_extension`, `link_url`, `cta_zone` | |
+| `clic_repete` | Trois clics ou plus en moins d'une seconde sur le même élément : bouton qui ne réagit pas, élément qui ressemble à un lien, visiteur agacé | `cta_zone`, `cta_texte` | |
+| `section_vue` | Une section de la page est affichée à moitié (ou occupe la moitié de l'écran si elle est très haute). Une fois par section et par page. Toutes les `section` de `main` sont suivies, nommées par leur `id`, sinon leur première classe | `section` | |
+| `ouverture_faq` | Ouverture d'une question de la FAQ (l'état ouvert au chargement n'est pas compté) | `question`, `cta_zone` | |
+| `ouverture_depliant` | Ouverture d'un autre dépliant, par exemple le sommaire mobile d'un article | `cta_texte`, `cta_zone` | |
+| `temps_actif` | Paliers de 30 s, 1 min, 2 min et 5 min passés sur la page, onglet visible | `secondes_actives` | |
+| `copie_texte` | Le visiteur copie du texte (numéro, adresse, passage d'article) | `cta_texte` (80 premiers caractères), `longueur`, `cta_zone` | |
+| `impression_page` | Le visiteur imprime la page | | |
+| `video_start` | Lecture lancée : vidéo de présentation, ou clic sur la vidéo YouTube de témoignage. Nom recommandé par Google | `video_title`, `video_provider` (`herone` ou `youtube`), `video_duration`, `video_current_time`, `cta_zone` | |
+| `video_progress` | Paliers de 10, 25, 50, 75 et 90 % d'une vidéo hébergée sur le site | idem + `video_percent` | |
+| `video_pause` | Pause d'une vidéo hébergée sur le site | idem + `video_percent` | |
+| `video_reprise` | Reprise après une pause | idem | |
+| `video_complete` | Vidéo hébergée vue jusqu'au bout | idem + `video_percent` = 100 | |
+| `web_vitals` | Performance réelle de la première page de la visite, envoyée quand le visiteur quitte ou masque l'onglet : LCP (affichage du contenu principal, en ms), CLS (stabilité, ×1000), INP (réactivité, en ms) | `metric_name`, `metric_value`, `metric_rating` (`bon`, `a_ameliorer`, `mauvais`) | |
+| `erreur_js` | Erreur JavaScript rencontrée par un visiteur, 5 au plus par page. Les erreurs des scripts tiers, sans détail, sont ignorées | `message_erreur`, `cta_texte` (fichier et ligne) | |
+
+Les vidéos d'ambiance (muettes, en boucle, lancées seules, comme celle du haut de l'accueil) ne sont pas suivies : personne ne les lance. La vidéo YouTube de témoignage n'est suivie qu'au lancement, le lecteur de YouTube ne renvoie rien au site ensuite.
 
 ## 5. Zones (`cta_zone`)
 
@@ -70,16 +90,18 @@ Détection automatique à partir de la position du lien dans la page. Un attribu
 | identifiant de section | Toute autre section qui porte un `id` (par exemple `reserver`) |
 | `page` | Rien de plus précis trouvé |
 
-## 6. Réglages GA4 à faire une fois
+## 6. Réglages GA4
 
-**Dimensions personnalisées**, portée « Événement » (Administration, Définitions personnalisées) :
-`cta_zone`, `cta_texte`, `lien_cible`, `lien_domaine`, `article_slug`, `article_categorie`, `pourcentage`, `methode`, `choix`.
+Ils sont posés automatiquement par le bouton **Configurer Google Analytics** de la page `/admin/stats/`, qui appelle la fonction `stats.mjs` avec `action=installer`. Le bouton peut être relancé sans risque : ce qui existe déjà n'est pas recréé. Le compte de service doit avoir le rôle **Éditeur** dans GA4.
 
-**Événements clés** (Administration, Événements clés) : `rdv_reserve`, `clic_telephone`, `clic_email`. Ils apparaissent dans GA4 après leur premier déclenchement ; ils peuvent aussi être créés à l'avance par leur nom.
+- **Dimensions personnalisées** (portée Événement) : `cta_zone`, `cta_texte`, `lien_cible`, `lien_domaine`, `article_slug`, `article_categorie`, `pourcentage`, `secondes_actives`, `section`, `question`, `methode`, `choix`, `video_title`, `video_provider`, `video_percent`, `file_name`, `metric_name`, `metric_rating`, `message_erreur`.
+- **Métriques personnalisées** : `metric_value` (moyenne de performance), `longueur` (texte copié).
+- **Événements clés** : `rdv_reserve`, `clic_telephone`, `clic_email`.
+- **Conservation des données** : 14 mois.
+- **Mesure améliorée** : « Changements de page basés sur l'historique du navigateur » et « Téléchargements de fichiers » sont désactivés, le site les envoie lui-même. Le reste de la mesure améliorée est conservé.
+- **Search Console** : le plan du site `sitemap-index.xml` est envoyé. Il faut pour cela l'autorisation « Complet ». Sans elle, seule cette ligne échoue.
 
-**Mesure améliorée** (Flux de données, herone.fr) : décocher « Changements de page basés sur l'historique du navigateur ». Laisser le reste.
-
-**Conservation des données** : 14 mois.
+Une dimension ne se remplit qu'à partir de sa création, jamais en arrière.
 
 ## 7. Ce que lit la page Statistiques
 
@@ -93,6 +115,7 @@ Détection automatique à partir de la position du lien dans la page. Un attribu
 | Lectures, clics RDV, liens internes et sortants, RDV réservés, appels | GA4 | `eventCount` des événements ci-dessus, par page |
 | Détail des clics par zone et par bouton | GA4 | Demande les dimensions `cta_zone` et `cta_texte` |
 | Provenance | GA4 | `sessionDefaultChannelGroup` |
+| Sections vues, FAQ, vidéos, téléchargements, clics répétés, erreurs, performance | GA4 | Bloc « Ce que font les visiteurs », une requête par sujet sur les dimensions ci-dessus |
 
 ## 8. Limites connues
 

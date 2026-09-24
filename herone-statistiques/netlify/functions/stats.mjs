@@ -28,9 +28,28 @@ const SITE = 'https://herone.fr';
 const DEPOT = process.env.GITHUB_REPO || 'herone-dev/herone-siteweb';
 const EVENEMENTS = [
   'clic_rdv', 'clic_telephone', 'clic_email', 'clic_bouton', 'clic_lien_interne',
-  'clic_sortant', 'clic_ancre', 'defilement', 'lecture_article', 'rdv_creneau_choisi',
-  'rdv_reserve', 'generate_lead',
+  'clic_sortant', 'clic_ancre', 'clic_repete', 'file_download', 'defilement', 'temps_actif',
+  'lecture_article', 'section_vue', 'ouverture_faq', 'ouverture_depliant', 'copie_texte',
+  'impression_page', 'video_start', 'video_progress', 'video_complete', 'video_pause',
+  'rdv_agenda_affiche', 'rdv_creneau_choisi', 'rdv_reserve', 'generate_lead', 'erreur_js',
 ];
+
+/* Réglages GA4 posés par le bouton « Configurer Google Analytics » de la page
+ * Statistiques (action=installer). Une dimension par paramètre du plan de
+ * marquage, pour pouvoir lire le détail : quel bouton, quelle section, quelle
+ * question de FAQ, quelle vidéo. */
+const DIMENSIONS = [
+  ['cta_zone', 'Zone du clic'], ['cta_texte', 'Texte du bouton ou du lien'], ['lien_cible', 'Cible du lien'],
+  ['lien_domaine', 'Domaine du lien sortant'], ['article_slug', 'Article'], ['article_categorie', "Catégorie d'article"],
+  ['pourcentage', 'Palier de défilement'], ['secondes_actives', 'Palier de temps actif'], ['section', 'Section vue'],
+  ['question', 'Question de FAQ'], ['methode', 'Méthode de prise de RDV'], ['choix', 'Choix cookies'],
+  ['video_title', 'Titre de la vidéo'], ['video_provider', 'Hébergeur de la vidéo'], ['video_percent', 'Palier de la vidéo'],
+  ['file_name', 'Fichier téléchargé'], ['metric_name', 'Indicateur de performance'], ['metric_rating', 'Note de performance'],
+  ['message_erreur', 'Erreur JavaScript'],
+];
+const METRIQUES = [['metric_value', 'Valeur de performance', 'STANDARD'], ['longueur', 'Longueur du texte copié', 'STANDARD']];
+const EVENEMENTS_CLES = ['rdv_reserve', 'clic_telephone', 'clic_email'];
+const MESURE = 'G-GT6JCYY2SF';
 const DUREE_CACHE = 10 * 60 * 1000;
 
 const cache = new Map();
@@ -75,8 +94,13 @@ function b64url(v) {
     .toString('base64').replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
 }
 
-async function tokenGoogle() {
-  if (jetonGoogle && jetonGoogle.expire > Date.now() + 60_000) return jetonGoogle.valeur;
+const PORTEE_LECTURE = 'https://www.googleapis.com/auth/webmasters.readonly https://www.googleapis.com/auth/analytics.readonly';
+const PORTEE_REGLAGES = 'https://www.googleapis.com/auth/webmasters https://www.googleapis.com/auth/analytics.edit';
+
+async function tokenGoogle(portee = PORTEE_LECTURE) {
+  jetonGoogle = jetonGoogle || {};
+  const connu = jetonGoogle[portee];
+  if (connu && connu.expire > Date.now() + 60_000) return connu.valeur;
   const email = process.env.GOOGLE_SA_EMAIL;
   let cle = process.env.GOOGLE_SA_KEY;
   if (!email || !cle) throw new Error('Compte de service absent : GOOGLE_SA_EMAIL et GOOGLE_SA_KEY à renseigner dans Netlify.');
@@ -85,7 +109,7 @@ async function tokenGoogle() {
   const entete = b64url({ alg: 'RS256', typ: 'JWT' });
   const charge = b64url({
     iss: email,
-    scope: 'https://www.googleapis.com/auth/webmasters.readonly https://www.googleapis.com/auth/analytics.readonly',
+    scope: portee,
     aud: 'https://oauth2.googleapis.com/token',
     iat: maintenant,
     exp: maintenant + 3600,
@@ -102,16 +126,16 @@ async function tokenGoogle() {
   });
   const d = await r.json();
   if (!r.ok) throw new Error(`Google a refusé le compte de service : ${d.error_description || d.error || r.status}`);
-  jetonGoogle = { valeur: d.access_token, expire: Date.now() + d.expires_in * 1000 };
-  return jetonGoogle.valeur;
+  jetonGoogle[portee] = { valeur: d.access_token, expire: Date.now() + d.expires_in * 1000 };
+  return d.access_token;
 }
 
-async function appelGoogle(url, corps) {
-  const jeton = await tokenGoogle();
+async function appelGoogle(url, corps, { methode = 'POST', portee } = {}) {
+  const jeton = await tokenGoogle(portee);
   const r = await fetch(url, {
-    method: 'POST',
+    method: methode,
     headers: { authorization: `Bearer ${jeton}`, 'content-type': 'application/json' },
-    body: JSON.stringify(corps),
+    body: corps === undefined ? undefined : JSON.stringify(corps),
   });
   const d = await r.json().catch(() => ({}));
   if (!r.ok) {
@@ -368,14 +392,164 @@ async function lireGa(p, chemin) {
       limit: 20,
     });
     resultat.sources = valeurs(s.rows, 1).map(({ d, m }) => ({ canal: d[0], vues: m[0] }));
+  } else {
+    resultat.engagement = await lireEngagement(base, periode);
   }
   return resultat;
+}
+
+/* Détail de l'engagement sur tout le site : sections vues, questions de FAQ
+ * ouvertes, vidéos, téléchargements, clics répétés, erreurs et performance.
+ * Chaque bloc dépend d'une dimension personnalisée : s'il manque, il revient
+ * vide avec un message, sans empêcher le reste de s'afficher. */
+async function lireEngagement(base, periode) {
+  const filtre = (noms) => ({ filter: { fieldName: 'eventName', inListFilter: { values: noms } } });
+  const blocs = {
+    sections: {
+      dimensions: ['pagePath', 'customEvent:section'], evenements: ['section_vue'],
+      lire: (d, m) => ({ page: cheminDe(d[0]), section: d[1], vues: m[0] }),
+    },
+    faq: {
+      dimensions: ['customEvent:question'], evenements: ['ouverture_faq'],
+      lire: (d, m) => ({ question: d[0], ouvertures: m[0] }),
+    },
+    videos: {
+      dimensions: ['customEvent:video_title', 'eventName'], evenements: ['video_start', 'video_complete'],
+      lire: (d, m) => ({ video: d[0], evenement: d[1], nombre: m[0] }),
+    },
+    telechargements: {
+      dimensions: ['fileName'], evenements: ['file_download'],
+      lire: (d, m) => ({ fichier: d[0], nombre: m[0] }),
+    },
+    clicsRepetes: {
+      dimensions: ['pagePath', 'customEvent:cta_texte'], evenements: ['clic_repete'],
+      lire: (d, m) => ({ page: cheminDe(d[0]), element: d[1], nombre: m[0] }),
+    },
+    erreurs: {
+      dimensions: ['pagePath', 'customEvent:message_erreur'], evenements: ['erreur_js'],
+      lire: (d, m) => ({ page: cheminDe(d[0]), message: d[1], nombre: m[0] }),
+    },
+    performance: {
+      dimensions: ['customEvent:metric_name', 'customEvent:metric_rating'], evenements: ['web_vitals'],
+      metriques: ['eventCount', 'customEvent:metric_value'],
+      lire: (d, m) => ({ indicateur: d[0], note: d[1], mesures: m[0], somme: m[1] || 0 }),
+    },
+  };
+  const noms = Object.keys(blocs);
+  const reponses = await Promise.allSettled(noms.map((nom) => {
+    const b = blocs[nom];
+    return appelGoogle(`${base}:runReport`, {
+      dateRanges: [periode],
+      dimensions: b.dimensions.map((name) => ({ name })),
+      metrics: (b.metriques || ['eventCount']).map((name) => ({ name })),
+      dimensionFilter: filtre(b.evenements),
+      orderBys: [{ metric: { metricName: 'eventCount' }, desc: true }],
+      limit: 100,
+    });
+  }));
+  const sortie = {};
+  noms.forEach((nom, i) => {
+    const r = reponses[i];
+    const b = blocs[nom];
+    sortie[nom] = r.status === 'fulfilled'
+      ? valeurs(r.value.rows, (b.metriques || ['eventCount']).length).map(({ d, m }) => b.lire(d, m))
+      : { erreur: 'Dimension personnalisée pas encore créée : utilisez le bouton « Configurer Google Analytics ».' };
+  });
+  return sortie;
+}
+
+/* ---------- Installation des réglages Google (une fois) ---------- */
+
+async function installer() {
+  const id = process.env.GA4_PROPERTY_ID;
+  if (!id) throw new Error('GA4_PROPERTY_ID à renseigner dans Netlify.');
+  const admin = `https://analyticsadmin.googleapis.com/v1beta/properties/${id}`;
+  const opt = { portee: PORTEE_REGLAGES };
+  const etapes = [];
+  const etape = async (libelle, fn) => {
+    try {
+      const detail = await fn();
+      etapes.push({ libelle, ok: true, detail });
+    } catch (e) {
+      const droits = e.statut === 403 ? ' Le compte de service doit avoir le rôle Éditeur dans GA4 (Administration, Gestion des accès à la propriété).' : '';
+      etapes.push({ libelle, ok: false, detail: `${e.message}${droits}` });
+    }
+  };
+
+  await etape('Dimensions personnalisées', async () => {
+    const existantes = await appelGoogle(`${admin}/customDimensions?pageSize=200`, undefined, { ...opt, methode: 'GET' });
+    const deja = new Set((existantes.customDimensions || []).map((d) => d.parameterName));
+    const creees = [];
+    for (const [parametre, nom] of DIMENSIONS) {
+      if (deja.has(parametre)) continue;
+      await appelGoogle(`${admin}/customDimensions`, { parameterName: parametre, displayName: nom, scope: 'EVENT' }, opt);
+      creees.push(parametre);
+    }
+    return creees.length ? `${creees.length} créée(s) : ${creees.join(', ')}` : 'Déjà en place';
+  });
+
+  await etape('Métriques personnalisées', async () => {
+    const existantes = await appelGoogle(`${admin}/customMetrics?pageSize=200`, undefined, { ...opt, methode: 'GET' });
+    const deja = new Set((existantes.customMetrics || []).map((d) => d.parameterName));
+    const creees = [];
+    for (const [parametre, nom, unite] of METRIQUES) {
+      if (deja.has(parametre)) continue;
+      await appelGoogle(`${admin}/customMetrics`, { parameterName: parametre, displayName: nom, measurementUnit: unite, scope: 'EVENT' }, opt);
+      creees.push(parametre);
+    }
+    return creees.length ? `${creees.length} créée(s) : ${creees.join(', ')}` : 'Déjà en place';
+  });
+
+  await etape('Événements clés (conversions)', async () => {
+    const existants = await appelGoogle(`${admin}/keyEvents?pageSize=200`, undefined, { ...opt, methode: 'GET' });
+    const deja = new Set((existants.keyEvents || []).map((k) => k.eventName));
+    const crees = [];
+    for (const nom of EVENEMENTS_CLES) {
+      if (deja.has(nom)) continue;
+      await appelGoogle(`${admin}/keyEvents`, { eventName: nom, countingMethod: 'ONCE_PER_EVENT' }, opt);
+      crees.push(nom);
+    }
+    return crees.length ? `Créé(s) : ${crees.join(', ')}` : 'Déjà en place';
+  });
+
+  await etape('Conservation des données sur 14 mois', async () => {
+    await appelGoogle(`${admin}/dataRetentionSettings?updateMask=eventDataRetention`,
+      { eventDataRetention: 'FOURTEEN_MONTHS' }, { ...opt, methode: 'PATCH' });
+    return 'Réglée';
+  });
+
+  await etape('Mesure améliorée (éviter les doublons)', async () => {
+    const flux = await appelGoogle(`${admin}/dataStreams?pageSize=50`, undefined, { ...opt, methode: 'GET' });
+    const web = (flux.dataStreams || []).find((f) => f.webStreamData?.measurementId === MESURE);
+    if (!web) throw new Error(`Flux ${MESURE} introuvable dans cette propriété : vérifiez GA4_PROPERTY_ID.`);
+    // Les pages vues des transitions Astro et les téléchargements sont envoyés
+    // par le site lui-même : les laisser aussi à GA4 les compterait deux fois.
+    await appelGoogle(`https://analyticsadmin.googleapis.com/v1alpha/${web.name}/enhancedMeasurementSettings?updateMask=pageChangesEnabled,fileDownloadsEnabled`,
+      { pageChangesEnabled: false, fileDownloadsEnabled: false }, { ...opt, methode: 'PATCH' });
+    return 'Changements de page par l\'historique et téléchargements automatiques désactivés';
+  });
+
+  await etape('Plan du site envoyé à la Search Console', async () => {
+    const site = process.env.GSC_SITE || 'sc-domain:herone.fr';
+    const plan = `${SITE}/sitemap-index.xml`;
+    await appelGoogle(`https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(site)}/sitemaps/${encodeURIComponent(plan)}`,
+      undefined, { ...opt, methode: 'PUT' }).catch((e) => {
+      if (e.statut === 403) throw new Error('Refusé : donnez au compte de service l\'autorisation « Complet » dans la Search Console (facultatif, le reste fonctionne sans).');
+      throw e;
+    });
+    return plan;
+  });
+
+  return etapes;
 }
 
 /* ---------- Point d'entrée ---------- */
 
 export default async (req) => {
-  if (req.method !== 'GET') return reponse(405, { erreur: 'Méthode non autorisée.' });
+  const action = new URL(req.url).searchParams.get('action');
+  if (req.method !== 'GET' && !(req.method === 'POST' && action === 'installer')) {
+    return reponse(405, { erreur: 'Méthode non autorisée.' });
+  }
   const auth = req.headers.get('authorization') || '';
   const jeton = auth.replace(/^Bearer\s+/i, '').trim();
   if (!jeton) return reponse(401, { erreur: 'Connectez-vous à /admin avec GitHub.' });
@@ -385,6 +559,16 @@ export default async (req) => {
     }
   } catch {
     return reponse(502, { erreur: 'GitHub ne répond pas, réessayez dans un instant.' });
+  }
+
+  if (action === 'installer') {
+    try {
+      const etapes = await installer();
+      cache.clear();
+      return reponse(200, { etapes });
+    } catch (e) {
+      return reponse(500, { erreur: e.message });
+    }
   }
 
   const url = new URL(req.url);

@@ -175,6 +175,104 @@
     afficherCourbes();
     afficherTables(lignes);
     afficherCanaux();
+    afficherEngagement();
+  }
+
+  /* ---------- Engagement ---------- */
+
+  var NOMS_SECTIONS = {
+    top: 'Haut de page (accueil)', constat: 'Constat', presentation: 'Vidéo de présentation', offres: 'Offres',
+    systemes: 'Systèmes', methode: 'Méthode', fondateurs: 'Fondateurs', temoignage: 'Témoignage vidéo', avis: 'Avis clients',
+    logiciels: 'Logiciels connectés', reserver: 'Prise de rendez-vous', faq: 'FAQ',
+  };
+
+  function bloc(titre, sous, contenu) {
+    return '<div class="bloc"><h3>' + titre + '</h3><p class="sous">' + sous + '</p>' + contenu + '</div>';
+  }
+  function petitTableau(entetes, lignes) {
+    if (!lignes.length) return '<p class="note">Rien sur la période.</p>';
+    return '<div class="tableau-boite" style="border:0;background:none"><table><thead><tr>' + entetes.map(function (e, i) { return '<th' + (i ? '' : ' style="text-align:left"') + '>' + e + '</th>'; }).join('') +
+      '</tr></thead><tbody>' + lignes.map(function (l) { return '<tr style="cursor:default">' + l.map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
+  }
+  function ouErreur(v, rendu) {
+    if (!v) return '<p class="note">Google Analytics non connecté.</p>';
+    if (v.erreur) return '<p class="note">' + echapper(v.erreur) + '</p>';
+    return rendu(v);
+  }
+
+  function afficherEngagement() {
+    var a = etat.donnees.analytics;
+    var e = (a && a.engagement) || {};
+    var vuesParPage = {};
+    pagesFusionnees().forEach(function (l) { vuesParPage[l.chemin] = l.vues; });
+    var ht = '';
+
+    ht += bloc('Sections vues', 'Part des pages vues où la section a été affichée à moitié au moins', ouErreur(e.sections, function (v) {
+      return petitTableau(['Section', 'Page', 'Vues', 'Part'], v.slice(0, 25).map(function (x) {
+        var base = vuesParPage[x.page] || 0;
+        return [echapper(NOMS_SECTIONS[x.section] || x.section), echapper(x.page), nombre(x.vues), base ? pourcent(Math.min(1, x.vues / base), 0) : '–'];
+      }));
+    }));
+
+    ht += bloc('Questions de la FAQ ouvertes', 'Ce que les visiteurs veulent savoir', ouErreur(e.faq, function (v) {
+      return petitTableau(['Question', 'Ouvertures'], v.map(function (x) { return [echapper(x.question), nombre(x.ouvertures)]; }));
+    }));
+
+    ht += bloc('Vidéos', 'Lectures lancées et vidéos vues jusqu\'au bout', ouErreur(e.videos, function (v) {
+      var par = {};
+      v.forEach(function (x) { par[x.video] = par[x.video] || { debut: 0, fin: 0 }; par[x.video][x.evenement === 'video_start' ? 'debut' : 'fin'] += x.nombre; });
+      return petitTableau(['Vidéo', 'Lancées', 'Finies'], Object.keys(par).map(function (k) { return [echapper(k), nombre(par[k].debut), nombre(par[k].fin)]; }));
+    }));
+
+    ht += bloc('Performance du site', 'Mesures réelles des visiteurs (Core Web Vitals)', ouErreur(e.performance, function (v) {
+      var par = {};
+      v.forEach(function (x) {
+        var p = par[x.indicateur] = par[x.indicateur] || { total: 0, somme: 0, bon: 0 };
+        p.total += x.mesures; p.somme += x.somme; if (x.note === 'bon') p.bon += x.mesures;
+      });
+      var aide = { LCP: 'Affichage du contenu principal', CLS: 'Stabilité de la mise en page', INP: 'Réactivité aux clics' };
+      return petitTableau(['Indicateur', 'Moyenne', 'Bon'], Object.keys(par).map(function (k) {
+        var p = par[k], moy = p.total ? p.somme / p.total : 0;
+        var valeur = k === 'CLS' ? (moy / 1000).toFixed(2).replace('.', ',') : nombre(moy) + ' ms';
+        var part = p.total ? p.bon / p.total : 0;
+        var classe = part >= 0.75 ? 'bon' : part >= 0.5 ? 'a_ameliorer' : 'mauvais';
+        return [k + ' <span class="chemin">' + (aide[k] || '') + '</span>', valeur, '<span class="pastille ' + classe + '">' + pourcent(part, 0) + '</span>'];
+      }));
+    }));
+
+    ht += bloc('Téléchargements', 'Fichiers téléchargés depuis le site', ouErreur(e.telechargements, function (v) {
+      return petitTableau(['Fichier', 'Nb'], v.map(function (x) { return [echapper(x.fichier), nombre(x.nombre)]; }));
+    }));
+
+    ht += bloc('Clics répétés', 'Trois clics ou plus en une seconde : élément qui ne réagit pas ou visiteur agacé', ouErreur(e.clicsRepetes, function (v) {
+      return petitTableau(['Élément', 'Page', 'Nb'], v.map(function (x) { return [echapper(x.element), echapper(x.page), nombre(x.nombre)]; }));
+    }));
+
+    ht += bloc('Erreurs techniques', 'Erreurs JavaScript rencontrées par les visiteurs', ouErreur(e.erreurs, function (v) {
+      return petitTableau(['Erreur', 'Page', 'Nb'], v.map(function (x) { return [echapper(x.message), echapper(x.page), nombre(x.nombre)]; }));
+    }));
+
+    $('#engagement').innerHTML = ht;
+  }
+
+  /* ---------- Configuration GA4 en un clic ---------- */
+
+  function installer() {
+    var bouton = $('#installer');
+    bouton.disabled = true;
+    bouton.textContent = 'Configuration en cours…';
+    var jeton = jetonGitHub();
+    fetch('/api/stats?action=installer', { method: 'POST', headers: { authorization: 'Bearer ' + jeton } })
+      .then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.erreur || 'Erreur ' + r.status); return d; }); })
+      .then(function (d) {
+        $('#alertes').insertAdjacentHTML('afterbegin', '<div class="installation"><strong>Configuration de Google Analytics</strong><ul>' +
+          d.etapes.map(function (e) { return '<li class="' + (e.ok ? '' : 'ko') + '">' + (e.ok ? '✓ ' : '✗ ') + echapper(e.libelle) + ' : ' + echapper(e.detail) + '</li>'; }).join('') +
+          '</ul><p class="note">Les nouvelles dimensions se remplissent à partir de maintenant, pas en arrière.</p></div>');
+      })
+      .catch(function (e) {
+        $('#alertes').insertAdjacentHTML('afterbegin', '<div class="alerte"><strong>Configuration impossible</strong><p>' + echapper(e.message) + '</p></div>');
+      })
+      .then(function () { bouton.disabled = false; bouton.textContent = 'Configurer Google Analytics'; });
   }
 
   function afficherTuiles(lignes) {
@@ -351,6 +449,10 @@
     clic_bouton: 'Clic sur un bouton', clic_lien_interne: 'Lien vers une autre page', clic_sortant: 'Lien vers un autre site',
     clic_ancre: 'Clic dans le sommaire', lecture_article: 'Lecture complète', defilement: 'Paliers de défilement',
     rdv_creneau_choisi: 'Créneau choisi', rdv_reserve: 'RDV réservé', generate_lead: 'Prospect (RDV)',
+    rdv_agenda_affiche: 'Agenda affiché', clic_repete: 'Clics répétés', file_download: 'Téléchargement', temps_actif: 'Paliers de temps actif',
+    section_vue: 'Section vue', ouverture_faq: 'Question de FAQ ouverte', ouverture_depliant: 'Dépliant ouvert', copie_texte: 'Texte copié',
+    impression_page: 'Page imprimée', video_start: 'Vidéo lancée', video_progress: 'Paliers de vidéo', video_complete: 'Vidéo finie',
+    video_pause: 'Vidéo mise en pause', erreur_js: 'Erreur technique',
   };
   var NOMS_ZONES = {
     entete: 'En-tête', menu_mobile: 'Menu mobile', pied_de_page: 'Pied de page', encart_rdv_article: 'Encart RDV dans l\'article',
@@ -392,12 +494,12 @@
       var clics;
       if (a.clics && a.clics.length) {
         clics = '<div class="tableau-boite"><table><thead><tr><th>Action</th><th>Où</th><th>Nb</th></tr></thead><tbody>' +
-          a.clics.filter(function (c) { return c.evenement !== 'defilement'; }).sort(function (x, y) { return y.nombre - x.nombre; }).map(function (c) {
+          a.clics.filter(function (c) { return ['defilement', 'temps_actif', 'section_vue', 'video_progress'].indexOf(c.evenement) < 0; }).sort(function (x, y) { return y.nombre - x.nombre; }).map(function (c) {
             var texte = c.texte && c.texte !== '(not set)' ? ' <span class="chemin">« ' + echapper(c.texte) + ' »</span>' : '';
             return '<tr><td>' + echapper(NOMS_EVENEMENTS[c.evenement] || c.evenement) + texte + '</td><td>' + echapper(NOMS_ZONES[c.zone] || (c.zone === '(not set)' ? '–' : c.zone)) + '</td><td>' + nombre(c.nombre) + '</td></tr>';
           }).join('') + '</tbody></table></div>';
       } else {
-        var noms = Object.keys(ev).filter(function (k) { return k !== 'defilement'; });
+        var noms = Object.keys(ev).filter(function (k) { return ['defilement', 'temps_actif', 'section_vue', 'video_progress'].indexOf(k) < 0; });
         clics = noms.length ? '<div class="tableau-boite"><table><thead><tr><th>Action</th><th>Nb</th></tr></thead><tbody>' +
           noms.map(function (k) { return '<tr><td>' + echapper(NOMS_EVENEMENTS[k] || k) + '</td><td>' + nombre(ev[k]) + '</td></tr>'; }).join('') +
           '</tbody></table></div>' : '<p class="note">Aucun clic enregistré sur la période.</p>';
@@ -442,6 +544,7 @@
       return;
     }
     if (t.closest('#actualiser')) { charger(true); return; }
+    if (t.closest('#installer')) { installer(); return; }
     if (t.closest('#fermer')) { etat.detail = null; $('#detail').hidden = true; afficherTables(pagesFusionnees()); return; }
     var tri = t.closest('[data-tri]');
     if (tri) {
