@@ -19,12 +19,15 @@
 // (crème), FAQ (bleu), pont vers l'automatisation (crème). Les textes sont
 // ceux du site : la maquette en abrège certains, ils n'ont pas été raccourcis.
 //
-// Le seul JavaScript de la page est celui de l'accordéon de la FAQ.
+// JavaScript de la page : l'accordéon de la FAQ, et le simulateur du tarif
+// (SimulateurFormation, 24 septembre 2026), qui retombe sur la liste
+// d'exemples sans JavaScript.
 import Layout from '../layouts/Layout.astro';
 import { Image } from 'astro:assets';
 import OffreHero from '../components/offre/OffreHero.astro';
 import OffreEtapes from '../components/offre/OffreEtapes.astro';
 import OffreTarif from '../components/offre/OffreTarif.astro';
+import SimulateurFormation from '../components/offre/SimulateurFormation.astro';
 import OffreAvis from '../components/offre/OffreAvis.astro';
 import FaqAccordion from '../components/home/FaqAccordion.astro';
 import OffrePont from '../components/offre/OffrePont.astro';
@@ -126,6 +129,12 @@ const livrables = [
   'La règle de vérification personnelle, en trois lignes',
   "La charte d'usage de l'entreprise, signée par le dirigeant",
 ];
+
+// La grille en nombres, pour le simulateur du bloc tarif : plancher de la
+// journée, nombre de personnes qu'il couvre, prix de chaque personne en plus,
+// et taille maximale d'une session. À changer en même temps que PRIX_JOUR et
+// PRIX_PERSONNE ci-dessus, et que le JSON-LD de Layout.astro.
+const GRILLE = { prixJour: 1500, seuil: 3, prixPersonne: 500, maxSession: 10 };
 
 // Trois exemples de facturation, calculés depuis la grille : plancher à
 // 1 500 € HT jusqu'à trois personnes, puis 500 € HT par personne.
@@ -296,9 +305,10 @@ const questions = [
         { label: "Jusqu'à 3 personnes", prix: PRIX_JOUR, detail: 'la journée, préparation comprise.' },
         { label: 'Dès 4 personnes', prix: PRIX_PERSONNE, detail: 'par personne et par jour.' },
       ]}
-      exemples={exemples}
       inclus="La préparation est comprise : avant de venir, nous travaillons sur vos dossiers et sur vos métiers, pour que les exemples de la journée soient les vôtres. Dix participants au maximum par session, au-delà nous revenons sur une seconde journée."
-    />
+    >
+      <SimulateurFormation slot="simulateur" {...GRILLE} exemples={exemples} />
+    </OffreTarif>
 
     <FaqAccordion
       id="questions"

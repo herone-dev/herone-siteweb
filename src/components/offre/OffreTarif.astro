@@ -21,6 +21,13 @@
 //    une carte crème, et à côté une carte sombre « Ensuite » (prop `suite`)
 //    qui porte le texte de `inclus` et le bouton.
 //
+// Emplacement nommé `simulateur` (variante `claire`, /formation depuis le
+// 24 septembre 2026) : quand il est rempli, il prend la place de la carte
+// « Exemples ». Au large, les cartes de prix s'empilent à gauche et le
+// simulateur occupe la colonne de droite ; de 560 à 959px, les deux prix
+// côte à côte et le simulateur sur toute la largeur dessous ; en dessous,
+// une colonne.
+//
 // Les montants ne portent PAS de white-space: nowrap. Ils tiennent d'un seul
 // tenant par leurs espaces insécables, ce qui suffit et ne fait pas déborder
 // la carte en étroit (piège n°1, déjà vécu sur les cartes d'offres).
@@ -42,6 +49,7 @@ interface Props {
 }
 
 const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif', variante = 'sombre', suite } = Astro.props;
+const avecSimulateur = variante === 'claire' && Astro.slots.has('simulateur');
 ---
 
 <section
@@ -59,7 +67,7 @@ const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif', var
     </div>
 
     {variante === 'claire' && (
-      <div class="hrn-offre-tarif__cartes">
+      <div class:list={['hrn-offre-tarif__cartes', avecSimulateur && 'hrn-offre-tarif__cartes--simu']}>
         {regles.map((r) => (
           <div class="hrn-offre-tarif__carte">
             <span class="hrn-offre-tarif__etiquette">{r.label}</span>
@@ -67,7 +75,12 @@ const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif', var
             <p class="hrn-offre-tarif__detail">{r.detail}</p>
           </div>
         ))}
-        {exemples && exemples.length > 0 && (
+        {avecSimulateur && (
+          <div class="hrn-offre-tarif__simu">
+            <slot name="simulateur" />
+          </div>
+        )}
+        {!avecSimulateur && exemples && exemples.length > 0 && (
           <div class="hrn-offre-tarif__carte hrn-offre-tarif__carte--exemples">
             <span class="hrn-offre-tarif__etiquette">Exemples</span>
             <dl class="hrn-offre-tarif__lignes">
@@ -328,6 +341,40 @@ const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif', var
 
     .hrn-offre-tarif__carte--exemples {
       grid-column: auto;
+    }
+  }
+
+  /* Avec le simulateur : il passe sous les deux prix de 560 à 959px, puis
+     prend la colonne de droite, sur la hauteur des deux cartes empilées. */
+  .hrn-offre-tarif__simu {
+    min-width: 0;
+  }
+
+  @media (min-width: 560px) {
+    .hrn-offre-tarif__simu {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 960px) {
+    .hrn-offre-tarif--claire .hrn-offre-tarif__cartes--simu {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+      grid-auto-flow: row;
+      grid-auto-columns: auto;
+    }
+
+    /* Étirées à la hauteur du simulateur : le contenu se centre plutôt que
+       de laisser un vide sous le montant. */
+    .hrn-offre-tarif__cartes--simu > .hrn-offre-tarif__carte {
+      grid-column: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .hrn-offre-tarif__simu {
+      grid-column: 2;
+      grid-row: 1 / span 2;
     }
   }
 

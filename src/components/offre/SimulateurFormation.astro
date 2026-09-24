@@ -1,0 +1,699 @@
+---
+// Simulateur du tarif de la formation, posé dans le bloc tarif de /formation
+// (emplacement « simulateur » d'OffreTarif, variante claire).
+//
+// Le visiteur choisit un nombre de personnes (curseur, ou boutons moins et
+// plus) et lit aussitôt le total hors taxes, le prix par personne et le
+// nombre de journées. Le total et le prix par personne défilent comme un
+// compteur mécanique avant de s'arrêter sur la bonne valeur.
+//
+// Le calcul est celui de la grille affichée, rien de plus :
+//   total = prixJour + max(0, personnes - seuil) × prixPersonne
+//   journées = arrondi supérieur de personnes / maxSession
+// Il retombe sur les exemples déjà publiés (15 personnes en deux journées :
+// 7 500 € HT). Les montants arrivent en props depuis la page : un changement
+// de prix se fait au même endroit que le reste de la grille.
+//
+// Sans JavaScript, la carte montre la liste d'exemples statique, comme avant
+// le simulateur. En mouvement réduit, les chiffres changent sans défiler.
+//
+// Les caractères invisibles (espace fine insécable, euro) sont construits par
+// leur point de code, jamais écrits en clair (piège n°7 du projet).
+
+interface Props {
+  prixJour: number;
+  seuil: number;
+  prixPersonne: number;
+  maxSession: number;
+  min?: number;
+  max?: number;
+  defaut?: number;
+  /** Repli sans JavaScript : les exemples chiffrés de la grille. */
+  exemples: { qui: string; prix: string }[];
+}
+
+const { prixJour, seuil, prixPersonne, maxSession, min = 1, max = 30, defaut = 5, exemples } = Astro.props;
+
+const F = String.fromCodePoint(0x202f);
+const EUR = String.fromCodePoint(0x20ac);
+
+const euros = (n: number) => `${String(n).replace(/\B(?=(\d{3})+(?!\d))/g, F)}${F}${EUR}${F}HT`;
+const total = prixJour + Math.max(0, defaut - seuil) * prixPersonne;
+const journees = Math.ceil(defaut / maxSession);
+---
+
+<div
+  class="hrn-simu hrn-zone-bleue"
+  data-simu
+  data-prix-jour={prixJour}
+  data-seuil={seuil}
+  data-prix-personne={prixPersonne}
+  data-max-session={maxSession}
+>
+  <div class="hrn-simu__actif" hidden>
+    <span class="hrn-simu__etiquette">Simulez votre tarif</span>
+
+    <div class="hrn-simu__choix">
+      <label class="hrn-simu__question" for="simu-personnes">{`Combien de personnes à former${F}?`}</label>
+
+      <div class="hrn-simu__compteur">
+        <button type="button" class="hrn-simu__pas" data-pas="-1" aria-label="Une personne de moins">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14" /></svg>
+        </button>
+        <p class="hrn-simu__nombre" aria-hidden="true">
+          <span data-simu-nombre>{defaut}</span>
+          <span data-simu-unite>{defaut > 1 ? 'personnes' : 'personne'}</span>
+        </p>
+        <button type="button" class="hrn-simu__pas" data-pas="1" aria-label="Une personne de plus">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14" /></svg>
+        </button>
+      </div>
+
+      <input
+        class="hrn-simu__curseur"
+        type="range"
+        id="simu-personnes"
+        min={min}
+        max={max}
+        step="1"
+        value={defaut}
+        aria-valuetext={`${defaut} personnes`}
+      />
+      <div class="hrn-simu__bornes" aria-hidden="true">
+        <span>{min}</span>
+        <span>{max}</span>
+      </div>
+    </div>
+
+    <div class="hrn-simu__resultat">
+      <span class="hrn-simu__etiquette">Votre tarif, hors taxes</span>
+      <strong class="hrn-simu__total" data-simu-total>{euros(total)}</strong>
+      <p class="hrn-simu__calcul" data-simu-calcul></p>
+
+      <dl class="hrn-simu__faits">
+        <div>
+          <dt>Par personne</dt>
+          <dd data-simu-unitaire>{euros(total / defaut)}</dd>
+        </div>
+        <div>
+          <dt>Sur place</dt>
+          <dd data-simu-journees>{journees > 1 ? `${journees} journées` : '1 journée'}</dd>
+        </div>
+      </dl>
+      <p class="hrn-simu__note" data-simu-note></p>
+    </div>
+
+    <p class="hrn-simu__annonce" aria-live="polite" data-simu-annonce></p>
+  </div>
+
+  <div class="hrn-simu__exemples">
+    <span class="hrn-simu__etiquette">Exemples</span>
+    <dl class="hrn-simu__lignes">
+      {exemples.map((ex) => (
+        <div>
+          <dt>{ex.qui}</dt>
+          <dd>{ex.prix}</dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+</div>
+
+<style>
+  .hrn-simu {
+    min-width: 0;
+    height: 100%;
+    padding: 32px;
+    background: var(--nuit-carte);
+    border: 1px solid var(--nuit-carte-bordure);
+    border-radius: var(--radius-xl);
+  }
+
+  /* L'attribut hidden perd contre n'importe quel display d'auteur (piège
+     n°4 ter) : on le redit explicitement. */
+  .hrn-simu__actif[hidden],
+  .hrn-simu__exemples[hidden] {
+    display: none;
+  }
+
+  .hrn-simu__actif {
+    display: grid;
+    gap: 28px;
+  }
+
+  .hrn-simu__etiquette {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ---------- Le choix du nombre de personnes ---------- */
+
+  .hrn-simu__choix {
+    display: grid;
+    gap: 16px;
+  }
+
+  .hrn-simu__question {
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: clamp(1.3rem, 1.8vw, 1.5rem);
+    line-height: 1.2;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  .hrn-simu__compteur {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .hrn-simu__pas {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--text-strong);
+    cursor: pointer;
+    transition: transform var(--dur-fast) var(--ease-standard), opacity var(--dur-fast) var(--ease-standard);
+  }
+
+  .hrn-simu__pas:hover:not(:disabled) {
+    transform: scale(1.06);
+  }
+
+  .hrn-simu__pas:active:not(:disabled) {
+    transform: scale(0.94);
+  }
+
+  .hrn-simu__pas:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .hrn-simu__pas:focus-visible,
+  .hrn-simu__curseur:focus-visible {
+    outline: 2px solid var(--accent-texte);
+    outline-offset: 3px;
+  }
+
+  .hrn-simu__nombre {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    min-width: 0;
+    margin: 0;
+    color: var(--text-strong);
+  }
+
+  .hrn-simu__nombre [data-simu-nombre] {
+    min-width: 2ch;
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: 2.25rem;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+
+  .hrn-simu__nombre [data-simu-unite] {
+    font-size: 16px;
+    color: var(--text-secondary);
+  }
+
+  /* Curseur : la piste est remplie en turquoise jusqu'au pouce. --rempli est
+     posé par le script ; la valeur par défaut correspond à `defaut`. */
+  .hrn-simu__curseur {
+    --rempli: 14%;
+    width: 100%;
+    height: 44px;
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .hrn-simu__curseur::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(to right, var(--accent) var(--rempli), var(--nuit-carte-bordure) var(--rempli));
+  }
+
+  .hrn-simu__curseur::-moz-range-track {
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(to right, var(--accent) var(--rempli), var(--nuit-carte-bordure) var(--rempli));
+  }
+
+  .hrn-simu__curseur::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    margin-top: -9px;
+    border: 3px solid var(--nuit-carte);
+    border-radius: var(--radius-full);
+    background: var(--amber-300);
+    box-shadow: 0 0 0 1px var(--amber-300);
+    transition: transform var(--dur-fast) var(--ease-standard);
+  }
+
+  .hrn-simu__curseur::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border: 3px solid var(--nuit-carte);
+    border-radius: var(--radius-full);
+    background: var(--amber-300);
+    box-shadow: 0 0 0 1px var(--amber-300);
+    transition: transform var(--dur-fast) var(--ease-standard);
+  }
+
+  .hrn-simu__curseur:active::-webkit-slider-thumb {
+    transform: scale(1.15);
+  }
+
+  .hrn-simu__curseur:active::-moz-range-thumb {
+    transform: scale(1.15);
+  }
+
+  .hrn-simu__bornes {
+    display: flex;
+    justify-content: space-between;
+    margin-top: -10px;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  /* ---------- Le résultat ---------- */
+
+  .hrn-simu__resultat {
+    display: grid;
+    gap: 12px;
+    padding-top: 28px;
+    border-top: 1px solid var(--nuit-carte-bordure);
+  }
+
+  .hrn-simu__total {
+    position: relative;
+    display: block;
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: clamp(2.6rem, 5vw, 4rem);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent-texte);
+  }
+
+  .hrn-simu__calcul,
+  .hrn-simu__note {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  .hrn-simu__faits {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 8px 0 0;
+  }
+
+  .hrn-simu__faits > div {
+    min-width: 0;
+    padding: 14px 16px;
+    border: 1px solid var(--nuit-carte-bordure);
+    border-radius: var(--radius-lg);
+  }
+
+  .hrn-simu__faits dt {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .hrn-simu__faits dd {
+    position: relative;
+    margin: 6px 0 0;
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: 1.375rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-strong);
+  }
+
+  .hrn-simu__annonce {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /* ---------- Repli sans JavaScript : les exemples ---------- */
+
+  .hrn-simu__lignes {
+    margin: 6px 0 0;
+  }
+
+  .hrn-simu__lignes > div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4px 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--nuit-carte-bordure);
+    font-size: 15px;
+  }
+
+  .hrn-simu__lignes dt {
+    min-width: 0;
+    color: var(--text-secondary);
+  }
+
+  .hrn-simu__lignes dd {
+    margin: 0;
+    font-weight: var(--weight-semibold);
+    color: var(--text-strong);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Compteur à rouleaux ----------
+
+     Même principe que celui d'OffersSection : le texte réel (.hrn-simu__fantome)
+     reste dans le flux, invisible, pour donner la largeur et être lu par les
+     lecteurs d'écran ; les rouleaux sont posés par-dessus en absolu et
+     marqués aria-hidden. Chaque chiffre est une fenêtre d'une ligne dans
+     laquelle une bande verticale glisse en translateY, rien d'autre ne bouge.
+     Éléments créés par le script : d'où les :global(). */
+  .hrn-simu :global(.is-rouleaux > .hrn-simu__fantome) {
+    opacity: 0;
+  }
+
+  .hrn-simu :global(.hrn-simu__rouleaux) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .hrn-simu :global(.hrn-simu__fenetre) {
+    display: inline-block;
+    overflow: hidden;
+    height: 1.1em;
+    vertical-align: top;
+  }
+
+  .hrn-simu :global(.hrn-simu__bande) {
+    display: block;
+    transform: translateY(0);
+  }
+
+  .hrn-simu :global(.hrn-simu__bande > span) {
+    display: block;
+    height: 1.1em;
+    line-height: 1.1;
+    white-space: pre;
+  }
+
+  .hrn-simu :global(.is-roule .hrn-simu__bande) {
+    transform: translateY(calc(var(--n, 0) * -1.1em));
+    transition: transform var(--duree, 900ms) var(--ease-out) var(--d, 0ms);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-simu__pas,
+    .hrn-simu__curseur::-webkit-slider-thumb,
+    .hrn-simu__curseur::-moz-range-thumb {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hrn-simu {
+      padding: 24px 20px;
+    }
+  }
+</style>
+
+<script>
+  const F = String.fromCodePoint(0x202f);
+  const EUR = String.fromCodePoint(0x20ac);
+
+  // Tours complets parcourus par chaque chiffre avant de s'arrêter, et
+  // décalage entre deux chiffres voisins (de gauche à droite).
+  const TOURS = 1;
+  const DECALAGE = 70;
+  const DUREE = 900;
+
+  let controle: AbortController | undefined;
+  let observateur: IntersectionObserver | undefined;
+  const minuteries = new Set<number>();
+
+  function nettoyer() {
+    controle?.abort();
+    controle = undefined;
+    observateur?.disconnect();
+    observateur = undefined;
+    minuteries.forEach((m) => clearTimeout(m));
+    minuteries.clear();
+  }
+
+  function attendre(fn: () => void, ms: number) {
+    const m = window.setTimeout(() => {
+      minuteries.delete(m);
+      fn();
+    }, ms);
+    minuteries.add(m);
+    return m;
+  }
+
+  const milliers = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, F);
+  const euros = (n: number) => `${milliers(n)}${F}${EUR}${F}HT`;
+
+  // Construit le texte réel et les rouleaux d'un montant, puis lance le
+  // défilement. `depart` donne, pour chaque chiffre aligné à droite, celui
+  // d'où part la bande ; un chiffre qui n'existait pas part de zéro.
+  function rouler(el: HTMLElement, texte: string, mouvement: boolean, depuisZero = false) {
+    const avant = depuisZero ? '' : (el.dataset.chiffres ?? '');
+    const chiffres = texte.replace(/\D/g, '');
+    el.dataset.chiffres = chiffres;
+
+    const fantome = document.createElement('span');
+    fantome.className = 'hrn-simu__fantome';
+    fantome.textContent = texte;
+
+    if (!mouvement) {
+      el.classList.remove('is-rouleaux', 'is-roule');
+      el.replaceChildren(fantome);
+      return;
+    }
+
+    const rouleaux = document.createElement('span');
+    rouleaux.className = 'hrn-simu__rouleaux';
+    rouleaux.setAttribute('aria-hidden', 'true');
+
+    let rang = 0;
+    for (const caractere of texte) {
+      const fenetre = document.createElement('span');
+      fenetre.className = 'hrn-simu__fenetre';
+      const bande = document.createElement('span');
+      bande.className = 'hrn-simu__bande';
+
+      if (caractere >= '0' && caractere <= '9') {
+        // Position du chiffre comptée depuis la droite, pour retrouver celui
+        // qu'il remplace quand le nombre de chiffres change.
+        const depuisDroite = chiffres.length - 1 - rang;
+        const ancien = avant.length - 1 - depuisDroite >= 0 ? Number(avant[avant.length - 1 - depuisDroite]) : 0;
+        const cible = Number(caractere);
+        const pas = TOURS * 10 + ((cible - ancien + 10) % 10);
+        for (let i = 0; i <= pas; i++) {
+          const cellule = document.createElement('span');
+          cellule.textContent = String((ancien + i) % 10);
+          bande.appendChild(cellule);
+        }
+        bande.style.setProperty('--n', String(pas));
+        bande.style.setProperty('--d', `${rang * DECALAGE}ms`);
+        bande.style.setProperty('--duree', `${DUREE}ms`);
+        rang++;
+      } else {
+        const cellule = document.createElement('span');
+        cellule.textContent = caractere;
+        bande.appendChild(cellule);
+      }
+
+      fenetre.appendChild(bande);
+      rouleaux.appendChild(fenetre);
+    }
+
+    el.classList.remove('is-roule');
+    el.replaceChildren(fantome, rouleaux);
+    el.classList.add('is-rouleaux');
+    // Sans ce reflow, la position de départ et l'arrivée seraient posées dans
+    // la même image et les bandes sauteraient directement au chiffre visé.
+    void el.offsetHeight;
+    el.classList.add('is-roule');
+  }
+
+  function initialiser() {
+    nettoyer();
+    const racine = document.querySelector<HTMLElement>('[data-simu]');
+    if (!racine) return;
+
+    controle = new AbortController();
+    const { signal } = controle;
+    const mouvement = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const prixJour = Number(racine.dataset.prixJour);
+    const seuil = Number(racine.dataset.seuil);
+    const prixPersonne = Number(racine.dataset.prixPersonne);
+    const maxSession = Number(racine.dataset.maxSession);
+
+    const actif = racine.querySelector<HTMLElement>('.hrn-simu__actif');
+    const exemples = racine.querySelector<HTMLElement>('.hrn-simu__exemples');
+    const curseur = racine.querySelector<HTMLInputElement>('.hrn-simu__curseur');
+    const total = racine.querySelector<HTMLElement>('[data-simu-total]');
+    const unitaire = racine.querySelector<HTMLElement>('[data-simu-unitaire]');
+    const nombre = racine.querySelector<HTMLElement>('[data-simu-nombre]');
+    const unite = racine.querySelector<HTMLElement>('[data-simu-unite]');
+    const calcul = racine.querySelector<HTMLElement>('[data-simu-calcul]');
+    const journees = racine.querySelector<HTMLElement>('[data-simu-journees]');
+    const note = racine.querySelector<HTMLElement>('[data-simu-note]');
+    const annonce = racine.querySelector<HTMLElement>('[data-simu-annonce]');
+    const pas = [...racine.querySelectorAll<HTMLButtonElement>('.hrn-simu__pas')];
+    if (!actif || !curseur || !total || !unitaire) return;
+
+    actif.hidden = false;
+    if (exemples) exemples.hidden = true;
+
+    const min = Number(curseur.min);
+    const max = Number(curseur.max);
+    let vu = false;
+    let minuterieRoule: number | undefined;
+    let minuterieAnnonce: number | undefined;
+
+    const calculer = (n: number) => {
+      const prix = prixJour + Math.max(0, n - seuil) * prixPersonne;
+      const sessions = Math.ceil(n / maxSession);
+      // Répartition la plus égale possible : 15 personnes, 8 puis 7.
+      const base = Math.floor(n / sessions);
+      const reste = n % sessions;
+      const groupes = Array.from({ length: sessions }, (_, i) => base + (i < reste ? 1 : 0));
+      return { prix, parPersonne: Math.round(prix / n), sessions, groupes };
+    };
+
+    const textes = (n: number) => {
+      const r = calculer(n);
+      const enPlus = n - seuil;
+      const detailCalcul =
+        enPlus > 0
+          ? `${euros(prixJour)} pour les ${seuil} premières personnes, puis ${enPlus}${F}×${F}${euros(prixPersonne)}.`
+          : `Le tarif de la journée couvre jusqu'à ${seuil} personnes.`;
+      let detailNote = `Une journée chez vous, animée à deux, préparation comprise.`;
+      if (r.sessions > 1) {
+        const liste = r.groupes.map(String);
+        const fin = liste.pop();
+        detailNote = `Dix personnes au plus par journée, par exemple ${liste.join(', ')} puis ${fin} personnes.`;
+      }
+      return { ...r, detailCalcul, detailNote };
+    };
+
+    const appliquer = (n: number, { roule = true, depuisZero = false, annoncer = true } = {}) => {
+      const r = textes(n);
+      curseur.value = String(n);
+      curseur.setAttribute('aria-valuetext', `${n} ${n > 1 ? 'personnes' : 'personne'}`);
+      curseur.style.setProperty('--rempli', `${((n - min) / (max - min)) * 100}%`);
+      if (nombre) nombre.textContent = String(n);
+      if (unite) unite.textContent = n > 1 ? 'personnes' : 'personne';
+      if (calcul) calcul.textContent = r.detailCalcul;
+      if (journees) journees.textContent = r.sessions > 1 ? `${r.sessions} journées` : '1 journée';
+      if (note) note.textContent = r.detailNote;
+      pas.forEach((b) => {
+        const sens = Number(b.dataset.pas);
+        b.disabled = sens < 0 ? n <= min : n >= max;
+      });
+
+      const bouge = mouvement && roule && vu;
+      rouler(total, euros(r.prix), bouge, depuisZero);
+      rouler(unitaire, euros(r.parPersonne), bouge, depuisZero);
+
+      if (annonce && annoncer) {
+        if (minuterieAnnonce) clearTimeout(minuterieAnnonce);
+        minuterieAnnonce = attendre(() => {
+          annonce.textContent = `${n} ${n > 1 ? 'personnes' : 'personne'}, ${euros(r.prix)}, soit ${euros(r.parPersonne)} par personne, sur ${r.sessions > 1 ? `${r.sessions} journées` : 'une journée'}.`;
+        }, 600);
+      }
+    };
+
+    // État de départ, sans défilement : le texte réel est en place.
+    appliquer(Number(curseur.value), { roule: false, annoncer: false });
+
+    // Glissement du curseur : le nombre de personnes suit le doigt, les
+    // montants défilent dès que le geste marque une pause.
+    curseur.addEventListener(
+      'input',
+      () => {
+        const n = Number(curseur.value);
+        if (minuterieRoule) clearTimeout(minuterieRoule);
+        if (nombre) nombre.textContent = String(n);
+        if (unite) unite.textContent = n > 1 ? 'personnes' : 'personne';
+        curseur.style.setProperty('--rempli', `${((n - min) / (max - min)) * 100}%`);
+        minuterieRoule = attendre(() => appliquer(n), 120);
+      },
+      { signal },
+    );
+
+    pas.forEach((b) =>
+      b.addEventListener(
+        'click',
+        () => {
+          const n = Math.min(max, Math.max(min, Number(curseur.value) + Number(b.dataset.pas)));
+          appliquer(n);
+        },
+        { signal },
+      ),
+    );
+
+    // Premier défilement quand la carte entre à l'écran : les chiffres
+    // partent de zéro.
+    if (mouvement) {
+      observateur = new IntersectionObserver(
+        (entrees) => {
+          if (!entrees.some((e) => e.isIntersecting)) return;
+          observateur?.disconnect();
+          vu = true;
+          appliquer(Number(curseur.value), { depuisZero: true, annoncer: false });
+        },
+        { threshold: 0.4 },
+      );
+      observateur.observe(total);
+    } else {
+      vu = true;
+    }
+  }
+
+  document.addEventListener('astro:page-load', initialiser);
+  document.addEventListener('astro:before-swap', nettoyer);
+</script>
