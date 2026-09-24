@@ -1,12 +1,21 @@
 ---
-title: "IA BTP, ce qu'elle change pour une entreprise du bâtiment"
-description: "Moins d'une entreprise du bâtiment sur dix utilise l'IA. Ce qu'elle fait vraiment bien, du bureau au chantier, ses limites, et par où commencer dans une petite structure."
+draft: false
+title: IA BTP, ce qu'elle change pour une entreprise du bâtiment
 pubDate: 2026-09-23
 category: BTP
+description: Moins d'une entreprise du bâtiment sur dix utilise l'IA. Ce qu'elle fait vraiment bien, du bureau au chantier, ses limites, et par où commencer dans une petite structure.
 readingTime: 7
-systemTitle: "Connexion de vos outils"
-tags: ["ia btp", "ia artisan", "chantier", "administratif", "vendée"]
-draft: true
+systemTitle: Connexion de vos outils
+summary: []
+tags:
+  - ia btp
+  - ia artisan
+  - chantier
+  - administratif
+  - vendée
+updatedDate: ''
+author: Hérone
+image: ''
 ---
 
 Les promesses de l'IA BTP parlent souvent de chantiers pilotés par des algorithmes et de maquettes numériques pensées pour les majors qui construisent des tours de bureaux. Pour une entreprise de dix ou vingt personnes, la réalité se situe ailleurs, dans le bureau plus que sur l'échafaudage, et c'est là que l'intelligence artificielle commence déjà à rendre des heures. Chez [Hérone](https://herone.fr), nous rencontrons ces entreprises chaque semaine, et leur question est toujours la même, concrètement, à quoi ça sert chez nous.
