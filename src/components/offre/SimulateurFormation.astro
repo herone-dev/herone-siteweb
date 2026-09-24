@@ -39,6 +39,7 @@ const EUR = String.fromCodePoint(0x20ac);
 
 const euros = (n: number) => `${String(n).replace(/\B(?=(\d{3})+(?!\d))/g, F)}${F}${EUR}${F}HT`;
 const total = prixJour + Math.max(0, defaut - seuil) * prixPersonne;
+const M = String.fromCodePoint(0x00b7);
 const journees = Math.ceil(defaut / maxSession);
 ---
 
@@ -55,6 +56,10 @@ const journees = Math.ceil(defaut / maxSession);
 
     <div class="hrn-simu__choix">
       <label class="hrn-simu__question" for="simu-personnes">{`Combien de personnes à former${F}?`}</label>
+      <p class="hrn-simu__regle">
+        <strong>{euros(prixJour)}</strong> jusqu'à {seuil} personnes <span aria-hidden="true">{M}</span>
+        puis <strong>{euros(prixPersonne)}</strong> par personne
+      </p>
 
       <div class="hrn-simu__compteur">
         <button type="button" class="hrn-simu__pas" data-pas="-1" aria-label="Une personne de moins">
@@ -108,6 +113,10 @@ const journees = Math.ceil(defaut / maxSession);
 
   <div class="hrn-simu__exemples">
     <span class="hrn-simu__etiquette">Exemples</span>
+    <p class="hrn-simu__regle">
+      <strong>{euros(prixJour)}</strong> jusqu'à {seuil} personnes <span aria-hidden="true">{M}</span>
+      puis <strong>{euros(prixPersonne)}</strong> par personne
+    </p>
     <dl class="hrn-simu__lignes">
       {exemples.map((ex) => (
         <div>
@@ -194,6 +203,31 @@ const journees = Math.ceil(defaut / maxSession);
     letter-spacing: var(--tracking-titre);
     color: var(--text-strong);
     text-wrap: balance;
+  }
+
+  /* La règle de prix, écrite une fois et toujours visible : une ligne
+     discrète, seuls les deux montants ressortent. */
+  .hrn-simu__regle {
+    margin: -4px 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  .hrn-simu__regle strong {
+    font-weight: var(--weight-semibold);
+    color: var(--text-strong);
+    white-space: nowrap;
+  }
+
+  .hrn-simu__regle span {
+    margin: 0 4px;
+    color: var(--text-muted);
+  }
+
+  .hrn-simu__exemples .hrn-simu__regle {
+    margin-top: 10px;
   }
 
   .hrn-simu__compteur {
@@ -339,7 +373,7 @@ const journees = Math.ceil(defaut / maxSession);
     display: block;
     font-family: var(--font-display);
     font-weight: var(--weight-titre);
-    font-size: clamp(2.1rem, 7cqi, 3rem);
+    font-size: clamp(2.1rem, 7cqi, 3.25rem);
     line-height: 1.1;
     letter-spacing: -0.03em;
     font-variant-numeric: tabular-nums;

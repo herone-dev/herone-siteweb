@@ -49,7 +49,6 @@ const I = String.fromCodePoint(0x00a0);
 const EUR = String.fromCodePoint(0x20ac);
 
 const PRIX_JOUR = `1${F}500${F}${EUR}${F}HT`;
-const PRIX_PERSONNE = `500${F}${EUR}${F}HT`;
 const DUREE_NETTE = `7${I}h${I}15`;
 const DUREE_ATELIER = `4${I}h${I}15`;
 const DUREE_TOTALE = `8${I}h${I}45`;
@@ -132,8 +131,9 @@ const livrables = [
 
 // La grille en nombres, pour le simulateur du bloc tarif : plancher de la
 // journée, nombre de personnes qu'il couvre, prix de chaque personne en plus,
-// et taille maximale d'une session. À changer en même temps que PRIX_JOUR et
-// PRIX_PERSONNE ci-dessus, et que le JSON-LD de Layout.astro.
+// et taille maximale d'une session. Le simulateur en tire aussi la ligne qui
+// énonce la règle. À changer en même temps que PRIX_JOUR ci-dessus, que les
+// exemples ci-dessous, et que le JSON-LD de Layout.astro.
 const GRILLE = { prixJour: 1500, seuil: 3, prixPersonne: 500, maxSession: 10 };
 
 // Trois exemples de facturation, calculés depuis la grille : plancher à
@@ -301,10 +301,6 @@ const questions = [
     <OffreTarif
       variante="claire"
       titre="Affiché, comme tout le reste"
-      regles={[
-        { label: "Jusqu'à 3 personnes", prix: PRIX_JOUR, detail: 'la journée, préparation comprise.' },
-        { label: 'Dès 4 personnes', prix: PRIX_PERSONNE, detail: 'par personne et par jour.' },
-      ]}
       inclus="La préparation est comprise : avant de venir, nous travaillons sur vos dossiers et sur vos métiers, pour que les exemples de la journée soient les vôtres. Dix participants au maximum par session, au-delà nous revenons sur une seconde journée."
     >
       <SimulateurFormation slot="simulateur" {...GRILLE} exemples={exemples} />
