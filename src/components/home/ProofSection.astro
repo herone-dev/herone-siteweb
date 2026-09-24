@@ -171,7 +171,10 @@ const testimonials = [
     aspect-ratio: 5 / 4;
     border-radius: 24px;
     overflow: hidden;
-    background: var(--slate-800);
+    /* Visible un instant au clic, entre le retrait de l'affiche et l'affichage
+       du lecteur YouTube. Bleu nuit profond, proche du noir du lecteur : il
+       était vert (--slate-800), et ce vert clignotait à chaque lecture. */
+    background: var(--nuit-profonde);
     cursor: pointer;
   }
 
@@ -218,7 +221,7 @@ const testimonials = [
     border: 0;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.92);
-    color: var(--ink-950);
+    color: var(--paper);
     cursor: pointer;
     transition:
       transform var(--dur) var(--ease-out),
@@ -267,7 +270,7 @@ const testimonials = [
     flex: none;
     border-radius: 50%;
     overflow: hidden;
-    background: var(--slate-700);
+    background: var(--nuit-profonde);
     display: block;
   }
 
