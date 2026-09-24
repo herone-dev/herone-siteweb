@@ -11,9 +11,21 @@
 // 301 vers cette adresse (règle placée AVANT l'attrape-tout, sinon elle ne
 // s'appliquerait jamais, voir le piège n°8 bis).
 //
-// Aucun contenu inventé : les six tâches viennent du carrousel « Le constat »
-// de l'accueil, le déroulé vient de la FAQ et des points de la carte d'offre,
-// les prix sont ceux affichés sur l'accueil. Le moteur d'automatisation est
+// Mise en page refaite d'après la maquette du 24 septembre 2026
+// (maquette-automatisation.dc.html). Ordre et fonds : hero (bleu nuit
+// profond, carte schéma « Un système Hérone » à droite), le constat en
+// grille de cartes (crème), nos systèmes avec leurs mini-schémas (bleu), la
+// frise des cinq étapes (crème), les outils (bleu, une seule section qui
+// remplace « Avec quoi nous construisons / Ce que nous connectons » et la
+// bande défilante des logiciels), la preuve en cartes (crème), le tarif
+// (bleu nuit profond), la FAQ (crème), le pont vers la formation (bleu).
+// La section « Les tâches que quelqu'un fait encore à la main » est
+// supprimée : elle reprenait mot pour mot les six titres du constat. Sa
+// phrase sur ce que nous n'automatisons pas devient la première question de
+// la FAQ.
+//
+// Aucun contenu inventé : le déroulé vient de la FAQ et des points de la
+// carte d'offre, les prix sont ceux affichés sur l'accueil. Le moteur d'automatisation est
 // n8n, auto-hébergé sur le serveur d'Hérone : c'est ce qui permet de dire
 // qu'aucun éditeur ne voit passer les données du client, et c'est l'argument
 // le plus fort de la page. Make et Zapier restent cités comme solutions de
@@ -21,8 +33,8 @@
 // ligne : ils verraient les données. L'ordre des deux phrases n'est donc pas
 // cosmétique.
 //
-// Le seul JavaScript de la page est celui des témoignages (façade YouTube),
-// porté par le composant lui-même.
+// Le JavaScript de la page : la façade YouTube des témoignages et
+// l'accordéon de la FAQ, portés par leurs composants.
 import Layout from '../layouts/Layout.astro';
 import OffreHero from '../components/offre/OffreHero.astro';
 import OffreEtapes from '../components/offre/OffreEtapes.astro';
@@ -33,6 +45,7 @@ import ConstatCarousel from '../components/home/ConstatCarousel.astro';
 import LogosMarquee from '../components/home/LogosMarquee.astro';
 import SystemsGrid from '../components/home/SystemsGrid.astro';
 import ProofSection from '../components/home/ProofSection.astro';
+import Schema from '../components/offre/Schema.astro';
 
 // Espaces insécables construits par leur point de code, jamais posés en clair
 // dans le fichier (piège n°7). Voir l'en-tête de formation.astro pour le
@@ -43,46 +56,16 @@ const EUR = String.fromCodePoint(0x20ac);
 const PRIX_MISE_EN_PLACE = `2${F}000${F}${EUR}${F}HT`;
 const PRIX_FORMATION = `1${F}500${F}${EUR}${F}HT`;
 
-// Les six tâches visées, reprises mot pour mot du carrousel « Le constat » de
-// la page d'accueil : c'est un contenu déjà validé, il ne doit pas diverger
-// entre les deux endroits.
-const taches = [
-  {
-    quand: 'chaque jour',
-    titre: "Ressaisie d'un logiciel à l'autre",
-    texte: "Les mêmes informations recopiées d'un outil à un autre, avec le risque d'erreur à chaque fois.",
-  },
-  {
-    quand: 'à chaque variante',
-    titre: 'Devis recalculés dans Excel',
-    texte: "Des feuilles dupliquées, une formule oubliée, et la marge qui saute sans qu'on le voie.",
-  },
-  {
-    quand: 'après chaque réunion',
-    titre: 'Comptes rendus retapés à la main',
-    texte: 'Une à deux heures de rédaction après le rendez-vous, et des détails qui filent.',
-  },
-  {
-    quand: 'chaque fin de mois',
-    titre: 'Reporting mensuel refait',
-    texte: 'Une journée à rassembler des chiffres épars, prêts trop tard pour décider.',
-  },
-  {
-    quand: 'dossier par dossier',
-    titre: 'Documents envoyés un par un',
-    texte: 'Le même envoi répété à la main, client après client, sans traçabilité.',
-  },
-  {
-    quand: 'au quotidien',
-    titre: 'Mails et pièces à trier',
-    texte: 'Des heures à ranger, transférer et classer ce qui arrive dans la boîte.',
-  },
-];
-
 // Questions propres à l'automatisation. Les deux premières lèvent le frein de
 // la dépendance, qui est le vrai sujet d'un dirigeant devant un prestataire
 // technique : à qui appartient le système, et que se passe-t-il si on arrête.
+// La première, ajoutée le 24 septembre 2026, reprend la phrase de l'ancienne
+// section des tâches visées : ce que nous n'automatisons pas.
 const questions = [
+  {
+    q: "Qu'est-ce que vous n'automatisez pas ?",
+    r: "Une tâche qui demande du jugement, la relation client, ou la responsabilité de ce qui sort de l'entreprise. Ces tâches restent à vos équipes, et nous le disons dès l'échange découverte, avant tout devis.",
+  },
   {
     q: 'À qui appartient le système ?',
     r: "À vous. Le jour où nous arrêtons de travailler ensemble, nous installons le système chez vous, en local, et il continue de tourner. Les évolutions sont alors à votre charge, mais vous ne repartez pas les mains vides. C'est voulu : personne ne devrait rester chez un prestataire faute de pouvoir en partir.",
@@ -134,6 +117,21 @@ const deroule = [
     texte: `Surveillance du système, correctifs en cas de dysfonctionnement, améliorations quand vos outils évoluent, et notre présence dans les meilleurs délais dès qu'un besoin surgit. Vos équipes gardent toujours la possibilité de reprendre la main.`,
   },
 ];
+// La section des outils : les deux blocs d'avant, fusionnés, dans leurs
+// formulations d'origine.
+const outilsTexte = [
+  "Nous construisons autour de l'existant : CRM, tableur, messagerie, comptabilité, logiciel métier. Le système les relie plutôt que de les remplacer.",
+  "Le moteur est n8n, une solution open source que nous hébergeons sur notre propre serveur. Aucun éditeur d'automatisation ne voit donc passer vos données. Quand vos outils l'imposent, nous savons aussi travailler avec Make ou Zapier : le choix est discuté avec vous et écrit dans le périmètre. Pas de frais cachés, pas d'abonnement captif.",
+];
+
+// Les logiciels affichés en pastilles fixes, sélection de la maquette. Tous
+// figurent dans la liste complète de LogosMarquee.
+const outilsNoms = [
+  'Gmail', 'Google Sheets', 'Google Drive', 'Google Agenda', 'Outlook', 'Excel', 'Word', 'Teams',
+  'WhatsApp', 'HubSpot', 'Pipedrive', 'Qonto', 'Stripe', 'Shopify', 'Axonaut', 'Pennylane', 'Sage',
+  'EBP', 'Cegid', 'Yousign', 'Notion', 'Airtable', 'Trello', 'Slack', 'Calendly', 'Brevo', 'Dropbox',
+  'Claude',
+];
 ---
 
 <Layout
@@ -141,223 +139,95 @@ const deroule = [
   description={`Nous relions les logiciels que vous utilisez déjà pour supprimer les ressaisies. Périmètre écrit, prix ferme, livré en 1 à 4 semaines. À partir de ${PRIX_MISE_EN_PLACE}. Les Herbiers, Vendée.`}
   headerTheme="dark"
 >
-  <OffreHero
-    eyebrow="Automatisation IA"
-    titre="Vos logiciels se parlent. Plus aucune ressaisie"
-    lede="Nous relions les outils que vous utilisez déjà pour que l'information circule seule, d'un logiciel à l'autre. Rien à remplacer, rien à réapprendre, et un périmètre écrit avec son prix ferme avant que nous démarrions."
-    faits={[
-      { cle: 'Sans changer vos logiciels', valeur: 'Nous connectons ceux que vous avez déjà.' },
-      { cle: 'Livré en 1 à 4 semaines', valeur: 'Périmètre écrit et prix ferme avant de démarrer.' },
-      { cle: 'Chez vous', valeur: 'Dans un rayon de 45 minutes autour des Herbiers.' },
-      { cle: `À partir de ${PRIX_MISE_EN_PLACE}`, valeur: 'Un suivi mensuel prend ensuite le relais, chiffré avec vous.' },
-    ]}
-    lienHref="#tarif"
-    lienLabel="Voir le tarif"
-  />
+  <div class="hrn-page-offre">
+    <OffreHero
+      eyebrow="Automatisation IA"
+      titre="Vos logiciels se parlent. Plus aucune ressaisie"
+      lede="Nous relions les outils que vous utilisez déjà pour que l'information circule seule, d'un logiciel à l'autre. Rien à remplacer, rien à réapprendre, et un périmètre écrit avec son prix ferme avant que nous démarrions."
+      faits={[
+        { cle: 'Sans changer vos logiciels', valeur: 'Nous connectons ceux que vous avez déjà.' },
+        { cle: 'Livré en 1 à 4 semaines', valeur: 'Périmètre écrit et prix ferme avant de démarrer.' },
+        { cle: 'Chez vous', valeur: 'Dans un rayon de 45 minutes autour des Herbiers.' },
+        { cle: `À partir de ${PRIX_MISE_EN_PLACE}`, valeur: 'Un suivi mensuel prend ensuite le relais, chiffré avec vous.' },
+      ]}
+      lienHref="#tarif"
+      lienLabel="Voir le tarif"
+    >
+      <Schema
+        slot="droite"
+        titre="Un système Hérone"
+        etapes={[
+          { texte: ['Boîte mail', 'Tableur', 'Agenda', 'CRM'] },
+          { texte: "Le système relie et traite, avec l'IA", style: 'ia' },
+          { texte: 'Une personne de votre équipe valide', style: 'pointille' },
+          { texte: 'Le résultat arrive dans vos outils habituels' },
+        ]}
+      />
+    </OffreHero>
 
-  {/* « Le constat » ouvre la page depuis le 22 septembre 2026 : les six tâches
-      faites à la main viennent avant celles que nous visons. La section était
-      sur la page d'accueil. Elle est posée sur fond surface pour tenir
-      l'alternance : le hero est sombre, la section suivante est sur papier. */}
-  <ConstatCarousel fond="surface" />
+    <ConstatCarousel fond="surface" variante="grille" />
 
-  <section class="hrn-auto-taches hrn-zone-bleue">
-    <div class="hrn-section-inner">
-      <div class="hrn-eyebrow">Ce que nous visons</div>
-      <h2>Les tâches que quelqu'un fait encore à la main</h2>
-      <p class="hrn-lede">
-        Vous en reconnaissez au moins une chez vous. Ce sont celles qui reviennent, qui ne demandent
-        aucun jugement, et qui coûtent des heures chaque semaine.
-      </p>
+    <SystemsGrid fond="paper" vignette="schema" />
 
-      <ul class="hrn-auto-taches__grid" role="list">
-        {taches.map((t) => (
-          <li class="hrn-auto-tache">
-            <span class="hrn-auto-tache__quand">{t.quand}</span>
-            <h3>{t.titre}</h3>
-            <p>{t.texte}</p>
-          </li>
-        ))}
-      </ul>
+    <OffreEtapes
+      variante="frise"
+      eyebrow="Comment ça se passe"
+      titre="Du premier appel au système en service"
+      lede="Cinq étapes, dans cet ordre, et vous validez chacune avant de passer à la suivante."
+      etapes={deroule}
+      fond="surface"
+      id="deroule"
+    />
 
-      <p class="hrn-auto-note">
-        Une tâche qui demande du jugement, la relation client, ou la responsabilité de ce qui sort de
-        l'entreprise, nous ne l'automatisons pas. Nous le disons dès l'échange découverte.
-      </p>
-    </div>
-  </section>
+    <LogosMarquee
+      variante="statique"
+      fond="paper"
+      eyebrow="Vos outils et les nôtres"
+      titre="Nous branchons ce que vous utilisez déjà"
+      texte={outilsTexte}
+      noms={outilsNoms}
+    />
 
-  <SystemsGrid fond="surface" />
+    <ProofSection fond="surface" variante="cartes" eyebrow="La preuve" titre="Deux systèmes, filmés chez nos clients" />
 
-  <OffreEtapes
-    eyebrow="Comment ça se passe"
-    titre="Du premier appel au système en service"
-    lede="Cinq étapes, dans cet ordre, et vous validez chacune avant de passer à la suivante."
-    etapes={deroule}
-    fond="paper"
-    id="deroule"
-  />
+    <OffreTarif
+      variante="suivi"
+      titre="Affiché, comme tout le reste"
+      regles={[
+        { label: 'Mise en place', prix: PRIX_MISE_EN_PLACE, detail: "À partir de. Conception, installation et formation de l'équipe. Le montant dépend du nombre de flux et des logiciels à relier." },
+      ]}
+      suite={{ label: 'Ensuite', titre: 'Un suivi mensuel, chiffré avec vous' }}
+      inclus="Le périmètre et le prix sont écrits avant que nous démarrions, et le prix est ferme. Un suivi mensuel prend ensuite le relais, pour la surveillance et les correctifs : nous le chiffrons avec vous au rendez-vous, il dépend de ce que le système demande. En fonction de la complexité, du nombre d'outils à relier et de la taille de l'entreprise, un projet peut monter à plusieurs milliers d'euros : c'est justement ce que l'échange de trente minutes permet de savoir, sans engagement."
+    />
 
-  <section class="hrn-auto-outils">
-    <div class="hrn-section-inner">
-      <div class="hrn-auto-outils__grid">
-        <div class="hrn-auto-outils__col">
-          <div class="hrn-eyebrow">Nos outils</div>
-          <h2>Avec quoi nous construisons</h2>
-          <p class="hrn-lede">
-            Nous construisons vos automatisations sur n8n, une solution open source que nous
-            hébergeons sur notre propre serveur. Aucun éditeur d'automatisation ne voit donc passer
-            vos données. Quand vos outils l'imposent, nous savons aussi travailler avec Make ou
-            Zapier : le choix est discuté avec vous et écrit dans le périmètre. Pas de frais cachés,
-            pas d'abonnement captif.
-          </p>
-        </div>
-        <div class="hrn-auto-outils__col">
-          <div class="hrn-eyebrow">Vos outils</div>
-          <h2>Ce que nous connectons</h2>
-          <p class="hrn-lede">
-            Nous construisons autour de l'existant : CRM, tableur, messagerie, comptabilité,
-            logiciel métier. Le système les relie plutôt que de les remplacer.
-          </p>
-          <a href="#logiciels" class="hrn-auto-outils__link">
-            Voir les logiciels que nous connectons
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
+    <FaqAccordion
+      id="questions"
+      eyebrow="Questions fréquentes"
+      titre="Ce que les dirigeants nous demandent avant de signer"
+      faqs={questions.map(({ q, r }) => ({ q, a: r }))}
+      fond="surface"
+      disposition="cote"
+      ouverte={0}
+    />
 
-  {/* La liste des logiciels vient de la page d'accueil, et se pose ici juste
-      après « Ce que nous connectons », qui y renvoyait déjà par un lien. Fond
-      papier, entre deux sections sur surface. */}
-  <LogosMarquee fond="paper" />
-
-  <ProofSection fond="surface" eyebrow="La preuve" titre="Deux systèmes, filmés chez nos clients" />
-
-  <OffreTarif
-    titre="Affiché, comme tout le reste"
-    regles={[
-      { label: 'Mise en place', prix: PRIX_MISE_EN_PLACE, detail: "À partir de. Conception, installation et formation de l'équipe. Le montant dépend du nombre de flux et des logiciels à relier." },
-    ]}
-    inclus="Le périmètre et le prix sont écrits avant que nous démarrions, et le prix est ferme. Un suivi mensuel prend ensuite le relais, pour la surveillance et les correctifs : nous le chiffrons avec vous au rendez-vous, il dépend de ce que le système demande. En fonction de la complexité, du nombre d'outils à relier et de la taille de l'entreprise, un projet peut monter à plusieurs milliers d'euros : c'est justement ce que l'échange de trente minutes permet de savoir, sans engagement."
-  />
-
-  <FaqAccordion
-    id="questions"
-    eyebrow="Questions fréquentes"
-    titre="Ce que les dirigeants nous demandent avant de signer"
-    faqs={questions.map(({ q, r }) => ({ q, a: r }))}
-  />
-
-  <OffrePont
-    titre="Et si vos équipes savaient déjà quoi automatiser&#8239;?"
-    texte={`Une journée de formation à l'IA leur apprend à repérer elles-mêmes les tâches qui valent la peine, et à s'en servir au quotidien. Beaucoup commencent par là : les automatisations qui suivent sont mieux ciblées. À partir de ${PRIX_FORMATION} la journée.`}
-    liens={[
-      { href: '/formation', label: "Voir l'offre de formation IA" },
-      { href: '/#offres', label: 'Comparer les deux offres et leurs prix' },
-    ]}
-  />
+    <OffrePont
+      titre="Et si vos équipes savaient déjà quoi automatiser&#8239;?"
+      texte={`Une journée de formation à l'IA leur apprend à repérer elles-mêmes les tâches qui valent la peine, et à s'en servir au quotidien. Beaucoup commencent par là : les automatisations qui suivent sont mieux ciblées. À partir de ${PRIX_FORMATION} la journée.`}
+      liens={[
+        { href: '/formation', label: "Voir l'offre de formation IA" },
+        { href: '/#offres', label: 'Comparer les deux offres et leurs prix' },
+      ]}
+      fond="paper"
+    />
+  </div>
 </Layout>
 
 <style>
-  /* --------------------------------------------------- Tâches visées */
-  .hrn-auto-taches {
-    padding: var(--section-y) 0;
-    background: var(--paper);
-  }
-
-  .hrn-auto-taches .hrn-lede {
-    margin-top: 16px !important;
-  }
-
-  /* minmax(min(…, 100%), 1fr) et non minmax(280px, 1fr) : sur un écran de
-     320px, une piste fixe plus large que le conteneur déborde et pousse toute
-     la page en défilement horizontal (piège n°1 du projet). */
-  .hrn-auto-taches__grid {
-    list-style: none;
-    margin: 40px 0 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
-    gap: 28px;
-  }
-
-  .hrn-auto-tache {
-    min-width: 0;
-    padding-top: 18px;
-    border-top: 2px solid var(--amber-500);
-  }
-
-  .hrn-auto-tache__quand {
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-
-  .hrn-auto-tache h3 {
-    margin: 8px 0 0;
-    font-family: var(--font-display);
-    font-weight: var(--weight-titre);
-    font-size: clamp(1.1rem, 1.6vw, 1.3rem);
-    letter-spacing: var(--tracking-titre);
-    color: var(--text-strong);
-    text-wrap: balance;
-  }
-
-  .hrn-auto-tache p {
-    margin-top: 10px !important;
-    font-size: 15.5px;
-    line-height: 1.6;
-    color: var(--text-secondary);
-    text-wrap: pretty;
-  }
-
-  .hrn-auto-note {
-    margin-top: 34px !important;
-    max-width: 78ch;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-    font-size: 14.5px;
-    line-height: 1.6;
-    color: var(--text-muted);
-    text-wrap: pretty;
-  }
-
-  /* ---------------------------------------------------------- Outils */
-  .hrn-auto-outils {
-    padding: var(--section-y) 0;
-    background: var(--surface);
-  }
-
-  .hrn-auto-outils__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
-    gap: clamp(28px, 4vw, 56px);
-    align-items: start;
-  }
-
-  .hrn-auto-outils__col {
-    min-width: 0;
-  }
-
-  .hrn-auto-outils__col h2 {
-    font-size: clamp(1.4rem, 2.6vw, 1.9rem);
-  }
-
-  .hrn-auto-outils__col .hrn-lede {
-    margin-top: 14px !important;
-  }
-
-  .hrn-auto-outils__link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 18px;
-    font-weight: 600;
-    font-size: 15px;
-    color: var(--label);
+  /* Rythme vertical des maquettes : 96px entre sections au large, contre 68
+     sur le reste du site. Réglé ici une seule fois pour toute la page, sans
+     toucher aux jetons : l'accueil et le blog gardent leur rythme. */
+  .hrn-page-offre {
+    --section-y: clamp(48px, 6.7vw, 96px);
+    --section-y-lg: clamp(48px, 6.7vw, 96px);
   }
 </style>

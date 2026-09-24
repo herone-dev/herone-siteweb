@@ -25,20 +25,23 @@ interface Props {
   eyebrow?: string;
   titre: string;
   avis: Avis[];
-  /** Fond de la section, à choisir pour ne jamais répéter celui de la section précédente. */
-  fond?: 'paper' | 'surface';
+  /** Fond de la section, à choisir pour ne jamais répéter celui de la section
+      précédente ni celui de la suivante. `nuit` (bleu nuit profond) sert quand
+      la section tombe entre une section bleue et une section crème : c'est le
+      cas sur /formation depuis les maquettes du 24 septembre 2026. */
+  fond?: 'paper' | 'surface' | 'nuit';
 }
 
 const { eyebrow = 'Ils y étaient', titre, avis, fond = 'surface' } = Astro.props;
 ---
 
 {avis.length > 0 && (
-  <section class:list={['hrn-offre-avis', `hrn-offre-avis--${fond}`, fond === 'paper' && 'hrn-zone-bleue']}>
+  <section class:list={['hrn-offre-avis', `hrn-offre-avis--${fond}`, fond !== 'surface' && 'hrn-zone-bleue']}>
     <div class="hrn-section-inner">
       <div class="hrn-eyebrow">{eyebrow}</div>
       <h2>{titre}</h2>
 
-      <ul class:list={['hrn-offre-avis__list', fond === 'paper' ? 'hrn-zone-creme' : 'hrn-zone-bleue']} role="list">
+      <ul class:list={['hrn-offre-avis__list', fond !== 'surface' ? 'hrn-zone-creme' : 'hrn-zone-bleue']} role="list">
         {avis.map((a) => (
           <li class="hrn-offre-avis__card">
             <blockquote>{a.texte}</blockquote>
@@ -68,6 +71,10 @@ const { eyebrow = 'Ils y étaient', titre, avis, fond = 'surface' } = Astro.prop
     background: var(--surface);
   }
 
+  .hrn-offre-avis--nuit {
+    background: var(--nuit-profonde);
+  }
+
   /* minmax(min(…, 100%), 1fr) : une piste fixe plus large que le conteneur
      pousse toute la page en défilement horizontal sur un écran de 320px
      (piège n°1 du projet). */
@@ -91,7 +98,8 @@ const { eyebrow = 'Ils y étaient', titre, avis, fond = 'surface' } = Astro.prop
     background: var(--paper);
   }
 
-  .hrn-offre-avis--paper .hrn-offre-avis__card {
+  .hrn-offre-avis--paper .hrn-offre-avis__card,
+  .hrn-offre-avis--nuit .hrn-offre-avis__card {
     background: var(--surface);
   }
 

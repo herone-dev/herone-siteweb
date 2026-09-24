@@ -259,6 +259,14 @@
   Écart de luminosité avec --paper : 1,12 (le vert était à 1,14). */
   --nuit-profonde: #070F1A;
 
+  /* Cartes des pages d'offre (maquettes du 24 septembre 2026). Sur le bleu :
+  carte un cran plus claire que --paper, bordure assortie. Sur le crème :
+  carte blanche, bordure plus douce que --creme-bordure. */
+  --nuit-carte: #172638;
+  --nuit-carte-bordure: #2C3F55;
+  --carte-claire: #FFFFFF;
+  --carte-claire-bordure: #E4DDCB;
+
   /* Turquoise profond : la couleur d'accent assombrie, pour la moitié
   « Formation IA » de la section des offres (23 septembre 2026, piste 2
   choisie par l'utilisateur sur maquette). --turquoise-nuit fonce le bas de

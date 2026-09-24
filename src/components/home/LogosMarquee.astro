@@ -1,4 +1,15 @@
 ---
+// Les logiciels que nous connectons.
+//
+// Deux variantes :
+//  - `defilant` (par défaut) : deux bandes de pastilles qui défilent en sens
+//    opposés, sous un titre ;
+//  - `statique` (maquettes du 24 septembre 2026, /automatisation) : le texte
+//    à gauche, les pastilles fixes sur plusieurs lignes à droite, sans aucun
+//    défilement. Le texte et la sélection de logiciels arrivent par les props
+//    `eyebrow`, `titre`, `texte` et `noms` : la section remplace à la fois
+//    l'ancien bloc « Avec quoi nous construisons / Ce que nous connectons » et
+//    l'ancienne bande défilante.
 const row1 = [
   'Gmail', 'Google Sheets', 'Google Drive', 'Google Agenda', 'Outlook', 'Excel', 'Word', 'Teams',
   'WhatsApp', 'LinkedIn', 'Facebook', 'Instagram', 'Qonto', 'Stripe', 'PayPal', 'Shopify',
@@ -14,12 +25,36 @@ const row2 = [
 interface Props {
   /** Fond de la section, pour tenir l'alternance de la page qui l'accueille. */
   fond?: 'paper' | 'surface';
+  variante?: 'defilant' | 'statique';
+  eyebrow?: string;
+  titre?: string;
+  /** Variante `statique` : paragraphes du texte de gauche. */
+  texte?: string[];
+  /** Variante `statique` : les logiciels affichés. Par défaut, les deux bandes. */
+  noms?: string[];
 }
 
-const { fond = 'surface' } = Astro.props;
+const { fond = 'surface', variante = 'defilant', eyebrow, titre, texte = [], noms = [...row1, ...row2] } = Astro.props;
 
 ---
 
+{variante === 'statique' ? (
+<section id="logiciels" class:list={['hrn-logos', 'hrn-logos--statique', `hrn-logos--${fond}`, fond === 'paper' ? 'hrn-zone-bleue' : 'hrn-zone-creme']}>
+  <div class="hrn-section-inner hrn-logos__duo">
+    <div class="hrn-logos__texte">
+      {eyebrow && <div class="hrn-eyebrow">{eyebrow}</div>}
+      {titre && <h2>{titre}</h2>}
+      {texte.map((paragraphe) => <p class="hrn-lede">{paragraphe}</p>)}
+    </div>
+    <div class="hrn-logos__fixe">
+      <ul class="hrn-logos__pastilles" role="list">
+        {noms.map((nom) => <li>{nom}</li>)}
+      </ul>
+      <p class="hrn-logos__more">et plus de 500 autres</p>
+    </div>
+  </div>
+</section>
+) : (
 <section id="logiciels" class:list={['hrn-logos', `hrn-logos--${fond}`, fond === 'paper' && 'hrn-zone-bleue']}>
   <div class="hrn-section-inner">
     <div class="hrn-eyebrow">Logiciels</div>
@@ -42,6 +77,7 @@ const { fond = 'surface' } = Astro.props;
     <p class="hrn-logos__more">et plus de 500 autres</p>
   </div>
 </section>
+)}
 
 <style>
   .hrn-logos {
@@ -125,6 +161,59 @@ const { fond = 'surface' } = Astro.props;
     border-radius: var(--radius-full);
     padding: 8px 18px;
     white-space: nowrap;
+  }
+
+  /* ============ Variante « statique » ============ */
+
+  .hrn-logos__duo {
+    display: grid;
+    gap: 40px 64px;
+    align-items: center;
+  }
+
+  @media (min-width: 960px) {
+    .hrn-logos__duo {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    }
+  }
+
+  .hrn-logos__texte,
+  .hrn-logos__fixe {
+    min-width: 0;
+  }
+
+  .hrn-logos--statique :global(.hrn-eyebrow) {
+    color: var(--accent-texte);
+  }
+
+  .hrn-logos--statique h2 {
+    max-width: 17em;
+  }
+
+  .hrn-logos--statique .hrn-lede {
+    margin-top: 18px;
+    font-size: clamp(1rem, 1.3vw, 1.125rem);
+  }
+
+  .hrn-logos__pastilles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .hrn-logos__pastilles li {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    font-size: 14px;
+    font-weight: var(--weight-medium);
+    color: var(--text-primary);
   }
 
   .hrn-logos__more {

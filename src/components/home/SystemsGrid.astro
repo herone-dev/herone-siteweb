@@ -1,17 +1,51 @@
 ---
-// Grille des systèmes installés. Retirée de la page d'accueil : elle vit
-// désormais sur /systemes, qui fournit son propre titre de page (h1). D'où
-// `showHead` : la page passe `false` pour ne pas doubler le titre, la valeur
-// par défaut garde l'en-tête si la section revient un jour dans une page.
+// Grille des systèmes installés, posée sur /automatisation.
+//
+// `showHead` : une page qui fournit déjà son propre titre passe `false` pour
+// ne pas le doubler ; la valeur par défaut garde l'en-tête.
+//
+// `vignette` (maquettes du 24 septembre 2026) : le haut de chaque carte est
+// soit l'ancienne vignette hachurée avec son icône (`icone`, par défaut),
+// soit un mini-schéma sur fond bleu (`schema`) : trois pastilles empilées,
+// reliées par des flèches, celle du milieu en turquoise plein. En `schema`,
+// l'étiquette « Installé chez un client des Herbiers » descend dans le corps
+// de la carte, au-dessus du titre.
+import Schema from '../offre/Schema.astro';
+
 interface Props {
   showHead?: boolean;
   /** Fond de la section, à choisir pour ne jamais répéter celui de la section
-      précédente. La grille vit maintenant sur /automatisation, où l'ordre des
-      sections n'est pas celui de l'accueil. */
+      précédente. */
   fond?: 'paper' | 'surface';
+  vignette?: 'icone' | 'schema';
 }
 
-const { showHead = true, fond = 'paper' } = Astro.props;
+const { showHead = true, fond = 'paper', vignette = 'icone' } = Astro.props;
+
+const systemes = [
+  {
+    href: '/blog/comptes-rendus',
+    titre: 'Comptes rendus automatiques',
+    texte: "De l'audio de réunion au compte rendu envoyé, sans une minute de saisie.",
+    etiquette: 'Installé chez un client des Herbiers',
+    flux: ['Réunion enregistrée', "Transcription et synthèse par l'IA", 'Compte rendu envoyé'],
+    icone: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M9 13h6"></path><path d="M9 17h4"></path></svg>',
+  },
+  {
+    href: '/blog/facebook-crm',
+    titre: 'Connexion de vos outils',
+    texte: "Un lead arrive, il part dans le tableur, dans le CRM et alerte l'équipe. Sans copier-coller.",
+    flux: ['Formulaire rempli', 'Tri et routage automatiques', 'CRM, tableur, alerte équipe'],
+    icone: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><path d="M10 6.5h5.5a2 2 0 0 1 2 2V13"></path><path d="m15.5 11 2 2 2-2"></path><path d="M14 17.5H8.5a2 2 0 0 1-2-2V11"></path><path d="m4.5 13 2-2 2 2"></path></svg>',
+  },
+  {
+    href: '/blog/devis-excel',
+    titre: 'Devis et relances automatisés',
+    texte: 'Le devis part, la relance se déclenche seule au bon moment, vous suivez tout depuis un tableau unique.',
+    flux: ['Devis envoyé', 'Relance au bon moment', 'Tableau de suivi unique'],
+    icone: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"></path><path d="M9.5 8h5"></path><path d="M9.5 12h5"></path></svg>',
+  },
+];
 ---
 
 <section id="systemes" class:list={['hrn-systems', `hrn-systems--${fond}`, !showHead && 'hrn-systems--bare', fond === 'paper' && 'hrn-zone-bleue']}>
@@ -30,39 +64,30 @@ const { showHead = true, fond = 'paper' } = Astro.props;
     )}
 
     <div class:list={['hrn-systems__grid', fond === 'paper' ? 'hrn-zone-creme' : 'hrn-zone-bleue']}>
-      <a href="/blog/comptes-rendus" class="hrn-systems__card">
-        <div class="hrn-systems__thumb hrn-systems__thumb--icon">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M9 13h6"></path><path d="M9 17h4"></path></svg>
-          <span>Installé chez un client des Herbiers</span>
-        </div>
-        <div class="hrn-systems__body">
-          <h3>Comptes rendus automatiques</h3>
-          <p>De l'audio de réunion au compte rendu envoyé, sans une minute de saisie.</p>
-          <span class="hrn-systems__cta">Voir le système<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
-        </div>
-      </a>
-
-      <a href="/blog/facebook-crm" class="hrn-systems__card">
-        <div class="hrn-systems__thumb hrn-systems__thumb--icon">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><path d="M10 6.5h5.5a2 2 0 0 1 2 2V13"></path><path d="m15.5 11 2 2 2-2"></path><path d="M14 17.5H8.5a2 2 0 0 1-2-2V11"></path><path d="m4.5 13 2-2 2 2"></path></svg>
-        </div>
-        <div class="hrn-systems__body">
-          <h3>Connexion de vos outils</h3>
-          <p>Un lead arrive, il part dans le tableur, dans le CRM et alerte l'équipe. Sans copier-coller.</p>
-          <span class="hrn-systems__cta">Voir le système<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
-        </div>
-      </a>
-
-      <a href="/blog/devis-excel" class="hrn-systems__card">
-        <div class="hrn-systems__thumb hrn-systems__thumb--icon">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"></path><path d="M9.5 8h5"></path><path d="M9.5 12h5"></path></svg>
-        </div>
-        <div class="hrn-systems__body">
-          <h3>Devis et relances automatisés</h3>
-          <p>Le devis part, la relance se déclenche seule au bon moment, vous suivez tout depuis un tableau unique.</p>
-          <span class="hrn-systems__cta">Voir le système<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
-        </div>
-      </a>
+      {systemes.map((s) => (
+        <a href={s.href} class="hrn-systems__card">
+          {vignette === 'schema' ? (
+            <div class="hrn-systems__thumb hrn-systems__thumb--schema">
+              <Schema
+                variante="vignette"
+                decoratif
+                etapes={[{ texte: s.flux[0] }, { texte: s.flux[1], style: 'ia' }, { texte: s.flux[2] }]}
+              />
+            </div>
+          ) : (
+            <div class="hrn-systems__thumb hrn-systems__thumb--icon">
+              <Fragment set:html={s.icone} />
+              {s.etiquette && <span>{s.etiquette}</span>}
+            </div>
+          )}
+          <div class="hrn-systems__body">
+            {vignette === 'schema' && s.etiquette && <span class="hrn-systems__etiquette">{s.etiquette}</span>}
+            <h3>{s.titre}</h3>
+            <p>{s.texte}</p>
+            <span class="hrn-systems__cta">Voir le système<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+          </div>
+        </a>
+      ))}
     </div>
   </div>
 </section>
@@ -88,6 +113,10 @@ const { showHead = true, fond = 'paper' } = Astro.props;
     background: var(--paper);
   }
 
+  .hrn-systems :global(.hrn-eyebrow) {
+    color: var(--accent-texte);
+  }
+
   .hrn-systems__head {
     display: flex;
     flex-wrap: wrap;
@@ -100,16 +129,24 @@ const { showHead = true, fond = 'paper' } = Astro.props;
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    min-height: 44px;
     font-weight: 600;
-    color: var(--label);
-    white-space: nowrap;
+    color: var(--accent-texte);
   }
 
+  /* Trois cartes sur une ligne dès 880px, une par ligne en dessous : entre
+     les deux, un auto-fit laissait la troisième carte seule sur sa ligne. */
   .hrn-systems__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: 20px;
     margin-top: 40px;
+  }
+
+  @media (min-width: 880px) {
+    .hrn-systems__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
   }
 
   /* Sans en-tête interne, la marge du titre disparaît : la grille attaque
@@ -156,6 +193,27 @@ const { showHead = true, fond = 'paper' } = Astro.props;
     color: var(--text-muted);
   }
 
+  /* Vignette schéma : la hauteur est celle de la maquette (200px), le schéma
+     remplit la vignette. */
+  .hrn-systems__thumb--schema {
+    aspect-ratio: auto;
+    height: 200px;
+    display: flex;
+  }
+
+  .hrn-systems__thumb--schema > :global(*) {
+    flex: 1;
+  }
+
+  .hrn-systems__etiquette {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: 1.4;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
   .hrn-systems__thumb--icon span {
     max-width: 26ch;
     padding: 0 16px;
@@ -198,6 +256,6 @@ const { showHead = true, fond = 'paper' } = Astro.props;
     gap: 6px;
     font-size: 14px;
     font-weight: 600;
-    color: var(--label);
+    color: var(--accent-texte);
   }
 </style>
