@@ -33,12 +33,17 @@ backend:
 media_folder: public/images/blog
 public_folder: /images/blog
 
-locale: fr
+# La langue de l'interface suit celle du navigateur (Sveltia ne gère pas
+# l'option locale).
 
 collections:
   - name: blog
     label: Articles du blog
     label_singular: Article
+    description: >-
+      Les articles marqués BROUILLON attendent votre relecture et ne sont pas
+      visibles sur le site. Pour publier, ouvrez l'article, décochez
+      « Brouillon » et cliquez sur Enregistrer.
     folder: src/content/blog
     create: true
     # Le nom du fichier est le slug, et le slug est l'URL : /blog/<slug>.
@@ -47,28 +52,62 @@ collections:
     extension: md
     format: yaml-frontmatter
     identifier_field: title
-    summary: '{{title}}'
-    sortable_fields: [pubDate, title, category]
+
+    # Ligne affichée pour chaque article dans la liste : statut, date, titre,
+    # catégorie. Un article sans champ draft (les plus anciens) compte comme
+    # en ligne, un champ absent valant faux pour le ternaire.
+    summary: "{{draft | ternary('BROUILLON', 'EN LIGNE')}} · {{pubDate | date('DD/MM/YYYY')}} · {{title}} · {{category}}"
+
+    # Tri : du plus récent au plus ancien par défaut, modifiable dans la liste.
+    sortable_fields:
+      fields: [pubDate, title, category, draft]
+      default:
+        field: pubDate
+        direction: descending
+
+    # Filtres. « En ligne » utilise ne (différent de) et pas pattern : un
+    # article sans champ draft, comme les sept premiers du blog, ne correspond
+    # qu'à ne et not_in. Avec pattern: false, ils disparaissaient tous.
     view_filters:
-      - label: En ligne
-        field: draft
-        pattern: false
-      - label: Archivés
-        field: draft
-        pattern: true
+      filters:
+        - name: brouillons
+          label: Brouillons, en attente de publication
+          field: draft
+          eq: true
+        - name: en-ligne
+          label: En ligne sur le site
+          field: draft
+          ne: true
+
+    # Regroupement proposé dans la liste, par année de publication. Le statut
+    # se filtre plutôt qu'il ne se groupe : un groupe sur un champ vrai ou faux
+    # s'afficherait « true » et « false ».
+    view_groups:
+      groups:
+        - name: annee
+          label: Année de publication
+          field: pubDate
+          pattern: '\d{4}'
+
+    # Ordre des champs : ce qui sert tous les jours en haut, les réglages
+    # techniques en bas. L'ordre n'a aucun effet sur le site.
     fields:
+      - label: Brouillon (pas encore en ligne)
+        name: draft
+        widget: boolean
+        required: false
+        default: true
+        hint: >-
+          Coché, l'article n'apparaît nulle part sur le site. Pour le publier,
+          décochez puis cliquez sur Enregistrer, il est en ligne une à deux
+          minutes plus tard. Pour le retirer du site, recochez. Rien n'est
+          jamais supprimé.
+
       - label: Titre
         name: title
         widget: string
         required: true
-
-      - label: Description
-        name: description
-        widget: text
-        required: true
-        hint: >-
-          Le chapô affiché sous le titre et la méta-description de la page.
-          Pas de deux-points, c'est une règle de rédaction du blog.
+        hint: Soixante caractères au maximum, sinon Google le coupe.
 
       - label: Date de publication
         name: pubDate
@@ -78,26 +117,35 @@ collections:
         date_format: 'DD/MM/YYYY'
         time_format: false
         picker_utc: true
-        hint: Date de première mise en ligne. Elle règle le tri du blog.
-
-      - label: Date de mise à jour
-        name: updatedDate
-        widget: datetime
-        required: false
-        format: 'YYYY-MM-DD'
-        date_format: 'DD/MM/YYYY'
-        time_format: false
-        picker_utc: true
-        hint: À renseigner seulement quand un article déjà publié est repris.
+        hint: >-
+          Règle l'ordre du blog. Au moment de publier un brouillon, mettez la
+          date du jour avec le bouton « Aujourd'hui ».
 
       - label: Catégorie
         name: category
         widget: string
         required: true
         hint: >-
-          Champ libre. Une catégorie inconnue se crée d'elle-même et apparaît
-          dans la barre de filtres du blog. Reprendre une orthographe existante
-          plutôt que d'en inventer une variante.
+          Reprendre une catégorie existante, écrite à l'identique (Automatisation,
+          Devis, CRM, BTP, Actualité IA, Réglementation, Formation, Cas d'usage).
+          Une nouvelle orthographe crée un nouveau filtre sur le blog.
+
+      - label: Description
+        name: description
+        widget: text
+        required: true
+        hint: >-
+          Le chapô affiché sous le titre et la description vue dans Google.
+          Pas de deux-points, c'est une règle de rédaction du blog.
+
+      - label: Corps de l'article
+        name: body
+        widget: markdown
+        required: true
+        hint: >-
+          Markdown pur. Pas de HTML, pas de listes, pas de citations, pas de
+          tableaux, pas de blocs de code, pas d'emoji, pas de tiret cadratin.
+          L'encart rendez-vous est posé automatiquement sur le site.
 
       - label: Temps de lecture (minutes)
         name: readingTime
@@ -112,23 +160,9 @@ collections:
         name: systemTitle
         widget: string
         required: true
-
-      - label: Archivé (hors ligne)
-        name: draft
-        widget: boolean
-        required: false
-        default: false
         hint: >-
-          Activé, l'article disparaît du blog, du flux RSS et du plan de site,
-          et son adresse renvoie un 404. Le fichier reste dans le dépôt et
-          l'article revient en ligne en désactivant cet interrupteur.
-
-      - label: Mots-clés
-        name: tags
-        widget: list
-        required: false
-        default: []
-        field: { label: Mot-clé, name: tag, widget: string }
+          Encart qui renvoie vers la page Automatisation. Valeurs habituelles,
+          Devis automatisés, Comptes rendus automatiques, Connexion de vos outils.
 
       - label: En bref
         name: summary
@@ -137,6 +171,23 @@ collections:
         max: 4
         field: { label: Phrase, name: phrase, widget: string }
         hint: Quatre phrases au maximum. Vide, l'encart ne s'affiche pas.
+
+      - label: Mots-clés
+        name: tags
+        widget: list
+        required: false
+        default: []
+        field: { label: Mot-clé, name: tag, widget: string }
+
+      - label: Date de mise à jour
+        name: updatedDate
+        widget: datetime
+        required: false
+        format: 'YYYY-MM-DD'
+        date_format: 'DD/MM/YYYY'
+        time_format: false
+        picker_utc: true
+        hint: À renseigner seulement quand un article déjà publié est repris.
 
       - label: Auteur
         name: author
@@ -151,13 +202,4 @@ collections:
         name: image
         widget: image
         required: false
-        hint: Optionnelle, le blog dessine ses couvertures en SVG.
-
-      - label: Corps de l'article
-        name: body
-        widget: markdown
-        required: true
-        hint: >-
-          Markdown pur. Pas de HTML, pas de listes, pas de citations, pas de
-          tableaux, pas de blocs de code, pas d'emoji, pas de tiret cadratin.
-          L'encart rendez-vous est posé automatiquement au build.
+        hint: Optionnelle, le blog n'affiche pas d'image de couverture.

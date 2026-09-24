@@ -6,6 +6,7 @@ category: BTP
 readingTime: 9
 systemTitle: "Connexion de vos outils"
 tags: ["btp", "administratif", "mails", "menuiserie", "vendée"]
+draft: false
 ---
 
 Dans beaucoup d'entreprises artisanales, l'administratif tient sur une seule personne. Elle connaît chaque client, chaque fournisseur, chaque dossier en cours, et personne n'a jamais écrit ce qu'elle fait dans une journée. Le jour où elle annonce son départ dans deux ans, le dirigeant découvre qu'il ne pourra pas la remplacer à l'identique, et souvent qu'il ne le souhaite pas. L'objectif qui revient le plus souvent, c'est un mi-temps. Nous avons rencontré ce cas en septembre 2026 dans une menuiserie du bocage vendéen, et cet article détaille ce que l'automatisation peut y reprendre, dans quel ordre, et ce qui restera entre des mains humaines.

@@ -56,6 +56,10 @@ Pièges :
 
 ### Le champ `draft`, archivage et retour en ligne
 
+Chaque article porte `draft` explicitement (`true` ou `false`) : l'interface
+/admin filtre et affiche le statut à partir de ce champ, et un article sans
+lui n'y apparaîtrait pas comme « en ligne ».
+
 `draft: true` retire l'article de la liste, du flux RSS, du plan de site, et
 sa page n'est plus construite (son URL renvoie un 404). Le fichier reste dans
 le dépôt, modifiable. `draft: false` le remet en ligne au build suivant.

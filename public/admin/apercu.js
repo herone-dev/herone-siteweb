@@ -271,8 +271,8 @@
 
     // Bandeau d'état, pour ne jamais confondre l'aperçu avec la page en ligne.
     var bandeau = d.draft
-      ? 'Aperçu · article archivé, invisible sur le site'
-      : 'Aperçu · visible sur le site après enregistrement';
+      ? 'Aperçu · brouillon, invisible sur le site'
+      : 'Aperçu · en ligne, visible sur le site après enregistrement';
 
     return (gabarit.entete || '') + bloc.outerHTML + '<p class="herone-apercu-bandeau">' + bandeau + '</p>';
   }

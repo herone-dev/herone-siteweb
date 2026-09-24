@@ -6,6 +6,7 @@ category: CRM
 readingTime: 4
 systemTitle: "Prise de rendez-vous automatisée"
 tags: ["crm", "rendez-vous", "agenda"]
+draft: false
 ---
 
 Les allers-retours pour caler un rendez-vous, c'est un quart d'heure par client, et ça se cumule vite. Entre les mails, les appels et les reports, votre matinée est bouffée avant d'avoir commencé. Voici comment laisser vos clients se positionner tout seuls dans votre planning.

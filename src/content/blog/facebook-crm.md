@@ -6,6 +6,7 @@ category: CRM
 readingTime: 3
 systemTitle: "Connexion de vos outils"
 tags: ["crm", "leads", "facebook"]
+draft: false
 ---
 
 Un prospect remplit un formulaire, et puis... il attend. Le temps qu'on relève les leads à la main, la concurrence a déjà rappelé. Voici comment ne plus jamais laisser un lead refroidir.

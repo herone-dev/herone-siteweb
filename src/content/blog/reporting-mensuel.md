@@ -6,6 +6,7 @@ category: Automatisation
 readingTime: 4
 systemTitle: "Connexion de vos outils"
 tags: ["automatisation", "reporting", "pilotage"]
+draft: false
 ---
 
 Chaque fin de mois, la même corvée : rassembler les chiffres de partout, les remettre en forme, vérifier qu'ils tombent juste. Voici comment le rapport se construit sans vous.

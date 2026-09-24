@@ -6,6 +6,7 @@ category: Automatisation
 readingTime: 4
 systemTitle: "Comptes rendus automatiques"
 tags: ["automatisation", "comptes rendus", "réunions"]
+draft: false
 ---
 
 Après chaque réunion, quelqu'un s'installe pour retaper ses notes, remettre en forme, envoyer. Une heure perdue, parfois plus, et des détails qui filent. Voici comment un système bien réglé fait disparaître cette tâche.

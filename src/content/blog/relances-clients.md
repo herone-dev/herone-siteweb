@@ -6,6 +6,7 @@ category: CRM
 readingTime: 3
 systemTitle: "Connexion de vos outils"
 tags: ["crm", "relances", "facturation"]
+draft: false
 ---
 
 Les relances, c'est le chiffre d'affaires qui dort. On sait qu'il faut les faire, mais elles passent après le reste. Voici comment ne plus jamais oublier de relancer.

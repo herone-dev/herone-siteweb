@@ -6,6 +6,7 @@ category: Devis
 readingTime: 5
 systemTitle: "Devis automatisés"
 tags: ["devis", "excel", "chiffrage"]
+draft: false
 ---
 
 Le devis dans Excel commence bien, puis chaque variante ajoute une ligne, un onglet, une formule cassée. Voici comment fiabiliser et accélérer ce travail sans changer votre façon de vendre.
