@@ -118,6 +118,18 @@ liste des champs de `scripts/check-articles.mjs`. Un champ oublié dans la
 config du CMS est un champ que l'interface efface silencieusement à
 l'enregistrement.
 
+**Aperçu fidèle** : le panneau de droite de l'éditeur affiche l'article avec le
+vrai gabarit du blog. `public/admin/apercu.js` télécharge une page article en
+ligne, en reprend la structure et les feuilles de style, et y place le contenu
+en cours d'édition (Markdown converti par `public/admin/marked.umd.js`, copie
+locale de marked 15). Le gabarit n'est donc pas recopié : une évolution de
+`src/pages/blog/[slug].astro` se retrouve dans l'aperçu au déploiement suivant.
+Seuls les sélecteurs suivants doivent survivre à une refonte, sinon l'aperçu
+perd la partie concernée sans casser l'éditeur : `.hrn-blog`, `#hrn-header`,
+`.hrn-fil`, `.hrn-article-tete__meta`, `.hrn-article-tete h1`,
+`.hrn-article-tete__chapeau`, `.hrn-prose`, `.hrn-article-cta`,
+`.hrn-toc__liste`, `.hrn-toc__titre`, `.hrn-enbref`.
+
 L'authentification GitHub demande une configuration hors dépôt (une OAuth App
 GitHub, déclarée soit dans Netlify, soit sur un service Cloudflare Workers).
 Elle n'est pas dans le code, et sans elle la page `/admin` s'affiche mais la

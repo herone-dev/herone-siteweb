@@ -15,5 +15,11 @@
          n'y empêche pas le blog de s'afficher, et figer la version obligerait à
          suivre les mises à jour à la main. -->
     <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
+    <!-- Aperçu fidèle : le panneau de droite affiche l'article avec le vrai
+         gabarit et les vrais styles du blog (voir apercu.js). marked convertit
+         le Markdown en HTML ; il est copié ici (v15.0.12, licence MIT) plutôt
+         que chargé d'un CDN, pour que l'aperçu ne dépende de personne. -->
+    <script src="/admin/marked.umd.js"></script>
+    <script src="/admin/apercu.js"></script>
   </body>
 </html>
