@@ -129,10 +129,18 @@ const premiere = etapes[0]?.num;
     </div>
 
     <p class="hrn-planning__legende" aria-hidden="true">
-      <span class="hrn-planning__pastille hrn-planning__pastille--atelier"></span>
-      Atelier sur vos dossiers
-      <span class="hrn-planning__pastille hrn-planning__pastille--pause"></span>
-      Pause
+      <span class="hrn-planning__cle">
+        <span class="hrn-planning__pastille hrn-planning__pastille--cours"></span>
+        Cours théorique
+      </span>
+      <span class="hrn-planning__cle">
+        <span class="hrn-planning__pastille hrn-planning__pastille--atelier"></span>
+        Atelier sur vos dossiers
+      </span>
+      <span class="hrn-planning__cle">
+        <span class="hrn-planning__pastille hrn-planning__pastille--pause"></span>
+        Pause
+      </span>
     </p>
   </div>
 
@@ -266,14 +274,14 @@ const premiere = etapes[0]?.num;
   }
 
   /* Étape choisie : pas de contour (il débordait sur les créneaux voisins).
-     Le bloc se remplit : un bloc sombre passe en turquoise clair, texte bleu
+     Le bloc se remplit : un bloc sombre passe en turquoise moyen, texte bleu
      nuit ; un atelier garde son turquoise. Par-dessus, un voile crème
-     clignote à rythme régulier (aller-retour de 750ms, opacité seule) pour
+     clignote à rythme régulier (750ms, de 5 à 45 %, opacité seule) pour
      que l'étape en cours saute aux yeux. Contraste du texte mesuré au creux
      comme au pic du clignotement. */
   .hrn-planning__bloc.is-actif {
-    background: var(--amber-300);
-    border-color: var(--amber-300);
+    background: var(--amber-400);
+    border-color: var(--amber-400);
     color: var(--paper);
   }
 
@@ -310,7 +318,7 @@ const premiere = etapes[0]?.num;
       opacity: 0.05;
     }
     to {
-      opacity: 0.6;
+      opacity: 0.45;
     }
   }
 
@@ -409,7 +417,7 @@ const premiere = etapes[0]?.num;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: 8px 20px;
     margin: 18px 0 0 var(--gouttiere);
     font-family: var(--font-mono);
     font-size: var(--text-xs);
@@ -418,16 +426,25 @@ const premiere = etapes[0]?.num;
     color: var(--text-muted);
   }
 
+  /* Chaque entrée garde sa pastille et son libellé ensemble au retour à la
+     ligne. */
+  .hrn-planning__cle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
   .hrn-planning__pastille {
+    flex: none;
     display: inline-block;
     width: 14px;
     height: 14px;
     border-radius: 4px;
   }
 
-  .hrn-planning__pastille + .hrn-planning__pastille,
-  .hrn-planning__legende .hrn-planning__pastille--pause {
-    margin-left: 12px;
+  .hrn-planning__pastille--cours {
+    background: var(--nuit-carte);
+    border: 1px solid var(--border-strong);
   }
 
   .hrn-planning__pastille--atelier {
