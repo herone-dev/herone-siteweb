@@ -1,0 +1,489 @@
+---
+// La frise des étapes de /automatisation, posée par OffreEtapes (variante
+// `frise`). Sortie dans son propre composant le 25 septembre 2026 pour que
+// son script ne parte que sur la page qui l'affiche (piège n°31, même
+// principe que PlanningJournee).
+//
+// Une colonne par étape, des pastilles rondes reliées par un filet. Sous
+// 900px, la frise redevient verticale.
+//
+// Barre de puissance (demande de l'utilisateur, 25 septembre 2026) : quand
+// la frise arrive à l'écran, la pastille 01 s'allume, puis une barre
+// turquoise file vers la 02, vite au départ et en freinant à l'arrivée ; la
+// pastille atteinte s'allume avec une onde, et la barre repart vers la
+// suivante, jusqu'à la dernière. Une seule fois par visite de la page.
+//
+// Mécanique, transform et opacity seulement : la barre (`__charge`) grandit
+// par scaleX (scaleY en vertical) depuis le centre de la première pastille,
+// la lueur de tête (`__tete`) glisse par translate, et chaque pastille porte
+// une copie allumée d'elle-même (`__allume`) qui apparaît par opacité et
+// échelle. Les positions sont mesurées sur les pastilles rendues, jamais
+// écrites en dur (piège n°10), et remesurées quand la largeur change.
+//
+// Avant la course, comme sans JavaScript : pastille 01 allumée, filet gris.
+// Au départ, la 01 lance une onde, puis la barre part.
+// Mouvement réduit : tout est allumé d'emblée, barre pleine, rien ne bouge.
+
+interface Etape {
+  num: string;
+  titre: string;
+  meta?: string;
+  texte: string;
+}
+
+interface Props {
+  etapes: Etape[];
+}
+
+const { etapes } = Astro.props;
+---
+
+<div class="hrn-frise" data-frise>
+  <div class="hrn-frise__energie" aria-hidden="true">
+    <span class="hrn-frise__charge"></span>
+    <span class="hrn-frise__tete"></span>
+  </div>
+
+  <ol class="hrn-offre-frise" role="list" style={`--n: ${etapes.length}`}>
+    {etapes.map((etape, i) => (
+      <li class="hrn-offre-frise__etape">
+        <span class:list={['hrn-offre-frise__pastille', i === 0 && 'hrn-offre-frise__pastille--active']}>
+          {etape.num}
+          <span class="hrn-offre-frise__allume" aria-hidden="true">{etape.num}</span>
+        </span>
+        <div class="hrn-offre-frise__corps">
+          <h3>{etape.titre}</h3>
+          {etape.meta && <span class="hrn-offre-frise__meta">{etape.meta}</span>}
+          <p>{etape.texte}</p>
+        </div>
+      </li>
+    ))}
+  </ol>
+</div>
+
+<style>
+  .hrn-frise {
+    position: relative;
+    margin-top: 52px;
+  }
+
+  .hrn-offre-frise {
+    position: relative;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+    gap: 28px;
+  }
+
+  /* Le filet qui relie les pastilles, passé sous elles. */
+  .hrn-offre-frise::before {
+    content: '';
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    top: 23px;
+    height: 1.5px;
+    background: var(--border);
+  }
+
+  .hrn-offre-frise__etape {
+    position: relative;
+    min-width: 0;
+  }
+
+  .hrn-offre-frise__pastille {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--carte-claire);
+    border: 1.5px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--accent-texte);
+  }
+
+  /* La copie allumée de la pastille, posée par-dessus, bordure comprise. */
+  .hrn-offre-frise__allume {
+    position: absolute;
+    inset: -1.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--amber-500);
+    color: var(--paper);
+    box-shadow: 0 0 18px color-mix(in srgb, var(--amber-400) 45%, transparent);
+    opacity: 0;
+    transform: scale(0.4);
+    transition:
+      opacity var(--dur) var(--ease-out),
+      transform 460ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    user-select: none;
+  }
+
+  .hrn-offre-frise__pastille--active .hrn-offre-frise__allume,
+  .hrn-offre-frise__pastille.is-allumee .hrn-offre-frise__allume {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* L'onde qui part de la pastille au moment où la barre l'atteint. */
+  .hrn-offre-frise__pastille::before {
+    content: '';
+    position: absolute;
+    inset: -1.5px;
+    border-radius: 50%;
+    border: 2px solid var(--amber-400);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .hrn-offre-frise__pastille.is-eclat::before {
+    animation: hrn-frise-onde 820ms var(--ease-out) both;
+  }
+
+  @keyframes hrn-frise-onde {
+    from {
+      opacity: 0.85;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(2.2);
+    }
+  }
+
+  /* ============ La barre de puissance ============ */
+
+  /* Posée par le script au centre de la première pastille, longue jusqu'au
+     centre de la dernière. Au-dessus du filet, sous les pastilles. */
+  .hrn-frise__energie {
+    display: none;
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .hrn-frise.is-pret .hrn-frise__energie {
+    display: block;
+  }
+
+  .hrn-frise[data-axe='x'] .hrn-frise__energie {
+    height: 3px;
+    margin-top: -1.5px;
+  }
+
+  .hrn-frise[data-axe='y'] .hrn-frise__energie {
+    width: 3px;
+    margin-left: -1.5px;
+  }
+
+  .hrn-frise__charge {
+    position: absolute;
+    inset: 0;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--amber-600), var(--amber-500) 55%, var(--amber-300));
+    box-shadow: 0 0 12px color-mix(in srgb, var(--amber-400) 55%, transparent);
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+    will-change: transform;
+  }
+
+  .hrn-frise[data-axe='y'] .hrn-frise__charge {
+    background: linear-gradient(180deg, var(--amber-600), var(--amber-500) 55%, var(--amber-300));
+    transform-origin: 50% 0;
+    transform: scaleY(0);
+  }
+
+  /* La lueur de tête, centrée sur l'extrémité de la barre. */
+  .hrn-frise__tete {
+    position: absolute;
+    border-radius: 999px;
+    background: radial-gradient(
+      closest-side,
+      var(--amber-50),
+      color-mix(in srgb, var(--amber-300) 90%, transparent) 45%,
+      transparent
+    );
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  .hrn-frise[data-axe='x'] .hrn-frise__tete {
+    left: 0;
+    top: 50%;
+    width: 44px;
+    height: 14px;
+    margin: -7px 0 0 -22px;
+  }
+
+  .hrn-frise[data-axe='y'] .hrn-frise__tete {
+    top: 0;
+    left: 50%;
+    width: 14px;
+    height: 44px;
+    margin: -22px 0 0 -7px;
+  }
+
+  /* ============ Textes des étapes ============ */
+
+  .hrn-offre-frise__corps h3 {
+    margin: 20px 0 0;
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: 20px;
+    line-height: 1.2;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  .hrn-offre-frise__meta {
+    display: block;
+    margin-top: 6px;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .hrn-offre-frise__corps p {
+    margin: 10px 0 0;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  /* Sous 900px, cinq colonnes ne laissent plus que quelques mots par ligne :
+     la frise redevient verticale, pastille à gauche, filet le long des
+     pastilles. */
+  @media (max-width: 899px) {
+    .hrn-offre-frise {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 32px;
+    }
+
+    .hrn-offre-frise::before {
+      left: 23px;
+      right: auto;
+      top: 24px;
+      bottom: 24px;
+      width: 1.5px;
+      height: auto;
+    }
+
+    .hrn-offre-frise__etape {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr);
+      gap: 20px;
+    }
+
+    .hrn-offre-frise__corps h3 {
+      margin-top: 12px;
+    }
+  }
+</style>
+
+<script>
+  // Un bond d'une pastille à la suivante : départ vif, arrivée freinée.
+  const DUREE_BOND = 950;
+  const COURBE = 'cubic-bezier(0.16, 1, 0.3, 1)';
+  // Moment où la pastille d'arrivée s'allume, en part du bond : la barre a
+  // presque fini sa course, elle ne fait plus que ralentir.
+  const ALLUMAGE = 0.6;
+  // Temps sur la pastille 01 allumée avant le premier bond, et entre deux
+  // bonds.
+  const AMORCE = 450;
+  const PAUSE = 260;
+
+  let controle: AbortController | undefined;
+  let observateur: IntersectionObserver | undefined;
+  let animations: Animation[] = [];
+
+  function arreterAnimations() {
+    for (const a of animations) a.cancel();
+    animations = [];
+  }
+
+  function nettoyer() {
+    controle?.abort();
+    controle = undefined;
+    observateur?.disconnect();
+    observateur = undefined;
+    arreterAnimations();
+  }
+
+  function attendre(ms: number, signal: AbortSignal) {
+    return new Promise<void>((resolve, reject) => {
+      if (signal.aborted) return reject(signal.reason);
+      const minuterie = setTimeout(resolve, ms);
+      signal.addEventListener('abort', () => { clearTimeout(minuterie); reject(signal.reason); }, { once: true });
+    });
+  }
+
+  function initialiser() {
+    nettoyer();
+    const racine = document.querySelector<HTMLElement>('[data-frise]');
+    if (!racine) return;
+    const energie = racine.querySelector<HTMLElement>('.hrn-frise__energie');
+    const charge = racine.querySelector<HTMLElement>('.hrn-frise__charge');
+    const tete = racine.querySelector<HTMLElement>('.hrn-frise__tete');
+    const liste = racine.querySelector<HTMLElement>('.hrn-offre-frise');
+    const pastilles = [...racine.querySelectorAll<HTMLElement>('.hrn-offre-frise__pastille')];
+    if (!energie || !charge || !tete || !liste || pastilles.length < 2) return;
+
+    controle = new AbortController();
+    const { signal } = controle;
+    const mouvement = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let axe: 'x' | 'y' = 'x';
+    let longueur = 0;
+    // Position de chaque pastille sur le trajet, de 0 (la première) à 1.
+    let reperes: number[] = [];
+    let atteint = 0;
+    let etat: 'attente' | 'course' | 'fini' = 'attente';
+    let course: AbortController | undefined;
+
+    const echelle = (p: number) => (axe === 'x' ? `scaleX(${p})` : `scaleY(${p})`);
+    const glissement = (p: number) =>
+      axe === 'x' ? `translateX(${p * longueur}px)` : `translateY(${p * longueur}px)`;
+
+    const mesurer = () => {
+      const cadre = racine.getBoundingClientRect();
+      const centres = pastilles.map((pastille) => {
+        const r = pastille.getBoundingClientRect();
+        return { x: r.left + r.width / 2 - cadre.left, y: r.top + r.height / 2 - cadre.top };
+      });
+      const premier = centres[0];
+      const dernier = centres[centres.length - 1];
+      axe = Math.abs(dernier.y - premier.y) < 1 ? 'x' : 'y';
+      longueur = axe === 'x' ? dernier.x - premier.x : dernier.y - premier.y;
+      reperes = centres.map((c) => (axe === 'x' ? c.x - premier.x : c.y - premier.y) / longueur);
+      racine.dataset.axe = axe;
+      energie.style.left = `${premier.x}px`;
+      energie.style.top = `${premier.y}px`;
+      energie.style.width = axe === 'x' ? `${longueur}px` : '';
+      energie.style.height = axe === 'y' ? `${longueur}px` : '';
+    };
+
+    const poser = (p: number) => {
+      charge.style.transform = echelle(p);
+      tete.style.transform = glissement(p);
+    };
+
+    const allumer = (i: number, eclat: boolean) => {
+      pastilles[i].classList.add('is-allumee');
+      if (eclat) pastilles[i].classList.add('is-eclat');
+    };
+
+    const toutAllumer = () => {
+      arreterAnimations();
+      pastilles.forEach((_, i) => allumer(i, false));
+      atteint = pastilles.length - 1;
+      etat = 'fini';
+      tete.style.opacity = '0';
+      poser(1);
+    };
+
+    const courir = async () => {
+      etat = 'course';
+      course = new AbortController();
+      const arret = course.signal;
+      // Relais écrit à la main : AbortSignal.any manque aux iPhone d'avant
+      // iOS 17.4.
+      signal.addEventListener('abort', () => course?.abort(), { once: true });
+      try {
+        allumer(0, true);
+        await attendre(AMORCE, arret);
+        for (let i = 1; i < pastilles.length; i++) {
+          const depart = reperes[i - 1];
+          const arrivee = reperes[i];
+          const barre = charge.animate(
+            [{ transform: echelle(depart) }, { transform: echelle(arrivee) }],
+            { duration: DUREE_BOND, easing: COURBE, fill: 'forwards' },
+          );
+          const tetePosition = tete.animate(
+            [{ transform: glissement(depart) }, { transform: glissement(arrivee) }],
+            { duration: DUREE_BOND, easing: COURBE, fill: 'forwards' },
+          );
+          // La lueur brille pendant l'élan et s'éteint pendant le freinage.
+          const teteLueur = tete.animate(
+            [{ opacity: 0 }, { opacity: 1, offset: 0.08 }, { opacity: 1, offset: 0.5 }, { opacity: 0 }],
+            { duration: DUREE_BOND, fill: 'forwards' },
+          );
+          animations = [barre, tetePosition, teteLueur];
+          await attendre(DUREE_BOND * ALLUMAGE, arret);
+          allumer(i, true);
+          await Promise.all(animations.map((a) => a.finished));
+          tete.style.opacity = '0';
+          poser(arrivee);
+          arreterAnimations();
+          atteint = i;
+          if (i < pastilles.length - 1) await attendre(PAUSE, arret);
+        }
+        etat = 'fini';
+      } catch {
+        // Interrompu par un changement de page : rien à faire. Sinon
+        // (changement de largeur, ou échec inattendu), tout s'allume d'un
+        // coup : jamais de frise restée éteinte.
+        if (!signal.aborted) toutAllumer();
+      }
+    };
+
+    mesurer();
+    racine.classList.add('is-pret');
+
+    // Au changement de largeur seulement (piège n°3) : la frise peut passer
+    // de l'horizontale à la verticale, elle est donc remesurée. Une course en
+    // cours se termine d'un coup plutôt que de repartir sur une géométrie
+    // fausse.
+    let largeur = window.innerWidth;
+    window.addEventListener(
+      'resize',
+      () => {
+        if (window.innerWidth === largeur) return;
+        largeur = window.innerWidth;
+        if (etat === 'course') {
+          course?.abort();
+          toutAllumer();
+        }
+        mesurer();
+        poser(etat === 'fini' ? 1 : reperes[atteint] ?? 0);
+      },
+      { signal },
+    );
+
+    if (!mouvement) {
+      toutAllumer();
+      return;
+    }
+
+    // En attendant que la frise arrive à l'écran : la pastille 01 reste
+    // allumée (la barre part d'elle), les autres éteintes, barre vide.
+    racine.classList.add('is-anime');
+    poser(0);
+
+    observateur = new IntersectionObserver(
+      (entrees) => {
+        if (!entrees.some((e) => e.isIntersecting)) return;
+        observateur?.disconnect();
+        observateur = undefined;
+        courir();
+      },
+      { rootMargin: '0px 0px -35% 0px', threshold: 0 },
+    );
+    observateur.observe(liste);
+  }
+
+  document.addEventListener('astro:page-load', initialiser);
+  document.addEventListener('astro:before-swap', nettoyer);
+</script>
