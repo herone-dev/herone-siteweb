@@ -49,6 +49,9 @@ const DIMENSIONS = [
 ];
 const METRIQUES = [['metric_value', 'Valeur de performance', 'STANDARD'], ['longueur', 'Longueur du texte copié', 'STANDARD']];
 const EVENEMENTS_CLES = ['rdv_reserve', 'clic_telephone', 'clic_email'];
+// Actions qui mènent à un contact : lues par source et par bouton.
+const EVENEMENTS_CONVERSION = ['clic_rdv', 'rdv_agenda_affiche', 'rdv_creneau_choisi', 'rdv_reserve', 'clic_telephone', 'clic_email'];
+const EVENEMENTS_BOUTONS = ['clic_rdv', 'clic_telephone', 'clic_email', 'clic_bouton', 'file_download'];
 const MESURE = 'G-GT6JCYY2SF';
 const DUREE_CACHE = 10 * 60 * 1000;
 
@@ -259,6 +262,13 @@ async function lireGsc(p, chemin) {
     pages,
     parJour: (parJour.rows || []).map((r) => ({ date: r.keys[0], impressions: r.impressions, clics: r.clicks })),
   };
+  if (!chemin) {
+    // Ce que les gens tapent dans Google avant d'arriver sur le site.
+    const req = await gsc(site, { startDate: p.debut, endDate: p.fin, dimensions: ['query'], rowLimit: 50 });
+    resultat.requetes = (req.rows || []).map((r) => ({
+      requete: r.keys[0], impressions: r.impressions, clics: r.clicks, ctr: r.ctr, position: r.position,
+    }));
+  }
   if (chemin) {
     const url = `${SITE}${chemin === '/' ? '/' : chemin}`;
     const req = await gsc(site, {
@@ -266,7 +276,7 @@ async function lireGsc(p, chemin) {
       endDate: p.fin,
       dimensions: ['query'],
       rowLimit: 25,
-      dimensionFilterGroups: [{ filters: [{ dimension: 'page', operator: 'equals', expression: url }] }],
+      dimensionFilterGroups: [{ filters: [{ dimension: 'page', operator: 'includingRegex', expression: `^${url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\/$/, '')}/?$` }] }],
     });
     resultat.requetes = (req.rows || []).map((r) => ({
       requete: r.keys[0], impressions: r.impressions, clics: r.clicks, ctr: r.ctr, position: r.position,
@@ -307,6 +317,7 @@ async function lireGa(p, chemin) {
         metrics: [
           { name: 'screenPageViews' }, { name: 'activeUsers' },
           { name: 'userEngagementDuration' }, { name: 'engagementRate' }, { name: 'keyEvents' },
+          { name: 'bounceRate' },
         ],
         limit: 1000,
       },
@@ -349,31 +360,127 @@ async function lireGa(p, chemin) {
   };
 
   const pages = {};
-  for (const { d, m } of valeurs(rPages.rows, 5)) {
+  const vide = () => ({ vues: 0, visiteurs: 0, engagement: 0, tauxEngagementPondere: 0, rebondPondere: 0, conversions: 0, entrees: 0, evenements: {} });
+  for (const { d, m } of valeurs(rPages.rows, 6)) {
     const c = cheminDe(d[0]);
-    const a = pages[c] || { vues: 0, visiteurs: 0, engagement: 0, tauxEngagementPondere: 0, conversions: 0, evenements: {} };
+    const a = pages[c] || vide();
     a.vues += m[0];
     a.visiteurs += m[1];
     a.engagement += m[2];
     a.tauxEngagementPondere += m[3] * m[1];
     a.conversions += m[4];
+    a.rebondPondere += (m[5] || 0) * m[1];
     pages[c] = a;
   }
   for (const { d, m } of valeurs(rEvts.rows, 1)) {
     const c = cheminDe(d[0]);
-    pages[c] = pages[c] || { vues: 0, visiteurs: 0, engagement: 0, tauxEngagementPondere: 0, conversions: 0, evenements: {} };
+    pages[c] = pages[c] || vide();
     pages[c].evenements[d[1]] = (pages[c].evenements[d[1]] || 0) + m[0];
+  }
+
+  // Deuxième lot : comment les visiteurs arrivent (sources, pages d'entrée,
+  // appareils, villes, nouveaux ou connus) et quelles sources convertissent.
+  const lot2 = await appelGoogle(`${base}:batchRunReports`, {
+    requests: [
+      {
+        dateRanges: [periode],
+        dimensions: [{ name: 'sessionSource' }, { name: 'sessionMedium' }],
+        metrics: [{ name: 'sessions' }, { name: 'activeUsers' }, { name: 'engagementRate' }, { name: 'userEngagementDuration' }, { name: 'keyEvents' }],
+        orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+        limit: 50,
+      },
+      {
+        dateRanges: [periode],
+        dimensions: [{ name: 'landingPage' }],
+        metrics: [{ name: 'sessions' }, { name: 'engagementRate' }, { name: 'bounceRate' }, { name: 'keyEvents' }],
+        orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+        limit: 100,
+      },
+      {
+        dateRanges: [periode],
+        dimensions: [{ name: 'deviceCategory' }],
+        metrics: [{ name: 'sessions' }, { name: 'activeUsers' }, { name: 'engagementRate' }, { name: 'keyEvents' }],
+      },
+      {
+        dateRanges: [periode],
+        dimensions: [{ name: 'city' }],
+        metrics: [{ name: 'sessions' }, { name: 'activeUsers' }, { name: 'keyEvents' }],
+        orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+        limit: 25,
+      },
+      {
+        dateRanges: [periode],
+        dimensions: [{ name: 'newVsReturning' }],
+        metrics: [{ name: 'activeUsers' }, { name: 'sessions' }, { name: 'engagementRate' }, { name: 'keyEvents' }],
+      },
+    ],
+  });
+  const [rSources, rEntrees, rAppareils, rVilles, rFidelite] = lot2.reports;
+
+  const lot3 = await appelGoogle(`${base}:batchRunReports`, {
+    requests: [
+      {
+        dateRanges: [periode],
+        dimensions: [{ name: 'sessionSource' }, { name: 'sessionMedium' }, { name: 'eventName' }],
+        metrics: [{ name: 'eventCount' }],
+        dimensionFilter: { filter: { fieldName: 'eventName', inListFilter: { values: EVENEMENTS_CONVERSION } } },
+        limit: 500,
+      },
+      {
+        dateRanges: [periode],
+        dimensions: [{ name: 'sessionCampaignName' }, { name: 'sessionSource' }, { name: 'sessionMedium' }],
+        metrics: [{ name: 'sessions' }, { name: 'keyEvents' }],
+        orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+        limit: 50,
+      },
+      {
+        dateRanges: [periode],
+        dimensions: [{ name: 'hour' }],
+        metrics: [{ name: 'sessions' }],
+        limit: 24,
+      },
+      {
+        dateRanges: [periode],
+        dimensions: [{ name: 'dayOfWeek' }],
+        metrics: [{ name: 'sessions' }],
+        limit: 7,
+      },
+    ],
+  });
+  const [rConvSources, rCampagnes, rHeures, rJoursSemaine] = lot3.reports;
+
+  for (const { d, m } of valeurs(rEntrees.rows, 1)) {
+    const c = cheminDe(d[0]);
+    if (!pages[c]) continue;
+    pages[c].entrees += m[0];
   }
   for (const c of Object.keys(pages)) {
     const a = pages[c];
     pages[c] = {
       vues: a.vues,
       visiteurs: a.visiteurs,
+      entrees: a.entrees,
       tempsMoyen: a.visiteurs ? a.engagement / a.visiteurs : 0,
       tauxEngagement: a.visiteurs ? a.tauxEngagementPondere / a.visiteurs : 0,
+      tauxRebond: a.visiteurs ? a.rebondPondere / a.visiteurs : null,
       conversions: a.conversions,
       evenements: a.evenements,
     };
+  }
+
+  const convParSource = {};
+  for (const { d, m } of valeurs(rConvSources.rows, 1)) {
+    const k = `${d[0]}|${d[1]}`;
+    convParSource[k] = convParSource[k] || {};
+    convParSource[k][d[2]] = (convParSource[k][d[2]] || 0) + m[0];
+  }
+  const entreesParPage = {};
+  for (const { d, m } of valeurs(rEntrees.rows, 4)) {
+    const c = cheminDe(d[0]);
+    if (c === '(not set)' || d[0] === '(not set)') continue;
+    const a = entreesParPage[c] || { sessions: 0, engPond: 0, rebPond: 0, conversions: 0 };
+    a.sessions += m[0]; a.engPond += m[1] * m[0]; a.rebPond += m[2] * m[0]; a.conversions += m[3];
+    entreesParPage[c] = a;
   }
 
   const evenementsTotal = {};
@@ -389,12 +496,32 @@ async function lireGa(p, chemin) {
       .map(({ d, m }) => ({ date: `${d[0].slice(0, 4)}-${d[0].slice(4, 6)}-${d[0].slice(6, 8)}`, visiteurs: m[0], vues: m[1] }))
       .sort((a, b) => a.date.localeCompare(b.date)),
     canaux: valeurs(rCanaux.rows, 2).map(({ d, m }) => ({ canal: d[0], sessions: m[0], conversions: m[1] })),
+    sources: valeurs(rSources.rows, 5).map(({ d, m }) => ({
+      source: d[0], support: d[1], sessions: m[0], visiteurs: m[1], tauxEngagement: m[2],
+      tempsMoyen: m[1] ? m[3] / m[1] : 0, conversions: m[4], actions: convParSource[`${d[0]}|${d[1]}`] || {},
+    })),
+    pagesEntree: Object.entries(entreesParPage).map(([c, a]) => ({
+      page: c, sessions: a.sessions, tauxEngagement: a.sessions ? a.engPond / a.sessions : 0,
+      tauxRebond: a.sessions ? a.rebPond / a.sessions : 0, conversions: a.conversions,
+    })).sort((x, y) => y.sessions - x.sessions),
+    appareils: valeurs(rAppareils.rows, 4).map(({ d, m }) => ({ appareil: d[0], sessions: m[0], visiteurs: m[1], tauxEngagement: m[2], conversions: m[3] })),
+    villes: valeurs(rVilles.rows, 3).map(({ d, m }) => ({ ville: d[0], sessions: m[0], visiteurs: m[1], conversions: m[2] })),
+    fidelite: valeurs(rFidelite.rows, 4).map(({ d, m }) => ({ type: d[0], visiteurs: m[0], sessions: m[1], tauxEngagement: m[2], conversions: m[3] })),
+    campagnes: valeurs(rCampagnes.rows, 2)
+      .filter(({ d }) => !/^\(.*\)$/.test(d[0]))
+      .map(({ d, m }) => ({ campagne: d[0], source: d[1], support: d[2], sessions: m[0], conversions: m[1] })),
+    heures: valeurs(rHeures.rows, 1).map(({ d, m }) => ({ heure: Number(d[0]), sessions: m[0] })).sort((a, b) => a.heure - b.heure),
+    joursSemaine: valeurs(rJoursSemaine.rows, 1).map(({ d, m }) => ({ jour: Number(d[0]), sessions: m[0] })).sort((a, b) => a.jour - b.jour),
   };
 
   if (chemin) {
-    const filtrePage = {
-      filter: { fieldName: 'pagePath', stringFilter: { matchType: 'EXACT', value: chemin } },
-    };
+    // Netlify sert les pages avec une barre finale (/blog/x/) alors que le site
+    // la retire partout ailleurs : on accepte les deux formes.
+    const filtrePage = chemin === '/'
+      ? { filter: { fieldName: 'pagePath', stringFilter: { matchType: 'EXACT', value: '/' } } }
+      : { orGroup: { expressions: [chemin, `${chemin}/`].map((value) => ({
+          filter: { fieldName: 'pagePath', stringFilter: { matchType: 'EXACT', value } },
+        })) } };
     // Les zones de clic demandent la dimension personnalisée cta_zone (voir le
     // tutoriel). Tant qu'elle n'est pas déclarée dans GA4, le détail se replie
     // sur les seuls noms d'événements.
@@ -410,78 +537,73 @@ async function lireGa(p, chemin) {
     } catch (e) {
       resultat.clicsErreur = 'Déclarez les dimensions personnalisées cta_zone et cta_texte dans GA4 pour voir le détail par bouton.';
     }
-    const s = await appelGoogle(`${base}:runReport`, {
-      dateRanges: [periode],
-      dimensions: [{ name: 'sessionDefaultChannelGroup' }],
-      metrics: [{ name: 'screenPageViews' }],
-      dimensionFilter: filtrePage,
-      limit: 20,
+    const lotPage = await appelGoogle(`${base}:batchRunReports`, {
+      requests: [
+        {
+          dateRanges: [periode],
+          dimensions: [{ name: 'sessionSource' }, { name: 'sessionMedium' }],
+          metrics: [{ name: 'screenPageViews' }],
+          dimensionFilter: filtrePage,
+          orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
+          limit: 25,
+        },
+        {
+          dateRanges: [periode],
+          dimensions: [{ name: 'pageReferrer' }],
+          metrics: [{ name: 'screenPageViews' }],
+          dimensionFilter: filtrePage,
+          orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
+          limit: 25,
+        },
+        {
+          dateRanges: [periode],
+          dimensions: [{ name: 'deviceCategory' }],
+          metrics: [{ name: 'screenPageViews' }],
+          dimensionFilter: filtrePage,
+        },
+      ],
     });
-    resultat.sources = valeurs(s.rows, 1).map(({ d, m }) => ({ canal: d[0], vues: m[0] }));
+    const [rSrc, rRef, rApp] = lotPage.reports;
+    resultat.sources = valeurs(rSrc.rows, 1).map(({ d, m }) => ({ source: d[0], support: d[1], vues: m[0] }));
+    resultat.precedentes = valeurs(rRef.rows, 1).map(({ d, m }) => ({ referent: d[0], vues: m[0] }));
+    resultat.appareils = valeurs(rApp.rows, 1).map(({ d, m }) => ({ appareil: d[0], vues: m[0] }));
+    // Pages suivantes : les liens internes cliqués, avec leur cible.
+    try {
+      const suiv = await appelGoogle(`${base}:runReport`, {
+        dateRanges: [periode],
+        dimensions: [{ name: 'customEvent:lien_cible' }],
+        metrics: [{ name: 'eventCount' }],
+        dimensionFilter: { andGroup: { expressions: [filtrePage, { filter: { fieldName: 'eventName', stringFilter: { matchType: 'EXACT', value: 'clic_lien_interne' } } }] } },
+        orderBys: [{ metric: { metricName: 'eventCount' }, desc: true }],
+        limit: 25,
+      });
+      resultat.suivantes = valeurs(suiv.rows, 1).map(({ d, m }) => ({ page: d[0], nombre: m[0] }));
+    } catch {
+      resultat.suivantes = null;
+    }
   } else {
-    resultat.engagement = await lireEngagement(base, periode);
+    resultat.boutons = await lireBoutons(base, periode);
   }
   return resultat;
 }
 
-/* Détail de l'engagement sur tout le site : sections vues, questions de FAQ
- * ouvertes, vidéos, téléchargements, clics répétés, erreurs et performance.
- * Chaque bloc dépend d'une dimension personnalisée : s'il manque, il revient
- * vide avec un message, sans empêcher le reste de s'afficher. */
-async function lireEngagement(base, periode) {
-  const filtre = (noms) => ({ filter: { fieldName: 'eventName', inListFilter: { values: noms } } });
-  const blocs = {
-    sections: {
-      dimensions: ['pagePath', 'customEvent:section'], evenements: ['section_vue'],
-      lire: (d, m) => ({ page: cheminDe(d[0]), section: d[1], vues: m[0] }),
-    },
-    faq: {
-      dimensions: ['customEvent:question'], evenements: ['ouverture_faq'],
-      lire: (d, m) => ({ question: d[0], ouvertures: m[0] }),
-    },
-    videos: {
-      dimensions: ['customEvent:video_title', 'eventName'], evenements: ['video_start', 'video_complete'],
-      lire: (d, m) => ({ video: d[0], evenement: d[1], nombre: m[0] }),
-    },
-    telechargements: {
-      dimensions: ['fileName'], evenements: ['file_download'],
-      lire: (d, m) => ({ fichier: d[0], nombre: m[0] }),
-    },
-    clicsRepetes: {
-      dimensions: ['pagePath', 'customEvent:cta_texte'], evenements: ['clic_repete'],
-      lire: (d, m) => ({ page: cheminDe(d[0]), element: d[1], nombre: m[0] }),
-    },
-    erreurs: {
-      dimensions: ['pagePath', 'customEvent:message_erreur'], evenements: ['erreur_js'],
-      lire: (d, m) => ({ page: cheminDe(d[0]), message: d[1], nombre: m[0] }),
-    },
-    performance: {
-      dimensions: ['customEvent:metric_name', 'customEvent:metric_rating'], evenements: ['web_vitals'],
-      metriques: ['eventCount', 'customEvent:metric_value'],
-      lire: (d, m) => ({ indicateur: d[0], note: d[1], mesures: m[0], somme: m[1] || 0 }),
-    },
-  };
-  const noms = Object.keys(blocs);
-  const reponses = await Promise.allSettled(noms.map((nom) => {
-    const b = blocs[nom];
-    return appelGoogle(`${base}:runReport`, {
+/* Chaque bouton ou lien d'action du site : son texte, sa zone, sa page, et
+ * combien de fois il a été cliqué. Demande les dimensions personnalisées
+ * cta_texte et cta_zone (bouton « Configurer Google Analytics »). */
+async function lireBoutons(base, periode) {
+  try {
+    const r = await appelGoogle(`${base}:runReport`, {
       dateRanges: [periode],
-      dimensions: b.dimensions.map((name) => ({ name })),
-      metrics: (b.metriques || ['eventCount']).map((name) => ({ name })),
-      dimensionFilter: filtre(b.evenements),
+      dimensions: [{ name: 'eventName' }, { name: 'customEvent:cta_texte' }, { name: 'customEvent:cta_zone' }, { name: 'pagePath' }],
+      metrics: [{ name: 'eventCount' }],
+      dimensionFilter: { filter: { fieldName: 'eventName', inListFilter: { values: EVENEMENTS_BOUTONS } } },
       orderBys: [{ metric: { metricName: 'eventCount' }, desc: true }],
-      limit: 100,
+      limit: 300,
     });
-  }));
-  const sortie = {};
-  noms.forEach((nom, i) => {
-    const r = reponses[i];
-    const b = blocs[nom];
-    sortie[nom] = r.status === 'fulfilled'
-      ? valeurs(r.value.rows, (b.metriques || ['eventCount']).length).map(({ d, m }) => b.lire(d, m))
-      : { erreur: 'Dimension personnalisée pas encore créée : utilisez le bouton « Configurer Google Analytics ».' };
-  });
-  return sortie;
+    return valeurs(r.rows, 1).map(({ d, m }) => ({ evenement: d[0], texte: d[1], zone: d[2], page: cheminDe(d[3]), nombre: m[0] }));
+  } catch {
+    return { erreur: 'Le détail par bouton demande les dimensions personnalisées : cliquez une fois sur « Configurer Google Analytics ». Il se remplit ensuite avec les nouveaux clics.' };
+  }
 }
 
 /* ---------- Installation des réglages Google (une fois) ---------- */

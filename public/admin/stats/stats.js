@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  var etat = { jours: 28, perimetre: 'site', donnees: null, articles: [], tri: { cle: 'impressions', sens: -1 }, detail: null };
+  var etat = { jours: 28, perimetre: 'site', donnees: null, articles: [], tri: { cle: 'impressions', sens: -1 }, triPages: { cle: 'vues', sens: -1 }, filtreBoutons: 'tous', detail: null };
   var $ = function (s) { return document.querySelector(s); };
 
   /* ---------- Jeton GitHub de la session /admin ---------- */
@@ -125,7 +125,7 @@
       var p = pages[c], g = p.gsc || {}, a = p.ga || {}, ev = a.evenements || {};
       return {
         chemin: c,
-        titre: p.titre || c,
+        titre: p.titre || NOMS_PAGES[c] || c,
         article: !!p.article || /^\/blog\/.+/.test(c),
         impressions: g.impressions || 0,
         clics: g.clics || 0,
@@ -133,6 +133,11 @@
         position: g.position == null ? null : g.position,
         visiteurs: a.visiteurs || 0,
         vues: a.vues || 0,
+        entrees: a.entrees || 0,
+        rebond: a.tauxRebond == null ? null : a.tauxRebond,
+        reservesPage: ev.rdv_reserve || 0,
+        appels: ev.clic_telephone || 0,
+        emails: ev.clic_email || 0,
         temps: a.tempsMoyen || 0,
         engagement: a.tauxEngagement == null ? null : a.tauxEngagement,
         lectures: ev.lecture_article || 0,
@@ -174,85 +179,212 @@
     afficherTuiles(lignes);
     afficherCourbes();
     afficherTables(lignes);
-    afficherCanaux();
-    afficherEngagement();
+    afficherConversions(lignes);
+    afficherProvenance();
   }
 
-  /* ---------- Engagement ---------- */
+  /* ---------- Libellés ---------- */
 
-  var NOMS_SECTIONS = {
-    top: 'Haut de page (accueil)', constat: 'Constat', presentation: 'Vidéo de présentation', offres: 'Offres',
-    systemes: 'Systèmes', methode: 'Méthode', fondateurs: 'Fondateurs', temoignage: 'Témoignage vidéo', avis: 'Avis clients',
-    logiciels: 'Logiciels connectés', reserver: 'Prise de rendez-vous', faq: 'FAQ',
+  var NOMS_PAGES = {
+    '/': 'Accueil', '/formation': 'Formation IA', '/automatisation': 'Automatisation', '/blog': 'Blog (liste des articles)',
+    '/mentions-legales': 'Mentions légales', '/confidentialite': 'Confidentialité', '/cookies': 'Cookies',
+  };
+  function nomPage(chemin) {
+    if (NOMS_PAGES[chemin]) return NOMS_PAGES[chemin];
+    var a = etat.articles.filter(function (x) { return x.chemin === chemin; })[0];
+    return a ? a.titre : chemin;
+  }
+
+  var IA = { 'chatgpt.com': 'ChatGPT', 'chat.openai.com': 'ChatGPT', 'perplexity.ai': 'Perplexity', 'www.perplexity.ai': 'Perplexity',
+    'gemini.google.com': 'Gemini', 'copilot.microsoft.com': 'Copilot', 'claude.ai': 'Claude', 'chat.mistral.ai': 'Le Chat (Mistral)' };
+  var RESEAUX = { 'linkedin.com': 'LinkedIn', 'www.linkedin.com': 'LinkedIn', 'lnkd.in': 'LinkedIn', linkedin: 'LinkedIn',
+    'facebook.com': 'Facebook', 'm.facebook.com': 'Facebook', 'l.facebook.com': 'Facebook', 'lm.facebook.com': 'Facebook', facebook: 'Facebook',
+    'instagram.com': 'Instagram', 'l.instagram.com': 'Instagram', instagram: 'Instagram', 'youtube.com': 'YouTube', 'm.youtube.com': 'YouTube',
+    't.co': 'X (Twitter)', 'x.com': 'X (Twitter)' };
+  var SUPPORTS = { organic: 'recherche', referral: 'lien depuis un site', social: 'réseau social', email: 'e-mail', cpc: 'annonce payante', '(none)': '', '(not set)': '' };
+
+  /* Nom lisible d'une source GA4 (sessionSource / sessionMedium). */
+  function nomSource(source, support) {
+    if (source === '(direct)') return 'Accès direct <span class="chemin">adresse tapée, favori, lien dans un document ou une messagerie</span>';
+    if (IA[source]) return echapper(IA[source]) + ' <span class="etiquette">assistant IA</span>';
+    if (RESEAUX[source]) return echapper(RESEAUX[source]) + (support === 'cpc' ? ' <span class="chemin">annonce</span>' : '');
+    if (/^(google|bing|duckduckgo|qwant|yahoo|ecosia|yandex|baidu)$/.test(source)) {
+      var moteur = source === 'google' ? 'Google' : source.charAt(0).toUpperCase() + source.slice(1);
+      return moteur + ' <span class="chemin">' + (support === 'cpc' ? 'annonce payante' : 'recherche') + '</span>';
+    }
+    var s = SUPPORTS[support] != null ? SUPPORTS[support] : support;
+    return echapper(source) + (s ? ' <span class="chemin">' + echapper(s) + '</span>' : '');
+  }
+
+  var NOMS_APPAREILS = { desktop: 'Ordinateur', mobile: 'Téléphone', tablet: 'Tablette', smarttv: 'Télévision' };
+  var NOMS_FIDELITE = { new: 'Nouveaux visiteurs', returning: 'Visiteurs déjà venus', '(not set)': 'Non déterminé' };
+  var JOURS = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+  var TYPES_BOUTONS = {
+    clic_rdv: 'Prise de RDV', clic_telephone: 'Téléphone', clic_email: 'E-mail', clic_bouton: 'Autre bouton', file_download: 'Téléchargement',
   };
 
-  function bloc(titre, sous, contenu) {
-    return '<div class="bloc"><h3>' + titre + '</h3><p class="sous">' + sous + '</p>' + contenu + '</div>';
+  /* ---------- Petits composants ---------- */
+
+  function bloc(titre, sous, contenu, classe) {
+    return '<div class="bloc' + (classe ? ' ' + classe : '') + '"><h3>' + titre + '</h3>' + (sous ? '<p class="sous">' + sous + '</p>' : '') + contenu + '</div>';
   }
-  function petitTableau(entetes, lignes) {
-    if (!lignes.length) return '<p class="note">Rien sur la période.</p>';
-    return '<div class="tableau-boite" style="border:0;background:none"><table><thead><tr>' + entetes.map(function (e, i) { return '<th' + (i ? '' : ' style="text-align:left"') + '>' + e + '</th>'; }).join('') +
-      '</tr></thead><tbody>' + lignes.map(function (l) { return '<tr style="cursor:default">' + l.map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
+  // Les colonnes de texte sont alignées à gauche, les colonnes de chiffres à droite.
+  function estChiffre(html) { return /^[\d\s.,%–+-]*(min|s|ms)?[\d\s.,%s]*$/.test(String(html).replace(/<[^>]+>/g, '').replace(/\u00a0|\u202f/g, ' ').trim()); }
+  function petitTableau(entetes, lignes, vide) {
+    if (!lignes.length) return '<p class="note">' + (vide || 'Rien sur la période.') + '</p>';
+    var texte = entetes.map(function (e, i) { return !lignes.every(function (l) { return estChiffre(l[i]); }); });
+    return '<div class="defile"><table><thead><tr>' + entetes.map(function (e, i) { return '<th' + (texte[i] ? ' class="g"' : '') + '>' + e + '</th>'; }).join('') +
+      '</tr></thead><tbody>' + lignes.map(function (l) { return '<tr class="fixe">' + l.map(function (c, i) { return '<td' + (texte[i] ? ' class="g"' : '') + '>' + c + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
   }
-  function ouErreur(v, rendu) {
-    if (!v) return '<p class="note">Google Analytics non connecté.</p>';
-    if (v.erreur) return '<p class="note">' + echapper(v.erreur) + '</p>';
-    return rendu(v);
+  function barres(liste, libelle, valeur, format) {
+    if (!liste.length) return '<p class="note">Pas encore de données.</p>';
+    var max = Math.max.apply(null, liste.map(valeur).concat([1]));
+    var total = liste.reduce(function (s, x) { return s + valeur(x); }, 0) || 1;
+    return '<ul class="barres">' + liste.map(function (x) {
+      var v = valeur(x);
+      return '<li><span>' + libelle(x) + '</span><span class="barre"><span style="width:' + (100 * v / max).toFixed(1) + '%"></span></span><span>' +
+        (format ? format(v) : nombre(v)) + ' <small>' + pourcent(v / total, 0) + '</small></span></li>';
+    }).join('') + '</ul>';
+  }
+  function pageLien(chemin) {
+    return '<span class="titre-court">' + echapper(nomPage(chemin)) + '</span>' + (nomPage(chemin) !== chemin ? '<span class="chemin">' + echapper(chemin) + '</span>' : '');
+  }
+  function contacts(ev) {
+    return (ev.clic_rdv || 0) + (ev.clic_telephone || 0) + (ev.clic_email || 0);
   }
 
-  function afficherEngagement() {
+  /* ---------- Conversions et boutons ---------- */
+
+  function afficherConversions(lignes) {
     var a = etat.donnees.analytics;
-    var e = (a && a.engagement) || {};
-    var vuesParPage = {};
-    pagesFusionnees().forEach(function (l) { vuesParPage[l.chemin] = l.vues; });
+    if (!a) { $('#conversions').innerHTML = '<p class="note">Google Analytics non connecté.</p>'; return; }
+    var t = a.total, ev = t.evenements || {};
     var ht = '';
 
-    ht += bloc('Sections vues', 'Part des pages vues où la section a été affichée à moitié au moins', ouErreur(e.sections, function (v) {
-      return petitTableau(['Section', 'Page', 'Vues', 'Part'], v.slice(0, 25).map(function (x) {
-        var base = vuesParPage[x.page] || 0;
-        return [echapper(NOMS_SECTIONS[x.section] || x.section), echapper(x.page), nombre(x.vues), base ? pourcent(Math.min(1, x.vues / base), 0) : '–'];
-      }));
-    }));
+    // Tunnel de prise de rendez-vous et contacts directs
+    var etapes = [
+      ['Visiteurs du site', t.visiteurs],
+      ['Clics vers la prise de RDV', ev.clic_rdv || 0],
+      ['Agenda Calendly affiché', ev.rdv_agenda_affiche || 0],
+      ['Créneau choisi', ev.rdv_creneau_choisi || 0],
+      ['RDV réservé', ev.rdv_reserve || 0],
+    ];
+    var max = Math.max(1, t.visiteurs);
+    var tunnel = '<ul class="entonnoir">' + etapes.map(function (e, i) {
+      return '<li><span>' + e[0] + '</span><strong>' + nombre(e[1]) + (i && t.visiteurs ? ' <small>' + pourcent(e[1] / t.visiteurs, 1) + ' des visiteurs</small>' : '') + '</strong>' +
+        '<span class="barre"><span style="width:' + Math.min(100, 100 * e[1] / max).toFixed(1) + '%"></span></span></li>';
+    }).join('') + '</ul>';
+    var directs = '<div class="mini-tuiles">' +
+      '<div><span>Clics sur le téléphone</span><strong>' + nombre(ev.clic_telephone || 0) + '</strong></div>' +
+      '<div><span>Clics sur l\'e-mail</span><strong>' + nombre(ev.clic_email || 0) + '</strong></div>' +
+      '<div><span>Taux de contact</span><strong>' + pourcent(t.sessions ? ((ev.rdv_reserve || 0) + (ev.clic_telephone || 0) + (ev.clic_email || 0)) / t.sessions : null, 1) + '</strong><small>RDV réservés, appels et e-mails ÷ sessions</small></div>' +
+      '</div>';
+    ht += bloc('Tunnel de prise de rendez-vous', 'De la visite au rendez-vous réservé, et les contacts directs', '<div class="deux"><div>' + tunnel + '</div>' + directs + '</div>', 'large');
 
-    ht += bloc('Questions de la FAQ ouvertes', 'Ce que les visiteurs veulent savoir', ouErreur(e.faq, function (v) {
-      return petitTableau(['Question', 'Ouvertures'], v.map(function (x) { return [echapper(x.question), nombre(x.ouvertures)]; }));
-    }));
+    // Boutons
+    var b = a.boutons;
+    var contenuBoutons;
+    if (!b) contenuBoutons = '<p class="note">Pas de données.</p>';
+    else if (b.erreur) contenuBoutons = '<p class="note">' + echapper(b.erreur) + '</p>';
+    else {
+      var vuesParPage = {};
+      lignes.forEach(function (l) { vuesParPage[l.chemin] = l.vues; });
+      var filtre = etat.filtreBoutons;
+      var liste = b.filter(function (x) { return filtre === 'tous' || x.evenement === filtre || (filtre === 'autres' && ['clic_bouton', 'file_download'].indexOf(x.evenement) >= 0); });
+      var totalClics = liste.reduce(function (s, x) { return s + x.nombre; }, 0);
+      contenuBoutons = '<div class="filtres" role="group" aria-label="Type de bouton">' +
+        [['tous', 'Tous'], ['clic_rdv', 'Prise de RDV'], ['clic_telephone', 'Téléphone'], ['clic_email', 'E-mail'], ['autres', 'Autres']].map(function (f) {
+          return '<button type="button" data-filtre-boutons="' + f[0] + '" aria-pressed="' + (filtre === f[0]) + '">' + f[1] + '</button>';
+        }).join('') + '</div>' +
+        petitTableau(['Bouton ou lien', 'Type', 'Emplacement', 'Page', 'Clics', 'Part', 'Taux de clic'], liste.slice(0, 60).map(function (x) {
+          var texte = x.texte && x.texte !== '(not set)' ? '« ' + echapper(x.texte) + ' »' : '<span class="chemin">sans texte</span>';
+          var vues = vuesParPage[x.page] || 0;
+          return [texte, echapper(TYPES_BOUTONS[x.evenement] || x.evenement), echapper(NOMS_ZONES[x.zone] || (x.zone === '(not set)' ? '–' : x.zone)),
+            pageLien(x.page), nombre(x.nombre), pourcent(totalClics ? x.nombre / totalClics : null, 0), vues ? pourcent(x.nombre / vues, 1) : '–'];
+        }), 'Aucun clic sur ce type de bouton pendant la période.') +
+        '<p class="note">Taux de clic : clics sur le bouton ÷ pages vues de la page où il se trouve.</p>';
+    }
+    ht += bloc('Boutons et liens d\'action', 'Chaque bouton cliqué, où il se trouve, et combien de fois', contenuBoutons, 'large');
 
-    ht += bloc('Vidéos', 'Lectures lancées et vidéos vues jusqu\'au bout', ouErreur(e.videos, function (v) {
-      var par = {};
-      v.forEach(function (x) { par[x.video] = par[x.video] || { debut: 0, fin: 0 }; par[x.video][x.evenement === 'video_start' ? 'debut' : 'fin'] += x.nombre; });
-      return petitTableau(['Vidéo', 'Lancées', 'Finies'], Object.keys(par).map(function (k) { return [echapper(k), nombre(par[k].debut), nombre(par[k].fin)]; }));
-    }));
+    // Pages qui génèrent des contacts
+    var pagesContact = lignes.filter(function (l) { return l.vues || contacts(l.evenements); })
+      .map(function (l) { return { l: l, n: contacts(l.evenements) + (l.evenements.rdv_reserve || 0) }; })
+      .sort(function (x, y) { return y.n - x.n || y.l.vues - x.l.vues; }).slice(0, 25);
+    ht += bloc('Pages qui amènent au contact', 'Clics vers le RDV, appels et e-mails, par page', petitTableau(
+      ['Page', 'Vues', 'Clics RDV', 'Appels', 'E-mails', 'RDV réservés', 'Taux d\'action'],
+      pagesContact.map(function (x) {
+        var e = x.l.evenements;
+        return [pageLien(x.l.chemin), nombre(x.l.vues), nombre(e.clic_rdv || 0), nombre(e.clic_telephone || 0), nombre(e.clic_email || 0), nombre(e.rdv_reserve || 0),
+          x.l.vues ? pourcent(contacts(e) / x.l.vues, 1) : '–'];
+      })) + '<p class="note">Taux d\'action : clics RDV, appels et e-mails ÷ pages vues.</p>', 'large');
 
-    ht += bloc('Performance du site', 'Mesures réelles des visiteurs (Core Web Vitals)', ouErreur(e.performance, function (v) {
-      var par = {};
-      v.forEach(function (x) {
-        var p = par[x.indicateur] = par[x.indicateur] || { total: 0, somme: 0, bon: 0 };
-        p.total += x.mesures; p.somme += x.somme; if (x.note === 'bon') p.bon += x.mesures;
-      });
-      var aide = { LCP: 'Affichage du contenu principal', CLS: 'Stabilité de la mise en page', INP: 'Réactivité aux clics' };
-      return petitTableau(['Indicateur', 'Moyenne', 'Bon'], Object.keys(par).map(function (k) {
-        var p = par[k], moy = p.total ? p.somme / p.total : 0;
-        var valeur = k === 'CLS' ? (moy / 1000).toFixed(2).replace('.', ',') : nombre(moy) + ' ms';
-        var part = p.total ? p.bon / p.total : 0;
-        var classe = part >= 0.75 ? 'bon' : part >= 0.5 ? 'a_ameliorer' : 'mauvais';
-        return [k + ' <span class="chemin">' + (aide[k] || '') + '</span>', valeur, '<span class="pastille ' + classe + '">' + pourcent(part, 0) + '</span>'];
-      }));
-    }));
+    // Sources qui génèrent des contacts
+    var src = (a.sources || []).map(function (s) { return { s: s, n: contacts(s.actions) + (s.actions.rdv_reserve || 0) }; })
+      .sort(function (x, y) { return y.n - x.n || y.s.sessions - x.s.sessions; }).slice(0, 20);
+    ht += bloc('Sources qui amènent au contact', 'D\'où venaient les visiteurs qui ont cliqué', petitTableau(
+      ['Source', 'Sessions', 'Clics RDV', 'Appels et e-mails', 'RDV réservés', 'Taux'],
+      src.map(function (x) {
+        var e = x.s.actions;
+        return [nomSource(x.s.source, x.s.support), nombre(x.s.sessions), nombre(e.clic_rdv || 0), nombre((e.clic_telephone || 0) + (e.clic_email || 0)),
+          nombre(e.rdv_reserve || 0), x.s.sessions ? pourcent(contacts(e) / x.s.sessions, 1) : '–'];
+      })) + '<p class="note">Taux : clics RDV, appels et e-mails ÷ sessions de la source.</p>', 'large');
 
-    ht += bloc('Téléchargements', 'Fichiers téléchargés depuis le site', ouErreur(e.telechargements, function (v) {
-      return petitTableau(['Fichier', 'Nb'], v.map(function (x) { return [echapper(x.fichier), nombre(x.nombre)]; }));
-    }));
+    $('#conversions').innerHTML = ht;
+  }
 
-    ht += bloc('Clics répétés', 'Trois clics ou plus en une seconde : élément qui ne réagit pas ou visiteur agacé', ouErreur(e.clicsRepetes, function (v) {
-      return petitTableau(['Élément', 'Page', 'Nb'], v.map(function (x) { return [echapper(x.element), echapper(x.page), nombre(x.nombre)]; }));
-    }));
+  /* ---------- Provenance ---------- */
 
-    ht += bloc('Erreurs techniques', 'Erreurs JavaScript rencontrées par les visiteurs', ouErreur(e.erreurs, function (v) {
-      return petitTableau(['Erreur', 'Page', 'Nb'], v.map(function (x) { return [echapper(x.message), echapper(x.page), nombre(x.nombre)]; }));
-    }));
+  function afficherProvenance() {
+    var d = etat.donnees, a = d.analytics, g = d.searchConsole;
+    var ht = '';
 
-    $('#engagement').innerHTML = ht;
+    ht += bloc('Canaux', 'Les grandes familles de provenance, en sessions', a ? barres((a.canaux || []).slice().sort(function (x, y) { return y.sessions - x.sessions; }),
+      function (c) { return echapper(NOMS_CANAUX[c.canal] || c.canal); }, function (c) { return c.sessions; }) : '<p class="note">Google Analytics non connecté.</p>');
+
+    if (a) {
+      ht += bloc('Appareils', 'Sessions par type d\'appareil', barres(a.appareils || [], function (x) { return echapper(NOMS_APPAREILS[x.appareil] || x.appareil); }, function (x) { return x.sessions; }));
+      ht += bloc('Nouveaux ou déjà venus', 'Visiteurs', barres(a.fidelite || [], function (x) { return echapper(NOMS_FIDELITE[x.type] || x.type); }, function (x) { return x.visiteurs; }));
+    }
+    ht += bloc('Sources précises', 'Le site, le moteur, le réseau ou l\'assistant IA d\'où arrive chaque visite', a ? petitTableau(
+      ['Source', 'Sessions', 'Visiteurs', 'Engagement', 'Temps moyen', 'Conversions'],
+      (a.sources || []).slice(0, 30).map(function (s) {
+        return [nomSource(s.source, s.support), nombre(s.sessions), nombre(s.visiteurs), pourcent(s.tauxEngagement, 0), duree(s.tempsMoyen), nombre(s.conversions)];
+      })) : '', 'large');
+
+    ht += bloc('Recherches Google', 'Ce que les gens ont tapé dans Google avant de voir le site', g ? petitTableau(
+      ['Requête', 'Impressions', 'Clics', 'CTR', 'Position'],
+      (g.requetes || []).slice(0, 30).map(function (r) { return [echapper(r.requete), nombre(r.impressions), nombre(r.clics), pourcent(r.ctr), position(r.position)]; }),
+      'Aucune requête sur la période. Google masque aussi les requêtes trop rares.') : '<p class="note">Search Console non connectée.</p>', 'large');
+
+    ht += bloc('Pages d\'entrée', 'La première page vue de chaque visite', a ? petitTableau(
+      ['Page', 'Entrées', 'Engagement', 'Rebond', 'Conversions'],
+      (a.pagesEntree || []).slice(0, 20).map(function (p) { return [pageLien(p.page), nombre(p.sessions), pourcent(p.tauxEngagement, 0), pourcent(p.tauxRebond, 0), nombre(p.conversions)]; }))
+      + '<p class="note">Rebond : visite de moins de 10 secondes, sur une seule page, sans action.</p>' : '', 'large');
+
+    if (a) {
+      ht += bloc('Villes', 'Sessions par ville, déduite de l\'adresse IP (approximatif, souvent la ville de l\'opérateur)',
+        barres((a.villes || []).slice(0, 12), function (x) { return echapper(x.ville === '(not set)' ? 'Non déterminée' : x.ville); }, function (x) { return x.sessions; }));
+      ht += bloc('Jours de la semaine', 'Sessions', barres((a.joursSemaine || []).slice().sort(function (x, y) { return ((x.jour + 6) % 7) - ((y.jour + 6) % 7); }),
+        function (x) { return JOURS[x.jour] || x.jour; }, function (x) { return x.sessions; }));
+      ht += bloc('Heures de la journée', 'Sessions, selon le fuseau horaire de Google Analytics', histogramme(a.heures || []));
+      var camp = a.campagnes || [];
+      ht += bloc('Campagnes', 'Liens suivis avec des paramètres UTM', camp.length ? petitTableau(['Campagne', 'Source', 'Sessions', 'Conversions'],
+        camp.map(function (c) { return [echapper(c.campagne), nomSource(c.source, c.support), nombre(c.sessions), nombre(c.conversions)]; }))
+        : '<p class="note">Aucune campagne sur la période. Pour savoir exactement quel post LinkedIn, quel e-mail ou quelle signature amène des visites, ajoutez à vos liens : <code>?utm_source=linkedin&amp;utm_medium=social&amp;utm_campaign=nom-du-post</code>. Chaque campagne apparaîtra ici.</p>');
+    }
+    $('#provenance').innerHTML = ht;
+  }
+
+  function histogramme(heures) {
+    if (!heures.length) return '<p class="note">Pas encore de données.</p>';
+    var par = {}; heures.forEach(function (h) { par[h.heure] = h.sessions; });
+    var max = Math.max.apply(null, heures.map(function (h) { return h.sessions; }).concat([1]));
+    var cols = '';
+    for (var h = 0; h < 24; h++) {
+      var v = par[h] || 0;
+      cols += '<span class="col" title="' + h + ' h : ' + nombre(v) + ' sessions"><span style="height:' + (100 * v / max).toFixed(1) + '%"></span></span>';
+    }
+    return '<div class="histo">' + cols + '</div><div class="histo-axe"><span>0 h</span><span>6 h</span><span>12 h</span><span>18 h</span><span>23 h</span></div>';
   }
 
   /* ---------- Configuration GA4 en un clic ---------- */
@@ -389,15 +521,33 @@
     { cle: 'ctr', libelle: 'CTR', f: function (v) { return pourcent(v); } },
     { cle: 'position', libelle: 'Position', f: position, inverse: true },
     { cle: 'visiteurs', libelle: 'Visiteurs', f: nombre },
+    { cle: 'entrees', libelle: 'Entrées', f: nombre },
     { cle: 'temps', libelle: 'Temps moyen', f: duree },
     { cle: 'lectures', libelle: 'Lectures', f: nombre },
     { cle: 'rdv', libelle: 'Clics RDV', f: nombre },
     { cle: 'internes', libelle: 'Liens internes', f: nombre },
     { cle: 'sortants', libelle: 'Liens sortants', f: nombre },
   ];
+  var COLONNES_PAGES = [
+    { cle: 'titre', libelle: 'Page', texte: true },
+    { cle: 'visiteurs', libelle: 'Visiteurs', f: nombre },
+    { cle: 'vues', libelle: 'Vues', f: nombre },
+    { cle: 'entrees', libelle: 'Entrées', f: nombre },
+    { cle: 'temps', libelle: 'Temps moyen', f: duree },
+    { cle: 'engagement', libelle: 'Engagement', f: function (v) { return pourcent(v, 0); } },
+    { cle: 'rebond', libelle: 'Rebond', f: function (v) { return pourcent(v, 0); }, inverse: true },
+    { cle: 'rdv', libelle: 'Clics RDV', f: nombre },
+    { cle: 'appels', libelle: 'Appels', f: nombre },
+    { cle: 'emails', libelle: 'E-mails', f: nombre },
+    { cle: 'reservesPage', libelle: 'RDV réservés', f: nombre },
+    { cle: 'internes', libelle: 'Liens internes', f: nombre },
+    { cle: 'impressions', libelle: 'Impressions', f: nombre },
+    { cle: 'clics', libelle: 'Clics Google', f: nombre },
+    { cle: 'position', libelle: 'Position', f: position, inverse: true },
+  ];
 
-  function trier(lignes) {
-    var c = etat.tri.cle, s = etat.tri.sens;
+  function trier(lignes, tri) {
+    var c = tri.cle, s = tri.sens;
     return lignes.slice().sort(function (a, b) {
       var va = a[c], vb = b[c];
       if (c === 'titre') return s * String(va).localeCompare(String(vb), 'fr');
@@ -407,37 +557,27 @@
     });
   }
 
-  function tableau(el, lignes) {
+  function tableau(el, lignes, colonnes, tri, nomTri) {
     var maxImp = Math.max.apply(null, lignes.map(function (l) { return l.impressions; }).concat([1]));
-    var tete = '<thead><tr>' + COLONNES.map(function (c) {
-      var actif = etat.tri.cle === c.cle;
-      return '<th scope="col"' + (actif ? ' aria-sort="' + (etat.tri.sens > 0 ? 'ascending' : 'descending') + '"' : '') + '><button type="button" data-tri="' + c.cle + '">' + c.libelle + '</button></th>';
+    var tete = '<thead><tr>' + colonnes.map(function (c) {
+      var actif = tri.cle === c.cle;
+      return '<th scope="col"' + (actif ? ' aria-sort="' + (tri.sens > 0 ? 'ascending' : 'descending') + '"' : '') + '><button type="button" data-tri="' + c.cle + '" data-table="' + nomTri + '">' + c.libelle + '</button></th>';
     }).join('') + '</tr></thead>';
-    var corps = '<tbody>' + (lignes.length ? trier(lignes).map(function (l) {
-      return '<tr tabindex="0" data-chemin="' + echapper(l.chemin) + '"' + (etat.detail === l.chemin ? ' class="actif"' : '') + '>' + COLONNES.map(function (c) {
+    var corps = '<tbody>' + (lignes.length ? trier(lignes, tri).map(function (l) {
+      return '<tr tabindex="0" data-chemin="' + echapper(l.chemin) + '"' + (etat.detail === l.chemin ? ' class="actif"' : '') + '>' + colonnes.map(function (c) {
         if (c.texte) return '<td><span class="titre">' + echapper(l.titre) + '</span><span class="chemin">' + echapper(l.chemin) + '</span></td>';
         var v = l[c.cle];
         var vide = v == null || v === 0;
         var barre = c.cle === 'impressions' && l.impressions ? '<span class="barre-mini" style="width:' + Math.max(2, Math.round(40 * l.impressions / maxImp)) + 'px"></span>' : '';
         return '<td' + (vide ? ' class="vide"' : '') + '>' + c.f(v) + barre + '</td>';
       }).join('') + '</tr>';
-    }).join('') : '<tr><td colspan="' + COLONNES.length + '" class="vide">Aucune donnée sur la période.</td></tr>') + '</tbody>';
+    }).join('') : '<tr><td colspan="' + colonnes.length + '" class="vide">Aucune donnée sur la période.</td></tr>') + '</tbody>';
     el.innerHTML = tete + corps;
   }
 
   function afficherTables(lignes) {
-    tableau($('#table-articles'), lignes.filter(function (l) { return l.article; }));
-    tableau($('#table-pages'), lignes.filter(function (l) { return !l.article; }));
-  }
-
-  function afficherCanaux() {
-    var a = etat.donnees.analytics;
-    var liste = (a && a.canaux) || [];
-    var max = Math.max.apply(null, liste.map(function (c) { return c.sessions; }).concat([1]));
-    var noms = NOMS_CANAUX;
-    $('#canaux').innerHTML = liste.length ? liste.sort(function (x, y) { return y.sessions - x.sessions; }).map(function (c) {
-      return '<li><span>' + echapper(noms[c.canal] || c.canal) + '</span><span class="barre"><span style="width:' + (100 * c.sessions / max).toFixed(1) + '%"></span></span><span>' + nombre(c.sessions) + '</span></li>';
-    }).join('') : '<li><span>Pas encore de données.</span></li>';
+    tableau($('#table-articles'), lignes.filter(function (l) { return l.article; }), COLONNES, etat.tri, 'articles');
+    tableau($('#table-pages'), lignes.filter(function (l) { return !l.article && l.chemin.charAt(0) === '/'; }), COLONNES_PAGES, etat.triPages, 'pages');
   }
 
   var NOMS_CANAUX = { 'Organic Search': 'Recherche Google et autres', Direct: 'Accès direct', Referral: 'Autres sites', 'Organic Social': 'Réseaux sociaux', Email: 'E-mail', Unassigned: 'Non attribué', 'Paid Search': 'Annonces', 'Organic Video': 'Vidéo' };
@@ -455,6 +595,9 @@
     video_pause: 'Vidéo mise en pause', erreur_js: 'Erreur technique',
   };
   var NOMS_ZONES = {
+    top: 'Haut de page', constat: 'Section Constat', presentation: 'Section Vidéo', offres: 'Section Offres', systemes: 'Section Systèmes',
+    methode: 'Section Méthode', fondateurs: 'Section Fondateurs', temoignage: 'Section Témoignage', avis: 'Section Avis', logiciels: 'Section Logiciels',
+    reserver: 'Section Réserver', faq: 'FAQ', page: 'Page (hors section)',
     entete: 'En-tête', menu_mobile: 'Menu mobile', pied_de_page: 'Pied de page', encart_rdv_article: 'Encart RDV dans l\'article',
     carte_rdv_article: 'Carte RDV à côté de l\'article', sommaire: 'Sommaire', corps_article: 'Texte de l\'article', bandeau_cookies: 'Bandeau cookies',
   };
@@ -465,6 +608,10 @@
     var ligne = pagesFusionnees().filter(function (l) { return l.chemin === chemin; })[0];
     if (!ligne) { boite.hidden = true; return; }
     Array.prototype.forEach.call(document.querySelectorAll('tbody tr'), function (tr) { tr.classList.toggle('actif', tr.getAttribute('data-chemin') === chemin); });
+    // Le panneau s'ouvre sous le tableau de la ligne cliquée (articles ou pages).
+    var ligneTr = document.querySelector('tbody tr[data-chemin="' + chemin.replace(/"/g, '\\"') + '"]');
+    var boiteTable = ligneTr && ligneTr.closest('.tableau-boite');
+    if (boiteTable && boiteTable.nextElementSibling !== boite) boiteTable.after(boite);
     boite.hidden = false;
     boite.innerHTML = '<button type="button" class="fermer" id="fermer">Fermer</button><h3>' + echapper(ligne.titre) + '</h3>' +
       '<p class="note" style="margin:0"><a href="' + echapper(chemin) + '" target="_blank" rel="noopener">Voir la page ↗</a> · chargement du détail…</p>';
@@ -506,19 +653,43 @@
         if (a.clicsErreur) clics += '<p class="note">' + echapper(a.clicsErreur) + '</p>';
       }
 
-      var sources = (a.sources || []).length ? '<ul class="entonnoir">' + a.sources.map(function (s) {
-        return '<li><span>' + echapper(NOMS_CANAUX[s.canal] || s.canal) + '</span><strong>' + nombre(s.vues) + '</strong><span class="barre"><span style="width:' + (100 * s.vues / Math.max(1, vues)).toFixed(1) + '%"></span></span></li>';
-      }).join('') + '</ul>' : '<p class="note">Pas encore de visites.</p>';
+      var sources = (a.sources || []).length ? petitTableau(['Source', 'Vues'], a.sources.map(function (s) {
+        return [nomSource(s.source, s.support), nombre(s.vues)];
+      })) : '<p class="note">Pas encore de visites.</p>';
+
+      var precedentes = (a.precedentes || []).length ? petitTableau(['Venus de', 'Vues'], a.precedentes.map(function (r) {
+        var lib;
+        if (!r.referent || r.referent === '(not set)') lib = 'Accès direct ou inconnu';
+        else {
+          try {
+            var u = new URL(r.referent);
+            lib = /(^|\.)herone\.fr$/.test(u.hostname) ? pageLien(u.pathname.replace(/\/+$/, '') || '/') : echapper(u.hostname.replace(/^www\./, '')) + ' <span class="chemin">autre site</span>';
+          } catch (e) { lib = echapper(r.referent); }
+        }
+        return [lib, nombre(r.vues)];
+      })) : '<p class="note">Pas encore de données.</p>';
+
+      var suivantes = a.suivantes == null ? '<p class="note">Cliquez sur « Configurer Google Analytics » pour voir les pages suivantes.</p>'
+        : a.suivantes.length ? petitTableau(['Page ouverte ensuite', 'Clics'], a.suivantes.map(function (s) {
+          var c = s.page; try { c = new URL(s.page, location.origin).pathname.replace(/\/+$/, '') || '/'; } catch (e) { /* tel quel */ }
+          return [pageLien(c), nombre(s.nombre)];
+        })) : '<p class="note">Aucun lien interne cliqué sur la période.</p>';
+
+      var appareils = (a.appareils || []).length ? barres(a.appareils, function (x) { return echapper(NOMS_APPAREILS[x.appareil] || x.appareil); }, function (x) { return x.vues; })
+        : '<p class="note">Pas encore de données.</p>';
 
       boite.innerHTML = '<button type="button" class="fermer" id="fermer">Fermer</button><h3>' + echapper(ligne.titre) + '</h3>' +
         '<p class="note" style="margin:0"><a href="' + echapper(chemin) + '" target="_blank" rel="noopener">Voir la page ↗</a> · ' +
         nombre(ligne.impressions) + ' impressions · ' + nombre(ligne.clics) + ' clics Google · CTR ' + pourcent(ligne.ctr) + ' · position ' + position(ligne.position) +
-        ' · ' + nombre(ligne.visiteurs) + ' visiteurs · ' + duree(ligne.temps) + ' en moyenne</p>' +
+        ' · ' + nombre(ligne.visiteurs) + ' visiteurs · ' + nombre(ligne.entrees) + ' entrées · ' + duree(ligne.temps) + ' en moyenne · rebond ' + pourcent(ligne.rebond, 0) + '</p>' +
         '<div class="grille-detail">' +
         '<div><h4>Parcours sur la page</h4>' + entonnoir + '</div>' +
-        '<div><h4>Requêtes qui l\'affichent dans Google</h4>' + requetes + '</div>' +
         '<div><h4>Clics et actions</h4>' + clics + '</div>' +
-        '<div><h4>Provenance des visites</h4>' + sources + '</div>' +
+        '<div><h4>Requêtes qui l\'affichent dans Google</h4>' + requetes + '</div>' +
+        '<div><h4>Sources des visites</h4>' + sources + '</div>' +
+        '<div><h4>Page précédente</h4>' + precedentes + '</div>' +
+        '<div><h4>Pages ouvertes ensuite</h4>' + suivantes + '</div>' +
+        '<div><h4>Appareils</h4>' + appareils + '</div>' +
         '</div>';
     }).catch(function (e) {
       boite.insertAdjacentHTML('beforeend', '<p class="note">' + echapper(e.message) + '</p>');
@@ -549,8 +720,15 @@
     var tri = t.closest('[data-tri]');
     if (tri) {
       var cle = tri.getAttribute('data-tri');
-      etat.tri = { cle: cle, sens: etat.tri.cle === cle ? -etat.tri.sens : (cle === 'titre' || cle === 'position' ? 1 : -1) };
+      var nom = tri.getAttribute('data-table') === 'pages' ? 'triPages' : 'tri';
+      etat[nom] = { cle: cle, sens: etat[nom].cle === cle ? -etat[nom].sens : (cle === 'titre' || cle === 'position' || cle === 'rebond' ? 1 : -1) };
       afficherTables(pagesFusionnees());
+      return;
+    }
+    var fb = t.closest('[data-filtre-boutons]');
+    if (fb) {
+      etat.filtreBoutons = fb.getAttribute('data-filtre-boutons');
+      afficherConversions(pagesFusionnees());
       return;
     }
     var tr = t.closest('tbody tr[data-chemin]');

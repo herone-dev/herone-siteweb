@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>Statistiques du blog Hérone</title>
+    <title>Statistiques Hérone</title>
     <link rel="icon" type="image/png" href="/favicon-32x32.png" />
     <style>
       @font-face { font-family: 'Manrope'; src: url('/fonts/manrope-latin-wght-normal.woff2') format('woff2-variations'); font-weight: 200 800; font-display: swap; }
@@ -168,7 +168,37 @@
       .liste-barres li { display: grid; grid-template-columns: minmax(120px, 200px) 1fr auto; gap: 10px; align-items: center; font-size: 14px; padding: 5px 0; }
       .liste-barres .barre { height: 10px; background: var(--grille); border-radius: 5px; overflow: hidden; }
       .liste-barres .barre span { display: block; height: 100%; background: var(--serie); border-radius: 5px; }
-      .grille-engagement { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; }
+      .grille-blocs { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 10px; }
+      .bloc.large { grid-column: 1 / -1; }
+      .bloc th.g, .bloc td.g { text-align: left; white-space: normal; }
+      .bloc th, .bloc td { white-space: nowrap; }
+      .deux { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+      .deux .mini-tuiles { margin-top: 0; }
+      @media (max-width: 760px) { .deux { grid-template-columns: 1fr; } }
+      .defile { overflow-x: auto; }
+      .bloc table { width: 100%; }
+      .bloc td .titre-court, .detail td .titre-court { display: block; }
+      tr.fixe { cursor: default; }
+      tbody tr.fixe:hover { background: transparent; }
+      .etiquette { display: inline-block; font-size: 11px; font-weight: 600; padding: 0 6px; border-radius: 999px; background: var(--accent-doux); color: var(--accent); margin-left: 4px; vertical-align: 1px; }
+      .filtres { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+      .filtres button { background: transparent; border: 1px solid var(--bordure); border-radius: 999px; padding: 4px 12px; cursor: pointer; font-size: 13px; }
+      .filtres button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--carte); font-weight: 600; }
+      .barres { list-style: none; margin: 0; padding: 0; }
+      .barres li { display: grid; grid-template-columns: minmax(110px, 170px) 1fr auto; gap: 10px; align-items: center; font-size: 13.5px; padding: 4px 0; }
+      .barres .barre { height: 9px; background: var(--grille); border-radius: 5px; overflow: hidden; }
+      .barres .barre span { display: block; height: 100%; background: var(--serie); border-radius: 5px; }
+      .barres small, .entonnoir small { color: var(--encre-3); font-weight: 400; margin-left: 4px; }
+      .mini-tuiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-top: 14px; }
+      .mini-tuiles div { background: var(--carte-2); border-radius: 10px; padding: 10px 12px; }
+      .mini-tuiles span { display: block; font-size: 12.5px; color: var(--encre-2); }
+      .mini-tuiles strong { font: 700 20px/1.2 'Manrope', sans-serif; font-variant-numeric: tabular-nums; }
+      .mini-tuiles small { display: block; font-size: 11.5px; color: var(--encre-3); }
+      .histo { display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; height: 90px; align-items: end; }
+      .histo .col { height: 100%; display: flex; align-items: flex-end; }
+      .histo .col span { display: block; width: 100%; background: var(--serie); border-radius: 2px 2px 0 0; min-height: 1px; }
+      .histo-axe { display: flex; justify-content: space-between; font-size: 11px; color: var(--encre-3); margin-top: 4px; }
+      code { font: 500 12px 'IBM Plex Mono', monospace; background: var(--carte-2); padding: 1px 4px; border-radius: 4px; word-break: break-all; }
       .bloc { background: var(--carte); border: 1px solid var(--bordure); border-radius: 12px; padding: 14px; min-width: 0; }
       .bloc h3 { font: 600 14px 'Manrope', sans-serif; margin: 0 0 2px; }
       .bloc p.sous { margin: 0 0 10px; font-size: 12.5px; color: var(--encre-3); }
@@ -251,21 +281,23 @@
         </div>
         <div class="tableau-boite"><table id="table-articles"></table></div>
         <div class="detail" id="detail" hidden aria-live="polite"></div>
-        <details class="autres">
-          <summary>Autres pages du site</summary>
-          <div class="tableau-boite"><table id="table-pages"></table></div>
-        </details>
       </section>
 
-      <section aria-labelledby="t-engagement">
-        <h2 id="t-engagement">Ce que font les visiteurs <small>tout le site</small></h2>
-        <div class="grille-engagement" id="engagement"></div>
+      <section aria-labelledby="t-pages">
+        <h2 id="t-pages">Pages du site <small>accueil, offres, blog… cliquez sur une ligne pour le détail</small></h2>
+        <div class="tableau-boite"><table id="table-pages"></table></div>
+        <p class="note">Entrées : visites qui commencent sur cette page. Engagement : part des visiteurs restés plus de 10 secondes, ou qui ont vu une autre page ou fait une action. Rebond : l'inverse.</p>
       </section>
 
-      <section aria-labelledby="t-canaux">
-        <h2 id="t-canaux">D'où viennent les visites <small>sessions par canal</small></h2>
-        <ul class="liste-barres" id="canaux"></ul>
-        <p class="note">Les impressions et clics Google arrivent avec deux à trois jours de retard. Les visiteurs qui refusent les cookies sont estimés par Google (mode de consentement avancé), les chiffres par page les comptent en partie seulement.</p>
+      <section aria-labelledby="t-conversions">
+        <h2 id="t-conversions">Conversions et boutons <small>tout le site</small></h2>
+        <div class="grille-blocs" id="conversions"></div>
+      </section>
+
+      <section aria-labelledby="t-provenance">
+        <h2 id="t-provenance">D'où viennent les visites, et comment <small>tout le site</small></h2>
+        <div class="grille-blocs" id="provenance"></div>
+        <p class="note">Les impressions et clics Google arrivent avec deux à trois jours de retard. Les visiteurs qui refusent les cookies sont estimés par Google (mode de consentement avancé), les chiffres par page et par source les comptent en partie seulement.</p>
       </section>
     </main>
 

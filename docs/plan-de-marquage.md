@@ -114,8 +114,10 @@ Une dimension ne se remplit qu'à partir de sa création, jamais en arrière.
 | Taux d'engagement | GA4 | Part des sessions de plus de 10 s, ou avec 2 pages vues, ou une conversion |
 | Lectures, clics RDV, liens internes et sortants, RDV réservés, appels | GA4 | `eventCount` des événements ci-dessus, par page |
 | Détail des clics par zone et par bouton | GA4 | Demande les dimensions `cta_zone` et `cta_texte` |
-| Provenance | GA4 | `sessionDefaultChannelGroup` |
-| Sections vues, FAQ, vidéos, téléchargements, clics répétés, erreurs, performance | GA4 | Bloc « Ce que font les visiteurs », une requête par sujet sur les dimensions ci-dessus |
+| Entrées, taux de rebond par page | GA4 | `landingPage` (sessions qui commencent sur la page), `bounceRate` |
+| Conversions et boutons | GA4 | Tunnel RDV (`clic_rdv`, `rdv_agenda_affiche`, `rdv_creneau_choisi`, `rdv_reserve`), appels, e-mails ; chaque bouton par `cta_texte`, `cta_zone` et page ; contacts par page et par source |
+| Provenance détaillée | GA4 + Search Console | Canaux, `sessionSource` / `sessionMedium` (assistants IA signalés), requêtes Google du site, pages d'entrée, appareils, nouveaux ou déjà venus, villes, jours et heures, campagnes UTM |
+| Détail d'une page | GA4 | Sources, page précédente (`pageReferrer`), pages ouvertes ensuite (`clic_lien_interne` par `lien_cible`), appareils |
 
 ## 8. Limites connues
 
