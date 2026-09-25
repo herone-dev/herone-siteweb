@@ -10,6 +10,17 @@
 //    `eyebrow`, `titre`, `texte` et `noms` : la section remplace à la fois
 //    l'ancien bloc « Avec quoi nous construisons / Ce que nous connectons » et
 //    l'ancienne bande défilante.
+//
+// Depuis le 25 septembre 2026, /automatisation repasse sur `defilant` à la
+// demande de l'utilisateur (« je veux du défilement, on voit plus de noms »),
+// en gardant le texte de la section statique : quand `titre` est fourni, la
+// tête affiche `eyebrow`, `titre` et les paragraphes de `texte` (titre à
+// gauche, texte à droite au large), puis les deux bandes. Sans `titre`, la
+// tête d'origine reste. La variante `statique` est gardée intacte.
+//
+// Les bandes se mettent en pause au survol, et le mouvement réduit les arrête
+// (règle globale de global.css). La seconde copie de chaque liste, qui ne sert
+// qu'à boucler, est masquée aux lecteurs d'écran.
 const row1 = [
   'Gmail', 'Google Sheets', 'Google Drive', 'Google Agenda', 'Outlook', 'Excel', 'Word', 'Teams',
   'WhatsApp', 'LinkedIn', 'Facebook', 'Instagram', 'Qonto', 'Stripe', 'PayPal', 'Shopify',
@@ -28,7 +39,7 @@ interface Props {
   variante?: 'defilant' | 'statique';
   eyebrow?: string;
   titre?: string;
-  /** Variante `statique` : paragraphes du texte de gauche. */
+  /** Paragraphes du texte (variante `statique`, ou `defilant` avec `titre`). */
   texte?: string[];
   /** Variante `statique` : les logiciels affichés. Par défaut, les deux bandes. */
   noms?: string[];
@@ -55,21 +66,37 @@ const { fond = 'surface', variante = 'defilant', eyebrow, titre, texte = [], nom
   </div>
 </section>
 ) : (
-<section id="logiciels" class:list={['hrn-logos', `hrn-logos--${fond}`, fond === 'paper' && 'hrn-zone-bleue']}>
+<section id="logiciels" class:list={['hrn-logos', `hrn-logos--${fond}`, fond === 'paper' && 'hrn-zone-bleue', titre && 'hrn-logos--tete']}>
   <div class="hrn-section-inner">
-    <div class="hrn-eyebrow">Logiciels</div>
-    <h2>Les logiciels que nous automatisons</h2>
-    <p class="hrn-lede">Nous connectons les outils que vous utilisez déjà.</p>
+    {titre ? (
+      <div class="hrn-logos__tete">
+        <div class="hrn-logos__titre">
+          {eyebrow && <div class="hrn-eyebrow">{eyebrow}</div>}
+          <h2>{titre}</h2>
+        </div>
+        <div class="hrn-logos__paragraphes">
+          {texte.map((paragraphe) => <p class="hrn-lede">{paragraphe}</p>)}
+        </div>
+      </div>
+    ) : (
+      <>
+        <div class="hrn-eyebrow">Logiciels</div>
+        <h2>Les logiciels que nous automatisons</h2>
+        <p class="hrn-lede">Nous connectons les outils que vous utilisez déjà.</p>
+      </>
+    )}
 
     <div class:list={['hrn-logos__rows', fond === 'paper' ? 'hrn-zone-creme' : 'hrn-zone-bleue']}>
       <div class="hrn-logos__row">
         <div class="hrn-logos__track hrn-logos__track--left">
-          {[...row1, ...row1].map((name) => <span>{name}</span>)}
+          {row1.map((name) => <span>{name}</span>)}
+          {row1.map((name) => <span aria-hidden="true">{name}</span>)}
         </div>
       </div>
       <div class="hrn-logos__row">
         <div class="hrn-logos__track hrn-logos__track--right">
-          {[...row2, ...row2].map((name) => <span>{name}</span>)}
+          {row2.map((name) => <span>{name}</span>)}
+          {row2.map((name) => <span aria-hidden="true">{name}</span>)}
         </div>
       </div>
     </div>
@@ -125,12 +152,21 @@ const { fond = 'surface', variante = 'defilant', eyebrow, titre, texte = [], nom
     mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
   }
 
+  /* padding-right égal à l'écart : la piste fait alors exactement deux
+     périodes, et le recul de 50 % retombe pile sur le début de la copie.
+     Sans lui, chaque tour finissait par une saccade de 6px. */
   .hrn-logos__track {
     display: flex;
     width: max-content;
     gap: 12px;
+    padding-right: 12px;
     will-change: transform;
     transform: translateZ(0);
+  }
+
+  /* Pause au survol, pour lire un nom. */
+  .hrn-logos__rows:hover .hrn-logos__track {
+    animation-play-state: paused;
   }
 
   .hrn-logos__track--left {
@@ -161,6 +197,46 @@ const { fond = 'surface', variante = 'defilant', eyebrow, titre, texte = [], nom
     border-radius: var(--radius-full);
     padding: 8px 18px;
     white-space: nowrap;
+  }
+
+  /* ============ Tête avec le texte de la section (défilant + titre) ============ */
+
+  .hrn-logos__tete {
+    display: grid;
+    gap: 18px 64px;
+    align-items: end;
+  }
+
+  @media (min-width: 960px) {
+    .hrn-logos__tete {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    }
+  }
+
+  .hrn-logos__titre,
+  .hrn-logos__paragraphes {
+    min-width: 0;
+  }
+
+  .hrn-logos--tete :global(.hrn-eyebrow) {
+    color: var(--accent-texte);
+  }
+
+  .hrn-logos--tete h2 {
+    max-width: 17em;
+  }
+
+  .hrn-logos__paragraphes .hrn-lede {
+    margin-top: 0;
+    font-size: clamp(1rem, 1.3vw, 1.0625rem);
+  }
+
+  .hrn-logos__paragraphes .hrn-lede + .hrn-lede {
+    margin-top: 14px;
+  }
+
+  .hrn-logos--tete .hrn-logos__rows {
+    margin-top: 40px;
   }
 
   /* ============ Variante « statique » ============ */
