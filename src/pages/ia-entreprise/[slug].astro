@@ -1,0 +1,988 @@
+---
+// Pages villes : /ia-entreprise/<slug>, une par ville de src/data/villes.ts.
+//
+// Un seul gabarit pour les 15 pages, d'après la maquette validée de Cholet
+// (reference-page-cholet.html, 25 septembre 2026). Ordre et fonds :
+// haut de page (bleu nuit profond), deux offres (crème, #offres), tâches
+// automatisées (bleu), section locale et carte des 45 minutes (crème),
+// témoignages (bleu), FAQ (crème), réservation avec le calendrier intégré et
+// les villes voisines (bleu), pied de page.
+//
+// Écarts voulus par rapport à la maquette, validés par l'utilisateur :
+//  - carte 02 : « adaptée à vos outils » au lieu de « sur mesure », banni du
+//    site ;
+//  - « Réserver 30 minutes » descend au calendrier de la page (#reserver) au
+//    lieu d'envoyer le visiteur sur Calendly : il ne quitte pas le site ;
+//  - les témoignages reprennent le composant du site, vidéos jouables ;
+//  - ponctuation : convention du site (espace ordinaire avant les deux-points
+//    et le point d'interrogation).
+//
+// Aucun prix sur ces pages. Les réponses 2 à 5 de la FAQ sont celles de
+// l'accueil, sans les noms d'outils ; la 6 reprend la page Automatisation.
+import Layout from '../../layouts/Layout.astro';
+import Button from '../../components/Button.astro';
+import ProofSection from '../../components/home/ProofSection.astro';
+import FaqAccordion from '../../components/home/FaqAccordion.astro';
+import BookingSection from '../../components/home/BookingSection.astro';
+import CarteZone from '../../components/ville/CarteZone.astro';
+import { VILLES, VILLE_PAR_SLUG, type Ville } from '../../data/villes';
+
+export function getStaticPaths() {
+  return VILLES.map((ville) => ({ params: { slug: ville.slug }, props: { ville } }));
+}
+
+interface Props {
+  ville: Ville;
+}
+
+const { ville } = Astro.props;
+const estLesHerbiers = ville.slug === 'les-herbiers';
+
+// Caractères invisibles construits par leur point de code (piège n°7) :
+//   I  U+00A0, insécable : entre un nombre et son unité (25 min, 26 km, 7 h 15)
+//   F  U+202F, fine insécable : séparateur de milliers (54 404)
+//   M  U+00B7, point médian des surtitres
+const I = String.fromCodePoint(0x00a0);
+const F = String.fromCodePoint(0x202f);
+const M = String.fromCodePoint(0x00b7);
+const typo = (s: string) =>
+  s
+    .replace(/(\d) (\d{3})(?!\d)/g, `$1${F}$2`)
+    .replace(/(\d) h (\d{2})/g, `$1${I}h${I}$2`)
+    .replace(/(\d) (min|minutes|km|h)\b/g, `$1${I}$2`);
+
+const TEL = '06 63 71 05 98';
+const TEL_HREF = 'tel:+33663710598';
+
+// ---------- En-tête de page : title, description, données structurées ----------
+
+const titreLong = `Formation IA et automatisation ${ville.a} | Hérone`;
+const title = titreLong.length <= 60 ? titreLong : `Formation IA et automatisation ${ville.a}`;
+const description = estLesHerbiers
+  ? "Hérone forme vos équipes à l'IA et automatise vos tâches répétitives. Nos bureaux sont aux Herbiers, rue Édouard Branly, et nous venons chez vous."
+  : `Hérone forme vos équipes à l'IA et automatise vos tâches répétitives. Basés aux Herbiers, à ${ville.minutes} minutes ${ville.de}, nous venons chez vous.`;
+
+const url = new URL(`/ia-entreprise/${ville.slug}`, Astro.site).href;
+
+// ---------- Contenu ----------
+
+const faits = [
+  estLesHerbiers
+    ? { grand: 'Sur place', titre: 'nos bureaux sont aux Herbiers', detail: '37 rue Édouard Branly' }
+    : {
+        grand: `${ville.minutes} min`,
+        titre: 'de nos bureaux',
+        detail: ville.km ? `Les Herbiers, ${ville.km} km par la route` : 'Depuis Les Herbiers, en voiture',
+      },
+  { grand: '1 journée', titre: 'de formation chez vous', detail: 'Sur vos vrais dossiers, animée à deux' },
+  { grand: '0 logiciel', titre: 'à changer', detail: 'Nous connectons ceux que vous avez déjà' },
+  { grand: '30 min', titre: 'pour faire le point', detail: 'Un premier échange gratuit, sans engagement' },
+];
+
+const offres = [
+  {
+    num: '01',
+    meta: `Formation IA ${M} une journée`,
+    titre: 'Nous formons votre équipe sur ses vrais dossiers, chez vous, en une journée',
+    texte:
+      "Chacun travaille sur les tâches qu'il fait vraiment. À la fin de la journée, votre équipe sait quoi demander à l'IA, comment le demander, et comment vérifier la réponse.",
+    points: [
+      "4 h 15 d'ateliers sur 7 h 15 de formation",
+      'Aucun prérequis technique',
+      'Préparation en amont sur vos dossiers, incluse',
+      "Six livrables, dont une charte d'usage signée par le dirigeant",
+    ],
+    href: '/formation',
+    lien: 'Découvrir la formation IA',
+  },
+  {
+    num: '02',
+    meta: `Automatisation IA ${M} adaptée à vos outils`,
+    titre: 'Vos logiciels se parlent. Plus aucune ressaisie',
+    texte:
+      'Nous relions les logiciels que vous utilisez déjà. Les tâches répétitives se font seules, et votre équipe valide ce qui compte.',
+    points: [
+      'Un périmètre écrit et validé avec vous avant de commencer',
+      'Nous partons des logiciels que vous utilisez déjà',
+      'Installation et formation chez vous, en 1 à 4 semaines',
+      'Un suivi mensuel une fois le système en service',
+    ],
+    href: '/automatisation',
+    lien: "Découvrir l'automatisation IA",
+  },
+];
+
+const taches = [
+  { titre: "La ressaisie d'un logiciel à l'autre", texte: "L'information saisie une fois passe seule dans vos autres logiciels." },
+  { titre: 'Les calculs et les devis dans Excel', texte: "Le devis se prépare à partir de vos barèmes. Vous le relisez, puis vous l'envoyez." },
+  { titre: 'Les comptes rendus de réunion', texte: 'Le rendez-vous est enregistré, le compte rendu part le jour même.' },
+  { titre: 'Le reporting mensuel', texte: 'Les chiffres sont récupérés, le rapport se construit et arrive chaque début de mois.' },
+  { titre: "L'envoi de documents", texte: 'Factures, attestations, relances : le bon document part à la bonne personne.' },
+  { titre: 'Le tri des e-mails', texte: 'Les courriels sont classés, les pièces jointes rangées, les demandes importantes remontent.' },
+];
+
+const pastilles = estLesHerbiers
+  ? ['37 rue Édouard Branly', 'Rendez-vous sur place']
+  : [
+      ...(ville.km ? [`${ville.km} km par la route`] : []),
+      `Environ ${ville.minutes} min en voiture`,
+      'Rendez-vous sur place',
+    ];
+
+const faqs = [
+  { q: ville.faqQuestion ?? `Vous déplacez-vous ${ville.a} ?`, a: ville.faqReponse },
+  {
+    q: "Par quoi commencer, la formation ou l'automatisation ?",
+    a: "Par la formation, dans la plupart des cas. Une équipe qui sait ce que l'IA fait bien, et où elle casse, repère elle-même les tâches qui valent la peine d'être automatisées, et nous construisons ensuite sur du solide. L'automatisation seule reste le bon choix quand la tâche est déjà identifiée et qu'elle revient tous les jours, par exemple une ressaisie entre deux logiciels.",
+  },
+  {
+    q: 'Travaillez-vous avec des entreprises de notre taille ?',
+    a: "Pour la formation, oui, dès une personne à former : elle vaut pour un dirigeant seul comme pour une équipe entière. Pour l'automatisation, nous travaillons avec des structures de 5 à 30 personnes, dont le dirigeant décide seul et reste maître de ses logiciels. En dessous, il n'y a en général pas assez de tâches répétitives pour que ce soit rentable. Au-dessus, les circuits de décision sont différents et ce n'est pas notre métier.",
+  },
+  {
+    q: 'Est-ce compatible avec nos logiciels actuels ?',
+    a: "C'est justement le point de départ. Nous construisons autour de vos logiciels existants : CRM, tableur, messagerie, métier. Le système les relie plutôt que de les remplacer.",
+  },
+  {
+    q: 'Nos données restent-elles confidentielles ?',
+    a: "Oui. Nous privilégions un hébergement en Europe, et en France quand c'est possible. Vos données restent les vôtres : nous vous disons précisément où elles vont, qui y a accès, et rien n'est utilisé à d'autres fins.",
+  },
+  {
+    q: 'Combien de temps pour mettre en place un système ?',
+    a: "Comptez 1 à 4 semaines entre le périmètre signé et le système en service. Nous posons d'abord noir sur blanc ce que le système fera et ce qu'il ne fera pas, puis nous venons le brancher sur vos outils et former les personnes qui s'en serviront.",
+  },
+].map(({ q, a }) => ({ q: typo(q), a: typo(a) }));
+
+const voisines = ville.voisines.map((slug) => VILLE_PAR_SLUG.get(slug)).filter((v): v is Ville => Boolean(v));
+
+const jsonLd = [
+  {
+    '@type': 'ProfessionalService',
+    '@id': `${url}#service`,
+    name: 'Hérone',
+    url: 'https://herone.fr',
+    telephone: '+33663710598',
+    email: 'contact@herone.fr',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '37 rue Édouard Branly',
+      postalCode: '85500',
+      addressLocality: 'Les Herbiers',
+      addressRegion: 'Vendée',
+      addressCountry: 'FR',
+    },
+    areaServed: { '@type': 'City', name: ville.nom },
+  },
+  {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Accueil', item: 'https://herone.fr/' },
+      { '@type': 'ListItem', position: 2, name: `Formation IA et automatisation ${ville.a}`, item: url },
+    ],
+  },
+  {
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(({ q, a }) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
+  },
+];
+
+const fleche = 'M5 12h14M13 6l6 6-6 6';
+const coche = 'M5 12.5l4.5 4.5L19 7.5';
+---
+
+<Layout title={title} description={description} headerTheme="dark" jsonLd={jsonLd}>
+  <!-- ============ Haut de page ============ -->
+  <section class="hrn-ville-hero hrn-zone-bleue">
+    <div class="hrn-section-inner">
+      <nav class="hrn-ville-fil" aria-label="Fil d'Ariane">
+        <a href="/">Accueil</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">Formation IA et automatisation {ville.a}</span>
+      </nav>
+
+      <div class="hrn-ville-hero__grille">
+        <div class="hrn-ville-hero__texte">
+          <div class="hrn-eyebrow">{`${ville.nom} ${M} ${ville.departement}`}</div>
+          <h1>Formation IA et automatisation pour les entreprises {ville.de}</h1>
+          <p class="hrn-ville-hero__chapeau">{typo(ville.chapeau)}</p>
+          <div class="hrn-ville-hero__actions">
+            <Button variant="accent" size="lg" href="#reserver">Réserver 30 minutes</Button>
+            <a href="#offres" class="hrn-ville-lien">
+              Découvrir nos offres
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={fleche}></path></svg>
+            </a>
+          </div>
+          <p class="hrn-ville-hero__tel">Ou appelez-nous directement au <a href={TEL_HREF}>{TEL}</a></p>
+        </div>
+
+        <div class="hrn-ville-trajet">
+          <div class="hrn-ville-trajet__surtitre">{estLesHerbiers ? 'Nos bureaux' : 'Le trajet'}</div>
+          {estLesHerbiers ? (
+            <div class="hrn-ville-trajet__etape">
+              <span class="hrn-ville-trajet__ici" aria-hidden="true"></span>
+              <div>
+                <div class="hrn-ville-trajet__lieu">Nos bureaux sont ici</div>
+                <div class="hrn-ville-trajet__adresse">37 rue Édouard Branly</div>
+                <div class="hrn-ville-trajet__adresse">{ville.voisinage}</div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div class="hrn-ville-trajet__etape">
+                <div class="hrn-ville-trajet__rail" aria-hidden="true">
+                  <span class="hrn-ville-trajet__depart"></span>
+                  <span class="hrn-ville-trajet__pointille"></span>
+                </div>
+                <div>
+                  <div class="hrn-ville-trajet__lieu">Nos bureaux</div>
+                  <div class="hrn-ville-trajet__adresse">37 rue Édouard Branly, Les Herbiers</div>
+                  <div class="hrn-ville-trajet__duree">
+                    {typo(ville.km ? `${ville.km} km ${M} environ ${ville.minutes} min` : `Environ ${ville.minutes} min`)}
+                  </div>
+                </div>
+              </div>
+              <div class="hrn-ville-trajet__etape">
+                <div class="hrn-ville-trajet__rail" aria-hidden="true">
+                  <span class="hrn-ville-trajet__ici"></span>
+                </div>
+                <div>
+                  <div class="hrn-ville-trajet__lieu">Chez vous, {ville.a}</div>
+                  <div class="hrn-ville-trajet__adresse">{ville.voisinage}</div>
+                </div>
+              </div>
+            </>
+          )}
+          <ul class="hrn-ville-coches" role="list">
+            {['Nous venons sur place, à deux', 'La formation se déroule dans vos locaux', 'Premier échange de 30 min, gratuit'].map((c) => (
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={coche}></path></svg>
+                {typo(c)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <ul class="hrn-ville-faits" role="list">
+        {faits.map((f) => (
+          <li>
+            <span class="hrn-ville-faits__grand">{typo(f.grand)}</span>
+            <span class="hrn-ville-faits__titre">{f.titre}</span>
+            <span class="hrn-ville-faits__detail">{typo(f.detail)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ Nos deux offres ============ -->
+  <section id="offres" class="hrn-ville-offres hrn-zone-creme">
+    <div class="hrn-section-inner">
+      <div class="hrn-eyebrow">Nos deux offres</div>
+      <h2>Deux façons de travailler avec nous {ville.a}</h2>
+      <p class="hrn-ville-intro">
+        La formation rend votre équipe autonome avec l'IA. L'automatisation supprime les ressaisies entre vos logiciels. La plupart des entreprises commencent par la formation : l'équipe repère ensuite elle-même ce qui mérite d'être automatisé.
+      </p>
+      <div class="hrn-ville-offres__grille">
+        {offres.map((o) => (
+          <article class="hrn-ville-offre">
+            <div class="hrn-ville-offre__meta">
+              <span class="hrn-ville-offre__num">{o.num}</span>
+              <span>{o.meta}</span>
+            </div>
+            <h3>{o.titre}</h3>
+            <p>{o.texte}</p>
+            <ul class="hrn-ville-coches hrn-ville-coches--creme" role="list">
+              {o.points.map((pt) => (
+                <li>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={coche}></path></svg>
+                  {typo(pt)}
+                </li>
+              ))}
+            </ul>
+            <div class="hrn-ville-offre__bouton">
+              <Button variant="secondary" size="lg" href={o.href}>{o.lien}</Button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Les tâches que nous automatisons ============ -->
+  <section class="hrn-ville-taches hrn-zone-bleue">
+    <div class="hrn-section-inner">
+      <div class="hrn-eyebrow">Ce que nous automatisons</div>
+      <h2>Les tâches qui prennent le temps de vos équipes</h2>
+      <p class="hrn-ville-intro">
+        D'un métier à l'autre, ce sont souvent les mêmes. Nous les repérons avec vous, puis nous les confions à un système qui travaille dans vos outils.
+      </p>
+      <ol class="hrn-ville-taches__grille" role="list">
+        {taches.map((t, i) => (
+          <li class="hrn-ville-tache">
+            <span class="hrn-ville-tache__num">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{t.titre}</h3>
+            <p>{t.texte}</p>
+          </li>
+        ))}
+      </ol>
+      <div class="hrn-ville-taches__pied">
+        <p>Dans chaque système, votre équipe garde la main : rien d'important ne part sans validation humaine.</p>
+        <a href="/automatisation" class="hrn-ville-lien">
+          Voir comment nous automatisons
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={fleche}></path></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Section locale ============ -->
+  <section class="hrn-ville-local hrn-zone-creme">
+    <div class="hrn-section-inner hrn-ville-local__grille">
+      <div class="hrn-ville-local__texte">
+        <div class="hrn-eyebrow">{ville.surtitreLocal}</div>
+        <h2>{estLesHerbiers ? 'Nos bureaux sont aux Herbiers' : typo(`À ${ville.minutes} minutes de nos bureaux des Herbiers`)}</h2>
+        {ville.local.map((p) => <p>{typo(p)}</p>)}
+        <ul class="hrn-ville-local__pastilles" role="list">
+          {pastilles.map((p) => <li>{typo(p)}</li>)}
+        </ul>
+      </div>
+      <CarteZone ville={ville} />
+    </div>
+  </section>
+
+  <!-- ============ Témoignages ============ -->
+  <ProofSection fond="paper" variante="cartes" eyebrow="Témoignages" titre="Ce qui a changé chez nos clients" />
+
+  <!-- ============ FAQ ============ -->
+  <FaqAccordion
+    id="questions"
+    eyebrow="Questions fréquentes"
+    titre={`Ce que les dirigeants ${ville.de} nous demandent`}
+    faqs={faqs}
+    fond="surface"
+    disposition="cote"
+    ouverte={0}
+  />
+
+  <!-- ============ Réservation et villes voisines ============ -->
+  <BookingSection
+    titre="30 minutes pour voir ce que nous pouvons vous retirer des mains"
+    lede={estLesHerbiers
+      ? 'Vous décrivez votre quotidien, nous repérons les tâches à supprimer. Un échange gratuit et sans engagement, par téléphone, à nos bureaux ou dans vos locaux.'
+      : `Vous décrivez votre quotidien, nous repérons les tâches à supprimer. Un échange gratuit et sans engagement, par téléphone ou dans vos locaux ${ville.a}.`}
+  >
+    <p class="hrn-ville-resa__tel">Vous préférez appeler ? <a href={TEL_HREF}>{TEL}</a></p>
+    <div class="hrn-ville-voisines">
+      <div class="hrn-eyebrow">Nous intervenons aussi à</div>
+      <nav aria-label="Autres villes">
+        <ul role="list">
+          {voisines.map((v) => (
+            <li><a href={`/ia-entreprise/${v.slug}`}>{v.nom}</a></li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+  </BookingSection>
+</Layout>
+
+<style>
+  /* ============ Haut de page ============ */
+
+  .hrn-ville-hero {
+    padding: clamp(104px, 11vw, 128px) 0 var(--section-y);
+    background: var(--bg-inverse);
+    color: var(--text-primary);
+  }
+
+  .hrn-ville-fil {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .hrn-ville-fil a {
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+
+  .hrn-ville-fil a:hover {
+    color: var(--accent-texte);
+  }
+
+  .hrn-ville-fil [aria-current] {
+    color: var(--text-primary);
+  }
+
+  .hrn-ville-hero__grille {
+    display: grid;
+    gap: 40px 64px;
+    margin-top: clamp(32px, 4vw, 48px);
+    align-items: center;
+  }
+
+  @media (min-width: 960px) {
+    .hrn-ville-hero__grille {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
+    }
+  }
+
+  .hrn-ville-hero__texte {
+    min-width: 0;
+  }
+
+  .hrn-ville-hero :global(.hrn-eyebrow),
+  .hrn-ville-offres :global(.hrn-eyebrow),
+  .hrn-ville-taches :global(.hrn-eyebrow),
+  .hrn-ville-local :global(.hrn-eyebrow),
+  .hrn-ville-voisines :global(.hrn-eyebrow) {
+    color: var(--accent-texte);
+  }
+
+  .hrn-ville-hero h1 {
+    margin: 20px 0 0;
+    max-width: 14em;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.3rem, 4.45vw, 4rem);
+    line-height: 1.04;
+    letter-spacing: -0.04em;
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  .hrn-ville-hero__chapeau {
+    margin: 24px 0 0;
+    max-width: 40em;
+    font-size: clamp(1.0625rem, 1.4vw, 1.1875rem);
+    line-height: 1.6;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  .hrn-ville-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 28px;
+    margin-top: 36px;
+  }
+
+  .hrn-ville-lien {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent-texte);
+    text-decoration: none;
+  }
+
+  .hrn-ville-lien svg {
+    flex: none;
+    transition: transform var(--dur-fast) var(--ease-standard);
+  }
+
+  .hrn-ville-lien:hover svg {
+    transform: translateX(3px);
+  }
+
+  .hrn-ville-lien:focus-visible {
+    outline: 2px solid var(--amber-300);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+  .hrn-ville-hero__tel {
+    margin: 16px 0 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+  }
+
+  .hrn-ville-hero__tel a,
+  .hrn-ville-resa__tel a {
+    color: var(--text-strong);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  /* ---------- La carte trajet ---------- */
+
+  .hrn-ville-trajet {
+    min-width: 0;
+    padding: 32px;
+    background: var(--nuit-carte);
+    border: 1px solid var(--nuit-carte-bordure);
+    border-radius: var(--radius-2xl);
+  }
+
+  .hrn-ville-trajet__surtitre {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-texte);
+  }
+
+  .hrn-ville-trajet__etape {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-top: 24px;
+  }
+
+  .hrn-ville-trajet__etape + .hrn-ville-trajet__etape {
+    margin-top: 0;
+  }
+
+  .hrn-ville-trajet__rail {
+    flex: none;
+    width: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hrn-ville-trajet__depart {
+    width: 16px;
+    height: 16px;
+    margin-top: 4px;
+    border: 2px solid var(--text-strong);
+    border-radius: var(--radius-full);
+  }
+
+  .hrn-ville-trajet__pointille {
+    width: 0;
+    height: 88px;
+    margin-top: 8px;
+    border-left: 2px dashed var(--border-strong);
+  }
+
+  .hrn-ville-trajet__ici {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin: 2px 4px 0;
+    border-radius: var(--radius-full);
+    background: var(--amber-500);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--amber-500) 22%, transparent);
+  }
+
+  .hrn-ville-trajet__lieu {
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: 20px;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
+  }
+
+  .hrn-ville-trajet__adresse {
+    margin-top: 4px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+  }
+
+  .hrn-ville-trajet__duree {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    margin-top: 20px;
+    padding: 0 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-full);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+
+  .hrn-ville-coches {
+    list-style: none;
+    margin: 28px 0 0;
+    padding: 24px 0 0;
+    border-top: 1px solid var(--nuit-carte-bordure);
+    display: grid;
+    gap: 12px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text-primary);
+  }
+
+  .hrn-ville-coches li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .hrn-ville-coches svg {
+    flex: none;
+    margin-top: 2px;
+    color: var(--accent-texte);
+  }
+
+  /* ---------- Les quatre faits ---------- */
+
+  .hrn-ville-faits {
+    list-style: none;
+    margin: clamp(48px, 6vw, 72px) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  @media (max-width: 899px) {
+    .hrn-ville-faits {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 479px) {
+    .hrn-ville-faits {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .hrn-ville-faits li {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .hrn-ville-faits__grand {
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: clamp(2rem, 3vw, 2.5rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--accent-texte);
+  }
+
+  .hrn-ville-faits__titre {
+    margin-top: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-strong);
+  }
+
+  .hrn-ville-faits__detail {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+  }
+
+  /* ============ Sections communes ============ */
+
+  .hrn-ville-offres,
+  .hrn-ville-local {
+    padding: var(--section-y) 0;
+    background: var(--surface);
+    scroll-margin-top: 68px;
+  }
+
+  .hrn-ville-taches {
+    padding: var(--section-y) 0;
+    background: var(--paper);
+  }
+
+  .hrn-ville-offres h2,
+  .hrn-ville-taches h2,
+  .hrn-ville-local h2 {
+    margin: 12px 0 0;
+    max-width: 17em;
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: clamp(1.9rem, 3.4vw, 2.875rem);
+    line-height: 1.08;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  .hrn-ville-intro {
+    margin: 16px 0 0;
+    max-width: 40em;
+    font-size: clamp(1rem, 1.3vw, 1.125rem);
+    line-height: 1.6;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  /* ============ Offres ============ */
+
+  .hrn-ville-offres__grille {
+    display: grid;
+    gap: 20px;
+    margin-top: 48px;
+  }
+
+  @media (min-width: 860px) {
+    .hrn-ville-offres__grille {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .hrn-ville-offre {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 32px;
+    background: var(--carte-claire);
+    border: 1px solid var(--carte-claire-bordure);
+    border-radius: var(--radius-xl);
+  }
+
+  .hrn-ville-offre__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .hrn-ville-offre__num {
+    font-size: 13px;
+    color: var(--accent-texte);
+  }
+
+  .hrn-ville-offre h3 {
+    margin: 16px 0 0;
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: clamp(1.35rem, 2vw, 1.625rem);
+    line-height: 1.2;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  .hrn-ville-offre > p {
+    margin: 16px 0 0;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--text-secondary);
+  }
+
+  .hrn-ville-coches--creme {
+    margin-top: 24px;
+    border-top-color: var(--carte-claire-bordure);
+    color: var(--text-primary);
+  }
+
+  .hrn-ville-offre__bouton {
+    margin-top: auto;
+    padding-top: 32px;
+  }
+
+  .hrn-ville-offre__bouton :global(.hrn-btn) {
+    border-radius: var(--radius-full);
+  }
+
+  /* ============ Tâches ============ */
+
+  .hrn-ville-taches__grille {
+    list-style: none;
+    margin: 48px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  @media (min-width: 640px) {
+    .hrn-ville-taches__grille {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 960px) {
+    .hrn-ville-taches__grille {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .hrn-ville-tache {
+    min-width: 0;
+    padding: 24px;
+    background: var(--nuit-carte);
+    border: 1px solid var(--nuit-carte-bordure);
+    border-radius: var(--radius-xl);
+  }
+
+  .hrn-ville-tache__num {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--accent-texte);
+  }
+
+  .hrn-ville-tache h3 {
+    margin: 12px 0 0;
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: clamp(1.2rem, 1.6vw, 1.375rem);
+    line-height: 1.2;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
+  }
+
+  .hrn-ville-tache p {
+    margin: 8px 0 0;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  .hrn-ville-taches__pied {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 40px;
+    margin-top: 40px;
+  }
+
+  .hrn-ville-taches__pied p {
+    margin: 0;
+    flex: 1 1 24rem;
+    max-width: 40em;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--text-primary);
+  }
+
+  /* ============ Section locale ============ */
+
+  .hrn-ville-local__grille {
+    display: grid;
+    gap: 48px 64px;
+    align-items: center;
+  }
+
+  @media (min-width: 960px) {
+    .hrn-ville-local__grille {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+
+  .hrn-ville-local__texte {
+    min-width: 0;
+  }
+
+  .hrn-ville-local__texte p {
+    margin: 16px 0 0;
+    max-width: 68ch;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--text-primary);
+    text-wrap: pretty;
+  }
+
+  .hrn-ville-local__texte h2 + p {
+    margin-top: 24px;
+  }
+
+  .hrn-ville-local__pastilles {
+    list-style: none;
+    margin: 32px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .hrn-ville-local__pastilles li {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 16px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-full);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* ============ Réservation : téléphone et villes voisines ============ */
+
+  .hrn-ville-resa__tel {
+    margin: 20px 0 0;
+    font-size: 15px;
+    color: var(--text-secondary);
+  }
+
+  .hrn-ville-voisines {
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  .hrn-ville-voisines ul {
+    list-style: none;
+    margin: 16px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .hrn-ville-voisines a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-full);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: transform var(--dur-fast) var(--ease-standard);
+  }
+
+  .hrn-ville-voisines a:hover {
+    transform: translateY(-2px);
+  }
+
+  .hrn-ville-voisines a:focus-visible {
+    outline: 2px solid var(--amber-300);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-ville-lien svg,
+    .hrn-ville-voisines a {
+      transition: none;
+    }
+
+    .hrn-ville-lien:hover svg,
+    .hrn-ville-voisines a:hover {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hrn-ville-trajet,
+    .hrn-ville-offre {
+      padding: 24px 20px;
+    }
+  }
+</style>

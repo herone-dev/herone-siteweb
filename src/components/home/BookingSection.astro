@@ -10,6 +10,19 @@ const CALENDLY_URL = 'https://calendly.com/herone/echange-decouverte-de-30-minut
 // changer ici en même temps que dans tokens.css. Fond vert (132a24) jusqu'au
 // 22 septembre 2026.
 const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=101c29&text_color=f8f4e8&primary_color=13a89e`;
+
+// Titre et texte réglables pour les pages villes (25 septembre 2026) ; sans
+// eux, ceux de l'accueil. Le contenu passé en enfant se pose sous le
+// calendrier (pages villes : les pastilles « Nous intervenons aussi à »).
+interface Props {
+  titre?: string;
+  lede?: string;
+}
+
+const {
+  titre = "30 minutes pour voir ce qu'on peut vous retirer des mains",
+  lede = "Vous décrivez votre quotidien, nous repérons les tâches à supprimer. Trente minutes d'échange, gratuit et sans engagement.",
+} = Astro.props;
 ---
 
 <section id="reserver" class="hrn-booking hrn-zone-bleue">
@@ -24,10 +37,8 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
       </div>
 
       <div class="hrn-booking__header-main">
-        <h2>30 minutes pour voir ce qu'on peut vous retirer des mains</h2>
-        <p class="hrn-booking__lede">
-          Vous décrivez votre quotidien, nous repérons les tâches à supprimer. Trente minutes d'échange, gratuit et sans engagement.
-        </p>
+        <h2>{titre}</h2>
+        <p class="hrn-booking__lede">{lede}</p>
       </div>
     </div>
 
@@ -40,6 +51,8 @@ const CALENDLY_EMBED_URL = `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=
         </p>
       </noscript>
     </div>
+
+    <slot />
   </div>
 </section>
 

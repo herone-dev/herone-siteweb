@@ -10,9 +10,12 @@ interface Props {
   description: string;
   headerTheme?: 'dark' | 'light';
   noindex?: boolean;
+  /** Nœuds JSON-LD propres à la page (pages villes : service, fil d'Ariane,
+      FAQ), publiés dans un second graphe à côté de celui du site. */
+  jsonLd?: Record<string, unknown>[];
 }
 
-const { title, description, headerTheme = 'light', noindex = false } = Astro.props;
+const { title, description, headerTheme = 'light', noindex = false, jsonLd } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
@@ -216,6 +219,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         }
       ]
     })} />
+
+    {jsonLd && jsonLd.length > 0 && (
+      <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@graph': jsonLd })} />
+    )}
 
     <ClientRouter />
   </head>

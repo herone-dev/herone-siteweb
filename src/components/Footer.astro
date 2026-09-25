@@ -4,11 +4,21 @@
 // qui ouvre l'établissement avec ses avis et ses horaires.
 // L'URL est posée dans une constante plutôt qu'en dur dans l'attribut : elle
 // contient des `&`, qui devraient être échappés dans du markup.
+import { DEPARTEMENTS, villesDuDepartement } from '../data/villes';
+
 const ADRESSE = '37 rue Édouard Branly, Les Herbiers 85500, France';
 const ADRESSE_MAPS =
   'https://www.google.com/maps/place/H%C3%A9rone/@46.8583076,-1.0387592,17z/' +
   'data=!3m1!4b1!4m6!3m5!1s0x480661339d6958db:0xc2ce55afb78a1bee!8m2!' +
   '3d46.858304!4d-1.0361843!16s%2Fg%2F11zbl1zvql';
+
+// Menu « Nos zones d'intervention » (25 septembre 2026) : les 15 pages villes,
+// par département puis par ordre alphabétique. Un <details> natif, fermé par
+// défaut : les liens sont dans le HTML dès le chargement, menu fermé compris,
+// pour que les moteurs de recherche les lisent. Aucun JavaScript. La liste
+// de villes écrite en texte dans la colonne de marque a été retirée : ce
+// menu la remplace.
+const pageCourante = Astro.url.pathname.replace(/\/$/, '');
 ---
 
 <footer class="hrn-footer hrn-zone-bleue">
@@ -16,7 +26,7 @@ const ADRESSE_MAPS =
     <div class="hrn-footer__grid">
       <div class="hrn-footer__brand">
         <a href="/" class="hrn-footer__logo hrn-sweep">HÉRONE</a>
-        <p>Formation à l'IA et systèmes automatisés pour les TPE et PME de Vendée et du Choletais. Les Herbiers, Montaigu, Chantonnay, Pouzauges, Mortagne-sur-Sèvre, La Roche-sur-Yon, Cholet.</p>
+        <p>Formation à l'IA et systèmes automatisés pour les TPE et PME de Vendée et du Choletais.</p>
         <a class="hrn-footer__address hrn-sweep" href={ADRESSE_MAPS} target="_blank" rel="noopener noreferrer">{ADRESSE}</a>
       </div>
 
@@ -44,6 +54,30 @@ const ADRESSE_MAPS =
         <a href="/cookies" class="hrn-sweep">Cookies</a>
       </div>
     </div>
+
+    <details class="hrn-footer__zones">
+      <summary class="hrn-footer__zones-titre">
+        <span>Nos zones d'intervention</span>
+        <svg class="hrn-footer__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+      </summary>
+      <nav class="hrn-footer__zones-grille" aria-label="Zones d'intervention">
+        {DEPARTEMENTS.map((d) => (
+          <div class:list={['hrn-footer__zone', d === 'Vendée' && 'hrn-footer__zone--large']}>
+            <span class="hrn-footer__heading">{d}</span>
+            <ul role="list">
+              {villesDuDepartement(d).map((v) => {
+                const href = `/ia-entreprise/${v.slug}`;
+                return (
+                  <li>
+                    <a href={href} class="hrn-sweep" aria-current={pageCourante === href ? 'page' : undefined}>{v.nom}</a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </nav>
+    </details>
 
     <div class="hrn-footer__bottom">
       <span>© 2026 Hérone · Les Herbiers, Vendée</span>
@@ -189,6 +223,141 @@ const ADRESSE_MAPS =
      où le balayage laisse la main à `color`. */
   .hrn-footer__col a:hover {
     color: var(--amber-400);
+  }
+
+  /* ============ Nos zones d'intervention ============ */
+
+  .hrn-footer__zones {
+    margin-top: 40px;
+    border-top: 1px solid var(--border-inverse);
+  }
+
+  .hrn-footer__zones-titre {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 56px;
+    list-style: none;
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: 17px;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
+  }
+
+  .hrn-footer__zones-titre::-webkit-details-marker {
+    display: none;
+  }
+
+  .hrn-footer__zones-titre:focus-visible {
+    outline: 2px solid var(--amber-300);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+  .hrn-footer__chevron {
+    flex: none;
+    color: var(--accent-texte);
+    transition: transform var(--dur) var(--ease-standard);
+  }
+
+  .hrn-footer__zones[open] .hrn-footer__chevron {
+    transform: rotate(180deg);
+  }
+
+  .hrn-footer__zones-grille {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 24px;
+    padding: 8px 0 32px;
+  }
+
+  @media (min-width: 900px) {
+    .hrn-footer__zones-grille {
+      grid-template-columns: 2fr repeat(3, 1fr);
+      gap: 40px;
+    }
+  }
+
+  .hrn-footer__zone {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .hrn-footer__zone ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px 24px;
+  }
+
+  .hrn-footer__zone--large {
+    grid-column: 1 / -1;
+  }
+
+  .hrn-footer__zone--large ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 900px) {
+    .hrn-footer__zone--large {
+      grid-column: auto;
+    }
+  }
+
+  .hrn-footer__zone a {
+    font-size: 14px;
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+
+  .hrn-footer__zone a.hrn-sweep {
+    --sweep-from: var(--text-primary);
+  }
+
+  .hrn-footer__zone a[aria-current='page'] {
+    --sweep-from: var(--accent-texte);
+    color: var(--accent-texte);
+  }
+
+  .hrn-footer__zone a:focus-visible {
+    outline: 2px solid var(--amber-300);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Téléphone : une colonne par département, et des cibles de 44px. */
+  @media (max-width: 759px) {
+    .hrn-footer__zone ul {
+      gap: 0 16px;
+    }
+
+    .hrn-footer__zone a {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+    }
+  }
+
+  @media (max-width: 479px) {
+    .hrn-footer__zones-grille {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-footer__chevron {
+      transition: none;
+    }
+  }
+
+  .hrn-footer__zones + .hrn-footer__bottom {
+    margin-top: 0;
+    border-top: 1px solid var(--border-inverse);
   }
 
   .hrn-footer__bottom {

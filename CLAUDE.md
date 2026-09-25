@@ -187,6 +187,8 @@ Le suivi ne demande rien dans les composants : des écouteurs posés sur le docu
 - **Liste du blog** : `src/pages/blog/index.astro` (dont le filtrage par thème,
   en JavaScript dans le `<script>` de fin).
 - **Carte d'article** : `src/components/blog/ArticleCard.astro`.
+- **Pages villes** : `src/data/villes.ts` (textes, lu aussi par le menu du pied de
+  page), gabarit `src/pages/ia-entreprise/[slug].astro`, sources `docs/sources-pages-villes.md`.
 - **Couleurs, polices, durées** : `src/styles/tokens.css`.
 
 Les caractères invisibles (espace insécable, point médian) sont posés à
