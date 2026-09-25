@@ -4,11 +4,22 @@
 // qui ouvre l'établissement avec ses avis et ses horaires.
 // L'URL est posée dans une constante plutôt qu'en dur dans l'attribut : elle
 // contient des `&`, qui devraient être échappés dans du markup.
+import { DEPARTEMENTS, villesDuDepartement } from '../data/villes';
+
 const ADRESSE = '37 rue Édouard Branly, Les Herbiers 85500, France';
 const ADRESSE_MAPS =
   'https://www.google.com/maps/place/H%C3%A9rone/@46.8583076,-1.0387592,17z/' +
   'data=!3m1!4b1!4m6!3m5!1s0x480661339d6958db:0xc2ce55afb78a1bee!8m2!' +
   '3d46.858304!4d-1.0361843!16s%2Fg%2F11zbl1zvql';
+
+// Menu « Nos zones d'intervention » (25 septembre 2026) : les 15 pages villes,
+// par département puis par ordre alphabétique. Un <details> natif, fermé par
+// défaut : les liens sont dans le HTML dès le chargement, menu fermé compris,
+// pour que les moteurs de recherche les lisent. Aucun JavaScript. Rangé dans
+// la colonne « Ressources », sous « Blog », à la même taille que ce lien
+// (demande de l'utilisateur). La liste de villes écrite en texte dans la
+// colonne de marque a été retirée : ce menu la remplace.
+const pageCourante = Astro.url.pathname.replace(/\/$/, '');
 ---
 
 <footer class="hrn-footer hrn-zone-bleue">
@@ -16,7 +27,7 @@ const ADRESSE_MAPS =
     <div class="hrn-footer__grid">
       <div class="hrn-footer__brand">
         <a href="/" class="hrn-footer__logo hrn-sweep">HÉRONE</a>
-        <p>Formation à l'IA et systèmes automatisés pour les TPE et PME de Vendée et du Choletais. Les Herbiers, Montaigu, Chantonnay, Pouzauges, Mortagne-sur-Sèvre, La Roche-sur-Yon, Cholet.</p>
+        <p>Formation à l'IA et systèmes automatisés pour les TPE et PME de Vendée et du Choletais.</p>
         <a class="hrn-footer__address hrn-sweep" href={ADRESSE_MAPS} target="_blank" rel="noopener noreferrer">{ADRESSE}</a>
       </div>
 
@@ -33,6 +44,29 @@ const ADRESSE_MAPS =
       <div class="hrn-footer__col">
         <span class="hrn-footer__heading">Ressources</span>
         <a href="/blog" class="hrn-sweep">Blog</a>
+        <details class="hrn-footer__zones">
+          <summary class="hrn-footer__zones-titre">
+            Nos zones d'intervention
+            <svg class="hrn-footer__chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+          </summary>
+          <nav class="hrn-footer__zones-liste" aria-label="Zones d'intervention">
+            {DEPARTEMENTS.map((d) => (
+              <div class="hrn-footer__zone">
+                <span class="hrn-footer__zone-dep">{d}</span>
+                <ul role="list">
+                  {villesDuDepartement(d).map((v) => {
+                    const href = `/ia-entreprise/${v.slug}`;
+                    return (
+                      <li>
+                        <a href={href} class="hrn-sweep" aria-current={pageCourante === href ? 'page' : undefined}>{v.nom}</a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </nav>
+        </details>
         <a href="mailto:contact@herone.fr" class="hrn-sweep">contact@herone.fr</a>
         <a href="tel:+33663710598" class="hrn-sweep">06 63 71 05 98</a>
       </div>
@@ -189,6 +223,118 @@ const ADRESSE_MAPS =
      où le balayage laisse la main à `color`. */
   .hrn-footer__col a:hover {
     color: var(--amber-400);
+  }
+
+  /* ============ Nos zones d'intervention (colonne Ressources) ============
+     Le résumé a la taille et la couleur des liens de la colonne ; le chevron
+     pivote à l'ouverture. La liste dépliée reste dans la colonne. */
+
+  .hrn-footer__zones-titre {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    list-style: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-primary);
+  }
+
+  .hrn-footer__zones-titre::-webkit-details-marker {
+    display: none;
+  }
+
+  .hrn-footer__zones-titre:hover {
+    color: var(--amber-400);
+  }
+
+  .hrn-footer__zones-titre:focus-visible {
+    outline: 2px solid var(--amber-300);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+  .hrn-footer__chevron {
+    flex: none;
+    color: var(--accent-texte);
+    transition: transform var(--dur) var(--ease-standard);
+  }
+
+  .hrn-footer__zones[open] .hrn-footer__chevron {
+    transform: rotate(180deg);
+  }
+
+  .hrn-footer__zones-liste {
+    display: grid;
+    gap: 16px;
+    margin-top: 14px;
+    padding-left: 12px;
+    border-left: 1px solid var(--border-inverse);
+  }
+
+  .hrn-footer__zone-dep {
+    display: block;
+    margin-bottom: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .hrn-footer__zone ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+
+  .hrn-footer__zone a {
+    font-size: 14px;
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+
+  .hrn-footer__zone a.hrn-sweep {
+    --sweep-from: var(--text-primary);
+  }
+
+  .hrn-footer__zone a:hover {
+    color: var(--amber-400);
+  }
+
+  .hrn-footer__zone a[aria-current='page'] {
+    --sweep-from: var(--accent-texte);
+    color: var(--accent-texte);
+  }
+
+  .hrn-footer__zone a:focus-visible {
+    outline: 2px solid var(--amber-300);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Téléphone : cibles de 44px pour le résumé et chaque ville. */
+  @media (max-width: 759px) {
+    .hrn-footer__zones-titre,
+    .hrn-footer__zone a {
+      min-height: 44px;
+    }
+
+    .hrn-footer__zone a {
+      display: flex;
+      align-items: center;
+    }
+
+    .hrn-footer__zone ul {
+      gap: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-footer__chevron {
+      transition: none;
+    }
   }
 
   .hrn-footer__bottom {

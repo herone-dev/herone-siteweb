@@ -89,7 +89,7 @@ const testimonials = [
 
     <div class="hrn-proof__grid">
       {testimonials.map((t) => cartes ? (
-        <article class="hrn-proof__card" data-youtube-id={t.youtubeId}>
+        <article class:list={['hrn-proof__card', fond === 'paper' && 'hrn-zone-creme']} data-youtube-id={t.youtubeId}>
           <div class="hrn-proof__media">
             <Image
               src={t.poster}
@@ -381,6 +381,9 @@ const testimonials = [
     gap: 24px;
   }
 
+  /* Cartes blanches : sur un fond bleu (pages villes, 25 septembre 2026), la
+     carte pose .hrn-zone-creme pour que la citation reprenne des couleurs de
+     texte foncées. Sur le fond crème de /automatisation, rien ne change. */
   .hrn-proof--cartes .hrn-proof__card {
     aspect-ratio: auto;
     display: flex;

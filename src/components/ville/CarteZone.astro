@@ -1,0 +1,214 @@
+---
+// Carte schématique de notre zone d'intervention, pour les pages villes.
+//
+// Les Herbiers au centre, un cercle d'environ 45 minutes, et les 15 villes
+// placées d'après leurs coordonnées (projection plane autour des Herbiers :
+// 1 km vaut 4 unités, le cercle fait 45 km de rayon à vol d'oiseau). La ville
+// de la page est en turquoise, son nom en gras. SVG seul, aucune image.
+//
+// Les libellés sont placés à la main (`COTE`) pour ne pas se chevaucher :
+// à droite du point par défaut, à gauche ou dessous pour quelques villes
+// serrées. Sur téléphone, seuls Les Herbiers et la ville de la page gardent
+// leur nom : à 340px de large, quinze libellés deviendraient illisibles.
+import { VILLES, type Ville } from '../../data/villes';
+
+interface Props {
+  ville: Ville;
+}
+
+const { ville } = Astro.props;
+
+const CENTRE = VILLES.find((v) => v.slug === 'les-herbiers')!;
+const ECHELLE = 4; // unités SVG par kilomètre
+const KX = 111.32 * Math.cos((CENTRE.lat * Math.PI) / 180);
+const KY = 110.57;
+const place = (v: Ville) => ({
+  x: Math.round(260 + (v.lon - CENTRE.lon) * KX * ECHELLE),
+  y: Math.round(200 - (v.lat - CENTRE.lat) * KY * ECHELLE),
+});
+
+const COTE: Record<string, 'gauche' | 'dessous'> = {
+  'les-herbiers': 'gauche',
+  'la-roche-sur-yon': 'gauche',
+  'montaigu-vendee': 'gauche',
+  clisson: 'gauche',
+  bellevigny: 'gauche',
+  chanverrie: 'gauche',
+  'essarts-en-bocage': 'dessous',
+};
+
+const points = VILLES.map((v) => {
+  const { x, y } = place(v);
+  const cote = COTE[v.slug] ?? 'droite';
+  const label =
+    cote === 'gauche'
+      ? { x: x - 11, y: y + 5, anchor: 'end' }
+      : cote === 'dessous'
+        ? { x, y: y + 24, anchor: 'middle' }
+        : { x: x + 11, y: y + 5, anchor: 'start' };
+  return { v, x, y, label, courant: v.slug === ville.slug, centre: v.slug === CENTRE.slug };
+});
+
+const I = String.fromCodePoint(0x00a0);
+const description =
+  ville.slug === CENTRE.slug
+    ? `Carte schématique : nos bureaux aux Herbiers, au centre d'une zone d'environ 45${I}minutes où nous nous déplaçons.`
+    : `Carte schématique : ${ville.nom}, à environ ${ville.minutes}${I}minutes de nos bureaux des Herbiers, dans notre zone d'intervention d'environ 45${I}minutes.`;
+---
+
+<figure class="hrn-carte">
+  <svg viewBox="0 0 520 400" role="img" aria-label={description}>
+    <circle cx="260" cy="200" r="180" class="hrn-carte__zone" />
+    {points
+      .filter((p) => p.courant && !p.centre)
+      .map((p) => <line x1="260" y1="200" x2={p.x} y2={p.y} class="hrn-carte__trajet" />)}
+
+    {points.map((p) =>
+      p.centre ? (
+        <g>
+          <circle cx={p.x} cy={p.y} r="9" class="hrn-carte__bureaux" />
+          <circle cx={p.x} cy={p.y} r="4.5" class="hrn-carte__bureaux-coeur" />
+        </g>
+      ) : p.courant ? (
+        <g>
+          <circle cx={p.x} cy={p.y} r="15" class="hrn-carte__halo" />
+          <circle cx={p.x} cy={p.y} r="9" class="hrn-carte__ici" />
+        </g>
+      ) : (
+        <circle cx={p.x} cy={p.y} r="4" class="hrn-carte__point" />
+      ),
+    )}
+
+    {points.map((p) => (
+      <text
+        x={p.courant && !p.centre && p.label.anchor === 'start' ? p.label.x + 6 : p.courant && !p.centre && p.label.anchor === 'end' ? p.label.x - 6 : p.label.x}
+        y={p.label.y}
+        text-anchor={p.label.anchor}
+        class:list={[
+          'hrn-carte__nom',
+          p.courant && 'hrn-carte__nom--courant',
+          p.centre && 'hrn-carte__nom--centre',
+          !p.courant && !p.centre && 'hrn-carte__nom--autre',
+        ]}
+      >
+        {p.v.nom}
+      </text>
+    ))}
+
+    <g class="hrn-carte__echelle" transform="translate(440 372)">
+      <line x1="0" y1="0" x2={10 * ECHELLE} y2="0" />
+      <text x="0" y="16">10 KM</text>
+    </g>
+  </svg>
+  <figcaption>{`Notre zone : environ 45${I}minutes autour des Herbiers`}</figcaption>
+</figure>
+
+<style>
+  .hrn-carte {
+    margin: 0;
+    min-width: 0;
+    padding: 24px;
+    background: var(--carte-claire);
+    border: 1px solid var(--carte-claire-bordure);
+    border-radius: var(--radius-2xl);
+  }
+
+  .hrn-carte svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .hrn-carte__zone {
+    fill: var(--surface);
+    stroke: var(--creme-bordure);
+    stroke-width: 1.5;
+    stroke-dasharray: 6 6;
+  }
+
+  .hrn-carte__trajet {
+    stroke: var(--amber-600);
+    stroke-width: 2;
+    stroke-dasharray: 4 5;
+  }
+
+  .hrn-carte__point {
+    fill: var(--ink-300, #a9ae96);
+  }
+
+  .hrn-carte__bureaux {
+    fill: var(--carte-claire);
+    stroke: var(--text-strong);
+    stroke-width: 2;
+  }
+
+  .hrn-carte__bureaux-coeur {
+    fill: var(--text-strong);
+  }
+
+  .hrn-carte__halo {
+    fill: var(--amber-500);
+    opacity: 0.22;
+  }
+
+  .hrn-carte__ici {
+    fill: var(--amber-500);
+  }
+
+  .hrn-carte__nom {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    fill: var(--text-secondary);
+  }
+
+  .hrn-carte__nom--centre {
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: 15px;
+    fill: var(--text-strong);
+  }
+
+  .hrn-carte__nom--courant {
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: 17px;
+    fill: var(--amber-600);
+  }
+
+  .hrn-carte__echelle line {
+    stroke: var(--text-secondary);
+    stroke-width: 2;
+  }
+
+  .hrn-carte__echelle text {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    fill: var(--text-secondary);
+  }
+
+  .hrn-carte figcaption {
+    margin-top: 16px;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 599px) {
+    .hrn-carte {
+      padding: 16px;
+    }
+
+    .hrn-carte__nom--autre {
+      display: none;
+    }
+
+    .hrn-carte__nom--courant,
+    .hrn-carte__nom--centre {
+      font-size: 22px;
+    }
+  }
+</style>
