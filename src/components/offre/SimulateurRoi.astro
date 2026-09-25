@@ -1,0 +1,846 @@
+---
+// Simulateur de rentabilité, posé dans le bloc tarif de /automatisation
+// (emplacement « simulateur » d'OffreTarif, variante suivi). Demande de
+// l'utilisateur, 25 septembre 2026 : chiffrer l'argent que l'entreprise paie
+// sur des heures potentiellement automatisables, et annoncer un retour sur
+// investissement.
+//
+// Le visiteur règle trois valeurs (curseur, ou boutons moins et plus) :
+// les heures perdues par semaine et par personne, le nombre de personnes, et
+// le coût horaire d'un salarié, charges patronales comprises. Il lit aussitôt :
+//   heures par an = heures × personnes × SEMAINES
+//   coût par an   = heures par an × coût horaire
+//   rentabilisée en = prixEntree / (heures × personnes × coût horaire)
+// La durée de rentabilisation se dit en semaines jusqu'à un an, en mois
+// au-delà. Elle suppose que ces heures sont réellement automatisées, et ne
+// compte pas le suivi mensuel : la note sous le résultat le dit en clair.
+//
+// Hypothèses, sourcées le 25 septembre 2026 :
+//  - 47 semaines travaillées par an : 52 semaines moins 5 semaines de congés
+//    payés (2,5 jours ouvrables par mois, service-public.fr, fiche F2258, et
+//    travail-emploi.gouv.fr, « Les congés payés ») ;
+//  - 35 heures par semaine à temps plein (durée légale, code.travail.gouv.fr) ;
+//  - 45 € de l'heure par défaut, arrondi du coût horaire moyen du travail en
+//    France en 2025, 44,7 € (Insee, « Salaires et coût du travail en
+//    Europe », entreprises de 10 salariés et plus). Le visiteur le change.
+//
+// `prixEntree` vient de la page : c'est le prix d'entrée de la mise en place.
+// Le jour où des prix d'entrée de gamme existent, c'est lui qui change.
+//
+// Même mécanique de compteur à rouleaux que SimulateurFormation (le texte
+// réel reste dans le flux, les rouleaux sont posés par-dessus en
+// aria-hidden), recopiée plutôt que partagée pour ne pas toucher au
+// simulateur de /formation.
+//
+// Sans JavaScript : la carte de résultat seule, calculée sur les valeurs par
+// défaut et présentée comme un exemple. En mouvement réduit, les chiffres
+// changent sans défiler.
+//
+// Les caractères invisibles (espace fine insécable, euro) sont construits par
+// leur point de code, jamais écrits en clair (piège n°7 du projet).
+import Button from '../Button.astro';
+
+interface Props {
+  /** Prix d'entrée de la mise en place, hors taxes. */
+  prixEntree: number;
+}
+
+const { prixEntree } = Astro.props;
+
+const SEMAINES = 47;
+const TEMPS_PLEIN = 35;
+
+const F = String.fromCodePoint(0x202f);
+const NBSP = String.fromCodePoint(0x00a0);
+const EUR = String.fromCodePoint(0x20ac);
+const milliers = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, F);
+
+const CHAMPS = [
+  {
+    cle: 'heures',
+    question: `Combien d'heures par semaine, par personne, sur des tâches répétitives${F}?`,
+    aide: 'Ressaisir, relancer, recopier, classer.',
+    min: 1,
+    max: 20,
+    defaut: 5,
+    unite: 'h',
+    moins: 'Une heure de moins',
+    plus: 'Une heure de plus',
+  },
+  {
+    cle: 'personnes',
+    question: `Combien de personnes sont concernées${F}?`,
+    aide: '',
+    min: 1,
+    max: 30,
+    defaut: 3,
+    unite: '',
+    moins: 'Une personne de moins',
+    plus: 'Une personne de plus',
+  },
+  {
+    cle: 'taux',
+    question: `Combien coûte une heure de travail, charges comprises${F}?`,
+    aide: `Salaire brut et charges patronales. Par défaut 45${NBSP}${EUR}, proche de la moyenne française (44,7${NBSP}${EUR} en 2025, Insee).`,
+    min: 12,
+    max: 90,
+    defaut: 45,
+    unite: `${EUR}${NBSP}/${NBSP}h`,
+    moins: 'Un euro de moins',
+    plus: 'Un euro de plus',
+  },
+];
+
+const [h, p, t] = CHAMPS.map((c) => c.defaut);
+const heuresAn = h * p * SEMAINES;
+const coutAn = heuresAn * t;
+const coutMois = Math.round(coutAn / 12);
+// Au-delà d'une année de travail (47 semaines de 35 heures), l'équivalence
+// se dit en postes à temps plein plutôt qu'en semaines.
+const equivalence = (heures: number) => {
+  const an = SEMAINES * TEMPS_PLEIN;
+  if (heures >= an) {
+    const postes = Math.round((heures / an) * 10) / 10;
+    return `l'équivalent de ${String(postes).replace('.', ',')} ${postes >= 2 ? 'postes' : 'poste'} à temps plein`;
+  }
+  const semaines = Math.floor(heures / TEMPS_PLEIN);
+  if (semaines < 1) return '';
+  return semaines === 1 ? "plus d'une semaine à temps plein" : `plus de ${semaines} semaines à temps plein`;
+};
+const rentable = Math.ceil(prixEntree / (h * p * t));
+---
+
+<div class="hrn-roi" data-roi data-prix={prixEntree} data-semaines={SEMAINES} data-temps-plein={TEMPS_PLEIN}>
+  <div class="hrn-roi__carte hrn-roi__choix hrn-zone-creme" hidden>
+    <span class="hrn-roi__etiquette">Vos tâches répétitives</span>
+    {CHAMPS.map((c) => (
+      <div class="hrn-roi__champ" data-champ={c.cle}>
+        <label class="hrn-roi__question" for={`roi-${c.cle}`}>{c.question}</label>
+        {c.aide && <p class="hrn-roi__aide">{c.aide}</p>}
+        <div class="hrn-roi__reglage">
+          <button type="button" class="hrn-roi__pas" data-pas="-1" aria-label={c.moins}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14" /></svg>
+          </button>
+          <p class="hrn-roi__valeur" aria-hidden="true">
+            <span data-roi-valeur>{c.defaut}</span>
+            {c.unite && <span class="hrn-roi__unite">{c.unite}</span>}
+          </p>
+          <button type="button" class="hrn-roi__pas" data-pas="1" aria-label={c.plus}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14" /></svg>
+          </button>
+          <input
+            class="hrn-roi__curseur"
+            type="range"
+            id={`roi-${c.cle}`}
+            min={c.min}
+            max={c.max}
+            step="1"
+            value={c.defaut}
+            style={`--rempli: ${((c.defaut - c.min) / (c.max - c.min)) * 100}%`}
+          />
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="hrn-roi__carte hrn-roi__resultat">
+    <span class="hrn-roi__etiquette">Ce que ces heures vous coûtent</span>
+    <p class="hrn-roi__exemple" data-roi-exemple>
+      {`Exemple : ${h} heures par semaine, ${p} personnes, ${t}${NBSP}${EUR} de l'heure.`}
+    </p>
+    <p class="hrn-roi__total">
+      <strong data-roi-total>{`${milliers(coutAn)}${F}${EUR}`}</strong>
+      <span>par an</span>
+    </p>
+    <p class="hrn-roi__heures" data-roi-heures>
+      {`${milliers(heuresAn)} heures par an${equivalence(heuresAn) ? `, ${equivalence(heuresAn)}` : ''}. Soit ${milliers(coutMois)}${F}${EUR} par mois.`}
+    </p>
+
+    <p class="hrn-roi__rentable">
+      Si ces heures sont automatisées, la mise en place est rentabilisée en
+      <strong data-roi-rentable>{`${rentable} semaines`}</strong>.
+    </p>
+
+    <dl class="hrn-roi__tarif">
+      <div>
+        <dt>Échange découverte</dt>
+        <dd>Offert</dd>
+      </div>
+      <div>
+        <dt>Mise en place, à partir de</dt>
+        <dd>{`${milliers(prixEntree)}${F}${EUR}`}<span class="hrn-roi__ht">HT</span></dd>
+      </div>
+      <div>
+        <dt>Suivi mensuel</dt>
+        <dd>Chiffré avec vous</dd>
+      </div>
+    </dl>
+
+    <p class="hrn-roi__petit" data-roi-petit hidden>
+      Un besoin plus petit ? Nous chiffrons aussi les automatisations simples. Parlons-en.
+    </p>
+
+    <p class="hrn-roi__note">
+      {`Estimation indicative : ${SEMAINES} semaines travaillées par an, suivi mensuel non compté. Selon la complexité, la mise en place peut monter à plusieurs milliers d'euros : l'échange découverte sert à le chiffrer.`}
+    </p>
+
+    <div class="hrn-roi__bouton">
+      <Button variant="accent" size="lg" href="/#reserver">Réserver l'échange découverte</Button>
+    </div>
+
+    <p class="hrn-roi__annonce" aria-live="polite" data-roi-annonce></p>
+  </div>
+</div>
+
+<style>
+  .hrn-roi {
+    display: grid;
+    gap: 20px;
+    align-items: stretch;
+    max-width: 640px;
+  }
+
+  /* Deux cartes côte à côte au large, une fois le script lancé : sans lui,
+     la carte de résultat reste seule. */
+  .hrn-roi.is-actif {
+    max-width: none;
+  }
+
+  @media (min-width: 720px) {
+    .hrn-roi.is-actif {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+
+  .hrn-roi__carte {
+    min-width: 0;
+    padding: 32px;
+    border-radius: var(--radius-xl);
+    background: var(--nuit-carte);
+    border: 1px solid var(--nuit-carte-bordure);
+  }
+
+  .hrn-roi__choix {
+    display: grid;
+    align-content: start;
+    gap: 24px;
+    background: var(--surface);
+    border-color: var(--creme-bordure);
+  }
+
+  /* L'attribut hidden perd contre n'importe quel display d'auteur (piège
+     n°4 ter) : d'où cette règle explicite. */
+  .hrn-roi__choix[hidden],
+  .hrn-roi__petit[hidden],
+  .hrn-roi__exemple[hidden] {
+    display: none;
+  }
+
+  .hrn-roi__etiquette {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-texte);
+  }
+
+  /* ---------- Les trois réglages ---------- */
+
+  .hrn-roi__champ {
+    display: grid;
+    gap: 6px;
+  }
+
+  .hrn-roi__question {
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: 1.125rem;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  .hrn-roi__aide {
+    margin: -2px 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  /* Boutons, valeur et curseur sur une ligne ; le curseur passe dessous
+     quand la carte est trop étroite pour lui laisser 150px. */
+  .hrn-roi__reglage {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    margin-top: 4px;
+  }
+
+  .hrn-roi__pas {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-full);
+    background: var(--carte-claire);
+    color: var(--text-strong);
+    cursor: pointer;
+    transition: transform var(--dur-fast) var(--ease-standard), opacity var(--dur-fast) var(--ease-standard);
+  }
+
+  .hrn-roi__pas:hover:not(:disabled) {
+    transform: scale(1.06);
+  }
+
+  .hrn-roi__pas:active:not(:disabled) {
+    transform: scale(0.94);
+  }
+
+  .hrn-roi__pas:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .hrn-roi__pas:focus-visible,
+  .hrn-roi__curseur:focus-visible {
+    outline: 2px solid var(--accent-texte);
+    outline-offset: 3px;
+  }
+
+  .hrn-roi__valeur {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 6px;
+    min-width: 4.6em;
+    margin: 0;
+    color: var(--text-strong);
+  }
+
+  .hrn-roi__valeur [data-roi-valeur] {
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: 2rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hrn-roi__unite {
+    font-size: 15px;
+    color: var(--text-secondary);
+  }
+
+  /* Curseur : la piste est remplie en turquoise jusqu'au pouce. --rempli est
+     posé dans le HTML pour la valeur de départ, puis par le script. */
+  .hrn-roi__curseur {
+    flex: 1 1 150px;
+    min-width: 0;
+    height: 36px;
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .hrn-roi__curseur::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(to right, var(--accent) var(--rempli), var(--creme-bordure) var(--rempli));
+  }
+
+  .hrn-roi__curseur::-moz-range-track {
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(to right, var(--accent) var(--rempli), var(--creme-bordure) var(--rempli));
+  }
+
+  .hrn-roi__curseur::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    margin-top: -9px;
+    border: 3px solid var(--accent);
+    border-radius: var(--radius-full);
+    background: var(--carte-claire);
+    transition: transform var(--dur-fast) var(--ease-standard);
+  }
+
+  .hrn-roi__curseur::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border: 3px solid var(--accent);
+    border-radius: var(--radius-full);
+    background: var(--carte-claire);
+    transition: transform var(--dur-fast) var(--ease-standard);
+  }
+
+  .hrn-roi__curseur:active::-webkit-slider-thumb {
+    transform: scale(1.15);
+  }
+
+  .hrn-roi__curseur:active::-moz-range-thumb {
+    transform: scale(1.15);
+  }
+
+  /* ---------- Le résultat ---------- */
+
+  .hrn-roi__resultat {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hrn-roi__exemple {
+    margin: 10px 0 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .hrn-roi__total {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 14px;
+    margin: 14px 0 0;
+  }
+
+  .hrn-roi__total strong {
+    position: relative;
+    display: block;
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: clamp(2.6rem, 4.6vw, 4rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent-texte);
+  }
+
+  .hrn-roi__total span {
+    font-size: 18px;
+    font-weight: var(--weight-semibold);
+    color: var(--text-strong);
+  }
+
+  .hrn-roi__heures {
+    margin: 6px 0 0;
+    font-size: 15.5px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  /* Le retour sur investissement annoncé, mis en avant. */
+  .hrn-roi__rentable {
+    margin: 22px 0 0;
+    padding: 14px 18px;
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--amber-500) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--amber-400) 40%, transparent);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--text-strong);
+    text-wrap: pretty;
+  }
+
+  .hrn-roi__rentable strong {
+    font-weight: var(--weight-titre);
+    color: var(--accent-texte);
+    white-space: nowrap;
+  }
+
+  /* Le tarif, en lignes réglées comme les faits du simulateur de /formation. */
+  .hrn-roi__tarif {
+    margin: 22px 0 0;
+    border-top: 1px solid var(--nuit-carte-bordure);
+  }
+
+  .hrn-roi__tarif > div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4px 16px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--nuit-carte-bordure);
+  }
+
+  .hrn-roi__tarif dt {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .hrn-roi__tarif dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: 1.125rem;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--text-strong);
+  }
+
+  .hrn-roi__ht {
+    margin-left: 0.3em;
+    font-size: 0.8em;
+    font-weight: var(--weight-semibold);
+    color: var(--text-secondary);
+  }
+
+  .hrn-roi__petit {
+    margin: 16px 0 0;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--text-strong);
+  }
+
+  .hrn-roi__note {
+    margin: 16px 0 0;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--text-muted);
+    text-wrap: pretty;
+  }
+
+  .hrn-roi__bouton {
+    margin-top: 24px;
+  }
+
+  /* Le libellé du bouton est long : sur un écran étroit, il prend toute la
+     largeur de la carte et passe à la ligne au besoin, au lieu de déborder
+     (320px). */
+  .hrn-roi__bouton :global(.hrn-btn) {
+    max-width: 100%;
+  }
+
+  @media (max-width: 480px) {
+    .hrn-roi__bouton :global(.hrn-btn) {
+      width: 100%;
+      white-space: normal;
+      text-align: center;
+    }
+  }
+
+  .hrn-roi__annonce {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /* ---------- Compteur à rouleaux ----------
+     Même principe que SimulateurFormation : le texte réel (.hrn-roi__fantome)
+     reste dans le flux, invisible, pour donner la largeur et être lu par les
+     lecteurs d'écran ; les rouleaux sont posés par-dessus en absolu et
+     marqués aria-hidden. Éléments créés par le script : d'où les :global(). */
+  .hrn-roi :global(.is-rouleaux > .hrn-roi__fantome) {
+    opacity: 0;
+  }
+
+  .hrn-roi :global(.hrn-roi__rouleaux) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .hrn-roi :global(.hrn-roi__fenetre) {
+    display: inline-block;
+    overflow: hidden;
+    height: 1.1em;
+    vertical-align: top;
+  }
+
+  .hrn-roi :global(.hrn-roi__bande) {
+    display: block;
+    transform: translateY(0);
+  }
+
+  .hrn-roi :global(.hrn-roi__bande > span) {
+    display: block;
+    height: 1.1em;
+    line-height: 1.1;
+    white-space: pre;
+  }
+
+  .hrn-roi :global(.is-roule .hrn-roi__bande) {
+    transform: translateY(calc(var(--n, 0) * -1.1em));
+    transition: transform var(--duree, 900ms) var(--ease-out) var(--d, 0ms);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-roi__pas,
+    .hrn-roi__curseur::-webkit-slider-thumb,
+    .hrn-roi__curseur::-moz-range-thumb {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hrn-roi__carte {
+      padding: 24px 20px;
+    }
+  }
+</style>
+
+<script>
+  const F = String.fromCodePoint(0x202f);
+  const NBSP = String.fromCodePoint(0x00a0);
+  const EUR = String.fromCodePoint(0x20ac);
+
+  // Tours complets parcourus par chaque chiffre avant de s'arrêter, décalage
+  // entre deux chiffres voisins et durée : les réglages de /formation.
+  const TOURS = 1;
+  const DECALAGE = 70;
+  const DUREE = 900;
+  // Au-delà de trois mois pour rentabiliser, la phrase sur les petits besoins
+  // apparaît.
+  const SEUIL_PETIT = 13;
+
+  let controle: AbortController | undefined;
+  let observateur: IntersectionObserver | undefined;
+  const minuteries = new Set<number>();
+
+  function nettoyer() {
+    controle?.abort();
+    controle = undefined;
+    observateur?.disconnect();
+    observateur = undefined;
+    minuteries.forEach((m) => clearTimeout(m));
+    minuteries.clear();
+  }
+
+  function attendre(fn: () => void, ms: number) {
+    const m = window.setTimeout(() => {
+      minuteries.delete(m);
+      fn();
+    }, ms);
+    minuteries.add(m);
+    return m;
+  }
+
+  const milliers = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, F);
+
+  function rouler(el: HTMLElement, texte: string, mouvement: boolean, depuisZero = false) {
+    const avant = depuisZero ? '' : (el.dataset.chiffres ?? '');
+    const chiffres = texte.replace(/\D/g, '');
+    el.dataset.chiffres = chiffres;
+
+    const fantome = document.createElement('span');
+    fantome.className = 'hrn-roi__fantome';
+    fantome.textContent = texte;
+
+    if (!mouvement) {
+      el.classList.remove('is-rouleaux', 'is-roule');
+      el.replaceChildren(fantome);
+      return;
+    }
+
+    const rouleaux = document.createElement('span');
+    rouleaux.className = 'hrn-roi__rouleaux';
+    rouleaux.setAttribute('aria-hidden', 'true');
+
+    let rang = 0;
+    for (const caractere of texte) {
+      const fenetre = document.createElement('span');
+      fenetre.className = 'hrn-roi__fenetre';
+      const bande = document.createElement('span');
+      bande.className = 'hrn-roi__bande';
+
+      if (caractere >= '0' && caractere <= '9') {
+        const depuisDroite = chiffres.length - 1 - rang;
+        const ancien = avant.length - 1 - depuisDroite >= 0 ? Number(avant[avant.length - 1 - depuisDroite]) : 0;
+        const cible = Number(caractere);
+        const pas = TOURS * 10 + ((cible - ancien + 10) % 10);
+        for (let i = 0; i <= pas; i++) {
+          const cellule = document.createElement('span');
+          cellule.textContent = String((ancien + i) % 10);
+          bande.appendChild(cellule);
+        }
+        bande.style.setProperty('--n', String(pas));
+        bande.style.setProperty('--d', `${rang * DECALAGE}ms`);
+        bande.style.setProperty('--duree', `${DUREE}ms`);
+        rang++;
+      } else {
+        const cellule = document.createElement('span');
+        cellule.textContent = caractere;
+        bande.appendChild(cellule);
+      }
+
+      fenetre.appendChild(bande);
+      rouleaux.appendChild(fenetre);
+    }
+
+    el.classList.remove('is-roule');
+    el.replaceChildren(fantome, rouleaux);
+    el.classList.add('is-rouleaux');
+    // Sans ce reflow, le départ et l'arrivée seraient posés dans la même
+    // image et les bandes sauteraient directement au chiffre visé.
+    void el.offsetHeight;
+    el.classList.add('is-roule');
+  }
+
+  function initialiser() {
+    nettoyer();
+    const racine = document.querySelector<HTMLElement>('[data-roi]');
+    if (!racine) return;
+
+    controle = new AbortController();
+    const { signal } = controle;
+    const mouvement = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const prix = Number(racine.dataset.prix);
+    const semaines = Number(racine.dataset.semaines);
+    const tempsPlein = Number(racine.dataset.tempsPlein);
+
+    const choix = racine.querySelector<HTMLElement>('.hrn-roi__choix');
+    const exemple = racine.querySelector<HTMLElement>('[data-roi-exemple]');
+    const total = racine.querySelector<HTMLElement>('[data-roi-total]');
+    const heuresTexte = racine.querySelector<HTMLElement>('[data-roi-heures]');
+    const rentable = racine.querySelector<HTMLElement>('[data-roi-rentable]');
+    const petit = racine.querySelector<HTMLElement>('[data-roi-petit]');
+    const annonce = racine.querySelector<HTMLElement>('[data-roi-annonce]');
+    const champs = [...racine.querySelectorAll<HTMLElement>('[data-champ]')].map((champ) => ({
+      cle: champ.dataset.champ ?? '',
+      curseur: champ.querySelector<HTMLInputElement>('.hrn-roi__curseur'),
+      valeur: champ.querySelector<HTMLElement>('[data-roi-valeur]'),
+      pas: [...champ.querySelectorAll<HTMLButtonElement>('.hrn-roi__pas')],
+    }));
+    if (!choix || !total || !heuresTexte || !rentable || champs.some((c) => !c.curseur)) return;
+
+    choix.hidden = false;
+    if (exemple) exemple.hidden = true;
+    racine.classList.add('is-actif');
+
+    let vu = false;
+    let minuterieRoule: number | undefined;
+    let minuterieAnnonce: number | undefined;
+
+    // Même règle que dans le HTML de départ (voir le frontmatter).
+    const equivalence = (heures: number) => {
+      const an = semaines * tempsPlein;
+      if (heures >= an) {
+        const postes = Math.round((heures / an) * 10) / 10;
+        return `l'équivalent de ${String(postes).replace('.', ',')} ${postes >= 2 ? 'postes' : 'poste'} à temps plein`;
+      }
+      const s = Math.floor(heures / tempsPlein);
+      if (s < 1) return '';
+      return s === 1 ? "plus d'une semaine à temps plein" : `plus de ${s} semaines à temps plein`;
+    };
+
+    const lire = () => Object.fromEntries(champs.map((c) => [c.cle, Number(c.curseur!.value)])) as Record<string, number>;
+
+    const valeurTexte = (cle: string, n: number) =>
+      cle === 'heures' ? `${n} ${n > 1 ? 'heures' : 'heure'} par semaine`
+      : cle === 'personnes' ? `${n} ${n > 1 ? 'personnes' : 'personne'}`
+      : `${n}${NBSP}${EUR} de l'heure`;
+
+    const calculer = ({ heures, personnes, taux }: Record<string, number>) => {
+      const heuresAn = heures * personnes * semaines;
+      const coutAn = heuresAn * taux;
+      const coutSemaine = heures * personnes * taux;
+      const enSemaines = prix / coutSemaine;
+      let delai: string;
+      if (enSemaines < 1) delai = "moins d'une semaine";
+      else if (Math.ceil(enSemaines) <= 52) delai = `${Math.ceil(enSemaines)} ${Math.ceil(enSemaines) > 1 ? 'semaines' : 'semaine'}`;
+      else delai = `${Math.ceil(prix / (coutAn / 12))} mois`;
+      return { heuresAn, coutAn, coutMois: Math.round(coutAn / 12), enSemaines, delai };
+    };
+
+    const poserChamp = (c: (typeof champs)[number], n: number) => {
+      const curseur = c.curseur!;
+      const min = Number(curseur.min);
+      const max = Number(curseur.max);
+      curseur.value = String(n);
+      curseur.setAttribute('aria-valuetext', valeurTexte(c.cle, n));
+      curseur.style.setProperty('--rempli', `${((n - min) / (max - min)) * 100}%`);
+      if (c.valeur) c.valeur.textContent = String(n);
+      c.pas.forEach((b) => {
+        b.disabled = Number(b.dataset.pas) < 0 ? n <= min : n >= max;
+      });
+    };
+
+    const appliquer = ({ roule = true, depuisZero = false, annoncer = true } = {}) => {
+      const v = lire();
+      champs.forEach((c) => poserChamp(c, v[c.cle]));
+      const r = calculer(v);
+      const eq = equivalence(r.heuresAn);
+      heuresTexte.textContent = `${milliers(r.heuresAn)} heures par an${eq ? `, ${eq}` : ''}. Soit ${milliers(r.coutMois)}${F}${EUR} par mois.`;
+      rentable.textContent = r.delai;
+      if (petit) petit.hidden = r.enSemaines <= SEUIL_PETIT;
+
+      rouler(total, `${milliers(r.coutAn)}${F}${EUR}`, mouvement && roule && vu, depuisZero);
+
+      if (annonce && annoncer) {
+        if (minuterieAnnonce) clearTimeout(minuterieAnnonce);
+        minuterieAnnonce = attendre(() => {
+          annonce.textContent = `${milliers(r.coutAn)}${F}${EUR} par an. Mise en place rentabilisée en ${r.delai}.`;
+        }, 600);
+      }
+    };
+
+    // État de départ, sans défilement : le texte réel est en place.
+    appliquer({ roule: false, annoncer: false });
+
+    champs.forEach((c) => {
+      const curseur = c.curseur!;
+      // Glissement : la valeur suit le doigt, le montant défile dès que le
+      // geste marque une pause.
+      curseur.addEventListener(
+        'input',
+        () => {
+          poserChamp(c, Number(curseur.value));
+          if (minuterieRoule) clearTimeout(minuterieRoule);
+          minuterieRoule = attendre(() => appliquer(), 120);
+        },
+        { signal },
+      );
+      c.pas.forEach((b) =>
+        b.addEventListener(
+          'click',
+          () => {
+            const n = Math.min(Number(curseur.max), Math.max(Number(curseur.min), Number(curseur.value) + Number(b.dataset.pas)));
+            curseur.value = String(n);
+            appliquer();
+          },
+          { signal },
+        ),
+      );
+    });
+
+    // Premier défilement quand le résultat entre à l'écran : les chiffres
+    // partent de zéro.
+    if (mouvement) {
+      observateur = new IntersectionObserver(
+        (entrees) => {
+          if (!entrees.some((e) => e.isIntersecting)) return;
+          observateur?.disconnect();
+          vu = true;
+          appliquer({ depuisZero: true, annoncer: false });
+        },
+        { threshold: 0.4 },
+      );
+      observateur.observe(total);
+    } else {
+      vu = true;
+    }
+  }
+
+  document.addEventListener('astro:page-load', initialiser);
+  document.addEventListener('astro:before-swap', nettoyer);
+</script>

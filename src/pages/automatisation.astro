@@ -50,6 +50,7 @@ import LogosMarquee from '../components/home/LogosMarquee.astro';
 import SystemsGrid from '../components/home/SystemsGrid.astro';
 import ProofSection from '../components/home/ProofSection.astro';
 import Schema from '../components/offre/Schema.astro';
+import SimulateurRoi from '../components/offre/SimulateurRoi.astro';
 
 // Espaces insécables construits par leur point de code, jamais posés en clair
 // dans le fichier (piège n°7). Voir l'en-tête de formation.astro pour le
@@ -58,7 +59,10 @@ const F = String.fromCodePoint(0x202f);
 const NBSP = String.fromCodePoint(0x00a0);
 const EUR = String.fromCodePoint(0x20ac);
 
-const PRIX_MISE_EN_PLACE = `2${F}000${F}${EUR}${F}HT`;
+// Prix d'entrée de la mise en place, hors taxes : le seul endroit où il
+// s'écrit sur la page. Il nourrit aussi le simulateur de rentabilité.
+const MISE_EN_PLACE = 2000;
+const PRIX_MISE_EN_PLACE = `${String(MISE_EN_PLACE).replace(/\B(?=(\d{3})+(?!\d))/g, F)}${F}${EUR}${F}HT`;
 const PRIX_FORMATION = `1${F}500${F}${EUR}${F}HT`;
 
 // Questions propres à l'automatisation. Les deux premières lèvent le frein de
@@ -197,12 +201,10 @@ const outilsTexte = [
     <OffreTarif
       variante="suivi"
       titre="Affiché, comme tout le reste"
-      regles={[
-        { label: 'Mise en place', prix: PRIX_MISE_EN_PLACE, detail: "À partir de. Conception, installation et formation de l'équipe. Le montant dépend du nombre de flux et des logiciels à relier." },
-      ]}
-      suite={{ label: 'Ensuite', titre: 'Un suivi mensuel, chiffré avec vous' }}
-      inclus="Le périmètre et le prix sont écrits avant que nous démarrions, et le prix est ferme. Un suivi mensuel prend ensuite le relais, pour la surveillance et les correctifs : nous le chiffrons avec vous au rendez-vous, il dépend de ce que le système demande. En fonction de la complexité, du nombre d'outils à relier et de la taille de l'entreprise, un projet peut monter à plusieurs milliers d'euros : c'est justement ce que l'échange de trente minutes permet de savoir, sans engagement."
-    />
+      lede="Avant de parler de notre prix, regardez ce que ces tâches vous coûtent déjà."
+    >
+      <SimulateurRoi slot="simulateur" prixEntree={MISE_EN_PLACE} />
+    </OffreTarif>
 
     <FaqAccordion
       id="questions"
