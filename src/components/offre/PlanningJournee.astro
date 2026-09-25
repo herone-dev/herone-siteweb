@@ -1,0 +1,708 @@
+---
+// Planning de la journée de formation, posé par OffreEtapes (variante
+// `planning`) sur /formation depuis le 25 septembre 2026.
+//
+// La journée est dessinée comme un agenda : une colonne d'heures, et un bloc
+// par créneau dont la hauteur suit la durée. Les ateliers sont en turquoise,
+// les pauses hachurées. Cliquer un bloc affiche le détail de son étape à côté
+// (en dessous sur téléphone) ; deux boutons passent à l'étape voisine.
+//
+// Horaires : début à 9 h, pauses et déjeuner placés selon la proposition
+// validée par l'utilisateur le 25 septembre 2026. Le curriculum (version 2 du
+// 8 septembre) fixe le déjeuner d'une heure à la fin de la section 4.2 et
+// deux pauses de quinze minutes ; l'heure de début et la place des pauses ne
+// viennent pas de lui. Le bloc 04 est donc coupé par le déjeuner, le bloc 05
+// par la pause de l'après-midi.
+//
+// Les heures sont calculées à partir des durées : on ne touche qu'au tableau
+// de créneaux de la page. Si la somme des créneaux d'une étape ne retombe pas
+// sur sa durée, le build s'arrête avec un message clair plutôt que d'afficher
+// un planning faux.
+//
+// Animation (transform et opacity seulement) : à l'arrivée de la section, un
+// curseur balaie la journée de haut en bas et chaque bloc apparaît à son
+// passage. Le changement d'étape fait glisser le détail. En mouvement réduit,
+// rien ne bouge. Sans JavaScript, tous les détails sont affichés à la suite et
+// chaque bloc est un lien vers le sien.
+
+interface Etape {
+  num: string;
+  titre: string;
+  meta?: string;
+  texte: string;
+  minutes?: number;
+  atelier?: boolean;
+}
+
+type Creneau = { etape: string; minutes: number; partie?: string } | { pause: string; minutes: number };
+
+interface Props {
+  etapes: Etape[];
+  /** Heure de début, en minutes depuis minuit (9 h = 540). */
+  debut: number;
+  creneaux: Creneau[];
+}
+
+const { etapes, debut, creneaux } = Astro.props;
+
+const I = String.fromCodePoint(0x00a0);
+const M = String.fromCodePoint(0x00b7);
+const heure = (m: number) => `${Math.floor(m / 60)}${I}h${I}${String(m % 60).padStart(2, '0')}`;
+
+// Position de chaque créneau depuis le début de la journée.
+let t = 0;
+const places = creneaux.map((c) => {
+  const place = { ...c, t, de: heure(debut + t), a: heure(debut + t + c.minutes) };
+  t += c.minutes;
+  return place;
+});
+const total = t;
+
+for (const e of etapes) {
+  const somme = places.filter((p) => 'etape' in p && p.etape === e.num).reduce((s, p) => s + p.minutes, 0);
+  if (e.minutes && somme !== e.minutes) {
+    throw new Error(`Planning : l'étape ${e.num} dure ${e.minutes} min, ses créneaux en font ${somme}.`);
+  }
+}
+
+const parNum = new Map(etapes.map((e) => [e.num, e]));
+const horaires = (num: string) =>
+  places
+    .filter((p) => 'etape' in p && p.etape === num)
+    .map((p) => `${p.de} à ${p.a}`)
+    .join(', puis ');
+
+// Graduations : chaque heure pleine de la journée, et l'heure de fin.
+const graduations: { t: number; label: string }[] = [];
+for (let h = Math.ceil(debut / 60) * 60; h <= debut + total; h += 60) {
+  graduations.push({ t: h - debut, label: `${h / 60}${I}h` });
+}
+if ((debut + total) % 60 !== 0) graduations.push({ t: total, label: heure(debut + total) });
+
+const premiere = etapes[0]?.num;
+---
+
+<div class="hrn-planning" data-planning style={`--total: ${total}`}>
+  <div class="hrn-planning__gauche">
+    <div class="hrn-planning__agenda">
+      <div class="hrn-planning__graduations" aria-hidden="true">
+        {graduations.map((g) => (
+          <span class="hrn-planning__graduation" style={`--t: ${g.t}`}>{g.label}</span>
+        ))}
+      </div>
+
+      <ol class="hrn-planning__creneaux" role="list">
+        {places.map((p) => {
+          const pos = `--t: ${p.t}; --d: ${p.minutes}; --delai: ${Math.round((p.t / total) * 1100)}ms`;
+          if ('pause' in p) {
+            return (
+              <li class="hrn-planning__creneau hrn-planning__creneau--pause" style={pos}>
+                <span class="hrn-planning__pause">{p.pause}</span>
+                <span class="hrn-planning__horaire">{p.de}</span>
+              </li>
+            );
+          }
+          const e = parNum.get(p.etape);
+          return (
+            <li
+              class:list={[
+                'hrn-planning__creneau',
+                e?.atelier && 'hrn-planning__creneau--atelier',
+                p.minutes < 45 && 'hrn-planning__creneau--court',
+              ]}
+              style={pos}
+            >
+              <a class="hrn-planning__bloc" href={`#etape-${p.etape}`} data-etape={p.etape}>
+                <span class="hrn-planning__horaire">{p.de}</span>
+                <span class="hrn-planning__titre">{e?.titre}</span>
+                {p.partie && <span class="hrn-planning__partie">{p.partie}</span>}
+              </a>
+            </li>
+          );
+        })}
+      </ol>
+
+      <span class="hrn-planning__curseur" aria-hidden="true"></span>
+    </div>
+
+    <p class="hrn-planning__legende" aria-hidden="true">
+      <span class="hrn-planning__pastille hrn-planning__pastille--atelier"></span>
+      Atelier sur vos dossiers
+      <span class="hrn-planning__pastille hrn-planning__pastille--pause"></span>
+      Pause
+    </p>
+  </div>
+
+  <div class="hrn-planning__details">
+    {etapes.map((e) => (
+      <article class="hrn-planning__detail" id={`etape-${e.num}`} data-etape={e.num}>
+        <div class="hrn-planning__detail-tete">
+          <span class="hrn-planning__num">{e.num}</span>
+          <span class="hrn-planning__meta">
+            {e.meta}
+            {e.atelier && ` ${M} atelier`}
+          </span>
+        </div>
+        <h3>{e.titre}</h3>
+        <p class="hrn-planning__quand">{horaires(e.num)}</p>
+        <p class="hrn-planning__texte">{e.texte}</p>
+      </article>
+    ))}
+
+    <div class="hrn-planning__nav" hidden>
+      <button type="button" class="hrn-planning__pas" data-pas="-1" aria-label="Étape précédente">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+      </button>
+      <span class="hrn-planning__position" data-planning-position>
+        {premiere} / {etapes[etapes.length - 1]?.num}
+      </span>
+      <button type="button" class="hrn-planning__pas" data-pas="1" aria-label="Étape suivante">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Deux colonnes dès 900px : l'agenda à gauche, le détail à droite. */
+  .hrn-planning {
+    --echelle: 1.05px;
+    --gouttiere: 58px;
+    display: grid;
+    gap: 32px 56px;
+    margin-top: 44px;
+  }
+
+  @media (min-width: 900px) {
+    .hrn-planning {
+      --echelle: 0.98px;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+      align-items: start;
+    }
+  }
+
+  .hrn-planning__gauche {
+    min-width: 0;
+  }
+
+  /* ---------- L'agenda ---------- */
+
+  .hrn-planning__agenda {
+    position: relative;
+    height: calc(var(--total) * var(--echelle));
+    margin: 8px 0;
+  }
+
+  .hrn-planning__graduation {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--t) * var(--echelle));
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transform: translateY(-50%);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  .hrn-planning__graduation::after {
+    content: '';
+    flex: 1;
+    border-top: 1px dashed var(--nuit-carte-bordure);
+  }
+
+  .hrn-planning__creneaux {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .hrn-planning__creneau {
+    position: absolute;
+    left: var(--gouttiere);
+    right: 0;
+    top: calc(var(--t) * var(--echelle) + 1px);
+    height: calc(var(--d) * var(--echelle) - 2px);
+  }
+
+  .hrn-planning__bloc {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    align-items: baseline;
+    gap: 0 12px;
+    height: 100%;
+    padding: 6px 14px;
+    overflow: hidden;
+    background: var(--nuit-carte);
+    border: 1px solid var(--nuit-carte-bordure);
+    border-radius: var(--radius-lg);
+    color: var(--text-strong);
+    text-decoration: none;
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  .hrn-planning__creneau--court .hrn-planning__bloc {
+    align-content: center;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .hrn-planning__bloc:hover {
+    transform: translateX(4px);
+  }
+
+  .hrn-planning__bloc:focus-visible,
+  .hrn-planning__bloc.is-actif {
+    outline: 2px solid var(--amber-200);
+    outline-offset: 2px;
+  }
+
+  /* Les heures en police de texte, pas en mono : les espaces insécables
+     d'IBM Plex Mono font 0,6em et étiraient « 9 h 00 » sur toute la ligne. */
+  .hrn-planning__horaire {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hrn-planning__titre {
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: 15px;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  .hrn-planning__partie {
+    flex-basis: 100%;
+    font-size: 13.5px;
+    line-height: 1.4;
+    color: var(--text-secondary);
+  }
+
+  /* Ateliers : turquoise plein, texte bleu nuit (5,6:1). */
+  .hrn-planning__creneau--atelier .hrn-planning__bloc {
+    background: var(--amber-500);
+    border-color: var(--amber-500);
+    color: var(--paper);
+  }
+
+  .hrn-planning__creneau--atelier .hrn-planning__horaire,
+  .hrn-planning__creneau--atelier .hrn-planning__partie {
+    color: var(--paper);
+  }
+
+  /* Pauses : hachures discrètes, libellé en mono. */
+  .hrn-planning__creneau--pause {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    border: 1px dashed var(--nuit-carte-bordure);
+    border-radius: var(--radius-lg);
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent 0 6px,
+      var(--nuit-carte) 6px 8px
+    );
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .hrn-planning__pause {
+    color: var(--text-secondary);
+  }
+
+  .hrn-planning__creneau--pause .hrn-planning__horaire {
+    font-size: 12px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  /* Le curseur qui balaie la journée à l'arrivée de la section. */
+  .hrn-planning__curseur {
+    position: absolute;
+    top: 0;
+    left: calc(var(--gouttiere) - 6px);
+    right: 0;
+    height: 2px;
+    background: var(--amber-300);
+    border-radius: var(--radius-full);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .hrn-planning__curseur::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: -4px;
+    width: 10px;
+    height: 10px;
+    border-radius: var(--radius-full);
+    background: var(--amber-300);
+  }
+
+  .hrn-planning__legende {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 18px 0 0 var(--gouttiere);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .hrn-planning__pastille {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+  }
+
+  .hrn-planning__pastille + .hrn-planning__pastille,
+  .hrn-planning__legende .hrn-planning__pastille--pause {
+    margin-left: 12px;
+  }
+
+  .hrn-planning__pastille--atelier {
+    background: var(--amber-500);
+  }
+
+  .hrn-planning__pastille--pause {
+    border: 1px dashed var(--border-strong);
+    background: repeating-linear-gradient(-45deg, transparent 0 3px, var(--nuit-carte-bordure) 3px 4px);
+  }
+
+  /* ---------- Le détail de l'étape ---------- */
+
+  .hrn-planning__details {
+    min-width: 0;
+    display: grid;
+    gap: 20px;
+  }
+
+  @media (min-width: 900px) {
+    .hrn-planning__details {
+      position: sticky;
+      top: 100px;
+    }
+  }
+
+  .hrn-planning__detail {
+    padding: 28px;
+    background: var(--nuit-carte);
+    border: 1px solid var(--nuit-carte-bordure);
+    border-radius: var(--radius-xl);
+    scroll-margin-top: 90px;
+  }
+
+  .hrn-planning__detail[hidden],
+  .hrn-planning__nav[hidden] {
+    display: none;
+  }
+
+  .hrn-planning__detail-tete {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .hrn-planning__num {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent-texte);
+  }
+
+  .hrn-planning__meta {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .hrn-planning__detail h3 {
+    margin: 14px 0 0;
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: clamp(1.4rem, 2vw, 1.75rem);
+    line-height: 1.15;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  .hrn-planning__quand {
+    margin: 8px 0 0;
+    font-size: 14.5px;
+    font-weight: var(--weight-medium);
+    color: var(--accent-texte);
+  }
+
+  .hrn-planning__texte {
+    margin: 16px 0 0;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  .hrn-planning__nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .hrn-planning__pas {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--text-strong);
+    cursor: pointer;
+    transition: transform var(--dur-fast) var(--ease-standard), opacity var(--dur-fast) var(--ease-standard);
+  }
+
+  .hrn-planning__pas:hover:not(:disabled) {
+    transform: scale(1.06);
+  }
+
+  .hrn-planning__pas:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .hrn-planning__pas:focus-visible {
+    outline: 2px solid var(--accent-texte);
+    outline-offset: 3px;
+  }
+
+  .hrn-planning__position {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Animations (posées par le script, jamais sans lui) ---------- */
+
+  .hrn-planning.is-anime .hrn-planning__creneau {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  .hrn-planning.is-vu .hrn-planning__creneau {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 420ms var(--ease-out) var(--delai),
+      transform 420ms var(--ease-out) var(--delai);
+  }
+
+  .hrn-planning.is-vu .hrn-planning__curseur {
+    animation: hrn-planning-balayage 1300ms var(--ease-in-out) both;
+  }
+
+  @keyframes hrn-planning-balayage {
+    0% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    85% {
+      opacity: 1;
+      transform: translateY(calc(var(--total) * var(--echelle)));
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(calc(var(--total) * var(--echelle)));
+    }
+  }
+
+  .hrn-planning__detail.is-entree {
+    animation: hrn-planning-entree 360ms var(--ease-out) both;
+  }
+
+  @keyframes hrn-planning-entree {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hrn-planning__bloc,
+    .hrn-planning__pas {
+      transition: none;
+    }
+
+    .hrn-planning__bloc:hover {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hrn-planning {
+      --gouttiere: 50px;
+    }
+
+    .hrn-planning__bloc {
+      padding: 6px 12px;
+      column-gap: 10px;
+    }
+
+    .hrn-planning__detail {
+      padding: 22px 20px;
+    }
+  }
+
+  /* Très étroit : dans les blocs de moins de trois quarts d'heure, le titre
+     seul ; l'heure reste lisible dans la colonne des graduations. */
+  @media (max-width: 359px) {
+    .hrn-planning {
+      --echelle: 1.15px;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .hrn-planning__creneau--court .hrn-planning__horaire {
+      display: none;
+    }
+
+    .hrn-planning__titre {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  let controle: AbortController | undefined;
+  let observateur: IntersectionObserver | undefined;
+
+  function nettoyer() {
+    controle?.abort();
+    controle = undefined;
+    observateur?.disconnect();
+    observateur = undefined;
+  }
+
+  function initialiser() {
+    nettoyer();
+    const racine = document.querySelector<HTMLElement>('[data-planning]');
+    if (!racine) return;
+
+    controle = new AbortController();
+    const { signal } = controle;
+    const mouvement = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const blocs = [...racine.querySelectorAll<HTMLAnchorElement>('.hrn-planning__bloc')];
+    const details = [...racine.querySelectorAll<HTMLElement>('.hrn-planning__detail')];
+    const nav = racine.querySelector<HTMLElement>('.hrn-planning__nav');
+    const position = racine.querySelector<HTMLElement>('[data-planning-position]');
+    const pas = [...racine.querySelectorAll<HTMLButtonElement>('.hrn-planning__pas')];
+    const ordre = details.map((d) => d.dataset.etape ?? '');
+    if (!ordre.length) return;
+
+    let actif = '';
+
+    const choisir = (num: string, { anime = true, amener = false } = {}) => {
+      if (!ordre.includes(num) || num === actif) return;
+      actif = num;
+      blocs.forEach((b) => {
+        const oui = b.dataset.etape === num;
+        b.classList.toggle('is-actif', oui);
+        if (oui) b.setAttribute('aria-current', 'step');
+        else b.removeAttribute('aria-current');
+      });
+      details.forEach((d) => {
+        const oui = d.dataset.etape === num;
+        d.hidden = !oui;
+        d.classList.remove('is-entree');
+        if (oui && anime && mouvement) {
+          void d.offsetHeight;
+          d.classList.add('is-entree');
+        }
+      });
+      const i = ordre.indexOf(num);
+      if (position) position.textContent = `${num} / ${ordre[ordre.length - 1]}`;
+      pas.forEach((b) => {
+        b.disabled = Number(b.dataset.pas) < 0 ? i === 0 : i === ordre.length - 1;
+      });
+      // Sur téléphone, le détail est sous l'agenda : on l'amène à l'écran
+      // s'il en est sorti, sans bouger la page quand il est déjà visible.
+      if (amener) {
+        const d = details[i];
+        const r = d.getBoundingClientRect();
+        if (r.top > window.innerHeight - 120 || r.bottom < 80) {
+          d.scrollIntoView({ block: 'nearest', behavior: mouvement ? 'smooth' : 'auto' });
+        }
+      }
+    };
+
+    // Mise en place : un seul détail, la navigation visible.
+    if (nav) nav.hidden = false;
+    choisir(ordre[0], { anime: false });
+
+    blocs.forEach((b) =>
+      b.addEventListener(
+        'click',
+        (ev) => {
+          // Empêcher le saut d'ancre : le gestionnaire de Layout.astro voit
+          // defaultPrevented et laisse faire.
+          ev.preventDefault();
+          choisir(b.dataset.etape ?? '', { amener: true });
+        },
+        { signal },
+      ),
+    );
+
+    pas.forEach((b) =>
+      b.addEventListener(
+        'click',
+        () => {
+          const i = ordre.indexOf(actif) + Number(b.dataset.pas);
+          if (i >= 0 && i < ordre.length) choisir(ordre[i]);
+        },
+        { signal },
+      ),
+    );
+
+    // Balayage d'entrée, une seule fois par visite de la page.
+    if (mouvement) {
+      racine.classList.add('is-anime');
+      observateur = new IntersectionObserver(
+        (entrees) => {
+          if (!entrees.some((e) => e.isIntersecting)) return;
+          observateur?.disconnect();
+          racine.classList.add('is-vu');
+        },
+        { threshold: 0.25 },
+      );
+      const agenda = racine.querySelector('.hrn-planning__agenda');
+      if (agenda) observateur.observe(agenda);
+    }
+  }
+
+  document.addEventListener('astro:page-load', initialiser);
+  document.addEventListener('astro:before-swap', nettoyer);
+</script>

@@ -14,6 +14,10 @@
 //  - `frise` (/automatisation) : une frise horizontale, une colonne par étape,
 //    des pastilles rondes reliées par un filet, la première en turquoise
 //    plein. Sous 900px, la frise redevient verticale.
+//  - `planning` (/formation depuis le 25 septembre 2026) : la même tête que
+//    `cartes`, puis la journée dessinée comme un agenda heure par heure
+//    (composant PlanningJournee, prop `planning`). Son script n'est chargé
+//    que sur la page qui l'affiche.
 //
 // Sur /formation, `meta` porte la durée du bloc (« 30 min »). Sur
 // /automatisation, elle porte le moment (« avant de démarrer »). Elle peut
@@ -23,6 +27,8 @@
 // poussé la page en défilement horizontal ailleurs sur le site (piège n°1).
 // Les durées restent d'un seul tenant par leurs espaces insécables, ce qui
 // suffit et ne bloque pas le repli du reste.
+
+import PlanningJournee from './PlanningJournee.astro';
 
 interface Etape {
   num: string;
@@ -43,12 +49,14 @@ interface Props {
   /** Fond de la section, à choisir pour ne jamais répéter celui de la section précédente. */
   fond?: 'paper' | 'surface';
   id?: string;
-  variante?: 'liste' | 'cartes' | 'frise';
+  variante?: 'liste' | 'cartes' | 'frise' | 'planning';
+  /** Variante `planning` : heure de début (minutes depuis minuit) et créneaux, pauses comprises. */
+  planning?: { debut: number; creneaux: ({ etape: string; minutes: number; partie?: string } | { pause: string; minutes: number })[] };
   /** Légende sous la barre de temps : début, sens du turquoise, fin. */
   legende?: { debut: string; milieu: string; fin: string };
 }
 
-const { eyebrow, titre, lede, etapes, fond = 'surface', id, variante = 'liste', legende } = Astro.props;
+const { eyebrow, titre, lede, etapes, fond = 'surface', id, variante = 'liste', legende, planning } = Astro.props;
 const barre = variante === 'cartes' && etapes.every((e) => typeof e.minutes === 'number' && e.minutes > 0);
 ---
 
@@ -83,6 +91,19 @@ const barre = variante === 'cartes' && etapes.every((e) => typeof e.minutes === 
           </li>
         ))}
       </ol>
+    </div>
+  )}
+
+  {variante === 'planning' && planning && (
+    <div class="hrn-section-inner">
+      <div class="hrn-offre-etapes__tete">
+        <div class="hrn-offre-etapes__titre">
+          <div class="hrn-eyebrow">{eyebrow}</div>
+          <h2>{titre}</h2>
+        </div>
+        {lede && <p class="hrn-offre-etapes__lede">{lede}</p>}
+      </div>
+      <PlanningJournee etapes={etapes} debut={planning.debut} creneaux={planning.creneaux} />
     </div>
   )}
 
