@@ -201,10 +201,12 @@ const { fond = 'surface', variante = 'defilant', eyebrow, titre, texte = [], nom
 
   /* ============ Tête avec le texte de la section (défilant + titre) ============ */
 
+  /* Surtitre et titre calés en haut, à la hauteur du premier paragraphe
+     (demande de l'utilisateur, 25 septembre 2026). */
   .hrn-logos__tete {
     display: grid;
     gap: 18px 64px;
-    align-items: end;
+    align-items: start;
   }
 
   @media (min-width: 960px) {
