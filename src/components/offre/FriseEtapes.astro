@@ -175,22 +175,24 @@ const { etapes } = Astro.props;
     display: block;
   }
 
+  /* Six pixels d'épaisseur (trois au départ) : l'utilisateur voulait un
+     flux plus large, 25 septembre 2026. */
   .hrn-frise[data-axe='x'] .hrn-frise__energie {
-    height: 3px;
-    margin-top: -1.5px;
+    height: 6px;
+    margin-top: -3px;
   }
 
   .hrn-frise[data-axe='y'] .hrn-frise__energie {
-    width: 3px;
-    margin-left: -1.5px;
+    width: 6px;
+    margin-left: -3px;
   }
 
   .hrn-frise__charge {
     position: absolute;
     inset: 0;
-    border-radius: 3px;
+    border-radius: 999px;
     background: linear-gradient(90deg, var(--amber-600), var(--amber-500) 55%, var(--amber-300));
-    box-shadow: 0 0 12px color-mix(in srgb, var(--amber-400) 55%, transparent);
+    box-shadow: 0 0 16px color-mix(in srgb, var(--amber-400) 60%, transparent);
     transform-origin: 0 50%;
     transform: scaleX(0);
     will-change: transform;
@@ -219,17 +221,17 @@ const { etapes } = Astro.props;
   .hrn-frise[data-axe='x'] .hrn-frise__tete {
     left: 0;
     top: 50%;
-    width: 44px;
-    height: 14px;
-    margin: -7px 0 0 -22px;
+    width: 64px;
+    height: 26px;
+    margin: -13px 0 0 -32px;
   }
 
   .hrn-frise[data-axe='y'] .hrn-frise__tete {
     top: 0;
     left: 50%;
-    width: 14px;
-    height: 44px;
-    margin: -22px 0 0 -7px;
+    width: 26px;
+    height: 64px;
+    margin: -32px 0 0 -13px;
   }
 
   /* ============ Textes des étapes ============ */
