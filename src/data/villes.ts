@@ -32,7 +32,8 @@ export interface Ville {
   km: number | null;
   /** Surtitre de la section locale. */
   surtitreLocal: string;
-  /** Ligne sous « Chez vous, à … » dans la carte trajet. */
+  /** Ligne sous « Chez vous, à … » dans la carte trajet. Aucun autre nom de
+      commune dans le haut de page (demande de l'utilisateur, 25 septembre 2026). */
   voisinage: string;
   chapeau: string;
   local: [string, string];
@@ -100,7 +101,7 @@ export const VILLES: Ville[] = [
     minutes: 35,
     km: 50,
     surtitreLocal: 'La Roche-sur-Yon et son agglomération',
-    voisinage: 'Et à Mouilleron-le-Captif, sa voisine',
+    voisinage: "Et dans les communes de l'agglomération",
     chapeau:
       "Nous formons les équipes des TPE et PME de La Roche-sur-Yon à l'intelligence artificielle, et nous automatisons les tâches qui reviennent chaque jour. Nous venons des Herbiers, à environ 35 minutes, pour travailler dans vos locaux.",
     local: [
@@ -122,9 +123,9 @@ export const VILLES: Ville[] = [
     minutes: 35,
     km: null,
     surtitreLocal: 'Sèvremoine et ses dix communes déléguées',
-    voisinage: 'De Saint-Macaire-en-Mauges à Torfou',
+    voisinage: 'Là où travaille votre équipe',
     chapeau:
-      "Nous aidons les TPE et PME de Sèvremoine à tirer parti de l'intelligence artificielle, et nous relions les logiciels qu'elles utilisent déjà. De Saint-Macaire-en-Mauges à Torfou, nous venons travailler dans vos locaux.",
+      "Nous aidons les TPE et PME de Sèvremoine à tirer parti de l'intelligence artificielle, et nous relions les logiciels qu'elles utilisent déjà. Depuis nos bureaux des Herbiers, nous venons travailler dans vos locaux.",
     local: [
       "Sèvremoine est une commune nouvelle créée en décembre 2015 : elle réunit dix anciennes communes, devenues communes déléguées, et compte 25 797 habitants au dernier recensement de l'Insee. Son siège est à Saint-Macaire-en-Mauges, et elle fait partie de Mauges Communauté. Nous y travaillons pour des entreprises de 5 à 30 personnes, où le dirigeant tranche vite. Leurs journées mêlent production, relation client et gestion, et c'est souvent la gestion qui déborde sur le reste.",
       "Nous intervenons dans toutes les communes déléguées : Saint-Macaire-en-Mauges, Le Longeron, Montfaucon-Montigné, La Renaudière, Roussay, Saint-André-de-la-Marche, Saint-Crespin-sur-Moine, Saint-Germain-sur-Moine, Tillières et Torfou. Comptez environ 35 minutes depuis nos bureaux des Herbiers. La formation se déroule chez vous, sur les dossiers de votre équipe, et un système s'installe sur vos postes.",
@@ -144,9 +145,9 @@ export const VILLES: Ville[] = [
     minutes: 40,
     km: null,
     surtitreLocal: 'Beaupréau-en-Mauges et ses communes déléguées',
-    voisinage: 'À Beaupréau comme à Jallais ou Gesté',
+    voisinage: 'Là où travaille votre équipe',
     chapeau:
-      "Nous formons les équipes des TPE et PME de Beaupréau-en-Mauges à l'IA, et nous automatisons ce qui se ressaisit encore à la main. Depuis nos bureaux des Herbiers, nous venons à Beaupréau, Jallais, Gesté ou Villedieu-la-Blouère.",
+      "Nous formons les équipes des TPE et PME de Beaupréau-en-Mauges à l'IA, et nous automatisons ce qui se ressaisit encore à la main. Depuis nos bureaux des Herbiers, nous venons chez vous, à environ 40 minutes de route.",
     local: [
       "Née le 15 décembre 2015, la commune nouvelle de Beaupréau-en-Mauges regroupe dix anciennes communes : Andrezé, Beaupréau, La Chapelle-du-Genêt, Gesté, Jallais, La Jubaudière, Le Pin-en-Mauges, La Poitevinière, Saint-Philbert-en-Mauges et Villedieu-la-Blouère. Elle compte 23 989 habitants au dernier recensement de l'Insee, et son siège est à Beaupréau. Nous nous adressons ici aux entreprises de 5 à 30 personnes, celles où les ressaisies entre logiciels prennent une place qu'elles ne méritent pas.",
       "Nous venons dans chacune de ces communes déléguées, à environ 40 minutes de nos bureaux des Herbiers. Pour une équipe de 5 à 30 personnes, la journée de formation se passe dans vos locaux, sur les tâches que chacun fait vraiment. Si un système est mis en place ensuite, nous l'installons sur vos postes et nous formons ceux qui s'en serviront.",
@@ -166,7 +167,7 @@ export const VILLES: Ville[] = [
     minutes: 30,
     km: 29,
     surtitreLocal: 'Montaigu-Vendée et ses environs',
-    voisinage: 'Et à La Bruffière, Treize-Septiers, Chavagnes-en-Paillers',
+    voisinage: 'Là où travaille votre équipe',
     chapeau:
       "Une journée de formation à l'IA dans vos locaux, et des logiciels qui se passent les informations sans ressaisie : voilà ce que nous proposons aux entreprises de Montaigu-Vendée. Nos bureaux sont aux Herbiers, à une demi-heure de route.",
     local: [
@@ -188,7 +189,7 @@ export const VILLES: Ville[] = [
     minutes: 30,
     km: null,
     surtitreLocal: 'Chantonnay et le Pays de Chantonnay',
-    voisinage: "Et à Bournezeau, Saint-Jean-d'Hermine",
+    voisinage: 'Là où travaille votre équipe',
     chapeau:
       "Nous aidons les TPE et PME de Chantonnay à se servir de l'IA au quotidien, et nous supprimons les ressaisies entre leurs logiciels. Nos bureaux des Herbiers sont à une demi-heure : nous venons chez vous.",
     local: [
@@ -210,7 +211,7 @@ export const VILLES: Ville[] = [
     minutes: 20,
     km: null,
     surtitreLocal: 'Mortagne-sur-Sèvre et le Pays de Mortagne',
-    voisinage: 'Et à Saint-Laurent-sur-Sèvre, Tiffauges',
+    voisinage: 'Là où travaille votre équipe',
     chapeau:
       "Former votre équipe à l'IA sur ses vrais dossiers, et faire circuler l'information entre vos logiciels : c'est ce que nous faisons pour les TPE et PME de Mortagne-sur-Sèvre. Nos bureaux des Herbiers sont à 20 minutes.",
     local: [
@@ -232,7 +233,7 @@ export const VILLES: Ville[] = [
     minutes: 20,
     km: null,
     surtitreLocal: 'Pouzauges et le Pays de Pouzauges',
-    voisinage: 'Et à La Châtaigneraie, Cerizay',
+    voisinage: 'Là où travaille votre équipe',
     chapeau:
       "Nous apprenons aux équipes des TPE et PME de Pouzauges à confier à l'IA ce qui peut l'être, et nous relions leurs logiciels entre eux. Depuis nos bureaux des Herbiers, il nous faut environ 20 minutes pour venir chez vous.",
     local: [
@@ -254,7 +255,7 @@ export const VILLES: Ville[] = [
     minutes: 30,
     km: null,
     surtitreLocal: 'Mauléon et ses communes associées',
-    voisinage: 'De La Chapelle-Largeau à Saint-Aubin-de-Baubigné',
+    voisinage: 'Là où travaille votre équipe',
     chapeau:
       "Nous formons les équipes des TPE et PME de Mauléon à l'IA, sur leurs propres dossiers, et nous automatisons les tâches qui se répètent. Nos bureaux des Herbiers sont à une demi-heure : nous passons en Deux-Sèvres pour venir chez vous.",
     local: [
@@ -298,9 +299,9 @@ export const VILLES: Ville[] = [
     minutes: 20,
     km: null,
     surtitreLocal: 'Essarts-en-Bocage, Les Essarts et Boulogne',
-    voisinage: 'Aux Essarts comme à Boulogne',
+    voisinage: 'Là où travaille votre équipe',
     chapeau:
-      "Nous formons les équipes des TPE et PME d'Essarts-en-Bocage à l'IA, et nous automatisons les tâches qu'elles refont chaque semaine. Aux Essarts comme à Boulogne, nous venons chez vous, à environ 20 minutes de nos bureaux.",
+      "Nous formons les équipes des TPE et PME d'Essarts-en-Bocage à l'IA, et nous automatisons les tâches qu'elles refont chaque semaine. Nos bureaux des Herbiers sont à environ 20 minutes : nous venons chez vous.",
     local: [
       "Essarts-en-Bocage est une commune nouvelle créée le 1er janvier 2016. Depuis le 1er janvier 2024, L'Oie et Sainte-Florence ont retrouvé leur autonomie : la commune réunit aujourd'hui Les Essarts et Boulogne, pour 6 851 habitants au dernier recensement de l'Insee. Nous y travaillons pour des équipes de 5 à 30 personnes, qui veulent gagner du temps sans changer de logiciels ni bouleverser leurs habitudes.",
       "Depuis nos bureaux des Herbiers, nous rejoignons Les Essarts et Boulogne en 20 minutes environ. Pour votre équipe, la journée de formation se tient dans vos locaux, sur vos dossiers, et un système d'automatisation se branche sur les logiciels que vous avez déjà. Rien ne se fait à distance sans que vous l'ayez vu fonctionner chez vous.",
@@ -320,9 +321,9 @@ export const VILLES: Ville[] = [
     minutes: 20,
     km: null,
     surtitreLocal: 'Sèvremont et ses quatre communes déléguées',
-    voisinage: 'De La Flocellière à Saint-Michel-Mont-Mercure',
+    voisinage: 'Là où travaille votre équipe',
     chapeau:
-      "Nous formons les équipes des TPE et PME de Sèvremont à l'intelligence artificielle, et nous relions les logiciels qu'elles ont déjà. De La Flocellière à Saint-Michel-Mont-Mercure, nous venons chez vous en une vingtaine de minutes.",
+      "Nous formons les équipes des TPE et PME de Sèvremont à l'intelligence artificielle, et nous relions les logiciels qu'elles ont déjà. Depuis nos bureaux des Herbiers, nous venons chez vous en une vingtaine de minutes.",
     local: [
       "Sèvremont est née le 1er janvier 2016 de la réunion de quatre communes : La Flocellière, Les Châtelliers-Châteaumur, La Pommeraie-sur-Sèvre et Saint-Michel-Mont-Mercure. Son siège est à La Flocellière, et elle compte 6 385 habitants au dernier recensement de l'Insee. Elle appartient à la Communauté de communes du Pays de Pouzauges. Nous nous adressons aux entreprises de 5 à 30 personnes, où une équipe réduite fait tourner à la fois le métier, les clients et les papiers.",
       "Nous nous déplaçons dans les quatre communes déléguées, à environ 20 minutes de nos bureaux des Herbiers. Pour votre équipe, la formation dure une journée, chez vous, et un système d'automatisation se met en place sur vos postes, avec les personnes qui l'utiliseront. Le premier échange de 30 minutes permet de voir par où commencer.",
@@ -342,9 +343,9 @@ export const VILLES: Ville[] = [
     minutes: 40,
     km: 38,
     surtitreLocal: 'Bellevigny, Belleville-sur-Vie et Saligny',
-    voisinage: 'À Belleville-sur-Vie comme à Saligny',
+    voisinage: 'Là où travaille votre équipe',
     chapeau:
-      "Nous formons les équipes des TPE et PME de Bellevigny à l'IA, et nous automatisons les ressaisies entre leurs logiciels. De Belleville-sur-Vie à Saligny, nous venons chez vous depuis nos bureaux des Herbiers.",
+      "Nous formons les équipes des TPE et PME de Bellevigny à l'IA, et nous automatisons les ressaisies entre leurs logiciels. Nos bureaux des Herbiers sont à environ 40 minutes : nous nous déplaçons jusque dans vos locaux.",
     local: [
       "Bellevigny est une commune nouvelle créée le 1er janvier 2016 : Belleville-sur-Vie et Saligny en sont devenues les communes déléguées. Elle compte 6 240 habitants au dernier recensement de l'Insee, et fait partie de la Communauté de communes Vie-et-Boulogne, qui réunit 15 communes. Avant toute proposition, nous regardons avec vous où part le temps de votre équipe.",
       "Bellevigny est à 38 km de nos bureaux, environ 40 minutes de route. Nous y venons pour des entreprises de 5 à 30 personnes : une journée de formation dans vos locaux, sur les tâches de chacun, puis, si le besoin se confirme, un système qui fait circuler l'information entre vos outils, installé chez vous avec votre équipe. Et vous gardez vos outils : nous partons de ceux que votre équipe connaît déjà.",
@@ -364,7 +365,7 @@ export const VILLES: Ville[] = [
     minutes: 12,
     km: 12,
     surtitreLocal: 'Chanverrie, La Verrie et Chambretaud',
-    voisinage: 'À La Verrie comme à Chambretaud',
+    voisinage: 'Là où travaille votre équipe',
     chapeau:
       "Nous formons les équipes des TPE et PME de Chanverrie à l'intelligence artificielle, et nous relions leurs logiciels pour en finir avec les ressaisies. Nos bureaux des Herbiers sont à 12 minutes : nous venons chez vous.",
     local: [
