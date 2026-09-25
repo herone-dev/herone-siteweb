@@ -29,10 +29,13 @@
 // carte d'offre, les prix sont ceux affichés sur l'accueil. Le moteur d'automatisation est
 // n8n, auto-hébergé sur le serveur d'Hérone : c'est ce qui permet de dire
 // qu'aucun éditeur ne voit passer les données du client, et c'est l'argument
-// le plus fort de la page. Make et Zapier restent cités comme solutions de
-// repli quand les outils du client l'imposent, mais ce sont des services en
-// ligne : ils verraient les données. L'ordre des deux phrases n'est donc pas
-// cosmétique.
+// le plus fort de la page. Make et Zapier servent de repli quand les outils
+// du client l'imposent, mais ce sont des services en ligne : ils verraient
+// les données. D'où la réserve de la deuxième phrase, qui ne doit pas
+// disparaître. Depuis le 25 septembre 2026, aucun de ces noms n'apparaît
+// dans le texte visible (décision de l'utilisateur : du jargon pour un
+// dirigeant, et une invitation à comparer avec l'abonnement de l'outil) ;
+// ils restent dans public/llms.txt, lu par les assistants d'IA.
 //
 // Le JavaScript de la page : la façade YouTube des témoignages et
 // l'accordéon de la FAQ, portés par leurs composants.
@@ -122,7 +125,7 @@ const deroule = [
 // formulations d'origine.
 const outilsTexte = [
   "Nous construisons autour de l'existant : CRM, tableur, messagerie, comptabilité, logiciel métier. Le système les relie plutôt que de les remplacer.",
-  "Le moteur est n8n, une solution open source que nous hébergeons sur notre propre serveur. Aucun éditeur d'automatisation ne voit donc passer vos données. Quand vos outils l'imposent, nous savons aussi travailler avec Make ou Zapier : le choix est discuté avec vous et écrit dans le périmètre. Pas de frais cachés, pas d'abonnement captif.",
+  "Par défaut, le moteur d'automatisation est hébergé sur notre propre serveur : aucun prestataire extérieur ne voit passer vos données. Si l'un de vos outils impose un service en ligne, nous vous le disons avant de démarrer, et c'est écrit dans le périmètre. Pas de frais cachés, pas d'abonnement captif.",
 ];
 
 ---
