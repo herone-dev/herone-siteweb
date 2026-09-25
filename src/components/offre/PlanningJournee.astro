@@ -22,7 +22,7 @@
 // Animation (transform et opacity seulement) : à l'arrivée de la section, un
 // curseur balaie la journée de haut en bas et chaque bloc apparaît à son
 // passage. Le changement d'étape fait glisser le détail. Le bloc de l'étape
-// choisie se remplit d'un voile de couleur qui pulse, sans contour (un
+// choisie se remplit de turquoise et clignote, sans contour (un
 // contour débordait sur les créneaux voisins). Sans clic du visiteur, le
 // planning avance seul d'étape en étape (voir DELAI_AUTO dans le script).
 // En mouvement réduit, rien ne bouge et rien n'avance seul. Sans JavaScript, tous les détails sont affichés à la suite et
@@ -265,16 +265,34 @@ const premiere = etapes[0]?.num;
     outline-offset: -2px;
   }
 
-  /* Étape choisie : pas de contour (il débordait sur les créneaux voisins),
-     un voile de couleur qui pulse doucement dans le bloc. Turquoise clair sur
-     les blocs sombres, crème sur les ateliers turquoise. Le voile est sous
-     le texte ; seule son opacité s'anime. */
+  /* Étape choisie : pas de contour (il débordait sur les créneaux voisins).
+     Le bloc se remplit : un bloc sombre passe en turquoise clair, texte bleu
+     nuit ; un atelier garde son turquoise. Par-dessus, un voile crème
+     clignote à rythme régulier (aller-retour de 750ms, opacité seule) pour
+     que l'étape en cours saute aux yeux. Contraste du texte mesuré au creux
+     comme au pic du clignotement. */
+  .hrn-planning__bloc.is-actif {
+    background: var(--amber-300);
+    border-color: var(--amber-300);
+    color: var(--paper);
+  }
+
+  .hrn-planning__creneau--atelier .hrn-planning__bloc.is-actif {
+    background: var(--amber-500);
+    border-color: var(--amber-500);
+  }
+
+  .hrn-planning__bloc.is-actif .hrn-planning__horaire,
+  .hrn-planning__bloc.is-actif .hrn-planning__partie {
+    color: var(--paper);
+  }
+
   .hrn-planning__bloc::before {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: var(--amber-300);
+    background: var(--surface);
     opacity: 0;
     pointer-events: none;
   }
@@ -283,47 +301,16 @@ const premiere = etapes[0]?.num;
     position: relative;
   }
 
-  .hrn-planning__creneau--atelier .hrn-planning__bloc::before {
-    background: var(--surface);
-  }
-
   .hrn-planning__bloc.is-actif::before {
-    animation: hrn-planning-pouls 1600ms var(--ease-in-out) infinite;
+    animation: hrn-planning-clignote 750ms ease-in-out infinite alternate;
   }
 
-  /* Sur le turquoise, le crème doit monter plus haut pour se voir. */
-  .hrn-planning__creneau--atelier .hrn-planning__bloc.is-actif::before {
-    animation-name: hrn-planning-pouls-atelier;
-  }
-
-  /* Sur le voile, l'heure grise passerait sous 4,5:1 : elle s'éclaircit. */
-  .hrn-planning__bloc.is-actif .hrn-planning__horaire,
-  .hrn-planning__bloc.is-actif .hrn-planning__partie {
-    color: var(--text-primary);
-  }
-
-  .hrn-planning__creneau--atelier .hrn-planning__bloc.is-actif .hrn-planning__horaire,
-  .hrn-planning__creneau--atelier .hrn-planning__bloc.is-actif .hrn-planning__partie {
-    color: var(--paper);
-  }
-
-  @keyframes hrn-planning-pouls {
-    0%,
-    100% {
-      opacity: 0.14;
+  @keyframes hrn-planning-clignote {
+    from {
+      opacity: 0.05;
     }
-    50% {
-      opacity: 0.32;
-    }
-  }
-
-  @keyframes hrn-planning-pouls-atelier {
-    0%,
-    100% {
-      opacity: 0.22;
-    }
-    50% {
-      opacity: 0.5;
+    to {
+      opacity: 0.6;
     }
   }
 
@@ -625,11 +612,7 @@ const premiere = etapes[0]?.num;
 
     .hrn-planning__bloc.is-actif::before {
       animation: none;
-      opacity: 0.24;
-    }
-
-    .hrn-planning__creneau--atelier .hrn-planning__bloc.is-actif::before {
-      opacity: 0.36;
+      opacity: 0.3;
     }
 
     .hrn-planning__bloc:hover {
