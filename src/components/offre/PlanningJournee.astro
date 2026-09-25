@@ -21,8 +21,11 @@
 //
 // Animation (transform et opacity seulement) : à l'arrivée de la section, un
 // curseur balaie la journée de haut en bas et chaque bloc apparaît à son
-// passage. Le changement d'étape fait glisser le détail. En mouvement réduit,
-// rien ne bouge. Sans JavaScript, tous les détails sont affichés à la suite et
+// passage. Le changement d'étape fait glisser le détail. Le bloc de l'étape
+// choisie se remplit d'un voile de couleur qui pulse, sans contour (un
+// contour débordait sur les créneaux voisins). Sans clic du visiteur, le
+// planning avance seul d'étape en étape (voir DELAI_AUTO dans le script).
+// En mouvement réduit, rien ne bouge et rien n'avance seul. Sans JavaScript, tous les détails sont affichés à la suite et
 // chaque bloc est un lien vers le sien.
 
 interface Etape {
@@ -228,6 +231,7 @@ const premiere = etapes[0]?.num;
   }
 
   .hrn-planning__bloc {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     align-content: flex-start;
@@ -254,10 +258,73 @@ const premiere = etapes[0]?.num;
     transform: translateX(4px);
   }
 
-  .hrn-planning__bloc:focus-visible,
-  .hrn-planning__bloc.is-actif {
+  /* Focus clavier : le contour est tracé à l'intérieur du bloc, pour ne
+     jamais mordre sur le créneau voisin. */
+  .hrn-planning__bloc:focus-visible {
     outline: 2px solid var(--amber-200);
-    outline-offset: 2px;
+    outline-offset: -2px;
+  }
+
+  /* Étape choisie : pas de contour (il débordait sur les créneaux voisins),
+     un voile de couleur qui pulse doucement dans le bloc. Turquoise clair sur
+     les blocs sombres, crème sur les ateliers turquoise. Le voile est sous
+     le texte ; seule son opacité s'anime. */
+  .hrn-planning__bloc::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--amber-300);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .hrn-planning__bloc > * {
+    position: relative;
+  }
+
+  .hrn-planning__creneau--atelier .hrn-planning__bloc::before {
+    background: var(--surface);
+  }
+
+  .hrn-planning__bloc.is-actif::before {
+    animation: hrn-planning-pouls 1600ms var(--ease-in-out) infinite;
+  }
+
+  /* Sur le turquoise, le crème doit monter plus haut pour se voir. */
+  .hrn-planning__creneau--atelier .hrn-planning__bloc.is-actif::before {
+    animation-name: hrn-planning-pouls-atelier;
+  }
+
+  /* Sur le voile, l'heure grise passerait sous 4,5:1 : elle s'éclaircit. */
+  .hrn-planning__bloc.is-actif .hrn-planning__horaire,
+  .hrn-planning__bloc.is-actif .hrn-planning__partie {
+    color: var(--text-primary);
+  }
+
+  .hrn-planning__creneau--atelier .hrn-planning__bloc.is-actif .hrn-planning__horaire,
+  .hrn-planning__creneau--atelier .hrn-planning__bloc.is-actif .hrn-planning__partie {
+    color: var(--paper);
+  }
+
+  @keyframes hrn-planning-pouls {
+    0%,
+    100% {
+      opacity: 0.14;
+    }
+    50% {
+      opacity: 0.32;
+    }
+  }
+
+  @keyframes hrn-planning-pouls-atelier {
+    0%,
+    100% {
+      opacity: 0.22;
+    }
+    50% {
+      opacity: 0.5;
+    }
   }
 
   /* Les heures en police de texte, pas en mono : les espaces insécables
@@ -556,6 +623,15 @@ const premiere = etapes[0]?.num;
       transition: none;
     }
 
+    .hrn-planning__bloc.is-actif::before {
+      animation: none;
+      opacity: 0.24;
+    }
+
+    .hrn-planning__creneau--atelier .hrn-planning__bloc.is-actif::before {
+      opacity: 0.36;
+    }
+
     .hrn-planning__bloc:hover {
       transform: none;
     }
@@ -596,14 +672,22 @@ const premiere = etapes[0]?.num;
 </style>
 
 <script>
+  // Temps passé sur chaque étape quand le planning avance tout seul.
+  const DELAI_AUTO = 6000;
+
   let controle: AbortController | undefined;
   let observateur: IntersectionObserver | undefined;
+  let veille: IntersectionObserver | undefined;
+  let minuterie: number | undefined;
 
   function nettoyer() {
     controle?.abort();
     controle = undefined;
     observateur?.disconnect();
     observateur = undefined;
+    veille?.disconnect();
+    veille = undefined;
+    clearTimeout(minuterie);
   }
 
   function initialiser() {
@@ -663,6 +747,31 @@ const premiere = etapes[0]?.num;
     if (nav) nav.hidden = false;
     choisir(ordre[0], { anime: false });
 
+    // Défilement automatique : tant que le visiteur ne choisit rien, le
+    // planning passe d'une étape à la suivante toutes les six secondes, puis
+    // repart de la première. Il s'arrête pour de bon au premier clic, et se
+    // met en pause quand la section sort de l'écran, quand l'onglet est
+    // masqué, quand la souris survole le planning ou quand le focus clavier
+    // y entre. Jamais en mouvement réduit. Il ne fait jamais défiler la page.
+    let auto = mouvement;
+    let visible = false;
+    let survol = false;
+    let focus = false;
+
+    const planifier = () => {
+      clearTimeout(minuterie);
+      if (!auto || !visible || survol || focus || document.hidden) return;
+      minuterie = window.setTimeout(() => {
+        choisir(ordre[(ordre.indexOf(actif) + 1) % ordre.length]);
+        planifier();
+      }, DELAI_AUTO);
+    };
+
+    const reprendreLaMain = () => {
+      auto = false;
+      clearTimeout(minuterie);
+    };
+
     blocs.forEach((b) =>
       b.addEventListener(
         'click',
@@ -670,6 +779,7 @@ const premiere = etapes[0]?.num;
           // Empêcher le saut d'ancre : le gestionnaire de Layout.astro voit
           // defaultPrevented et laisse faire.
           ev.preventDefault();
+          reprendreLaMain();
           choisir(b.dataset.etape ?? '', { amener: true });
         },
         { signal },
@@ -680,12 +790,31 @@ const premiere = etapes[0]?.num;
       b.addEventListener(
         'click',
         () => {
+          reprendreLaMain();
           const i = ordre.indexOf(actif) + Number(b.dataset.pas);
           if (i >= 0 && i < ordre.length) choisir(ordre[i]);
         },
         { signal },
       ),
     );
+
+    if (auto) {
+      racine.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { survol = true; planifier(); } }, { signal });
+      racine.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') { survol = false; planifier(); } }, { signal });
+      racine.addEventListener('focusin', () => { focus = true; planifier(); }, { signal });
+      racine.addEventListener('focusout', (e) => {
+        if (!racine.contains(e.relatedTarget as Node | null)) { focus = false; planifier(); }
+      }, { signal });
+      document.addEventListener('visibilitychange', planifier, { signal });
+      veille = new IntersectionObserver(
+        (entrees) => {
+          visible = entrees.some((e) => e.isIntersecting);
+          planifier();
+        },
+        { threshold: 0.3 },
+      );
+      veille.observe(racine);
+    }
 
     // Balayage d'entrée, une seule fois par visite de la page.
     if (mouvement) {
