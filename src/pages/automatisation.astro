@@ -16,8 +16,9 @@
 // profond, carte schéma « Un système Hérone » à droite), le constat en
 // grille de cartes (crème), nos systèmes avec leurs mini-schémas (bleu), la
 // frise des cinq étapes (crème), les outils (bleu, une seule section qui
-// remplace « Avec quoi nous construisons / Ce que nous connectons » et la
-// bande défilante des logiciels), la preuve en cartes (crème), le tarif
+// remplace « Avec quoi nous construisons / Ce que nous connectons » ; son
+// texte, puis les deux bandes défilantes des logiciels, revenues le
+// 25 septembre 2026), la preuve en cartes (crème), le tarif
 // (bleu nuit profond), la FAQ (crème), le pont vers la formation (bleu).
 // La section « Les tâches que quelqu'un fait encore à la main » est
 // supprimée : elle reprenait mot pour mot les six titres du constat. Sa
@@ -124,14 +125,6 @@ const outilsTexte = [
   "Le moteur est n8n, une solution open source que nous hébergeons sur notre propre serveur. Aucun éditeur d'automatisation ne voit donc passer vos données. Quand vos outils l'imposent, nous savons aussi travailler avec Make ou Zapier : le choix est discuté avec vous et écrit dans le périmètre. Pas de frais cachés, pas d'abonnement captif.",
 ];
 
-// Les logiciels affichés en pastilles fixes, sélection de la maquette. Tous
-// figurent dans la liste complète de LogosMarquee.
-const outilsNoms = [
-  'Gmail', 'Google Sheets', 'Google Drive', 'Google Agenda', 'Outlook', 'Excel', 'Word', 'Teams',
-  'WhatsApp', 'HubSpot', 'Pipedrive', 'Qonto', 'Stripe', 'Shopify', 'Axonaut', 'Pennylane', 'Sage',
-  'EBP', 'Cegid', 'Yousign', 'Notion', 'Airtable', 'Trello', 'Slack', 'Calendly', 'Brevo', 'Dropbox',
-  'Claude',
-];
 ---
 
 <Layout
@@ -180,12 +173,11 @@ const outilsNoms = [
     />
 
     <LogosMarquee
-      variante="statique"
+      variante="defilant"
       fond="paper"
       eyebrow="Vos outils et les nôtres"
       titre="Nous branchons ce que vous utilisez déjà"
       texte={outilsTexte}
-      noms={outilsNoms}
     />
 
     <ProofSection fond="surface" variante="cartes" eyebrow="La preuve" titre="Deux systèmes, filmés chez nos clients" />
