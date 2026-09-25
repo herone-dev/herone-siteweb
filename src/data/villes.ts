@@ -55,7 +55,7 @@ export const VILLES: Ville[] = [
     minutes: null,
     km: null,
     surtitreLocal: 'Les Herbiers et le Pays des Herbiers',
-    voisinage: 'Et chez vous, aux Herbiers comme à Saint-Fulgent',
+    voisinage: 'Et chez vous, dans vos locaux',
     chapeau:
       "Nous formons les équipes des TPE et PME des Herbiers à l'intelligence artificielle, et nous relions leurs logiciels pour supprimer les ressaisies. Nos bureaux sont rue Édouard Branly : nous vous y recevons, ou nous venons chez vous.",
     local: [
@@ -64,7 +64,7 @@ export const VILLES: Ville[] = [
     ],
     faqQuestion: 'Pouvons-nous vous rencontrer à vos bureaux ?',
     faqReponse:
-      "Oui. Nos bureaux sont au 37 rue Édouard Branly, aux Herbiers : appelez-nous au 06 63 71 05 98 ou réservez un créneau pour convenir d'un rendez-vous. Nous venons aussi chez vous, aux Herbiers comme à Saint-Fulgent, puisque la formation comme l'installation d'un système se font dans vos locaux.",
+      "Oui. Nos bureaux sont au 37 rue Édouard Branly, aux Herbiers : appelez-nous au 06 63 71 05 98 ou réservez un créneau pour convenir d'un rendez-vous. Nous venons aussi chez vous, puisque la formation comme l'installation d'un système se font dans vos locaux.",
     voisines: ['chanverrie', 'sevremont', 'mortagne-sur-sevre', 'pouzauges', 'essarts-en-bocage', 'chantonnay'],
     lat: 46.87,
     lon: -1.013,
