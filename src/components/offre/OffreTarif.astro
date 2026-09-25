@@ -21,6 +21,13 @@
 //    une carte crème, et à côté une carte sombre « Ensuite » (prop `suite`)
 //    qui porte le texte de `inclus` et le bouton.
 //
+// Emplacement nommé `simulateur` (variante `claire`, /formation depuis le
+// 24 septembre 2026) : quand il est rempli, il remplace les cartes de prix
+// et la carte « Exemples », sur toute la largeur. La règle de prix est alors
+// écrite dans le simulateur lui-même, et `regles` peut rester vide.
+// Décision de l'utilisateur : les cartes répétaient le simulateur et
+// alourdissaient la section.
+//
 // Les montants ne portent PAS de white-space: nowrap. Ils tiennent d'un seul
 // tenant par leurs espaces insécables, ce qui suffit et ne fait pas déborder
 // la carte en étroit (piège n°1, déjà vécu sur les cartes d'offres).
@@ -30,7 +37,7 @@ interface Props {
   eyebrow?: string;
   titre: string;
   /** Une carte par règle de facturation. `label` coiffe le montant. */
-  regles: { label: string; prix: string; detail: string }[];
+  regles?: { label: string; prix: string; detail: string }[];
   /** Exemples chiffrés, facultatifs. Rendus en liste réglée, montants alignés. */
   exemples?: { qui: string; prix: string }[];
   /** Ce que le prix comprend, posé à gauche du bouton. */
@@ -41,7 +48,8 @@ interface Props {
   suite?: { label: string; titre: string };
 }
 
-const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif', variante = 'sombre', suite } = Astro.props;
+const { eyebrow = 'Le tarif', titre, regles = [], exemples, inclus, id = 'tarif', variante = 'sombre', suite } = Astro.props;
+const avecSimulateur = variante === 'claire' && Astro.slots.has('simulateur');
 ---
 
 <section
@@ -58,7 +66,9 @@ const { eyebrow = 'Le tarif', titre, regles, exemples, inclus, id = 'tarif', var
       <h2>{titre}</h2>
     </div>
 
-    {variante === 'claire' && (
+    {avecSimulateur && <slot name="simulateur" />}
+
+    {variante === 'claire' && !avecSimulateur && (
       <div class="hrn-offre-tarif__cartes">
         {regles.map((r) => (
           <div class="hrn-offre-tarif__carte">
