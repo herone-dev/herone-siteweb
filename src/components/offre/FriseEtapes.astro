@@ -175,16 +175,16 @@ const { etapes } = Astro.props;
     display: block;
   }
 
-  /* Six pixels d'épaisseur (trois au départ) : l'utilisateur voulait un
-     flux plus large, 25 septembre 2026. */
+  /* Huit pixels d'épaisseur : trois au départ, six le 25 septembre 2026,
+     huit le 26 (« encore un peu plus large », demande de l'utilisateur). */
   .hrn-frise[data-axe='x'] .hrn-frise__energie {
-    height: 6px;
-    margin-top: -3px;
+    height: 8px;
+    margin-top: -4px;
   }
 
   .hrn-frise[data-axe='y'] .hrn-frise__energie {
-    width: 6px;
-    margin-left: -3px;
+    width: 8px;
+    margin-left: -4px;
   }
 
   .hrn-frise__charge {
@@ -221,17 +221,17 @@ const { etapes } = Astro.props;
   .hrn-frise[data-axe='x'] .hrn-frise__tete {
     left: 0;
     top: 50%;
-    width: 64px;
-    height: 26px;
-    margin: -13px 0 0 -32px;
+    width: 72px;
+    height: 32px;
+    margin: -16px 0 0 -36px;
   }
 
   .hrn-frise[data-axe='y'] .hrn-frise__tete {
     top: 0;
     left: 50%;
-    width: 26px;
-    height: 64px;
-    margin: -32px 0 0 -13px;
+    width: 32px;
+    height: 72px;
+    margin: -36px 0 0 -16px;
   }
 
   /* ============ Textes des étapes ============ */
@@ -297,15 +297,17 @@ const { etapes } = Astro.props;
 
 <script>
   // Un bond d'une pastille à la suivante : départ vif, arrivée freinée.
-  const DUREE_BOND = 950;
+  // 600ms depuis le 26 septembre 2026 (950 avant, « plus rapide » demandé) :
+  // la course entière dure environ 3,2 s au lieu de 4,8.
+  const DUREE_BOND = 600;
   const COURBE = 'cubic-bezier(0.16, 1, 0.3, 1)';
   // Moment où la pastille d'arrivée s'allume, en part du bond : la barre a
   // presque fini sa course, elle ne fait plus que ralentir.
   const ALLUMAGE = 0.6;
   // Temps sur la pastille 01 allumée avant le premier bond, et entre deux
   // bonds.
-  const AMORCE = 450;
-  const PAUSE = 260;
+  const AMORCE = 300;
+  const PAUSE = 150;
 
   let controle: AbortController | undefined;
   let observateur: IntersectionObserver | undefined;
