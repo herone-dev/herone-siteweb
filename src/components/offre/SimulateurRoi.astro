@@ -176,7 +176,7 @@ const lignes = {
     </p>
 
     <p class="hrn-roi__prix">
-      Chaque projet se chiffre après l'échange découverte, offert : le prix dépend de ce qu'il y a à automatiser, à partir de <strong>{`${milliers(prixEntree)}${F}${EUR}${F}HT`}</strong>.
+      Chaque projet se chiffre après la séance d'analyse, offerte : le prix dépend de ce qu'il y a à automatiser, à partir de <strong>{`${milliers(prixEntree)}${F}${EUR}${F}HT`}</strong>.
     </p>
 
     <p class="hrn-roi__petit" data-roi-petit hidden>
@@ -184,7 +184,7 @@ const lignes = {
     </p>
 
     <div class="hrn-roi__bouton">
-      <Button variant="accent" size="lg" href="/#reserver">Réserver l'échange découverte</Button>
+      <Button variant="accent" size="lg" href="/#reserver">Réserver 30 minutes</Button>
     </div>
 
     <p class="hrn-roi__annonce" aria-live="polite" data-roi-annonce></p>
@@ -202,7 +202,7 @@ const lignes = {
       <li>Tâches répétitives : ressaisir, relancer, recopier, classer.</li>
       <li>{`${SEMAINES} semaines travaillées par an : 52 semaines, moins 5 semaines de congés payés.`}</li>
       <li>{`Coût d'une heure proposé au départ : 45${NBSP}${EUR}, proche de la moyenne française (44,7${NBSP}${EUR} en 2025, charges comprises, Insee).`}</li>
-      <li>Estimation indicative : l'échange découverte sert à vérifier ce qui est vraiment automatisable.</li>
+      <li>Estimation indicative : la séance d'analyse sert à vérifier ce qui est vraiment automatisable.</li>
     </ul>
   </details>
 </div>
@@ -511,9 +511,9 @@ const lignes = {
     margin-top: 26px;
   }
 
-  /* Le libellé du bouton est long : sur un écran étroit, il prend toute la
-     largeur de la carte et passe à la ligne au besoin, au lieu de déborder
-     (320px). */
+  /* Sur un écran étroit, le bouton prend toute la largeur de la carte et
+     passe à la ligne au besoin, au lieu de déborder (320px, vécu avec un
+     libellé plus long). */
   .hrn-roi__bouton :global(.hrn-btn) {
     max-width: 100%;
   }

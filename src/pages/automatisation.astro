@@ -94,20 +94,23 @@ const questions = [
 ];
 
 // Le déroulé d'un projet, réécrit le 25 septembre 2026 d'après la description
-// de l'utilisateur : un échange d'une heure, offert, pour relever les
-// problématiques ; un périmètre cadré au maximum, qui s'affine pourtant
+// de l'utilisateur : un périmètre cadré au maximum, qui s'affine pourtant
 // pendant les tests ; le développement chez nous ; les tests dans le
 // quotidien du client, en boucles, avec la formation des utilisateurs ; le
 // suivi mensuel (maintenance, bugs, service client, mises à jour).
-// Attention : le hero, le tarif et les boutons de la page parlent encore d'un
-// périmètre écrit à prix ferme et d'un échange de 30 minutes. Décision de
-// l'utilisateur en attente, ne pas les aligner sans son accord.
+// Étape 01 depuis le 26 septembre 2026 : l'échange découverte de 30 minutes
+// (le rendez-vous de tous les boutons du site), puis, s'il y a un projet,
+// une séance d'analyse d'une heure, offerte, pour analyser et comprendre ce
+// qui ne marche pas et apporter des solutions. Le mot « audit » reste banni.
+// Attention : le hero parle encore d'un périmètre écrit à prix ferme et d'un
+// délai de 1 à 4 semaines. Décision de l'utilisateur en attente, ne pas les
+// aligner sans son accord.
 const deroule = [
   {
     num: '01',
-    titre: "L'échange découverte",
-    meta: `1${NBSP}heure, offert`,
-    texte: `Nous relevons avec vous ce qui freine vos équipes au quotidien. Ces problématiques deviennent des axes d'amélioration, sur lesquels nous proposons ensuite des solutions. Et quand une automatisation ne vaut pas le coup, nous le disons.`,
+    titre: "L'échange, puis l'analyse",
+    meta: `30${NBSP}min, puis 1${NBSP}h offerte`,
+    texte: `Trente minutes pour faire connaissance et voir si l'automatisation a du sens chez vous. Si c'est le cas, une séance d'analyse d'une heure, offerte : comprendre ce qui ne marche pas, et vous proposer des solutions.`,
   },
   {
     num: '02',
