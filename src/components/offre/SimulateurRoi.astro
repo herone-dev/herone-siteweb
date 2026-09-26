@@ -1,24 +1,29 @@
 ---
-// Simulateur de rentabilité, posé dans le bloc tarif de /automatisation
-// (emplacement « simulateur » d'OffreTarif, variante suivi). Demande de
-// l'utilisateur, 25 septembre 2026 : chiffrer l'argent que l'entreprise paie
-// sur des heures potentiellement automatisables, et annoncer un retour sur
-// investissement.
+// Simulateur du coût des tâches répétitives, posé dans le bloc tarif de
+// /automatisation (emplacement « simulateur » d'OffreTarif, variante
+// suivi). Demande de l'utilisateur, 25 septembre 2026 : chiffrer l'argent
+// que l'entreprise paie sur des heures potentiellement automatisables.
+//
+// Plus de durée de rentabilisation depuis le 26 septembre 2026. Elle
+// divisait toujours le même prix d'entrée par le coût des heures perdues :
+// plus il y avait de personnes ou d'heures, plus elle paraissait courte,
+// alors qu'un projet plus gros coûte plus cher. Et le prix ne se connaît
+// qu'après avoir vu ce qu'il y a à automatiser (utilisateur : « c'est
+// important que le prospect voie ce qu'il perd », mais pas de prix précis
+// sans savoir quoi automatiser). Le simulateur montre donc la perte, et le
+// prix reste un plancher expliqué.
 //
 // Le visiteur règle trois valeurs (curseur, ou boutons moins et plus) :
 // les heures perdues par semaine et par personne, le nombre de personnes, et
 // le coût horaire d'un salarié, charges patronales comprises. Il lit aussitôt :
 //   heures par an = heures × personnes × SEMAINES
 //   coût par an   = heures par an × coût horaire
-//   rentabilisée en = prixEntree / (heures × personnes × coût horaire)
-// La durée de rentabilisation se dit en semaines jusqu'à un an, en mois
-// au-delà. Elle suppose que ces heures sont réellement automatisées, et ne
-// compte pas le suivi mensuel : le volet « Comment c'est calculé ? » le dit.
+//   perdu par mois = coût par an / 12
 //
 // Version « l'essentiel » (piste A, choisie le 26 septembre 2026 sur trois
 // maquettes, après « trop d'informations » au premier regard) : trois
-// réglages aux intitulés courts, un grand chiffre, une phrase de
-// rentabilité, une ligne de prix, le bouton. Le détail du calcul, avec les
+// réglages aux intitulés courts, un grand chiffre, la perte de chaque mois,
+// une phrase de prix, le bouton. Le détail du calcul, avec les
 // valeurs du visiteur, et les hypothèses sourcées vivent dans un <details>
 // fermé par défaut.
 //
@@ -31,8 +36,9 @@
 //    France en 2025, 44,7 € (Insee, « Salaires et coût du travail en
 //    Europe », entreprises de 10 salariés et plus). Le visiteur le change.
 //
-// `prixEntree` vient de la page : c'est le prix d'entrée de la mise en place.
-// Le jour où des prix d'entrée de gamme existent, c'est lui qui change.
+// `prixEntree` vient de la page : c'est le prix d'entrée de la mise en place,
+// cité comme plancher. Il sert aussi à décider quand afficher la phrase sur
+// les petits besoins, jamais à un calcul montré au visiteur.
 //
 // Même mécanique de compteur à rouleaux que SimulateurFormation (le texte
 // réel reste dans le flux, les rouleaux sont posés par-dessus en
@@ -109,23 +115,14 @@ const equivalence = (heures: number) => {
   return semaines === 1 ? "plus d'une semaine à temps plein" : `plus de ${semaines} semaines à temps plein`;
 };
 
-const delai = (coutSemaine: number, coutAn: number) => {
-  const enSemaines = prixEntree / coutSemaine;
-  if (enSemaines < 1) return "moins d'une semaine";
-  const s = Math.ceil(enSemaines);
-  if (s <= 52) return `${s}${NBSP}${s > 1 ? 'semaines' : 'semaine'}`;
-  return `${Math.ceil(prixEntree / (coutAn / 12))}${NBSP}mois`;
-};
-
 const [h, p, t] = CHAMPS.map((c) => c.defaut);
 const heuresAn = h * p * SEMAINES;
 const coutAn = heuresAn * t;
-const coutSemaine = h * p * t;
+const coutMois = Math.round(coutAn / 12);
 const eq = equivalence(heuresAn);
 const lignes = {
   heures: `${h}${NBSP}h${F}×${F}${p} ${p > 1 ? 'personnes' : 'personne'}${F}×${F}${SEMAINES} semaines = ${milliers(heuresAn)} heures par an${eq ? `, ${eq}` : ''}.`,
-  cout: `${milliers(heuresAn)} heures${F}×${F}${t}${NBSP}${EUR} = ${milliers(coutAn)}${F}${EUR} par an, soit ${milliers(Math.round(coutAn / 12))}${F}${EUR} par mois.`,
-  rentable: `Rentabilisation : ${milliers(prixEntree)}${F}${EUR}${F}HT${F}÷${F}${milliers(coutSemaine)}${F}${EUR} par semaine, soit ${delai(coutSemaine, coutAn)}.`,
+  cout: `${milliers(heuresAn)} heures${F}×${F}${t}${NBSP}${EUR} = ${milliers(coutAn)}${F}${EUR} par an, soit ${milliers(coutMois)}${F}${EUR} par mois.`,
 };
 ---
 
@@ -170,15 +167,15 @@ const lignes = {
       <span>par an</span>
     </p>
 
-    <p class="hrn-roi__rentable">
-      <span class="hrn-roi__rentable-titre">
-        Rentabilisé en <strong data-roi-rentable>{delai(coutSemaine, coutAn)}</strong>
+    <p class="hrn-roi__perte">
+      <span class="hrn-roi__perte-titre">
+        <strong data-roi-mois>{`${milliers(coutMois)}${F}${EUR}`}</strong> {`perdus chaque${NBSP}mois`}
       </span>
-      <span class="hrn-roi__rentable-si">si ces heures sont automatisées</span>
+      <span class="hrn-roi__perte-detail" data-roi-heures>{`${milliers(heuresAn)} heures par an${eq ? `, ${eq}` : ''}`}</span>
     </p>
 
     <p class="hrn-roi__prix">
-      Mise en place à partir de <strong>{`${milliers(prixEntree)}${F}${EUR}${F}HT`}</strong>, échange découverte offert.
+      Chaque projet se chiffre après l'échange découverte, offert : le prix dépend de ce qu'il y a à automatiser, à partir de <strong>{`${milliers(prixEntree)}${F}${EUR}${F}HT`}</strong>.
     </p>
 
     <p class="hrn-roi__petit" data-roi-petit hidden>
@@ -201,11 +198,10 @@ const lignes = {
     <ul>
       <li data-roi-ligne="heures">{lignes.heures}</li>
       <li data-roi-ligne="cout">{lignes.cout}</li>
-      <li data-roi-ligne="rentable">{lignes.rentable}</li>
       <li>Tâches répétitives : ressaisir, relancer, recopier, classer.</li>
       <li>{`${SEMAINES} semaines travaillées par an : 52 semaines, moins 5 semaines de congés payés.`}</li>
       <li>{`Coût d'une heure proposé au départ : 45${NBSP}${EUR}, proche de la moyenne française (44,7${NBSP}${EUR} en 2025, charges comprises, Insee).`}</li>
-      <li>Le suivi mensuel, chiffré avec vous, n'est pas compté. Selon la complexité, la mise en place peut monter à plusieurs milliers d'euros : l'échange découverte sert à le chiffrer.</li>
+      <li>Estimation indicative : l'échange découverte sert à vérifier ce qui est vraiment automatisable.</li>
     </ul>
   </details>
 </div>
@@ -439,10 +435,10 @@ const lignes = {
     color: var(--text-strong);
   }
 
-  /* Le retour sur investissement annoncé, mis en avant. */
-  .hrn-roi__rentable {
+  /* La perte de chaque mois, mise en avant. */
+  .hrn-roi__perte {
     display: grid;
-    gap: 2px;
+    gap: 4px;
     margin: 24px 0 0;
     padding: 16px 20px;
     border-radius: var(--radius-lg);
@@ -450,7 +446,7 @@ const lignes = {
     border: 1px solid color-mix(in srgb, var(--amber-400) 40%, transparent);
   }
 
-  .hrn-roi__rentable-titre {
+  .hrn-roi__perte-titre {
     font-family: var(--font-display);
     font-weight: var(--weight-titre);
     font-size: 24px;
@@ -459,13 +455,18 @@ const lignes = {
     color: var(--text-strong);
   }
 
-  .hrn-roi__rentable-titre strong {
+  /* Le montant défile comme le total : le script y pose ses rouleaux. */
+  .hrn-roi__perte-titre strong {
+    position: relative;
+    display: inline-block;
+    letter-spacing: 0;
     color: var(--accent-texte);
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
   }
 
-  .hrn-roi__rentable-si {
-    font-size: 14px;
+  .hrn-roi__perte-detail {
+    font-size: 14.5px;
     line-height: 1.5;
     color: var(--text-secondary);
   }
@@ -652,8 +653,8 @@ const lignes = {
   const TOURS = 1;
   const DECALAGE = 70;
   const DUREE = 900;
-  // Au-delà de trois mois pour rentabiliser, la phrase sur les petits besoins
-  // apparaît.
+  // Quand treize semaines de pertes n'atteignent pas le prix d'entrée, le
+  // besoin est petit : la phrase qui invite les petits projets apparaît.
   const SEUIL_PETIT = 13;
 
   let controle: AbortController | undefined;
@@ -758,8 +759,8 @@ const lignes = {
     const ligne = (nom: string) => racine.querySelector<HTMLElement>(`[data-roi-ligne="${nom}"]`);
     const ligneHeures = ligne('heures');
     const ligneCout = ligne('cout');
-    const ligneRentable = ligne('rentable');
-    const rentable = racine.querySelector<HTMLElement>('[data-roi-rentable]');
+    const mois = racine.querySelector<HTMLElement>('[data-roi-mois]');
+    const heuresPerdues = racine.querySelector<HTMLElement>('[data-roi-heures]');
     const petit = racine.querySelector<HTMLElement>('[data-roi-petit]');
     const annonce = racine.querySelector<HTMLElement>('[data-roi-annonce]');
     const champs = [...racine.querySelectorAll<HTMLElement>('[data-champ]')].map((champ) => ({
@@ -768,7 +769,7 @@ const lignes = {
       valeur: champ.querySelector<HTMLElement>('[data-roi-valeur]'),
       pas: [...champ.querySelectorAll<HTMLButtonElement>('.hrn-roi__pas')],
     }));
-    if (!choix || !total || !rentable || champs.some((c) => !c.curseur)) return;
+    if (!choix || !total || !mois || champs.some((c) => !c.curseur)) return;
 
     choix.hidden = false;
     if (exemple) exemple.hidden = true;
@@ -801,12 +802,7 @@ const lignes = {
       const heuresAn = heures * personnes * semaines;
       const coutAn = heuresAn * taux;
       const coutSemaine = heures * personnes * taux;
-      const enSemaines = prix / coutSemaine;
-      let delai: string;
-      if (enSemaines < 1) delai = "moins d'une semaine";
-      else if (Math.ceil(enSemaines) <= 52) delai = `${Math.ceil(enSemaines)}${NBSP}${Math.ceil(enSemaines) > 1 ? 'semaines' : 'semaine'}`;
-      else delai = `${Math.ceil(prix / (coutAn / 12))}${NBSP}mois`;
-      return { heuresAn, coutAn, coutSemaine, coutMois: Math.round(coutAn / 12), enSemaines, delai };
+      return { heuresAn, coutAn, coutMois: Math.round(coutAn / 12), petit: coutSemaine * SEUIL_PETIT < prix };
     };
 
     const poserChamp = (c: (typeof champs)[number], n: number) => {
@@ -828,20 +824,21 @@ const lignes = {
       const r = calculer(v);
       const eq = equivalence(r.heuresAn);
       const { heures, personnes, taux } = v;
-      rentable.textContent = r.delai;
       // Le détail du calcul, avec les valeurs du visiteur : même texte que
       // celui du HTML de départ.
       if (ligneHeures) ligneHeures.textContent = `${heures}${NBSP}h${F}×${F}${personnes} ${personnes > 1 ? 'personnes' : 'personne'}${F}×${F}${semaines} semaines = ${milliers(r.heuresAn)} heures par an${eq ? `, ${eq}` : ''}.`;
       if (ligneCout) ligneCout.textContent = `${milliers(r.heuresAn)} heures${F}×${F}${taux}${NBSP}${EUR} = ${milliers(r.coutAn)}${F}${EUR} par an, soit ${milliers(r.coutMois)}${F}${EUR} par mois.`;
-      if (ligneRentable) ligneRentable.textContent = `Rentabilisation : ${milliers(prix)}${F}${EUR}${F}HT${F}÷${F}${milliers(r.coutSemaine)}${F}${EUR} par semaine, soit ${r.delai}.`;
-      if (petit) petit.hidden = r.enSemaines <= SEUIL_PETIT;
+      if (heuresPerdues) heuresPerdues.textContent = `${milliers(r.heuresAn)} heures par an${eq ? `, ${eq}` : ''}`;
+      if (petit) petit.hidden = !r.petit;
 
-      rouler(total, `${milliers(r.coutAn)}${F}${EUR}`, mouvement && roule && vu, depuisZero);
+      const bouge = mouvement && roule && vu;
+      rouler(total, `${milliers(r.coutAn)}${F}${EUR}`, bouge, depuisZero);
+      rouler(mois, `${milliers(r.coutMois)}${F}${EUR}`, bouge, depuisZero);
 
       if (annonce && annoncer) {
         if (minuterieAnnonce) clearTimeout(minuterieAnnonce);
         minuterieAnnonce = attendre(() => {
-          annonce.textContent = `${milliers(r.coutAn)}${F}${EUR} par an. Mise en place rentabilisée en ${r.delai}.`;
+          annonce.textContent = `${milliers(r.coutAn)}${F}${EUR} par an, soit ${milliers(r.coutMois)}${F}${EUR} perdus chaque mois.`;
         }, 600);
       }
     };

@@ -60,7 +60,7 @@ const NBSP = String.fromCodePoint(0x00a0);
 const EUR = String.fromCodePoint(0x20ac);
 
 // Prix d'entrée de la mise en place, hors taxes : le seul endroit où il
-// s'écrit sur la page. Il nourrit aussi le simulateur de rentabilité.
+// s'écrit sur la page. Il est aussi cité par le simulateur du coût des tâches.
 const MISE_EN_PLACE = 2000;
 const PRIX_MISE_EN_PLACE = `${String(MISE_EN_PLACE).replace(/\B(?=(\d{3})+(?!\d))/g, F)}${F}${EUR}${F}HT`;
 const PRIX_FORMATION = `1${F}500${F}${EUR}${F}HT`;
