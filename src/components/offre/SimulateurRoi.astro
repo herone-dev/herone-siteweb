@@ -13,7 +13,14 @@
 //   rentabilisée en = prixEntree / (heures × personnes × coût horaire)
 // La durée de rentabilisation se dit en semaines jusqu'à un an, en mois
 // au-delà. Elle suppose que ces heures sont réellement automatisées, et ne
-// compte pas le suivi mensuel : la note sous le résultat le dit en clair.
+// compte pas le suivi mensuel : le volet « Comment c'est calculé ? » le dit.
+//
+// Version « l'essentiel » (piste A, choisie le 26 septembre 2026 sur trois
+// maquettes, après « trop d'informations » au premier regard) : trois
+// réglages aux intitulés courts, un grand chiffre, une phrase de
+// rentabilité, une ligne de prix, le bouton. Le détail du calcul, avec les
+// valeurs du visiteur, et les hypothèses sourcées vivent dans un <details>
+// fermé par défaut.
 //
 // Hypothèses, sourcées le 25 septembre 2026 :
 //  - 47 semaines travaillées par an : 52 semaines moins 5 semaines de congés
@@ -58,8 +65,7 @@ const milliers = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, F);
 const CHAMPS = [
   {
     cle: 'heures',
-    question: `Combien d'heures par semaine, par personne, sur des tâches répétitives${F}?`,
-    aide: 'Ressaisir, relancer, recopier, classer.',
+    label: 'Heures perdues par semaine, par personne',
     min: 1,
     max: 20,
     defaut: 5,
@@ -69,8 +75,7 @@ const CHAMPS = [
   },
   {
     cle: 'personnes',
-    question: `Combien de personnes sont concernées${F}?`,
-    aide: '',
+    label: 'Personnes concernées',
     min: 1,
     max: 30,
     defaut: 3,
@@ -80,8 +85,7 @@ const CHAMPS = [
   },
   {
     cle: 'taux',
-    question: `Combien coûte une heure de travail, charges comprises${F}?`,
-    aide: `Salaire brut et charges patronales. Par défaut 45${NBSP}${EUR}, proche de la moyenne française (44,7${NBSP}${EUR} en 2025, Insee).`,
+    label: "Coût d'une heure, charges comprises",
     min: 12,
     max: 90,
     defaut: 45,
@@ -91,12 +95,9 @@ const CHAMPS = [
   },
 ];
 
-const [h, p, t] = CHAMPS.map((c) => c.defaut);
-const heuresAn = h * p * SEMAINES;
-const coutAn = heuresAn * t;
-const coutMois = Math.round(coutAn / 12);
 // Au-delà d'une année de travail (47 semaines de 35 heures), l'équivalence
-// se dit en postes à temps plein plutôt qu'en semaines.
+// se dit en postes à temps plein plutôt qu'en semaines. Le script de la
+// page reprend exactement les mêmes règles.
 const equivalence = (heures: number) => {
   const an = SEMAINES * TEMPS_PLEIN;
   if (heures >= an) {
@@ -107,16 +108,32 @@ const equivalence = (heures: number) => {
   if (semaines < 1) return '';
   return semaines === 1 ? "plus d'une semaine à temps plein" : `plus de ${semaines} semaines à temps plein`;
 };
-const rentable = Math.ceil(prixEntree / (h * p * t));
+
+const delai = (coutSemaine: number, coutAn: number) => {
+  const enSemaines = prixEntree / coutSemaine;
+  if (enSemaines < 1) return "moins d'une semaine";
+  const s = Math.ceil(enSemaines);
+  if (s <= 52) return `${s}${NBSP}${s > 1 ? 'semaines' : 'semaine'}`;
+  return `${Math.ceil(prixEntree / (coutAn / 12))}${NBSP}mois`;
+};
+
+const [h, p, t] = CHAMPS.map((c) => c.defaut);
+const heuresAn = h * p * SEMAINES;
+const coutAn = heuresAn * t;
+const coutSemaine = h * p * t;
+const eq = equivalence(heuresAn);
+const lignes = {
+  heures: `${h}${NBSP}h${F}×${F}${p} ${p > 1 ? 'personnes' : 'personne'}${F}×${F}${SEMAINES} semaines = ${milliers(heuresAn)} heures par an${eq ? `, ${eq}` : ''}.`,
+  cout: `${milliers(heuresAn)} heures${F}×${F}${t}${NBSP}${EUR} = ${milliers(coutAn)}${F}${EUR} par an, soit ${milliers(Math.round(coutAn / 12))}${F}${EUR} par mois.`,
+  rentable: `Rentabilisation : ${milliers(prixEntree)}${F}${EUR}${F}HT${F}÷${F}${milliers(coutSemaine)}${F}${EUR} par semaine, soit ${delai(coutSemaine, coutAn)}.`,
+};
 ---
 
 <div class="hrn-roi" data-roi data-prix={prixEntree} data-semaines={SEMAINES} data-temps-plein={TEMPS_PLEIN}>
   <div class="hrn-roi__carte hrn-roi__choix hrn-zone-creme" hidden>
-    <span class="hrn-roi__etiquette">Vos tâches répétitives</span>
     {CHAMPS.map((c) => (
       <div class="hrn-roi__champ" data-champ={c.cle}>
-        <label class="hrn-roi__question" for={`roi-${c.cle}`}>{c.question}</label>
-        {c.aide && <p class="hrn-roi__aide">{c.aide}</p>}
+        <label class="hrn-roi__label" for={`roi-${c.cle}`}>{c.label}</label>
         <div class="hrn-roi__reglage">
           <button type="button" class="hrn-roi__pas" data-pas="-1" aria-label={c.moins}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14" /></svg>
@@ -152,36 +169,20 @@ const rentable = Math.ceil(prixEntree / (h * p * t));
       <strong data-roi-total>{`${milliers(coutAn)}${F}${EUR}`}</strong>
       <span>par an</span>
     </p>
-    <p class="hrn-roi__heures" data-roi-heures>
-      {`${milliers(heuresAn)} heures par an${equivalence(heuresAn) ? `, ${equivalence(heuresAn)}` : ''}. Soit ${milliers(coutMois)}${F}${EUR} par mois.`}
-    </p>
 
     <p class="hrn-roi__rentable">
-      Si ces heures sont automatisées, la mise en place est rentabilisée en
-      <strong data-roi-rentable>{`${rentable} semaines`}</strong>.
+      <span class="hrn-roi__rentable-titre">
+        Rentabilisé en <strong data-roi-rentable>{delai(coutSemaine, coutAn)}</strong>
+      </span>
+      <span class="hrn-roi__rentable-si">si ces heures sont automatisées</span>
     </p>
 
-    <dl class="hrn-roi__tarif">
-      <div>
-        <dt>Échange découverte</dt>
-        <dd>Offert</dd>
-      </div>
-      <div>
-        <dt>Mise en place, à partir de</dt>
-        <dd>{`${milliers(prixEntree)}${F}${EUR}`}<span class="hrn-roi__ht">HT</span></dd>
-      </div>
-      <div>
-        <dt>Suivi mensuel</dt>
-        <dd>Chiffré avec vous</dd>
-      </div>
-    </dl>
+    <p class="hrn-roi__prix">
+      Mise en place à partir de <strong>{`${milliers(prixEntree)}${F}${EUR}${F}HT`}</strong>, échange découverte offert.
+    </p>
 
     <p class="hrn-roi__petit" data-roi-petit hidden>
       Un besoin plus petit ? Nous chiffrons aussi les automatisations simples. Parlons-en.
-    </p>
-
-    <p class="hrn-roi__note">
-      {`Estimation indicative : ${SEMAINES} semaines travaillées par an, suivi mensuel non compté. Selon la complexité, la mise en place peut monter à plusieurs milliers d'euros : l'échange découverte sert à le chiffrer.`}
     </p>
 
     <div class="hrn-roi__bouton">
@@ -190,6 +191,23 @@ const rentable = Math.ceil(prixEntree / (h * p * t));
 
     <p class="hrn-roi__annonce" aria-live="polite" data-roi-annonce></p>
   </div>
+
+  {/* Hors des cartes : l'ouvrir n'étire pas la carte des réglages. */}
+  <details class="hrn-roi__calcul">
+    <summary>
+      {`Comment c'est calculé${F}?`}
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+    </summary>
+    <ul>
+      <li data-roi-ligne="heures">{lignes.heures}</li>
+      <li data-roi-ligne="cout">{lignes.cout}</li>
+      <li data-roi-ligne="rentable">{lignes.rentable}</li>
+      <li>Tâches répétitives : ressaisir, relancer, recopier, classer.</li>
+      <li>{`${SEMAINES} semaines travaillées par an : 52 semaines, moins 5 semaines de congés payés.`}</li>
+      <li>{`Coût d'une heure proposé au départ : 45${NBSP}${EUR}, proche de la moyenne française (44,7${NBSP}${EUR} en 2025, charges comprises, Insee).`}</li>
+      <li>Le suivi mensuel, chiffré avec vous, n'est pas compté. Selon la complexité, la mise en place peut monter à plusieurs milliers d'euros : l'échange découverte sert à le chiffrer.</li>
+    </ul>
+  </details>
 </div>
 
 <style>
@@ -222,8 +240,8 @@ const rentable = Math.ceil(prixEntree / (h * p * t));
 
   .hrn-roi__choix {
     display: grid;
-    align-content: start;
-    gap: 24px;
+    align-content: center;
+    gap: 26px;
     background: var(--surface);
     border-color: var(--creme-bordure);
   }
@@ -252,22 +270,13 @@ const rentable = Math.ceil(prixEntree / (h * p * t));
     gap: 6px;
   }
 
-  .hrn-roi__question {
+  .hrn-roi__label {
     font-family: var(--font-display);
     font-weight: var(--weight-titre);
-    font-size: 1.125rem;
+    font-size: 17px;
     line-height: 1.3;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
     color: var(--text-strong);
-    text-wrap: balance;
-  }
-
-  .hrn-roi__aide {
-    margin: -2px 0 0;
-    font-size: 14px;
-    line-height: 1.5;
-    color: var(--text-secondary);
-    text-wrap: pretty;
   }
 
   /* Boutons, valeur et curseur sur une ligne ; le curseur passe dessous
@@ -430,91 +439,60 @@ const rentable = Math.ceil(prixEntree / (h * p * t));
     color: var(--text-strong);
   }
 
-  .hrn-roi__heures {
-    margin: 6px 0 0;
-    font-size: 15.5px;
+  /* Le retour sur investissement annoncé, mis en avant. */
+  .hrn-roi__rentable {
+    display: grid;
+    gap: 2px;
+    margin: 24px 0 0;
+    padding: 16px 20px;
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--amber-500) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--amber-400) 40%, transparent);
+  }
+
+  .hrn-roi__rentable-titre {
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: 24px;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    color: var(--text-strong);
+  }
+
+  .hrn-roi__rentable-titre strong {
+    color: var(--accent-texte);
+    white-space: nowrap;
+  }
+
+  .hrn-roi__rentable-si {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+  }
+
+  .hrn-roi__prix {
+    margin: 20px 0 0;
+    font-size: 16px;
     line-height: 1.55;
     color: var(--text-secondary);
     text-wrap: pretty;
   }
 
-  /* Le retour sur investissement annoncé, mis en avant. */
-  .hrn-roi__rentable {
-    margin: 22px 0 0;
-    padding: 14px 18px;
-    border-radius: var(--radius-lg);
-    background: color-mix(in srgb, var(--amber-500) 16%, transparent);
-    border: 1px solid color-mix(in srgb, var(--amber-400) 40%, transparent);
-    font-size: 16px;
-    line-height: 1.5;
+  .hrn-roi__prix strong {
+    font-weight: var(--weight-semibold);
     color: var(--text-strong);
-    text-wrap: pretty;
-  }
-
-  .hrn-roi__rentable strong {
-    font-weight: var(--weight-titre);
-    color: var(--accent-texte);
     white-space: nowrap;
   }
 
-  /* Le tarif, en lignes réglées comme les faits du simulateur de /formation. */
-  .hrn-roi__tarif {
-    margin: 22px 0 0;
-    border-top: 1px solid var(--nuit-carte-bordure);
-  }
-
-  .hrn-roi__tarif > div {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 4px 16px;
-    padding: 11px 0;
-    border-bottom: 1px solid var(--nuit-carte-bordure);
-  }
-
-  .hrn-roi__tarif dt {
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-
-  .hrn-roi__tarif dd {
-    margin: 0;
-    font-family: var(--font-display);
-    font-weight: var(--weight-titre);
-    font-size: 1.125rem;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    color: var(--text-strong);
-  }
-
-  .hrn-roi__ht {
-    margin-left: 0.3em;
-    font-size: 0.8em;
-    font-weight: var(--weight-semibold);
-    color: var(--text-secondary);
-  }
-
   .hrn-roi__petit {
-    margin: 16px 0 0;
+    margin: 12px 0 0;
     font-size: 15px;
     line-height: 1.55;
     color: var(--text-strong);
   }
 
-  .hrn-roi__note {
-    margin: 16px 0 0;
-    font-size: 13.5px;
-    line-height: 1.55;
-    color: var(--text-muted);
-    text-wrap: pretty;
-  }
-
   .hrn-roi__bouton {
-    margin-top: 24px;
+    margin-top: 26px;
   }
 
   /* Le libellé du bouton est long : sur un écran étroit, il prend toute la
@@ -530,6 +508,71 @@ const rentable = Math.ceil(prixEntree / (h * p * t));
       white-space: normal;
       text-align: center;
     }
+  }
+
+  /* « Comment c'est calculé ? » : fermé par défaut, le détail avec les
+     valeurs du visiteur et les hypothèses. Le résumé fait 44px de haut. */
+  /* Sous la carte du résultat, dans sa colonne au large : l'ouvrir ne
+     change pas la hauteur des cartes, les réglages ne bougent pas. */
+  .hrn-roi__calcul {
+    margin-top: -8px;
+  }
+
+  @media (min-width: 720px) {
+    .hrn-roi.is-actif .hrn-roi__calcul {
+      grid-column: 2;
+    }
+  }
+
+  .hrn-roi__calcul summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    list-style: none;
+    cursor: pointer;
+    font-size: 15px;
+    color: var(--text-secondary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .hrn-roi__calcul summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .hrn-roi__calcul summary:hover {
+    color: var(--text-strong);
+  }
+
+  .hrn-roi__calcul summary:focus-visible {
+    outline: 2px solid var(--accent-texte);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  .hrn-roi__calcul summary svg {
+    color: var(--accent-texte);
+    transition: transform var(--dur) var(--ease-standard);
+  }
+
+  .hrn-roi__calcul[open] summary svg {
+    transform: rotate(180deg);
+  }
+
+  .hrn-roi__calcul ul {
+    display: grid;
+    gap: 8px;
+    margin: 6px 0 0;
+    padding: 0 0 0 18px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  .hrn-roi__calcul li::marker {
+    color: var(--accent-texte);
   }
 
   .hrn-roi__annonce {
@@ -584,6 +627,7 @@ const rentable = Math.ceil(prixEntree / (h * p * t));
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .hrn-roi__calcul summary svg,
     .hrn-roi__pas,
     .hrn-roi__curseur::-webkit-slider-thumb,
     .hrn-roi__curseur::-moz-range-thumb {
@@ -711,7 +755,10 @@ const rentable = Math.ceil(prixEntree / (h * p * t));
     const choix = racine.querySelector<HTMLElement>('.hrn-roi__choix');
     const exemple = racine.querySelector<HTMLElement>('[data-roi-exemple]');
     const total = racine.querySelector<HTMLElement>('[data-roi-total]');
-    const heuresTexte = racine.querySelector<HTMLElement>('[data-roi-heures]');
+    const ligne = (nom: string) => racine.querySelector<HTMLElement>(`[data-roi-ligne="${nom}"]`);
+    const ligneHeures = ligne('heures');
+    const ligneCout = ligne('cout');
+    const ligneRentable = ligne('rentable');
     const rentable = racine.querySelector<HTMLElement>('[data-roi-rentable]');
     const petit = racine.querySelector<HTMLElement>('[data-roi-petit]');
     const annonce = racine.querySelector<HTMLElement>('[data-roi-annonce]');
@@ -721,7 +768,7 @@ const rentable = Math.ceil(prixEntree / (h * p * t));
       valeur: champ.querySelector<HTMLElement>('[data-roi-valeur]'),
       pas: [...champ.querySelectorAll<HTMLButtonElement>('.hrn-roi__pas')],
     }));
-    if (!choix || !total || !heuresTexte || !rentable || champs.some((c) => !c.curseur)) return;
+    if (!choix || !total || !rentable || champs.some((c) => !c.curseur)) return;
 
     choix.hidden = false;
     if (exemple) exemple.hidden = true;
@@ -757,9 +804,9 @@ const rentable = Math.ceil(prixEntree / (h * p * t));
       const enSemaines = prix / coutSemaine;
       let delai: string;
       if (enSemaines < 1) delai = "moins d'une semaine";
-      else if (Math.ceil(enSemaines) <= 52) delai = `${Math.ceil(enSemaines)} ${Math.ceil(enSemaines) > 1 ? 'semaines' : 'semaine'}`;
-      else delai = `${Math.ceil(prix / (coutAn / 12))} mois`;
-      return { heuresAn, coutAn, coutMois: Math.round(coutAn / 12), enSemaines, delai };
+      else if (Math.ceil(enSemaines) <= 52) delai = `${Math.ceil(enSemaines)}${NBSP}${Math.ceil(enSemaines) > 1 ? 'semaines' : 'semaine'}`;
+      else delai = `${Math.ceil(prix / (coutAn / 12))}${NBSP}mois`;
+      return { heuresAn, coutAn, coutSemaine, coutMois: Math.round(coutAn / 12), enSemaines, delai };
     };
 
     const poserChamp = (c: (typeof champs)[number], n: number) => {
@@ -780,8 +827,13 @@ const rentable = Math.ceil(prixEntree / (h * p * t));
       champs.forEach((c) => poserChamp(c, v[c.cle]));
       const r = calculer(v);
       const eq = equivalence(r.heuresAn);
-      heuresTexte.textContent = `${milliers(r.heuresAn)} heures par an${eq ? `, ${eq}` : ''}. Soit ${milliers(r.coutMois)}${F}${EUR} par mois.`;
+      const { heures, personnes, taux } = v;
       rentable.textContent = r.delai;
+      // Le détail du calcul, avec les valeurs du visiteur : même texte que
+      // celui du HTML de départ.
+      if (ligneHeures) ligneHeures.textContent = `${heures}${NBSP}h${F}×${F}${personnes} ${personnes > 1 ? 'personnes' : 'personne'}${F}×${F}${semaines} semaines = ${milliers(r.heuresAn)} heures par an${eq ? `, ${eq}` : ''}.`;
+      if (ligneCout) ligneCout.textContent = `${milliers(r.heuresAn)} heures${F}×${F}${taux}${NBSP}${EUR} = ${milliers(r.coutAn)}${F}${EUR} par an, soit ${milliers(r.coutMois)}${F}${EUR} par mois.`;
+      if (ligneRentable) ligneRentable.textContent = `Rentabilisation : ${milliers(prix)}${F}${EUR}${F}HT${F}÷${F}${milliers(r.coutSemaine)}${F}${EUR} par semaine, soit ${r.delai}.`;
       if (petit) petit.hidden = r.enSemaines <= SEUIL_PETIT;
 
       rouler(total, `${milliers(r.coutAn)}${F}${EUR}`, mouvement && roule && vu, depuisZero);
