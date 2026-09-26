@@ -21,8 +21,8 @@
 //   perdu par mois = coût par an / 12
 //
 // Version « l'essentiel » (piste A, choisie le 26 septembre 2026 sur trois
-// maquettes, après « trop d'informations » au premier regard) : trois
-// réglages aux intitulés courts, un grand chiffre, la perte de chaque mois,
+// maquettes, après « trop d'informations » au premier regard) : le titre
+// « Simulateur de temps perdu », trois réglages aux intitulés courts, un grand chiffre, la perte de chaque mois,
 // une phrase de prix, le bouton. Le détail du calcul, avec les
 // valeurs du visiteur, et les hypothèses sourcées vivent dans un <details>
 // fermé par défaut.
@@ -128,6 +128,7 @@ const lignes = {
 
 <div class="hrn-roi" data-roi data-prix={prixEntree} data-semaines={SEMAINES} data-temps-plein={TEMPS_PLEIN}>
   <div class="hrn-roi__carte hrn-roi__choix hrn-zone-creme" hidden>
+    <h3 class="hrn-roi__titre">Simulateur de temps perdu</h3>
     {CHAMPS.map((c) => (
       <div class="hrn-roi__champ" data-champ={c.cle}>
         <label class="hrn-roi__label" for={`roi-${c.cle}`}>{c.label}</label>
@@ -234,9 +235,11 @@ const lignes = {
     border: 1px solid var(--nuit-carte-bordure);
   }
 
+  /* Contenu calé en haut : le titre s'aligne sur l'étiquette de la carte
+     d'en face. */
   .hrn-roi__choix {
     display: grid;
-    align-content: center;
+    align-content: start;
     gap: 26px;
     background: var(--surface);
     border-color: var(--creme-bordure);
@@ -260,6 +263,18 @@ const lignes = {
   }
 
   /* ---------- Les trois réglages ---------- */
+
+  /* Titre de la carte (demande de l'utilisateur, 26 septembre 2026). */
+  .hrn-roi__titre {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: var(--weight-titre);
+    font-size: clamp(1.35rem, 2vw, 1.6rem);
+    line-height: 1.2;
+    letter-spacing: var(--tracking-titre);
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
 
   .hrn-roi__champ {
     display: grid;
