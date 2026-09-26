@@ -60,6 +60,10 @@ interface Props {
 const { eyebrow = 'Témoignages', titre = "Ils l'utilisent tous les jours", fond = 'paper', variante = 'superpose' } = Astro.props;
 const cartes = variante === 'cartes';
 
+// Le nombre et « personnes » ne se séparent pas en fin de ligne : espace
+// insécable construite par son point de code (piège n°7).
+const NBSP = String.fromCodePoint(0x00a0);
+
 const testimonials = [
   {
     id: 'rapin',
@@ -68,7 +72,7 @@ const testimonials = [
     avatar: avatarRapin,
     quote: "« Le rendez-vous est enregistré, la fiche client arrive remplie en PDF, prête à envoyer. On choisit qui s'en occupe, le mail part. On ne ressaisit plus rien »",
     name: 'Tommy et Audrey Rapin',
-    org: 'Agence Allianz des Herbiers · 9 personnes',
+    org: `Agence Allianz · Les Herbiers · 9${NBSP}personnes`,
   },
   {
     id: 'gautier',
@@ -77,7 +81,7 @@ const testimonials = [
     avatar: avatarGautier,
     quote: "« Les stats publicitaires sont récupérées, l'IA génère le rapport complet. Le client reçoit son PDF par mail, automatiquement, chaque début de mois »",
     name: 'Lilian Gautier',
-    org: 'Agence Lixogo · La Rochelle · 7 personnes',
+    org: `Agence Lixogo · La Rochelle · 7${NBSP}personnes`,
   },
 ];
 ---

@@ -35,8 +35,16 @@
 // de l'ancienne identité (--slate-900 et --ink-950). Les textes passent par
 // .hrn-zone-bleue et ses alias.
 //
-// Aucun JavaScript : l'état vient de :has(:hover) et :has(:focus-visible).
-// Rien à initialiser au changement de page, rien à nettoyer.
+// Zone neutre au centre (25 septembre 2026, demande de l'utilisateur) : tant
+// que la souris reste près de la séparation, à moins de ZONE_NEUTRE % de la
+// largeur de part et d'autre du milieu, rien ne bouge et les deux moitiés
+// restent à 50 / 50. Sans cela, frôler la séparation déclenchait
+// l'animation, et la séparation glissait sous le curseur. Un petit script
+// lit la position de la souris et pose data-cote="a" ou "b" sur la scène ;
+// le CSS réagit à cet attribut. La zone se calcule sur la scène au repos : le
+// glissement de la séparation ne change donc pas le côté choisi, rien ne
+// tremble. Sans JavaScript (la scène n'a pas data-suivi), l'ancien
+// comportement au survol reste en place. Le clavier garde :focus-visible.
 //
 // Sur téléphone (sous 760px) : les deux moitiés s'empilent, Formation au-dessus,
 // Automatisation au-dessous, sans animation. Sur un écran tactile large
@@ -209,11 +217,13 @@ const [a, b] = portes;
   }
 
   @media (hover: hover) and (min-width: 760px) {
-    .hrn-duo__scene:has(.hrn-duo__porte--a:hover) {
+    .hrn-duo__scene[data-cote='a'],
+    .hrn-duo__scene:not([data-suivi]):has(.hrn-duo__porte--a:hover) {
       --p: calc(50 + var(--ecart));
     }
 
-    .hrn-duo__scene:has(.hrn-duo__porte--b:hover) {
+    .hrn-duo__scene[data-cote='b'],
+    .hrn-duo__scene:not([data-suivi]):has(.hrn-duo__porte--b:hover) {
       --p: calc(50 - var(--ecart));
     }
   }
@@ -281,7 +291,9 @@ const [a, b] = portes;
   }
 
   @media (hover: hover) {
-    .hrn-duo__porte:hover .hrn-duo__motif {
+    .hrn-duo__scene[data-cote='a'] .hrn-duo__porte--a .hrn-duo__motif,
+    .hrn-duo__scene[data-cote='b'] .hrn-duo__porte--b .hrn-duo__motif,
+    .hrn-duo__scene:not([data-suivi]) .hrn-duo__porte:hover .hrn-duo__motif {
       transform: translate(-50%, -50%) scale(1.08);
     }
   }
@@ -401,7 +413,9 @@ const [a, b] = portes;
     transition: transform var(--dur-fast) var(--ease-standard);
   }
 
-  .hrn-duo__porte:hover .hrn-duo__lien svg,
+  .hrn-duo__scene[data-cote='a'] .hrn-duo__porte--a .hrn-duo__lien svg,
+  .hrn-duo__scene[data-cote='b'] .hrn-duo__porte--b .hrn-duo__lien svg,
+  .hrn-duo__scene:not([data-suivi]) .hrn-duo__porte:hover .hrn-duo__lien svg,
   .hrn-duo__lien:focus-visible svg {
     transform: translateX(3px);
   }
@@ -427,13 +441,17 @@ const [a, b] = portes;
 
   /* La moitié non choisie s'efface. */
   @media (hover: hover) and (min-width: 760px) {
-    .hrn-duo__scene:has(.hrn-duo__porte--a:hover) .hrn-duo__porte--b .hrn-duo__voile,
-    .hrn-duo__scene:has(.hrn-duo__porte--b:hover) .hrn-duo__porte--a .hrn-duo__voile {
+    .hrn-duo__scene[data-cote='a'] .hrn-duo__porte--b .hrn-duo__voile,
+    .hrn-duo__scene[data-cote='b'] .hrn-duo__porte--a .hrn-duo__voile,
+    .hrn-duo__scene:not([data-suivi]):has(.hrn-duo__porte--a:hover) .hrn-duo__porte--b .hrn-duo__voile,
+    .hrn-duo__scene:not([data-suivi]):has(.hrn-duo__porte--b:hover) .hrn-duo__porte--a .hrn-duo__voile {
       opacity: 1;
     }
 
-    .hrn-duo__scene:has(.hrn-duo__porte--a:hover) .hrn-duo__porte--b :is(.hrn-duo__nom, .hrn-duo__promesse),
-    .hrn-duo__scene:has(.hrn-duo__porte--b:hover) .hrn-duo__porte--a :is(.hrn-duo__nom, .hrn-duo__promesse) {
+    .hrn-duo__scene[data-cote='a'] .hrn-duo__porte--b :is(.hrn-duo__nom, .hrn-duo__promesse),
+    .hrn-duo__scene[data-cote='b'] .hrn-duo__porte--a :is(.hrn-duo__nom, .hrn-duo__promesse),
+    .hrn-duo__scene:not([data-suivi]):has(.hrn-duo__porte--a:hover) .hrn-duo__porte--b :is(.hrn-duo__nom, .hrn-duo__promesse),
+    .hrn-duo__scene:not([data-suivi]):has(.hrn-duo__porte--b:hover) .hrn-duo__porte--a :is(.hrn-duo__nom, .hrn-duo__promesse) {
       opacity: 0.4;
     }
   }
@@ -522,9 +540,58 @@ const [a, b] = portes;
       transition: none;
     }
 
-    .hrn-duo__porte:hover .hrn-duo__motif,
+    .hrn-duo__scene[data-cote='a'] .hrn-duo__porte--a .hrn-duo__motif,
+    .hrn-duo__scene[data-cote='b'] .hrn-duo__porte--b .hrn-duo__motif,
+    .hrn-duo__scene:not([data-suivi]) .hrn-duo__porte:hover .hrn-duo__motif,
     .hrn-duo__porte:has(:focus-visible) .hrn-duo__motif {
       transform: translate(-50%, -50%);
     }
   }
 </style>
+
+<script>
+  // Demi-largeur de la zone neutre, en pourcentage de la scène, de part et
+  // d'autre du milieu : 8 donne une bande de 16 % (230px à 1440px).
+  const ZONE_NEUTRE = 8;
+
+  let controle: AbortController | undefined;
+
+  function nettoyer() {
+    controle?.abort();
+    controle = undefined;
+  }
+
+  function initialiser() {
+    nettoyer();
+    const scene = document.querySelector<HTMLElement>('.hrn-duo__scene');
+    if (!scene) return;
+    controle = new AbortController();
+    const { signal } = controle;
+    const souris = window.matchMedia('(hover: hover) and (min-width: 760px)');
+
+    // Présence du script : le CSS abandonne le survol brut pour data-cote.
+    scene.dataset.suivi = '';
+
+    const poser = (cote: string) => {
+      if (cote) {
+        if (scene.dataset.cote !== cote) scene.dataset.cote = cote;
+      } else if ('cote' in scene.dataset) {
+        delete scene.dataset.cote;
+      }
+    };
+
+    const suivre = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse' || !souris.matches) return;
+      const r = scene.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width) * 100;
+      poser(x < 50 - ZONE_NEUTRE ? 'a' : x > 50 + ZONE_NEUTRE ? 'b' : '');
+    };
+
+    scene.addEventListener('pointermove', suivre, { signal });
+    scene.addEventListener('pointerenter', suivre, { signal });
+    scene.addEventListener('pointerleave', () => poser(''), { signal });
+  }
+
+  document.addEventListener('astro:page-load', initialiser);
+  document.addEventListener('astro:before-swap', nettoyer);
+</script>

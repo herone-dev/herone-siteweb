@@ -28,6 +28,11 @@
 // Décision de l'utilisateur : les cartes répétaient le simulateur et
 // alourdissaient la section.
 //
+// Depuis le 25 septembre 2026, la variante `suivi` accepte aussi cet
+// emplacement (/automatisation, simulateur du coût des tâches répétitives) :
+// il remplace alors les deux cartes, et `regles`, `suite` et `inclus`
+// peuvent rester vides. Prop `lede` facultative sous le titre.
+//
 // Les montants ne portent PAS de white-space: nowrap. Ils tiennent d'un seul
 // tenant par leurs espaces insécables, ce qui suffit et ne fait pas déborder
 // la carte en étroit (piège n°1, déjà vécu sur les cartes d'offres).
@@ -36,6 +41,8 @@ import Button from '../Button.astro';
 interface Props {
   eyebrow?: string;
   titre: string;
+  /** Phrase facultative sous le titre. */
+  lede?: string;
   /** Une carte par règle de facturation. `label` coiffe le montant. */
   regles?: { label: string; prix: string; detail: string }[];
   /** Exemples chiffrés, facultatifs. Rendus en liste réglée, montants alignés. */
@@ -48,8 +55,8 @@ interface Props {
   suite?: { label: string; titre: string };
 }
 
-const { eyebrow = 'Le tarif', titre, regles = [], exemples, inclus, id = 'tarif', variante = 'sombre', suite } = Astro.props;
-const avecSimulateur = variante === 'claire' && Astro.slots.has('simulateur');
+const { eyebrow = 'Le tarif', titre, lede, regles = [], exemples, inclus, id = 'tarif', variante = 'sombre', suite } = Astro.props;
+const avecSimulateur = (variante === 'claire' || variante === 'suivi') && Astro.slots.has('simulateur');
 ---
 
 <section
@@ -64,6 +71,7 @@ const avecSimulateur = variante === 'claire' && Astro.slots.has('simulateur');
     <div class="hrn-offre-tarif__head">
       <div class="hrn-eyebrow">{eyebrow}</div>
       <h2>{titre}</h2>
+      {lede && <p class="hrn-offre-tarif__lede">{lede}</p>}
     </div>
 
     {avecSimulateur && <slot name="simulateur" />}
@@ -93,7 +101,7 @@ const avecSimulateur = variante === 'claire' && Astro.slots.has('simulateur');
       </div>
     )}
 
-    {variante === 'suivi' && (
+    {variante === 'suivi' && !avecSimulateur && (
       <div class="hrn-offre-tarif__cartes hrn-offre-tarif__cartes--suivi">
         {regles.map((r) => (
           <div class="hrn-offre-tarif__carte hrn-offre-tarif__carte--creme hrn-zone-creme">
@@ -301,6 +309,15 @@ const avecSimulateur = variante === 'claire' && Astro.slots.has('simulateur');
   }
 
   /* ============ Variantes « claire » et « suivi » ============ */
+
+  .hrn-offre-tarif__lede {
+    margin: 14px 0 0;
+    max-width: 40em;
+    font-size: clamp(1.05rem, 1.4vw, 1.125rem);
+    line-height: 1.6;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
 
   .hrn-offre-tarif--claire .hrn-offre-tarif__head h2 {
     color: var(--text-strong);

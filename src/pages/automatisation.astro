@@ -16,8 +16,9 @@
 // profond, carte schéma « Un système Hérone » à droite), le constat en
 // grille de cartes (crème), nos systèmes avec leurs mini-schémas (bleu), la
 // frise des cinq étapes (crème), les outils (bleu, une seule section qui
-// remplace « Avec quoi nous construisons / Ce que nous connectons » et la
-// bande défilante des logiciels), la preuve en cartes (crème), le tarif
+// remplace « Avec quoi nous construisons / Ce que nous connectons » ; son
+// texte, puis les deux bandes défilantes des logiciels, revenues le
+// 25 septembre 2026), la preuve en cartes (crème), le tarif
 // (bleu nuit profond), la FAQ (crème), le pont vers la formation (bleu).
 // La section « Les tâches que quelqu'un fait encore à la main » est
 // supprimée : elle reprenait mot pour mot les six titres du constat. Sa
@@ -28,10 +29,13 @@
 // carte d'offre, les prix sont ceux affichés sur l'accueil. Le moteur d'automatisation est
 // n8n, auto-hébergé sur le serveur d'Hérone : c'est ce qui permet de dire
 // qu'aucun éditeur ne voit passer les données du client, et c'est l'argument
-// le plus fort de la page. Make et Zapier restent cités comme solutions de
-// repli quand les outils du client l'imposent, mais ce sont des services en
-// ligne : ils verraient les données. L'ordre des deux phrases n'est donc pas
-// cosmétique.
+// le plus fort de la page. Make et Zapier servent de repli quand les outils
+// du client l'imposent, mais ce sont des services en ligne : ils verraient
+// les données. D'où la réserve de la deuxième phrase, qui ne doit pas
+// disparaître. Depuis le 25 septembre 2026, aucun de ces noms n'apparaît
+// dans le texte visible (décision de l'utilisateur : du jargon pour un
+// dirigeant, et une invitation à comparer avec l'abonnement de l'outil) ;
+// ils restent dans public/llms.txt, lu par les assistants d'IA.
 //
 // Le JavaScript de la page : la façade YouTube des témoignages et
 // l'accordéon de la FAQ, portés par leurs composants.
@@ -46,14 +50,19 @@ import LogosMarquee from '../components/home/LogosMarquee.astro';
 import SystemsGrid from '../components/home/SystemsGrid.astro';
 import ProofSection from '../components/home/ProofSection.astro';
 import Schema from '../components/offre/Schema.astro';
+import SimulateurRoi from '../components/offre/SimulateurRoi.astro';
 
 // Espaces insécables construits par leur point de code, jamais posés en clair
 // dans le fichier (piège n°7). Voir l'en-tête de formation.astro pour le
 // détail de la mesure qui a fait choisir la fine avant « HT ».
 const F = String.fromCodePoint(0x202f);
+const NBSP = String.fromCodePoint(0x00a0);
 const EUR = String.fromCodePoint(0x20ac);
 
-const PRIX_MISE_EN_PLACE = `2${F}000${F}${EUR}${F}HT`;
+// Prix d'entrée de la mise en place, hors taxes : le seul endroit où il
+// s'écrit sur la page. Il est aussi cité par le simulateur du coût des tâches.
+const MISE_EN_PLACE = 2000;
+const PRIX_MISE_EN_PLACE = `${String(MISE_EN_PLACE).replace(/\B(?=(\d{3})+(?!\d))/g, F)}${F}${EUR}${F}HT`;
 const PRIX_FORMATION = `1${F}500${F}${EUR}${F}HT`;
 
 // Questions propres à l'automatisation. Les deux premières lèvent le frein de
@@ -84,54 +93,57 @@ const questions = [
   },
 ];
 
-// Le déroulé d'un projet, repris de la réponse « Comment se déroule un projet »
-// de la FAQ et des trois points de la carte d'offre.
+// Le déroulé d'un projet, réécrit le 25 septembre 2026 d'après la description
+// de l'utilisateur : un périmètre cadré au maximum, qui s'affine pourtant
+// pendant les tests ; le développement chez nous ; les tests dans le
+// quotidien du client, en boucles, avec la formation des utilisateurs ; le
+// suivi mensuel (maintenance, bugs, service client, mises à jour).
+// Étape 01 depuis le 26 septembre 2026 : l'échange découverte de 30 minutes
+// (le rendez-vous de tous les boutons du site), puis, s'il y a un projet,
+// une séance d'analyse d'une heure, offerte, pour analyser et comprendre ce
+// qui ne marche pas et apporter des solutions. Le mot « audit » reste banni.
+// Attention : le hero parle encore d'un périmètre écrit à prix ferme et d'un
+// délai de 1 à 4 semaines. Décision de l'utilisateur en attente, ne pas les
+// aligner sans son accord.
 const deroule = [
   {
     num: '01',
-    titre: "L'échange découverte",
-    meta: '30 minutes, gratuit',
-    texte: `Vous décrivez votre quotidien, nous repérons ce qui peut être retiré des mains de vos équipes. Sans engagement, et sans que rien ne soit encore décidé. C'est aussi là que nous disons quand une automatisation ne vaut pas le coup.`,
+    titre: "L'échange, puis l'analyse",
+    meta: `30${NBSP}min, puis 1${NBSP}h offerte`,
+    texte: `Trente minutes pour faire connaissance et voir si l'automatisation a du sens chez vous. Si c'est le cas, une séance d'analyse d'une heure, offerte : comprendre ce qui ne marche pas, et vous proposer des solutions.`,
   },
   {
     num: '02',
-    titre: 'Le périmètre écrit',
+    titre: 'Le cadrage du périmètre',
     meta: 'avant de démarrer',
-    texte: `Nous posons noir sur blanc ce que le système fera, ce qu'il ne fera pas, et son prix. Ferme. Rien ne commence avant votre accord sur ce document, et il ne bouge plus ensuite.`,
+    texte: `Nous cadrons au maximum ce que le système fera, et ce qu'il ne fera pas. Mais un périmètre figé d'avance résiste rarement au terrain. Il s'affinera pendant les tests, et c'est prévu dès le départ.`,
   },
   {
     num: '03',
-    titre: 'La conception, validée par vous',
-    texte: `Nous vous montrons le fonctionnement prévu avant de construire quoi que ce soit. Un système validé sur le papier ne se découvre pas le jour de la livraison, et les corrections coûtent une conversation au lieu d'une semaine.`,
+    titre: 'Le développement',
+    meta: 'chez nous',
+    texte: `Nous construisons le système de notre côté, à partir des problématiques relevées ensemble, et nous le vérifions avant de le brancher sur vos outils. Pendant ce temps, vos équipes travaillent comme d'habitude.`,
   },
   {
     num: '04',
-    titre: "L'installation et la prise en main",
+    titre: 'Les tests et la formation',
     meta: 'chez vous',
-    texte: `Nous venons brancher le système sur vos outils, puis nous formons les personnes qui s'en serviront, jusqu'à ce que ça tourne sans nous. Comptez 1 à 4 semaines entre le périmètre signé et le système en service.`,
+    texte: `Le système entre dans votre quotidien, sur vos vrais dossiers. Vos équipes testent, nous ajustons, et la boucle recommence jusqu'à ce que tout tourne juste. En parallèle, nous formons chacun à bien l'utiliser.`,
   },
   {
     num: '05',
     titre: 'Le suivi mensuel',
     meta: 'une fois en service',
-    texte: `Surveillance du système, correctifs en cas de dysfonctionnement, améliorations quand vos outils évoluent, et notre présence dans les meilleurs délais dès qu'un besoin surgit. Vos équipes gardent toujours la possibilité de reprendre la main.`,
+    texte: `La maintenance du système, la gestion des bugs éventuels, un service client à l'écoute de vos équipes, et les mises à jour quand vos outils évoluent. Vos équipes gardent toujours la possibilité de reprendre la main.`,
   },
 ];
 // La section des outils : les deux blocs d'avant, fusionnés, dans leurs
 // formulations d'origine.
 const outilsTexte = [
   "Nous construisons autour de l'existant : CRM, tableur, messagerie, comptabilité, logiciel métier. Le système les relie plutôt que de les remplacer.",
-  "Le moteur est n8n, une solution open source que nous hébergeons sur notre propre serveur. Aucun éditeur d'automatisation ne voit donc passer vos données. Quand vos outils l'imposent, nous savons aussi travailler avec Make ou Zapier : le choix est discuté avec vous et écrit dans le périmètre. Pas de frais cachés, pas d'abonnement captif.",
+  "Par défaut, le moteur d'automatisation est hébergé sur notre propre serveur : aucun prestataire extérieur ne voit passer vos données. Si l'un de vos outils impose un service en ligne, nous vous le disons avant de démarrer, et c'est écrit dans le périmètre. Pas de frais cachés, pas d'abonnement captif.",
 ];
 
-// Les logiciels affichés en pastilles fixes, sélection de la maquette. Tous
-// figurent dans la liste complète de LogosMarquee.
-const outilsNoms = [
-  'Gmail', 'Google Sheets', 'Google Drive', 'Google Agenda', 'Outlook', 'Excel', 'Word', 'Teams',
-  'WhatsApp', 'HubSpot', 'Pipedrive', 'Qonto', 'Stripe', 'Shopify', 'Axonaut', 'Pennylane', 'Sage',
-  'EBP', 'Cegid', 'Yousign', 'Notion', 'Airtable', 'Trello', 'Slack', 'Calendly', 'Brevo', 'Dropbox',
-  'Claude',
-];
 ---
 
 <Layout
@@ -172,20 +184,19 @@ const outilsNoms = [
     <OffreEtapes
       variante="frise"
       eyebrow="Comment ça se passe"
-      titre="Du premier appel au système en service"
-      lede="Cinq étapes, dans cet ordre, et vous validez chacune avant de passer à la suivante."
+      titre="Du premier échange au système en service"
+      lede="Cinq étapes, dans cet ordre, et un système qui s'ajuste à votre quotidien."
       etapes={deroule}
       fond="surface"
       id="deroule"
     />
 
     <LogosMarquee
-      variante="statique"
+      variante="defilant"
       fond="paper"
       eyebrow="Vos outils et les nôtres"
       titre="Nous branchons ce que vous utilisez déjà"
       texte={outilsTexte}
-      noms={outilsNoms}
     />
 
     <ProofSection fond="surface" variante="cartes" eyebrow="La preuve" titre="Deux systèmes, filmés chez nos clients" />
@@ -193,12 +204,10 @@ const outilsNoms = [
     <OffreTarif
       variante="suivi"
       titre="Affiché, comme tout le reste"
-      regles={[
-        { label: 'Mise en place', prix: PRIX_MISE_EN_PLACE, detail: "À partir de. Conception, installation et formation de l'équipe. Le montant dépend du nombre de flux et des logiciels à relier." },
-      ]}
-      suite={{ label: 'Ensuite', titre: 'Un suivi mensuel, chiffré avec vous' }}
-      inclus="Le périmètre et le prix sont écrits avant que nous démarrions, et le prix est ferme. Un suivi mensuel prend ensuite le relais, pour la surveillance et les correctifs : nous le chiffrons avec vous au rendez-vous, il dépend de ce que le système demande. En fonction de la complexité, du nombre d'outils à relier et de la taille de l'entreprise, un projet peut monter à plusieurs milliers d'euros : c'est justement ce que l'échange de trente minutes permet de savoir, sans engagement."
-    />
+      lede="Avant de parler de notre prix, regardez ce que ces tâches vous coûtent déjà."
+    >
+      <SimulateurRoi slot="simulateur" prixEntree={MISE_EN_PLACE} />
+    </OffreTarif>
 
     <FaqAccordion
       id="questions"

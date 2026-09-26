@@ -12,8 +12,10 @@
 //    étapes en cartes sur trois colonnes. La barre n'apparaît que si chaque
 //    étape porte ses `minutes`.
 //  - `frise` (/automatisation) : une frise horizontale, une colonne par étape,
-//    des pastilles rondes reliées par un filet, la première en turquoise
-//    plein. Sous 900px, la frise redevient verticale.
+//    des pastilles rondes reliées par un filet. Sous 900px, la frise
+//    redevient verticale. Depuis le 25 septembre 2026, une barre de
+//    puissance allume les pastilles une à une (composant FriseEtapes, dont
+//    le script n'est chargé que sur la page qui l'affiche).
 //  - `planning` (/formation depuis le 25 septembre 2026) : la même tête que
 //    `cartes`, puis la journée dessinée comme un agenda heure par heure
 //    (composant PlanningJournee, prop `planning`). Son script n'est chargé
@@ -29,6 +31,7 @@
 // suffit et ne bloque pas le repli du reste.
 
 import PlanningJournee from './PlanningJournee.astro';
+import FriseEtapes from './FriseEtapes.astro';
 
 interface Etape {
   num: string;
@@ -160,18 +163,7 @@ const barre = variante === 'cartes' && etapes.every((e) => typeof e.minutes === 
         {lede && <p class="hrn-offre-etapes__lede">{lede}</p>}
       </div>
 
-      <ol class="hrn-offre-frise" role="list" style={`--n: ${etapes.length}`}>
-        {etapes.map((etape, i) => (
-          <li class="hrn-offre-frise__etape">
-            <span class:list={['hrn-offre-frise__pastille', i === 0 && 'hrn-offre-frise__pastille--active']}>{etape.num}</span>
-            <div class="hrn-offre-frise__corps">
-              <h3>{etape.titre}</h3>
-              {etape.meta && <span class="hrn-offre-frise__meta">{etape.meta}</span>}
-              <p>{etape.texte}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
+      <FriseEtapes etapes={etapes} />
     </div>
   )}
 </section>
@@ -457,111 +449,5 @@ const barre = variante === 'cartes' && etapes.every((e) => typeof e.minutes === 
   .hrn-offre-etapes__haut .hrn-offre-etapes__lede {
     margin-top: 18px;
     max-width: 40em;
-  }
-
-  .hrn-offre-frise {
-    position: relative;
-    list-style: none;
-    margin: 52px 0 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-    gap: 28px;
-  }
-
-  /* Le filet qui relie les pastilles, passé sous elles. */
-  .hrn-offre-frise::before {
-    content: '';
-    position: absolute;
-    left: 24px;
-    right: 24px;
-    top: 23px;
-    height: 1.5px;
-    background: var(--border);
-  }
-
-  .hrn-offre-frise__etape {
-    position: relative;
-    min-width: 0;
-  }
-
-  .hrn-offre-frise__pastille {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: var(--carte-claire);
-    border: 1.5px solid var(--border);
-    font-family: var(--font-mono);
-    font-size: 14px;
-    color: var(--accent-texte);
-  }
-
-  .hrn-offre-frise__pastille--active {
-    background: var(--amber-500);
-    border-color: var(--amber-500);
-    color: var(--paper);
-  }
-
-  .hrn-offre-frise__corps h3 {
-    margin: 20px 0 0;
-    font-family: var(--font-display);
-    font-weight: var(--weight-titre);
-    font-size: 20px;
-    line-height: 1.2;
-    letter-spacing: var(--tracking-titre);
-    color: var(--text-strong);
-    text-wrap: balance;
-  }
-
-  .hrn-offre-frise__meta {
-    display: block;
-    margin-top: 6px;
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-  }
-
-  .hrn-offre-frise__corps p {
-    margin: 10px 0 0;
-    font-size: 15.5px;
-    line-height: 1.6;
-    color: var(--text-secondary);
-    text-wrap: pretty;
-  }
-
-  /* Sous 900px, cinq colonnes ne laissent plus que quelques mots par ligne :
-     la frise redevient verticale, pastille à gauche, filet le long des
-     pastilles. */
-  @media (max-width: 899px) {
-    .hrn-offre-frise {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 32px;
-    }
-
-    .hrn-offre-frise::before {
-      left: 23px;
-      right: auto;
-      top: 24px;
-      bottom: 24px;
-      width: 1.5px;
-      height: auto;
-    }
-
-    .hrn-offre-frise__etape {
-      display: grid;
-      grid-template-columns: 48px minmax(0, 1fr);
-      gap: 20px;
-    }
-
-    .hrn-offre-frise__corps h3 {
-      margin-top: 12px;
-    }
   }
 </style>
