@@ -1,15 +1,19 @@
 ---
-title: "Automatisation RH, ce que ça change pour une PME"
-description: "L'automatisation RH reprend la paie, les congés et le suivi administratif, sans toucher aux décisions de recrutement ou d'évaluation qui restent humaines."
+draft: true
+title: Automatisation RH, ce que ça change pour une PME
 pubDate: 2026-09-29
 category: Automatisation
+description: L'automatisation RH reprend la paie, les congés et le suivi administratif, sans toucher aux décisions de recrutement ou d'évaluation qui restent humaines.
 readingTime: 6
-systemTitle: "Connexion de vos outils"
-tags: ["ia", "rh", "pme"]
-draft: true
+systemTitle: Connexion de vos outils
+tags:
+  - ia
+  - rh
+  - pme
+author: Hérone
 ---
 
-L'automatisation rh reprend les tâches administratives qui suivent toujours le même schéma, la collecte des variables de paie, le suivi des congés, la mise à jour des dossiers, pendant que le recrutement, l'entretien annuel et la gestion d'un conflit restent entièrement du ressort d'une personne. C'est cette séparation nette qui permet à une petite structure de gagner du temps sans jamais confier à un système ce qui touche à une personne.
+L'automatisation RH reprend les tâches administratives qui suivent toujours le même schéma, la collecte des variables de paie, le suivi des congés, la mise à jour des dossiers, pendant que le recrutement, l'entretien annuel et la gestion d'un conflit restent entièrement du ressort d'une personne. C'est cette séparation nette qui permet à une petite structure de gagner du temps sans jamais confier à un système ce qui touche à une personne.
 
 ## Pourquoi la fonction RH concentre autant de tâches répétitives
 
