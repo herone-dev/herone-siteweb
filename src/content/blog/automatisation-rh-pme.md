@@ -21,7 +21,7 @@ Le terme agent revient souvent dans ce contexte, il désigne un système qui ex�
 
 ## Comment automatiser les tâches RH répétitives d'une PME ?
 
-Elle passe par la connexion des logiciels déjà utilisés, un tableur d'heures, un agenda de congés, un logiciel de paie, pour que l'information circule automatiquement entre eux, avec une validation humaine avant tout envoi ou tout paiement effectif.
+Elle passe par la connexion des logiciels déjà utilisés, un tableur d'heures, un agenda de congés, un logiciel de paie, pour que l'information circule automatiquement entre eux, avec une validation humaine avant tout envoi ou tout paiement effectif. Ce même principe s'applique quel que soit le nombre d'outils déjà en place, la connexion se construit un outil à la fois, jamais tous en même temps, pour garder à chaque étape la possibilité de vérifier que le résultat correspond bien à ce qui était attendu.
 
 Concrètement, la première brique consiste à identifier où l'information part et où elle doit arriver. Une déclaration de congé saisie sur un formulaire doit atterrir dans l'agenda de l'équipe, dans le tableau de suivi des soldes, et parfois dans le logiciel de paie lui-même. Aujourd'hui, cette circulation se fait souvent à la main, avec une ressaisie à chaque étape, et c'est précisément cette ressaisie répétée qui est source d'erreur et de perte de temps.
 
