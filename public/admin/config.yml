@@ -98,6 +98,18 @@ collections:
     # Ordre des champs : ce qui sert tous les jours en haut, les réglages
     # techniques en bas. L'ordre n'a aucun effet sur le site.
     fields:
+      - label: "Importer un fichier .md (remplit les champs ci-dessous)"
+        name: import_markdown_file
+        widget: import_markdown_file
+        required: false
+        hint: >-
+          Pour un article déjà rédigé ailleurs (la tâche programmée, ou un
+          brouillon écrit hors /admin) : déposez ici son fichier .md complet,
+          les champs ci-dessous se remplissent automatiquement à
+          l'enregistrement. Ce champ se vide tout seul et n'est jamais écrit
+          dans le fichier. L'article importé arrive toujours en brouillon,
+          quoi que dise le fichier, en attendant votre relecture.
+
       - label: Brouillon (pas encore en ligne)
         name: draft
         widget: boolean
