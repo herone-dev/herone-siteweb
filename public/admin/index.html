@@ -21,6 +21,10 @@
          que chargé d'un CDN, pour que l'aperçu ne dépende de personne. -->
     <script src="/admin/marked.umd.js"></script>
     <script src="/admin/apercu.js"></script>
+    <!-- Import direct d'un fichier .md depuis /admin : ajoute le widget
+         import_markdown_file utilisé par config.yml. Charge après Sveltia
+         CMS, dont il dépend (CMS, createClass, h). -->
+    <script src="/admin/import-md.js"></script>
     <!-- Accès à la page Statistiques (impressions Google, visites, clics par
          article). Posé hors de Sveltia, qui n'offre pas d'entrée de menu
          personnalisée : un simple lien flottant en bas à gauche. -->
